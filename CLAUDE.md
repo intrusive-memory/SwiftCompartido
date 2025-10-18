@@ -275,7 +275,8 @@ for element in screenplay.elements {
 ## Project Metadata
 
 - **Version**: 1.0.0
-- **Swift**: 6.2+ (Swift 5.9+ compatible)
+- **Swift**: 6.2+
 - **Platforms**: macOS 14.0+, iOS 17.0+ (file storage requires macOS 15.0+/iOS 17.0+)
 - **Dependencies**: TextBundle, SwiftFijos (test-only)
+- **CI/CD**: GitHub Actions on macOS-latest with Xcode 16.0+
 - **License**: MIT

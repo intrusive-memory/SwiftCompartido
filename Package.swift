@@ -5,8 +5,8 @@ import PackageDescription
 let package = Package(
     name: "SwiftCompartido",
     platforms: [
-        .macOS(.v26),
-        .iOS(.v26)
+        .macOS(.v14),
+        .iOS(.v17)
     ],
     products: [
         .library(
