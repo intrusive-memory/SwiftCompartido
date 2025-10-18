@@ -42,8 +42,8 @@ We are committed to providing a welcoming and inclusive environment for all cont
 ### Prerequisites
 
 - macOS 14.0+ or iOS 17.0+
-- Xcode 15.0+
-- Swift 5.9+
+- Xcode 16.0+
+- Swift 6.2+
 - Git
 
 ### Setting Up Your Development Environment

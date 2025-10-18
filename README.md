@@ -1,7 +1,7 @@
 # SwiftCompartido
 
 <p align="center">
-    <img src="https://img.shields.io/badge/Swift-5.9+-orange.svg" />
+    <img src="https://img.shields.io/badge/Swift-6.2+-orange.svg" />
     <img src="https://img.shields.io/badge/Platform-macOS%2014.0+%20|%20iOS%2017.0+-lightgrey.svg" />
     <img src="https://img.shields.io/badge/License-MIT-blue.svg" />
     <img src="https://img.shields.io/badge/Version-1.0.0-green.svg" />
@@ -187,8 +187,8 @@ struct ScreenplayView: View {
 
 - **macOS**: 14.0+ (macOS 15.0+ for file storage features)
 - **iOS**: 17.0+
-- **Swift**: 5.9+
-- **Xcode**: 15.0+
+- **Swift**: 6.2+
+- **Xcode**: 16.0+
 
 ## Testing
 
