@@ -71,6 +71,49 @@ public final class AudioPlayerManager: NSObject, ObservableObject {
         startLevelMonitoring()
     }
 
+    /// Play audio directly from a file URL
+    ///
+    /// This method is optimized for file-based storage and avoids creating temporary files.
+    /// Use this when playing audio from `TypedDataFileReference`.
+    ///
+    /// - Parameters:
+    ///   - url: The URL to the audio file
+    ///   - format: The audio format (e.g., "mp3", "wav")
+    ///   - duration: Optional duration in seconds (if known)
+    /// - Throws: Audio player initialization errors
+    public func play(from url: URL, format: String, duration: TimeInterval? = nil) throws {
+        // Stop any current playback
+        stop()
+
+        // Create AudioFile model for tracking (with default values for unused fields)
+        currentAudioFile = AudioFile(
+            text: "",
+            voiceId: "",
+            providerId: "",
+            audioData: Data(), // Empty since we're playing from URL
+            audioFormat: format,
+            duration: duration ?? 0
+        )
+
+        // Initialize audio player directly from URL
+        audioPlayer = try AVAudioPlayer(contentsOf: url)
+        audioPlayer?.delegate = self
+        audioPlayer?.prepareToPlay()
+        audioPlayer?.isMeteringEnabled = true
+
+        self.duration = audioPlayer?.duration ?? duration ?? 0
+
+        // Start playback
+        audioPlayer?.play()
+        isPlaying = true
+
+        // Start updating current time
+        startDisplayLink()
+
+        // Start monitoring audio levels for visualization
+        startLevelMonitoring()
+    }
+
     /// Toggle play/pause
     public func togglePlayPause() {
         guard let player = audioPlayer else { return }
@@ -158,7 +201,77 @@ public final class AudioPlayerManager: NSObject, ObservableObject {
         // Store the levels for visualization
         audioLevels = levels
     }
+
+    /// Play audio from a GeneratedAudioRecord
+    ///
+    /// Automatically handles both file-based and in-memory storage.
+    /// Prefers file-based storage when available for better performance.
+    ///
+    /// - Parameters:
+    ///   - record: The audio record to play
+    ///   - storageArea: Storage area reference (required if using file-based storage)
+    /// - Throws: Audio player initialization errors or missing data errors
+    @available(macOS 15.0, iOS 17.0, *)
+    public func play(record: GeneratedAudioRecord, storageArea: StorageAreaReference? = nil) throws {
+        // Prefer file-based storage (Phase 6 architecture)
+        if let fileRef = record.fileReference, let storage = storageArea {
+            let fileURL = fileRef.fileURL(in: storage)
+            try play(from: fileURL, format: record.format, duration: record.durationSeconds)
+            return
+        }
+
+        // Fallback to in-memory data
+        if let audioData = record.audioData {
+            let audioFile = AudioFile(
+                text: record.prompt,
+                voiceId: record.voiceID ?? "",
+                providerId: record.providerId,
+                audioData: audioData,
+                audioFormat: record.format,
+                duration: record.durationSeconds,
+                sampleRate: record.sampleRate,
+                bitRate: record.bitRate,
+                channels: record.channels
+            )
+            try play(audioFile)
+            return
+        }
+
+        // No audio data available
+        throw AudioPlayerError.noAudioDataAvailable
+    }
 }
+
+// MARK: - Errors
+
+/// Errors that can occur during audio playback
+public enum AudioPlayerError: Error, LocalizedError {
+    /// No audio data is available (neither file reference nor in-memory data)
+    case noAudioDataAvailable
+
+    /// Audio file format is not supported
+    case unsupportedFormat(String)
+
+    public var errorDescription: String? {
+        switch self {
+        case .noAudioDataAvailable:
+            return "No audio data available. The record must have either audioData or a fileReference."
+        case .unsupportedFormat(let format):
+            return "Audio format '\(format)' is not supported by AVAudioPlayer."
+        }
+    }
+
+    public var recoverySuggestion: String? {
+        switch self {
+        case .noAudioDataAvailable:
+            return "Ensure the audio record has been properly saved with either in-memory data or a file reference."
+        case .unsupportedFormat:
+            return "Convert the audio to a supported format such as MP3, WAV, or AAC."
+        }
+    }
+}
+
+// MARK: - AVAudioPlayerDelegate
 
 extension AudioPlayerManager: @preconcurrency AVAudioPlayerDelegate {
     public func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
