@@ -2,70 +2,70 @@ name: Tests
 
 on:
   pull_request:
-    branches: [ main ]
+    branches: [main]
   push:
-    branches: [ main ]
+    branches: [main]
   workflow_dispatch:
 
 jobs:
   test:
     name: Run Tests
-    runs-on: macos-latest
+    runs-on: macos-26
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Select Xcode
-      run: sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
+      - name: Select Xcode
+        run: sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
 
-    - name: Show Swift version
-      run: swift --version
+      - name: Show Swift version
+        run: swift --version
 
-    - name: Build
-      run: swift build
+      - name: Build
+        run: swift build
 
-    - name: Run tests
-      run: swift test --enable-code-coverage
+      - name: Run tests
+        run: swift test --enable-code-coverage
 
-    - name: Generate coverage report
-      run: |
-        xcrun llvm-cov export -format="lcov" \
-          .build/debug/SwiftCompartidoPackageTests.xctest/Contents/MacOS/SwiftCompartidoPackageTests \
-          -instr-profile .build/debug/codecov/default.profdata > coverage.lcov
+      - name: Generate coverage report
+        run: |
+          xcrun llvm-cov export -format="lcov" \
+            .build/debug/SwiftCompartidoPackageTests.xctest/Contents/MacOS/SwiftCompartidoPackageTests \
+            -instr-profile .build/debug/codecov/default.profdata > coverage.lcov
 
-    - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v3
-      with:
-        files: ./coverage.lcov
-        fail_ci_if_error: false
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./coverage.lcov
+          fail_ci_if_error: false
 
-    - name: Check test results
-      if: failure()
-      run: |
-        echo "❌ Tests failed"
-        exit 1
+      - name: Check test results
+        if: failure()
+        run: |
+          echo "❌ Tests failed"
+          exit 1
 
   lint:
     name: Code Quality
     runs-on: macos-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Check for TODOs in committed code
-      run: |
-        if git diff origin/main...HEAD | grep -E "^\+.*TODO|^\+.*FIXME"; then
-          echo "⚠️  Warning: New TODOs or FIXMEs detected"
-        fi
+      - name: Check for TODOs in committed code
+        run: |
+          if git diff origin/main...HEAD | grep -E "^\+.*TODO|^\+.*FIXME"; then
+            echo "⚠️  Warning: New TODOs or FIXMEs detected"
+          fi
 
-    - name: Check file sizes
-      run: |
-        find Sources -type f -name "*.swift" -size +100k -exec echo "⚠️  Large file: {}" \;
+      - name: Check file sizes
+        run: |
+          find Sources -type f -name "*.swift" -size +100k -exec echo "⚠️  Large file: {}" \;
 
-    - name: Check for print statements
-      run: |
-        if grep -r "print(" Sources/ --include="*.swift" | grep -v "// print"; then
-          echo "⚠️  Warning: print() statements found in source code"
-        fi
+      - name: Check for print statements
+        run: |
+          if grep -r "print(" Sources/ --include="*.swift" | grep -v "// print"; then
+            echo "⚠️  Warning: print() statements found in source code"
+          fi
