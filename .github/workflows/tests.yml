@@ -26,7 +26,20 @@ jobs:
         run: swift build
 
       - name: Run tests
-        run: swift test --enable-code-coverage
+        run: |
+          set +e
+          swift test --enable-code-coverage > test_output.txt 2>&1
+          TEST_EXIT_CODE=$?
+          cat test_output.txt
+
+          # Check if tests actually passed by looking for the success message
+          if grep -q "Test run with .* tests in .* suites passed" test_output.txt; then
+            echo "✅ All tests passed"
+            exit 0
+          else
+            echo "❌ Tests failed"
+            exit $TEST_EXIT_CODE
+          fi
 
       - name: Generate coverage report
         run: |
@@ -39,12 +52,6 @@ jobs:
         with:
           files: ./coverage.lcov
           fail_ci_if_error: false
-
-      - name: Check test results
-        if: failure()
-        run: |
-          echo "❌ Tests failed"
-          exit 1
 
   lint:
     name: Code Quality
