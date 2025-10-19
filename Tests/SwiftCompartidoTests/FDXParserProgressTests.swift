@@ -1,4 +1,6 @@
 import Testing
+import Foundation
+import SwiftFijos
 @testable import SwiftCompartido
 
 /// Tests for FDXParser progress reporting functionality.
@@ -11,8 +13,14 @@ import Testing
 @Suite("FDXParser Progress Tests")
 struct FDXParserProgressTests {
 
-    // MARK: - Test Data
+    // MARK: - Helper Methods
 
+    private func loadFixtureData(_ name: String) throws -> Data {
+        let url = try Fijos.getFixture(name, extension: "fdx")
+        return try Data(contentsOf: url)
+    }
+
+    // Keep a minimal FDX for testing invalid XML and specific scenarios
     private let simpleFDX = """
     <?xml version="1.0" encoding="UTF-8"?>
     <FinalDraft DocumentType="Script" Version="1">
@@ -32,40 +40,6 @@ struct FDXParserProgressTests {
         </Content>
     </FinalDraft>
     """
-
-    private func generateLargeFDX(elementCount: Int) -> String {
-        var fdx = """
-        <?xml version="1.0" encoding="UTF-8"?>
-        <FinalDraft DocumentType="Script" Version="1">
-            <Content>
-        """
-
-        for i in 0..<elementCount {
-            fdx += """
-
-                    <Paragraph Type="Scene Heading">
-                        <Text>INT. SCENE \(i) - DAY</Text>
-                    </Paragraph>
-                    <Paragraph Type="Action">
-                        <Text>Action for scene \(i).</Text>
-                    </Paragraph>
-                    <Paragraph Type="Character">
-                        <Text>CHARACTER</Text>
-                    </Paragraph>
-                    <Paragraph Type="Dialogue">
-                        <Text>Dialogue \(i).</Text>
-                    </Paragraph>
-            """
-        }
-
-        fdx += """
-
-            </Content>
-        </FinalDraft>
-        """
-
-        return fdx
-    }
 
     // MARK: - Progress Tests
 
@@ -91,13 +65,10 @@ struct FDXParserProgressTests {
         }
 
         let parser = FDXParser()
-        let largeFDX = generateLargeFDX(elementCount: 50)
-        guard let data = largeFDX.data(using: .utf8) else {
-            Issue.record("Failed to create test data")
-            return
-        }
+        // Use bigfish.fdx fixture - real large FDX screenplay
+        let data = try loadFixtureData("bigfish")
 
-        let document = try await parser.parse(data: data, filename: "test.fdx", progress: progress)
+        let document = try await parser.parse(data: data, filename: "bigfish.fdx", progress: progress)
 
         // Wait for async updates
         try await Task.sleep(for: .milliseconds(50))
@@ -174,13 +145,10 @@ struct FDXParserProgressTests {
         }
 
         let parser = FDXParser()
-        let largeFDX = generateLargeFDX(elementCount: 30)
-        guard let data = largeFDX.data(using: .utf8) else {
-            Issue.record("Failed to create test data")
-            return
-        }
+        // Use bigfish.fdx fixture
+        let data = try loadFixtureData("bigfish")
 
-        let document = try await parser.parse(data: data, filename: "test.fdx", progress: progress)
+        let document = try await parser.parse(data: data, filename: "bigfish.fdx", progress: progress)
 
         // Wait for async updates
         try await Task.sleep(for: .milliseconds(50))
@@ -188,23 +156,21 @@ struct FDXParserProgressTests {
         let maxElements = await collector.getMax()
 
         #expect(maxElements > 0, "Should track element count")
-        #expect(document.elements.count > 100, "Should parse multiple elements")
+        // Big Fish FDX has many elements
+        #expect(document.elements.count > 500, "Should parse multiple elements")
     }
 
     // MARK: - Cancellation Tests
 
     @Test("FDXParser cancellation stops parsing")
     func testCancellation() async throws {
-        let largeFDX = generateLargeFDX(elementCount: 100)
-        guard let data = largeFDX.data(using: .utf8) else {
-            Issue.record("Failed to create test data")
-            return
-        }
+        // Use bigfish.fdx for cancellation test
+        let data = try loadFixtureData("bigfish")
 
         let task = Task {
             let parser = FDXParser()
             let progress = OperationProgress(totalUnits: nil)
-            return try await parser.parse(data: data, filename: "test.fdx", progress: progress)
+            return try await parser.parse(data: data, filename: "bigfish.fdx", progress: progress)
         }
 
         // Cancel immediately
@@ -342,13 +308,10 @@ struct FDXParserProgressTests {
         }
 
         let parser = FDXParser()
-        let largeFDX = generateLargeFDX(elementCount: 100)
-        guard let data = largeFDX.data(using: .utf8) else {
-            Issue.record("Failed to create test data")
-            return
-        }
+        // Use bigfish.fdx - real large FDX file
+        let data = try loadFixtureData("bigfish")
 
-        let document = try await parser.parse(data: data, filename: "large.fdx", progress: progress)
+        let document = try await parser.parse(data: data, filename: "bigfish.fdx", progress: progress)
 
         // Wait for async updates
         try await Task.sleep(for: .milliseconds(100))
@@ -356,7 +319,8 @@ struct FDXParserProgressTests {
         let updateCount = await collector.getCount()
 
         #expect(updateCount > 0, "Large file should have progress updates")
-        #expect(document.elements.count >= 400, "Should parse large file")
+        // Big Fish FDX has many elements
+        #expect(document.elements.count > 500, "Should parse large file")
     }
 
     // MARK: - Invalid XML Tests
