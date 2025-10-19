@@ -413,7 +413,7 @@ let container = try SwiftCompartidoContainer.makeHybridContainer()
 
 ## Project Metadata
 
-- **Version**: 1.1.0 (with CloudKit support)
+- **Version**: 1.2.0 (with CloudKit support)
 - **Swift**: 6.2+
 - **Platforms**: macOS 26.0+, iOS 26.0+
 - **Dependencies**: TextBundle, SwiftFijos (test-only)
