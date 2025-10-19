@@ -5,6 +5,8 @@ on:
     branches: [main]
   push:
     branches: [main]
+  release:
+    types: [published, created]
   workflow_dispatch:
   schedule:
     # Run performance tests weekly on Sundays at 00:00 UTC
@@ -93,9 +95,9 @@ jobs:
           # Exit with success even if tests failed (non-blocking)
           exit 0
 
-      - name: Store benchmark result
+      - name: Store benchmark result (development)
         uses: benchmark-action/github-action-benchmark@v1
-        if: github.event_name != 'pull_request'
+        if: github.event_name == 'push' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
         with:
           name: Swift Performance Benchmarks
           tool: 'customSmallerIsBetter'
@@ -110,6 +112,22 @@ jobs:
           comment-on-alert: true
           fail-on-alert: false
           alert-comment-cc-users: '@intrusive-memory'
+
+      - name: Store benchmark result (release)
+        uses: benchmark-action/github-action-benchmark@v1
+        if: github.event_name == 'release'
+        with:
+          name: Swift Performance Benchmarks (Release)
+          tool: 'customSmallerIsBetter'
+          output-file-path: performance-results/benchmarks.json
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          auto-push: true
+          # Store release results in separate directory
+          gh-pages-branch: gh-pages
+          benchmark-data-dir-path: releases/bench
+          # Don't alert on releases (informational only)
+          fail-on-alert: false
+          comment-on-alert: false
 
       - name: Comment benchmark result on PR
         uses: benchmark-action/github-action-benchmark@v1
@@ -130,7 +148,7 @@ jobs:
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: performance-results
+          name: performance-results-${{ github.event_name == 'release' && github.event.release.tag_name || 'dev' }}
           path: performance-results/
           retention-days: 90
 
@@ -139,7 +157,15 @@ jobs:
         run: |
           echo "## Performance Test Results" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "Performance tests completed. Results are informational only and do not block PRs." >> $GITHUB_STEP_SUMMARY
+
+          if [ "${{ github.event_name }}" == "release" ]; then
+            echo "**Release Performance Benchmark**: ${{ github.event.release.tag_name }}" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "These results are stored permanently for this release version." >> $GITHUB_STEP_SUMMARY
+          else
+            echo "Performance tests completed. Results are informational only and do not block PRs." >> $GITHUB_STEP_SUMMARY
+          fi
+
           echo "" >> $GITHUB_STEP_SUMMARY
 
           if [ -f performance-results/benchmarks.json ]; then
@@ -154,7 +180,10 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "📊 Full results available in [artifacts](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})" >> $GITHUB_STEP_SUMMARY
 
-          if [ "${{ github.event_name }}" != "pull_request" ]; then
+          if [ "${{ github.event_name }}" == "release" ]; then
+            echo "📦 Release benchmarks: [View Release Performance](https://intrusive-memory.github.io/SwiftCompartido/releases/bench/)" >> $GITHUB_STEP_SUMMARY
+            echo "📈 Development trends: [View Dev Performance](https://intrusive-memory.github.io/SwiftCompartido/dev/bench/)" >> $GITHUB_STEP_SUMMARY
+          elif [ "${{ github.event_name }}" != "pull_request" ]; then
             echo "📈 Historical trends: [View Benchmarks](https://intrusive-memory.github.io/SwiftCompartido/dev/bench/)" >> $GITHUB_STEP_SUMMARY
           fi
 

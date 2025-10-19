@@ -4,7 +4,7 @@
 
 SwiftCompartido uses a **separate, non-blocking performance testing system** to track performance metrics over time without blocking PRs or merges.
 
-**Version**: 1.0.0
+**Version**: 1.1.0
 **Last Updated**: 2025-10-19
 
 ---
@@ -116,9 +116,12 @@ swift test -c release --filter 'testFountainParserPerformance'
 ### In CI/CD
 
 Performance tests run automatically:
-- **On every PR**: Results are posted as a comment
-- **On merge to main**: Results are stored in gh-pages branch
+- **On every PR**: Results are posted as a comment (non-blocking)
+- **On merge to main**: Results are stored in gh-pages branch (dev/bench)
+- **On release**: Results are stored permanently in releases/bench with release tag
 - **Weekly**: Sunday at 00:00 UTC for trend analysis
+
+**Important**: Performance tests NEVER block PRs or releases from being merged/published.
 
 ---
 
@@ -135,19 +138,91 @@ When you open a PR, the performance workflow will add a comment showing:
 
 View long-term performance trends:
 
-**URL**: https://intrusive-memory.github.io/SwiftCompartido/dev/bench/
+**Development Benchmarks**: https://intrusive-memory.github.io/SwiftCompartido/dev/bench/
 
 This page shows:
 - Performance over time (line charts)
 - Regression alerts
 - Commit-by-commit comparisons
 
+**Release Benchmarks**: https://intrusive-memory.github.io/SwiftCompartido/releases/bench/
+
+This page shows:
+- Performance metrics for each release version
+- Release-to-release comparisons
+- Official performance characteristics per version
+
 ### Artifacts
 
 Every run uploads detailed results as artifacts:
 - Retention: 90 days
 - Location: GitHub Actions → Run → Artifacts
-- Files: `performance-results/`
+- Files: `performance-results-<release-tag>` or `performance-results-dev`
+
+---
+
+## Release Performance Tracking
+
+### Automatic Release Benchmarking
+
+When a new release is published on GitHub:
+
+1. **Trigger**: Performance tests run automatically on `release` events (published/created)
+2. **Execution**: Tests run in release mode (`-c release`)
+3. **Storage**: Results stored in separate `releases/bench` directory
+4. **Tagging**: Artifacts named with release tag (e.g., `performance-results-v1.2.0`)
+5. **Permanent**: Release benchmarks are never overwritten
+
+### Viewing Release Performance
+
+**URL**: https://intrusive-memory.github.io/SwiftCompartido/releases/bench/
+
+This page provides:
+- Performance metrics for each released version
+- Comparison between releases
+- Official performance characteristics
+- Historical performance evolution across versions
+
+### Release Performance Use Cases
+
+**For Users**:
+- Compare performance between versions before upgrading
+- Understand performance characteristics of specific releases
+- Track performance improvements/regressions across versions
+
+**For Developers**:
+- Verify performance targets are met before release
+- Document performance in release notes
+- Track long-term performance trends
+- Identify performance regressions in releases
+
+### Release Performance vs. Development Performance
+
+| Aspect | Development Benchmarks | Release Benchmarks |
+|--------|------------------------|-------------------|
+| Location | `dev/bench/` | `releases/bench/` |
+| Frequency | Every commit to main | Every published release |
+| Purpose | Track daily changes | Official version metrics |
+| Retention | Continuous history | Permanent per release |
+| Alerts | Yes (>20% regression) | No (informational) |
+
+### Example Release Workflow
+
+```bash
+# 1. Create a release on GitHub
+gh release create v1.3.0 --title "Release 1.3.0" --notes "Bug fixes and performance improvements"
+
+# 2. GitHub Actions automatically:
+#    - Runs performance tests in release mode
+#    - Stores results in releases/bench/
+#    - Tags artifacts with v1.3.0
+#    - Generates performance summary
+
+# 3. View release performance:
+#    - Visit: https://intrusive-memory.github.io/SwiftCompartido/releases/bench/
+#    - Compare with previous releases
+#    - Include metrics in release notes if desired
+```
 
 ---
 
@@ -462,5 +537,9 @@ Current performance targets:
 - PROGRESS_REQUIREMENTS.md: Performance testing requirements for progress feature
 
 ---
+
+**Version History**:
+- v1.1.0 (2025-10-19): Added release performance tracking
+- v1.0.0 (2025-10-19): Initial performance testing guide
 
 *Last Updated: 2025-10-19*
