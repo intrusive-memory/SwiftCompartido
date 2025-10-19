@@ -74,7 +74,7 @@ public enum FDXParserError: Error {
     case unableToParse
 }
 
-#if canImport(FoundationXML) || os(macOS) || os(iOS) || os(tvOS) || os(watchOS) || os(visionOS)
+#if canImport(FoundationXML) || os(macOS) || os(iOS) || os(tvOS) || os(watchOS) || os(visionOS) || targetEnvironment(macCatalyst)
 /// Parses Final Draft FDX format files into GuionElements
 public final class FDXParser: NSObject, @unchecked Sendable {
     private enum Section {
