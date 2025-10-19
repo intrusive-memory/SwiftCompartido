@@ -37,21 +37,34 @@ jobs:
       - name: Run performance tests
         id: perf_tests
         run: |
-          # Run only tests tagged with 'performance'
-          echo "Running performance tests..."
+          # Run all tests to capture performance metrics
+          echo "Running all tests to capture performance metrics..."
 
           # Create output directory
           mkdir -p performance-results
 
-          # Run tests with performance tag and capture output
+          # Run all tests in release mode and capture output
+          # The --filter option doesn't work reliably with Swift Testing framework
+          # so we run all tests and filter the output for performance metrics
           set +e
-          swift test -c release --filter .*performance.* > performance-results/output.txt 2>&1
+          swift test -c release > performance-results/output.txt 2>&1
           PERF_EXIT_CODE=$?
-          cat performance-results/output.txt
+
+          # Show first 100 lines of output for debugging
+          echo "=== Test output (first 100 lines) ==="
+          head -100 performance-results/output.txt
+
+          # Show last 50 lines
+          echo "=== Test output (last 50 lines) ==="
+          tail -50 performance-results/output.txt
 
           # Extract performance metrics from test output
           echo "Extracting performance metrics..."
-          grep "📊 PERFORMANCE" performance-results/output.txt > performance-results/metrics.txt || true
+          # Get lines with "📊 PERFORMANCE" and the following 10 lines (to capture all metrics)
+          grep -A 10 "📊 PERFORMANCE" performance-results/output.txt > performance-results/metrics.txt || true
+
+          echo "=== Found metrics ==="
+          cat performance-results/metrics.txt || echo "No metrics found"
 
           # Create JSON output for benchmarking
           python3 - <<'PYTHON_SCRIPT' > performance-results/benchmarks.json
