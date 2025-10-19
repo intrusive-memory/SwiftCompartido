@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftData
+import CloudKit
 
 /// SwiftData model for storing generated images with file reference support.
 ///
@@ -31,7 +32,6 @@ import SwiftData
 ///     fileReference: fileRef
 /// )
 /// ```
-@available(macOS 15.0, iOS 17.0, *)
 @Model
 public final class GeneratedImageRecord {
 
@@ -81,7 +81,7 @@ public final class GeneratedImageRecord {
     /// Reference to file if image is stored externally
     ///
     /// When image is stored in a file, this property stores the reference.
-    @Attribute(.transformable(by: "TypedDataFileReferenceTransformer"))
+    /// SwiftData handles Codable types automatically.
     public var fileReference: TypedDataFileReference?
 
     // MARK: - Timestamps
@@ -96,6 +96,36 @@ public final class GeneratedImageRecord {
 
     /// Estimated cost in USD (if available)
     public var estimatedCost: Double?
+
+    // MARK: - CloudKit Sync Properties
+
+    /// CloudKit record identifier (nil for local-only records)
+    public var cloudKitRecordID: String?
+
+    /// CloudKit change tag for conflict detection
+    public var cloudKitChangeTag: String?
+
+    /// When this record was last synced to CloudKit
+    public var lastSyncedAt: Date?
+
+    /// Current sync status
+    public var syncStatus: SyncStatus
+
+    /// Owner's CloudKit user record ID
+    public var ownerUserRecordID: String?
+
+    /// User record IDs with shared access
+    public var sharedWith: [String]?
+
+    /// Conflict resolution version (increments on each change)
+    public var conflictVersion: Int
+
+    /// Storage mode for the content
+    public var storageMode: StorageMode
+
+    /// CloudKit asset for image files (when using CloudKit storage)
+    @Attribute(.externalStorage)
+    public var cloudKitImageAsset: Data?
 
     // MARK: - Initialization
 
@@ -114,6 +144,7 @@ public final class GeneratedImageRecord {
     ///   - modelIdentifier: Model identifier (optional)
     ///   - fileReference: File reference (optional)
     ///   - estimatedCost: Estimated cost (optional)
+    ///   - storageMode: Storage mode (defaults to local)
     public init(
         id: UUID = UUID(),
         providerId: String,
@@ -126,7 +157,8 @@ public final class GeneratedImageRecord {
         revisedPrompt: String? = nil,
         modelIdentifier: String? = nil,
         fileReference: TypedDataFileReference? = nil,
-        estimatedCost: Double? = nil
+        estimatedCost: Double? = nil,
+        storageMode: StorageMode = .local
     ) {
         self.id = id
         self.providerId = providerId
@@ -142,6 +174,17 @@ public final class GeneratedImageRecord {
         self.estimatedCost = estimatedCost
         self.generatedAt = Date()
         self.modifiedAt = Date()
+
+        // CloudKit defaults
+        self.cloudKitRecordID = nil
+        self.cloudKitChangeTag = nil
+        self.lastSyncedAt = nil
+        self.syncStatus = storageMode == .local ? .localOnly : .pending
+        self.ownerUserRecordID = nil
+        self.sharedWith = nil
+        self.conflictVersion = 1
+        self.storageMode = storageMode
+        self.cloudKitImageAsset = nil
     }
 
     // MARK: - Convenience Initializer from TypedData
@@ -230,14 +273,23 @@ public final class GeneratedImageRecord {
     public var fileSize: Int {
         imageData?.count ?? 0
     }
+
+    /// Whether CloudKit features are enabled for this record
+    public var isCloudKitEnabled: Bool {
+        cloudKitRecordID != nil || storageMode != .local
+    }
 }
+
+// MARK: - CloudKitSyncable Conformance
+
+extension GeneratedImageRecord: CloudKitSyncable {}
 
 // MARK: - CustomStringConvertible
 
-@available(macOS 15.0, iOS 17.0, *)
 extension GeneratedImageRecord: CustomStringConvertible {
     public var description: String {
         let storage = isFileStored ? "file" : "memory"
-        return "GeneratedImageRecord(id: \(id), size: \(width)x\(height), storage: \(storage))"
+        let sync = isCloudKitEnabled ? "cloudkit" : "local"
+        return "GeneratedImageRecord(id: \(id), size: \(width)x\(height), storage: \(storage), sync: \(sync))"
     }
 }

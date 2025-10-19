@@ -48,7 +48,6 @@ import Foundation
 ///     public var preferredFormat: SerializationFormat { .binary }
 /// }
 /// ```
-@available(macOS 15.0, iOS 17.0, *)
 public enum SerializationFormat: String, Codable, Sendable, CaseIterable, Identifiable {
 
     /// JSON format (application/json)

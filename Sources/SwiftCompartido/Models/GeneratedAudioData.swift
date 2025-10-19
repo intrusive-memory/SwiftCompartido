@@ -23,7 +23,6 @@ import Foundation
 ///     model: "eleven_monolingual_v1"
 /// )
 /// ```
-@available(macOS 15.0, iOS 17.0, *)
 public struct GeneratedAudioData: Codable, Sendable, SerializableTypedData {
 
     // MARK: - Audio Format
@@ -135,7 +134,6 @@ public struct GeneratedAudioData: Codable, Sendable, SerializableTypedData {
 ///
 /// Contains parameters that control how audio is generated,
 /// such as voice settings and model selection.
-@available(macOS 15.0, iOS 17.0, *)
 public struct AudioGenerationConfig: Codable, Sendable {
 
     /// Voice ID to use for generation

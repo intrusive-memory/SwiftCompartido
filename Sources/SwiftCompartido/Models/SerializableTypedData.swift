@@ -42,7 +42,6 @@ import Foundation
 ///     }
 /// }
 /// ```
-@available(macOS 15.0, iOS 17.0, *)
 public protocol SerializableTypedData: Codable, Sendable {
 
     /// The preferred serialization format for this data type.
@@ -74,7 +73,6 @@ public protocol SerializableTypedData: Codable, Sendable {
 
 // MARK: - Default Implementation for Codable
 
-@available(macOS 15.0, iOS 17.0, *)
 extension SerializableTypedData {
 
     /// Default serialization using the preferred format.

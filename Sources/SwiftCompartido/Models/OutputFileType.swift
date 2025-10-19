@@ -56,7 +56,6 @@ import UniformTypeIdentifiers
 ///     )
 /// }
 /// ```
-@available(macOS 15.0, iOS 17.0, *)
 public struct OutputFileType: Codable, Sendable, Equatable, Hashable {
 
     // MARK: - Properties
@@ -201,7 +200,6 @@ public struct OutputFileType: Codable, Sendable, Equatable, Hashable {
 
 // MARK: - Common File Types
 
-@available(macOS 15.0, iOS 17.0, *)
 extension OutputFileType {
 
     // MARK: - Text Formats

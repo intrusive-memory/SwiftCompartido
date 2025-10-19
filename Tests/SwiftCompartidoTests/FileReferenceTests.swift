@@ -8,7 +8,6 @@
 import XCTest
 @testable import SwiftCompartido
 
-@available(macOS 15.0, iOS 17.0, *)
 final class StorageAreaReferenceTests: XCTestCase {
 
     var tempDirectory: URL!
@@ -212,7 +211,6 @@ final class StorageAreaReferenceTests: XCTestCase {
     }
 }
 
-@available(macOS 15.0, iOS 17.0, *)
 final class TypedDataFileReferenceTests: XCTestCase {
 
     var tempDirectory: URL!

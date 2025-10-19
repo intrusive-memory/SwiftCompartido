@@ -8,7 +8,6 @@
 import XCTest
 @testable import SwiftCompartido
 
-@available(macOS 15.0, iOS 17.0, *)
 final class GeneratedTextDataTests: XCTestCase {
 
     // MARK: - GeneratedTextData Initialization Tests

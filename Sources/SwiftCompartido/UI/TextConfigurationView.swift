@@ -21,7 +21,6 @@ import SwiftUI
 ///     TextConfigurationView(configuration: $config)
 /// }
 /// ```
-@available(macOS 15.0, iOS 17.0, *)
 public struct TextConfigurationView: View {
 
     /// Binding to the text generation configuration
@@ -189,14 +188,12 @@ public struct TextConfigurationView: View {
 
 // MARK: - Previews
 
-@available(macOS 15.0, iOS 17.0, *)
 #Preview("Default Configuration") {
     @Previewable @State var config = TextGenerationConfig()
     return TextConfigurationView(configuration: $config)
         .frame(width: 500, height: 600)
 }
 
-@available(macOS 15.0, iOS 17.0, *)
 #Preview("Custom Configuration") {
     @Previewable @State var config = TextGenerationConfig(
         temperature: 1.5,

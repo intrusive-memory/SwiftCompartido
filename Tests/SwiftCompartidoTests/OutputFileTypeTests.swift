@@ -9,7 +9,6 @@ import XCTest
 import UniformTypeIdentifiers
 @testable import SwiftCompartido
 
-@available(macOS 15.0, iOS 17.0, *)
 final class OutputFileTypeTests: XCTestCase {
 
     // MARK: - Initialization Tests

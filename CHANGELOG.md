@@ -5,6 +5,99 @@ All notable changes to SwiftCompartido will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### ☁️ CloudKit Sync Support
+
+Major enhancement adding CloudKit synchronization capabilities while maintaining 100% backward compatibility with existing local-only code.
+
+### Added
+
+#### CloudKit Features
+- **Dual Storage System**: Seamlessly sync between local `.guion` bundles and CloudKit
+- **Three Storage Modes**: `.local` (default), `.cloudKit`, and `.hybrid` per-record configuration
+- **CloudKitSyncable Protocol**: Unified interface for sync-enabled models
+- **Automatic Fallback**: Transparently loads from CloudKit or local storage
+- **Conflict Resolution**: Built-in version tracking with `conflictVersion` and `cloudKitChangeTag`
+- **Sync Status Tracking**: `.pending`, `.synced`, `.conflict`, `.failed`, `.localOnly` states
+
+#### Model Enhancements
+- All `*Record` models now include optional CloudKit properties:
+  - `cloudKitRecordID`: CloudKit record identifier
+  - `cloudKitChangeTag`: Change detection token
+  - `lastSyncedAt`: Sync timestamp
+  - `syncStatus`: Current sync state
+  - `ownerUserRecordID`: Owner tracking for multi-user support
+  - `sharedWith`: Sharing permissions array
+  - `conflictVersion`: Version counter for conflict resolution
+  - `storageMode`: `.local`, `.cloudKit`, or `.hybrid`
+  - `cloudKit*Asset`: External storage for large files
+
+#### Configuration Utilities
+- **SwiftCompartidoContainer**: Factory for common container configurations
+  - `makeLocalContainer()`: Local-only storage (default)
+  - `makeCloudKitPrivateContainer()`: Private CloudKit database
+  - `makeCloudKitAutomaticContainer()`: Automatic CloudKit configuration
+  - `makeHybridContainer()`: Mixed local and CloudKit storage
+- **ModelConfiguration Extensions**: Convenient CloudKit setup
+- **SwiftCompartidoSchema**: Centralized schema definition
+- **CKDatabase.isCloudKitAvailable()**: Check iCloud availability
+
+#### Dual Storage Methods
+- `GeneratedAudioRecord.saveAudio(_:to:mode:)`: Save with storage mode selection
+- `GeneratedAudioRecord.loadAudio(from:)`: Load with automatic fallback
+- `GeneratedTextRecord.saveText(_:to:mode:)`: Text storage with mode support
+- `GeneratedTextRecord.loadText(from:)`: Text loading with fallback
+- `GeneratedImageRecord.saveImage(_:to:mode:)`: Image storage with mode support
+- `GeneratedImageRecord.loadImage(from:)`: Image loading with fallback
+- `GeneratedEmbeddingRecord.saveEmbedding(_:to:mode:)`: Embedding storage
+- `GeneratedEmbeddingRecord.loadEmbedding(from:)`: Embedding loading
+
+#### Testing
+- **17 new CloudKit tests** in `CloudKitSupportTests.swift`
+- Tests for all three storage modes (.local, .cloudKit, .hybrid)
+- Dual storage verification tests
+- Backward compatibility tests (all 159 existing tests still pass)
+- Protocol conformance tests
+
+### Changed
+- **BREAKING**: Minimum platform requirements increased to **macOS 26.0+** and **iOS 26.0+**
+  - Removed all `@available` attributes (no longer needed)
+  - Package now enforces platform requirements directly
+- Removed custom `@Attribute(.transformable)` decorators from `TypedDataFileReference` properties
+  - SwiftData now handles `Codable` types natively
+  - Improves CloudKit compatibility
+- Updated documentation with CloudKit usage examples
+- Enhanced model descriptions to include sync status
+- Test suite expanded from 159 to 176 tests (12 suites)
+
+### Documentation
+- **README.md**: Added CloudKit feature section and usage examples
+- **CLAUDE.md**: Added "CloudKit Sync Patterns" section with migration guide
+- Comprehensive CloudKit examples for all storage modes
+
+### Migration Guide
+
+**Platform Requirement Change:**
+- Apps must now target **macOS 26.0+** and **iOS 26.0+**
+- Update your deployment target in Xcode project settings
+- This is the only breaking change
+
+**Code Migration:**
+Existing code using SwiftCompartido 1.0.0 requires **zero code changes**:
+- All records default to `.local` storage mode
+- Phase 6 architecture works identically
+- CloudKit features are entirely opt-in per record
+- No breaking changes to APIs or behavior
+
+To enable CloudKit for new records:
+```swift
+let record = GeneratedTextRecord(
+    // ... existing parameters
+    storageMode: .cloudKit  // Add this parameter
+)
+```
+
 ## [1.0.0] - 2025-10-18
 
 ### 🎉 Initial Release

@@ -89,7 +89,6 @@ import CryptoKit
 ///     }
 /// }
 /// ```
-@available(macOS 15.0, iOS 17.0, *)
 public struct TypedDataFileReference: Codable, Sendable, Equatable, Hashable {
 
     // MARK: - Properties
@@ -308,7 +307,6 @@ public struct TypedDataFileReference: Codable, Sendable, Equatable, Hashable {
 
 // MARK: - Convenience Constructors
 
-@available(macOS 15.0, iOS 17.0, *)
 extension TypedDataFileReference {
 
     /// Creates a file reference from written data
@@ -387,7 +385,6 @@ extension TypedDataFileReference {
 
 // MARK: - CustomStringConvertible
 
-@available(macOS 15.0, iOS 17.0, *)
 extension TypedDataFileReference: CustomStringConvertible {
     public var description: String {
         "TypedDataFileReference(requestID: \(requestID), fileName: \(fileName), size: \(fileSize) bytes)"
@@ -396,7 +393,6 @@ extension TypedDataFileReference: CustomStringConvertible {
 
 // MARK: - Data Extensions
 
-@available(macOS 15.0, iOS 17.0, *)
 extension Data {
     /// Calculates SHA-256 hash of data
     ///

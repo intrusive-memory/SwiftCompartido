@@ -114,7 +114,6 @@ struct AudioPlayerManagerTests {
     // MARK: - GeneratedAudioRecord Playback Tests
 
     @Test("Play from GeneratedAudioRecord with in-memory data")
-    @available(macOS 15.0, iOS 17.0, *)
     func testPlayFromRecordInMemory() throws {
         let manager = AudioPlayerManager()
         let audioData = createValidMP3Data()
@@ -143,7 +142,6 @@ struct AudioPlayerManagerTests {
     }
 
     @Test("Play from GeneratedAudioRecord with file reference")
-    @available(macOS 15.0, iOS 17.0, *)
     func testPlayFromRecordFileReference() throws {
         let manager = AudioPlayerManager()
         let requestID = UUID()
@@ -198,7 +196,6 @@ struct AudioPlayerManagerTests {
     }
 
     @Test("Play from GeneratedAudioRecord prefers file reference over in-memory")
-    @available(macOS 15.0, iOS 17.0, *)
     func testPlayFromRecordPrefersFileReference() throws {
         let manager = AudioPlayerManager()
         let requestID = UUID()
@@ -252,7 +249,6 @@ struct AudioPlayerManagerTests {
     }
 
     @Test("Play from GeneratedAudioRecord with no data throws error")
-    @available(macOS 15.0, iOS 17.0, *)
     func testPlayFromRecordNoData() {
         let manager = AudioPlayerManager()
 
@@ -363,7 +359,6 @@ struct AudioPlayerManagerTests {
     // MARK: - Integration Tests
 
     @Test("Complete playback workflow from record")
-    @available(macOS 15.0, iOS 17.0, *)
     func testCompletePlaybackWorkflow() throws {
         let manager = AudioPlayerManager()
         let requestID = UUID()

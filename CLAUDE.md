@@ -67,7 +67,7 @@ Two storage types:
 # Build the package
 swift build
 
-# Run all tests (159 tests)
+# Run all tests (176 tests)
 swift test
 
 # Run specific test suite
@@ -138,7 +138,7 @@ xcrun llvm-cov report .build/debug/SwiftCompartidoPackageTests.xctest/Contents/M
 
 - **Minimum coverage**: 90% (current: 95%+)
 - **Test framework**: Swift Testing (NOT XCTest)
-- **Test count**: 159 tests across 11 suites
+- **Test count**: 176 tests across 12 suites
 - Use `@Test("description")` macro, not `func test...`
 - All tests must pass before merging PRs
 
@@ -207,7 +207,7 @@ The manager automatically detects file references vs in-memory data.
 - Direct pushes blocked (PRs only)
 - No PR review required
 - GitHub Actions must pass:
-  - Test job: Run all 159 tests with coverage
+  - Test job: Run all 176 tests with coverage
   - Lint job: Check for TODOs, large files, print statements
 - Enforced for all users including admins
 
@@ -264,6 +264,145 @@ for element in screenplay.elements {
 }
 ```
 
+## CloudKit Sync Patterns
+
+### Storage Modes
+
+SwiftCompartido supports three storage modes for AI-generated content:
+
+- **`.local`** (default) - Traditional Phase 6 architecture, no CloudKit
+- **`.cloudKit`** - Syncs to CloudKit, maintains local copy for performance
+- **`.hybrid`** - Dual storage: both local Phase 6 files AND CloudKit sync
+
+### Local-Only Mode (Backward Compatible)
+
+```swift
+// Default behavior - unchanged from version 1.0.0
+let record = GeneratedTextRecord(
+    providerId: "openai",
+    requestorID: "gpt-4",
+    text: "Generated content",
+    wordCount: 2,
+    characterCount: 17
+    // storageMode defaults to .local
+)
+
+// All Phase 6 patterns still work exactly as before
+modelContext.insert(record)
+try modelContext.save()
+```
+
+### CloudKit Private Database
+
+```swift
+// Setup CloudKit container
+let container = try SwiftCompartidoContainer.makeCloudKitPrivateContainer(
+    containerIdentifier: "iCloud.com.yourcompany.YourApp"
+)
+
+// Create record with CloudKit sync
+let record = GeneratedTextRecord(
+    providerId: "openai",
+    requestorID: "gpt-4",
+    text: "Synced content",
+    wordCount: 2,
+    characterCount: 13,
+    storageMode: .cloudKit  // Enable sync
+)
+
+modelContext.insert(record)
+try modelContext.save() // Automatically syncs to CloudKit
+```
+
+### Hybrid Storage (Best of Both Worlds)
+
+```swift
+// Hybrid mode: Local files for speed + CloudKit for sync
+let requestID = UUID()
+let storage = StorageAreaReference.temporary(requestID: requestID)
+let audioData = Data(/* ... */)
+
+let record = GeneratedAudioRecord(
+    id: requestID,
+    providerId: "elevenlabs",
+    requestorID: "tts.rachel",
+    audioData: nil,
+    format: "mp3",
+    voiceID: "rachel",
+    voiceName: "Rachel"
+)
+
+// Saves to BOTH local .guion bundle AND CloudKit
+try record.saveAudio(audioData, to: storage, mode: .hybrid)
+
+// Loading tries CloudKit first, falls back to local
+let loadedData = try record.loadAudio(from: storage)
+```
+
+### Checking CloudKit Availability
+
+```swift
+import CloudKit
+
+Task {
+    if await CKDatabase.isCloudKitAvailable() {
+        // User is signed into iCloud
+        enableCloudKitFeatures()
+    } else {
+        // Fall back to local-only
+        useLocalStorage()
+    }
+}
+```
+
+### Conflict Resolution
+
+All CloudKit-enabled records include built-in conflict tracking:
+
+```swift
+// Automatic version tracking
+record.conflictVersion // Increments on each change
+record.cloudKitChangeTag // CloudKit's change token
+record.lastSyncedAt // When last synced
+record.syncStatus // .pending, .synced, .conflict, .failed, .localOnly
+```
+
+### Migration from Local to CloudKit
+
+Existing local-only apps can add CloudKit without breaking changes:
+
+```swift
+// Step 1: Existing records stay local
+// No changes needed - they keep working
+
+// Step 2: New records can opt into CloudKit
+let newRecord = GeneratedTextRecord(
+    // ...
+    storageMode: .cloudKit  // Only new records sync
+)
+
+// Step 3: Optionally migrate existing records
+existingRecord.storageMode = .hybrid
+existingRecord.syncStatus = .pending
+try modelContext.save() // Will sync on next save
+```
+
+### Container Configuration Options
+
+```swift
+// Local-only (default, no CloudKit)
+let container = try SwiftCompartidoContainer.makeLocalContainer()
+
+// CloudKit private database (user's private data)
+let container = try SwiftCompartidoContainer.makeCloudKitPrivateContainer()
+
+// Automatic CloudKit (SwiftData chooses configuration)
+let container = try SwiftCompartidoContainer.makeCloudKitAutomaticContainer()
+
+// Hybrid (some records local, some synced)
+let container = try SwiftCompartidoContainer.makeHybridContainer()
+```
+
 ## Documentation Resources
 
 - `README.md` - User-facing overview
@@ -274,9 +413,9 @@ for element in screenplay.elements {
 
 ## Project Metadata
 
-- **Version**: 1.0.0
+- **Version**: 1.1.0 (with CloudKit support)
 - **Swift**: 6.2+
-- **Platforms**: macOS 14.0+, iOS 17.0+ (file storage requires macOS 15.0+/iOS 17.0+)
+- **Platforms**: macOS 26.0+, iOS 26.0+
 - **Dependencies**: TextBundle, SwiftFijos (test-only)
 - **CI/CD**: GitHub Actions on macOS-latest with Xcode 16.0+
 - **License**: MIT

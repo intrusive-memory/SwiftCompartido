@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftData
+import CloudKit
 
 /// SwiftData persistence model for generated embeddings.
 ///
@@ -26,7 +27,6 @@ import SwiftData
 ///     prompt: "Embed this text"
 /// )
 /// ```
-@available(macOS 15.0, iOS 17.0, *)
 @Model
 public final class GeneratedEmbeddingRecord {
 
@@ -69,11 +69,41 @@ public final class GeneratedEmbeddingRecord {
     public var prompt: String
 
     /// File reference for file-stored embeddings
-    @Attribute(.transformable(by: "TypedDataFileReferenceTransformer"))
+    /// SwiftData handles Codable types automatically.
     public var fileReference: TypedDataFileReference?
 
     /// Estimated cost of generating this embedding (USD)
     public var estimatedCost: Double?
+
+    // MARK: - CloudKit Sync Properties
+
+    /// CloudKit record identifier (nil for local-only records)
+    public var cloudKitRecordID: String?
+
+    /// CloudKit change tag for conflict detection
+    public var cloudKitChangeTag: String?
+
+    /// When this record was last synced to CloudKit
+    public var lastSyncedAt: Date?
+
+    /// Current sync status
+    public var syncStatus: SyncStatus
+
+    /// Owner's CloudKit user record ID
+    public var ownerUserRecordID: String?
+
+    /// User record IDs with shared access
+    public var sharedWith: [String]?
+
+    /// Conflict resolution version (increments on each change)
+    public var conflictVersion: Int
+
+    /// Storage mode for the content
+    public var storageMode: StorageMode
+
+    /// CloudKit asset for embedding data (when using CloudKit storage)
+    @Attribute(.externalStorage)
+    public var cloudKitEmbeddingAsset: Data?
 
     // MARK: - Timestamps
 
@@ -117,6 +147,7 @@ public final class GeneratedEmbeddingRecord {
     ///   - fileReference: File reference (optional)
     ///   - estimatedCost: Estimated cost (optional)
     ///   - prompt: The generation prompt
+    ///   - storageMode: Storage mode (defaults to local)
     public init(
         id: UUID = UUID(),
         providerId: String,
@@ -129,7 +160,8 @@ public final class GeneratedEmbeddingRecord {
         batchIndex: Int? = nil,
         fileReference: TypedDataFileReference? = nil,
         estimatedCost: Double? = nil,
-        prompt: String = ""
+        prompt: String = "",
+        storageMode: StorageMode = .local
     ) {
         self.id = id
         self.providerId = providerId
@@ -145,6 +177,17 @@ public final class GeneratedEmbeddingRecord {
         self.prompt = prompt
         self.createdAt = Date()
         self.modifiedAt = Date()
+
+        // CloudKit defaults
+        self.cloudKitRecordID = nil
+        self.cloudKitChangeTag = nil
+        self.lastSyncedAt = nil
+        self.syncStatus = storageMode == .local ? .localOnly : .pending
+        self.ownerUserRecordID = nil
+        self.sharedWith = nil
+        self.conflictVersion = 1
+        self.storageMode = storageMode
+        self.cloudKitEmbeddingAsset = nil
     }
 
     /// Convenience initializer from GeneratedEmbeddingData
@@ -237,6 +280,11 @@ public final class GeneratedEmbeddingRecord {
         self.modifiedAt = Date()
     }
 
+    /// Whether CloudKit features are enabled for this record
+    public var isCloudKitEnabled: Bool {
+        cloudKitRecordID != nil || storageMode != .local
+    }
+
     // MARK: - Description
 
     public var customDescription: String {
@@ -254,7 +302,13 @@ public final class GeneratedEmbeddingRecord {
             desc += "storage: memory[\(ByteCountFormatter.string(fromByteCount: Int64(dataSize), countStyle: .file))]"
         }
 
+        let sync = isCloudKitEnabled ? "cloudkit" : "local"
+        desc += ", sync: \(sync)"
         desc += ")"
         return desc
     }
 }
+
+// MARK: - CloudKitSyncable Conformance
+
+extension GeneratedEmbeddingRecord: CloudKitSyncable {}

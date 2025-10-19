@@ -13,7 +13,6 @@ import SwiftFijos
 import SwiftUI
 import SwiftData
 
-@available(macOS 14.0, iOS 17.0, *)
 final class GuionViewerTests: XCTestCase {
 
     // MARK: - GuionViewerState Tests

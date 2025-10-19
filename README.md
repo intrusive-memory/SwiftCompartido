@@ -2,9 +2,9 @@
 
 <p align="center">
     <img src="https://img.shields.io/badge/Swift-6.2+-orange.svg" />
-    <img src="https://img.shields.io/badge/Platform-macOS%2014.0+%20|%20iOS%2017.0+-lightgrey.svg" />
+    <img src="https://img.shields.io/badge/Platform-macOS%2026.0+%20|%20iOS%2026.0+-lightgrey.svg" />
     <img src="https://img.shields.io/badge/License-MIT-blue.svg" />
-    <img src="https://img.shields.io/badge/Version-1.0.0-green.svg" />
+    <img src="https://img.shields.io/badge/Version-1.1.0-green.svg" />
 </p>
 
 **SwiftCompartido** is a comprehensive Swift package for screenplay management, AI-generated content storage, and document serialization. Built with SwiftData, SwiftUI, and modern Swift concurrency.
@@ -29,6 +29,13 @@
 - **SwiftData Integration**: Persistent models with Phase 6 architecture
 - **Flexible Storage**: Support both in-memory and file-based approaches
 - **Complete Metadata**: Track prompts, providers, usage, and timestamps
+
+### ☁️ CloudKit Sync Support
+- **Dual Storage**: Seamlessly sync between local `.guion` bundles and CloudKit
+- **Storage Modes**: Choose local-only, CloudKit-only, or hybrid storage per record
+- **Automatic Fallback**: Loads from CloudKit or local storage transparently
+- **Conflict Resolution**: Built-in version tracking and conflict detection
+- **Zero Breaking Changes**: Fully backward compatible with existing local-only code
 
 ### 🎨 UI Components
 - **GuionViewer**: Screenplay rendering with proper formatting
@@ -176,6 +183,102 @@ struct ScreenplayView: View {
 }
 ```
 
+#### CloudKit Sync - Local Only (Default)
+
+```swift
+import SwiftCompartido
+import SwiftData
+
+// Local-only container (no CloudKit)
+let container = try SwiftCompartidoContainer.makeLocalContainer()
+
+// Create record with default local storage
+let record = GeneratedTextRecord(
+    providerId: "openai",
+    requestorID: "gpt-4",
+    text: "Generated content",
+    wordCount: 2,
+    characterCount: 17
+    // storageMode defaults to .local
+)
+
+// Works exactly as before - no CloudKit involved
+modelContext.insert(record)
+try modelContext.save()
+```
+
+#### CloudKit Sync - Private Database
+
+```swift
+import SwiftCompartido
+import SwiftData
+
+// CloudKit private database container
+let container = try SwiftCompartidoContainer.makeCloudKitPrivateContainer(
+    containerIdentifier: "iCloud.com.yourcompany.YourApp"
+)
+
+// Create record with CloudKit storage
+let record = GeneratedTextRecord(
+    providerId: "openai",
+    requestorID: "gpt-4",
+    text: "Synced content",
+    wordCount: 2,
+    characterCount: 13,
+    storageMode: .cloudKit  // Enable CloudKit sync
+)
+
+modelContext.insert(record)
+try modelContext.save() // Automatically syncs to CloudKit
+```
+
+#### CloudKit Sync - Hybrid Storage (Dual Mode)
+
+```swift
+@available(macOS 15.0, iOS 17.0, *)
+func saveAudioWithCloudKitSync() throws {
+    let requestID = UUID()
+    let storage = StorageAreaReference.temporary(requestID: requestID)
+    let audioData = Data(/* your audio data */)
+
+    let record = GeneratedAudioRecord(
+        id: requestID,
+        providerId: "elevenlabs",
+        requestorID: "tts.rachel",
+        audioData: nil,
+        format: "mp3",
+        voiceID: "rachel",
+        voiceName: "Rachel"
+    )
+
+    // Saves to BOTH local file AND CloudKit
+    try record.saveAudio(audioData, to: storage, mode: .hybrid)
+
+    modelContext.insert(record)
+    try modelContext.save()
+}
+
+// Loading automatically tries CloudKit first, then falls back to local
+let audioData = try record.loadAudio(from: storage)
+```
+
+#### CloudKit Sync - Check Availability
+
+```swift
+import CloudKit
+
+Task {
+    let isAvailable = await CKDatabase.isCloudKitAvailable()
+    if isAvailable {
+        // User is signed into iCloud, enable sync features
+        setupCloudKitSync()
+    } else {
+        // Fall back to local-only storage
+        setupLocalOnlyStorage()
+    }
+}
+```
+
 ## Documentation
 
 - **[Quick Usage Summary](./USAGE-SUMMARY.md)** - Fast reference and common patterns
@@ -185,14 +288,14 @@ struct ScreenplayView: View {
 
 ## Requirements
 
-- **macOS**: 14.0+ (macOS 15.0+ for file storage features)
-- **iOS**: 17.0+
+- **macOS**: 26.0+
+- **iOS**: 26.0+
 - **Swift**: 6.2+
 - **Xcode**: 16.0+
 
 ## Testing
 
-SwiftCompartido has **95%+ test coverage** with **159 passing tests** across 11 test suites.
+SwiftCompartido has **95%+ test coverage** with **176 passing tests** across 12 test suites.
 
 Run tests:
 

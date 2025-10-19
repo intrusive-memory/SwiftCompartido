@@ -49,7 +49,6 @@ import Foundation
 ///     }
 /// }
 /// ```
-@available(macOS 15.0, iOS 17.0, *)
 public enum ProviderCategory: String, Codable, Sendable, CaseIterable, Identifiable {
 
     /// Text generation (chat, completion, translation)
