@@ -106,13 +106,70 @@ jobs:
         run: |
           echo "Checking for macOS-specific APIs that may break Catalyst..."
 
-          # Check for NSColor/windowBackgroundColor usage
-          if grep -r "windowBackgroundColor\|NSColor\|NSFont" Sources/SwiftCompartido/UI --include="*.swift" | grep -v "#if os(macOS)"; then
-            echo "⚠️  Found potential macOS-only APIs without platform guards"
-            exit 1
-          else
-            echo "✅ No unguarded macOS-specific APIs found"
-          fi
+          # Create a script to check for unguarded macOS-only APIs
+          cat > check_catalyst.py <<'PYTHON_SCRIPT'
+          import re
+          import sys
+          from pathlib import Path
+
+          # macOS-only APIs to check for
+          MACOS_APIS = [
+              r'\.windowBackgroundColor',
+              r'\bNSColor\b',
+              r'\bNSFont\b',
+              r'\bNSView\b',
+              r'\bNSViewController\b',
+              r'import AppKit',
+              r'import Cocoa'
+          ]
+
+          def is_in_platform_guard(lines, line_num):
+              """Check if a line is within a #if os(macOS) block"""
+              # Look backwards to find the nearest #if directive
+              guard_depth = 0
+              for i in range(line_num - 1, -1, -1):
+                  line = lines[i].strip()
+                  if line.startswith('#endif'):
+                      guard_depth += 1
+                  elif line.startswith('#if'):
+                      if guard_depth > 0:
+                          guard_depth -= 1
+                      else:
+                          # Found the controlling #if
+                          # Check if it's a macOS guard
+                          return 'os(macOS)' in line and 'targetEnvironment(macCatalyst)' not in line
+              return False
+
+          found_issues = False
+          ui_path = Path('Sources/SwiftCompartido/UI')
+
+          if not ui_path.exists():
+              print("UI directory not found, skipping check")
+              sys.exit(0)
+
+          for swift_file in ui_path.glob('*.swift'):
+              with open(swift_file, 'r') as f:
+                  lines = f.readlines()
+
+              for line_num, line in enumerate(lines):
+                  # Check for macOS-only APIs
+                  for api_pattern in MACOS_APIS:
+                      if re.search(api_pattern, line):
+                          # Found an API usage - check if it's guarded
+                          if not is_in_platform_guard(lines, line_num):
+                              print(f"⚠️  Unguarded macOS API in {swift_file}:{line_num + 1}")
+                              print(f"   {line.strip()}")
+                              found_issues = True
+
+          if found_issues:
+              print("\n❌ Found macOS-specific APIs without platform guards")
+              sys.exit(1)
+          else:
+              print("✅ No unguarded macOS-specific APIs found")
+              sys.exit(0)
+          PYTHON_SCRIPT
+
+          python3 check_catalyst.py
 
       - name: Upload build logs
         if: always()
