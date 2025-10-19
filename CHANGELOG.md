@@ -5,6 +5,25 @@ All notable changes to SwiftCompartido will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+
+#### Critical CloudKit Conflict Resolution Bug
+- **CRITICAL**: Fixed data loss bug in `CloudKitSyncable.resolveConflict()` method
+- Added `modifiedAt` property to `CloudKitSyncable` protocol for timestamp-based conflict resolution
+- Conflict resolution now correctly compares modification timestamps when `conflictVersion` values are equal
+- Previous behavior: Always preferred local copy when versions matched, potentially discarding remote changes
+- New behavior: Compares `modifiedAt` timestamps to determine which record is most recent
+- Particularly important for newly created records (which all start at version 1)
+- Added 4 comprehensive tests to prevent regression:
+  - Higher version number preference
+  - Equal versions use most recent timestamp
+  - Equal versions and timestamps prefer local (rare edge case)
+  - Newly created records conflict handling
+
+**Migration Impact:** None - this is a pure bug fix with no API changes. Existing code continues to work unchanged.
+
 ## [1.2.0] - 2025-10-18
 
 ### ☁️ CloudKit Sync Support

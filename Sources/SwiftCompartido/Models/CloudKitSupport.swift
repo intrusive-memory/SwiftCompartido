@@ -64,6 +64,9 @@ public protocol CloudKitSyncable {
     /// Storage mode (local, CloudKit, or hybrid)
     var storageMode: StorageMode { get set }
 
+    /// When this record was last modified (required for conflict resolution)
+    var modifiedAt: Date { get set }
+
     /// Whether CloudKit features are enabled for this record
     var isCloudKitEnabled: Bool { get }
 }
