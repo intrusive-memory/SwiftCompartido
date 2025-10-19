@@ -1,0 +1,1626 @@
+Building for production...
+[0/2] Write swift-version--58304C5D6DBC2206.txt
+Build complete! (0.09s)
+Test Suite 'All tests' started at 2025-10-19 10:33:32.779.
+Test Suite 'SwiftCompartidoPackageTests.xctest' started at 2025-10-19 10:33:32.780.
+Test Suite 'AICredentialTests' started at 2025-10-19 10:33:32.780.
+Test Case '-[SwiftCompartidoTests.AICredentialTests testCredentialCodable]' started.
+Test Case '-[SwiftCompartidoTests.AICredentialTests testCredentialCodable]' passed (0.001 seconds).
+Test Case '-[SwiftCompartidoTests.AICredentialTests testCredentialErrorDescriptions]' started.
+Test Case '-[SwiftCompartidoTests.AICredentialTests testCredentialErrorDescriptions]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.AICredentialTests testCredentialExpiration]' started.
+Test Case '-[SwiftCompartidoTests.AICredentialTests testCredentialExpiration]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.AICredentialTests testCredentialInitialization]' started.
+Test Case '-[SwiftCompartidoTests.AICredentialTests testCredentialInitialization]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.AICredentialTests testCredentialMetadata]' started.
+Test Case '-[SwiftCompartidoTests.AICredentialTests testCredentialMetadata]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.AICredentialTests testCredentialValidityWithFutureExpiration]' started.
+Test Case '-[SwiftCompartidoTests.AICredentialTests testCredentialValidityWithFutureExpiration]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.AICredentialTests testCredentialValidityWithoutExpiration]' started.
+Test Case '-[SwiftCompartidoTests.AICredentialTests testCredentialValidityWithoutExpiration]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.AICredentialTests testSecureStringClear]' started.
+Test Case '-[SwiftCompartidoTests.AICredentialTests testSecureStringClear]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.AICredentialTests testSecureStringDeinit]' started.
+Test Case '-[SwiftCompartidoTests.AICredentialTests testSecureStringDeinit]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.AICredentialTests testSecureStringInitialization]' started.
+Test Case '-[SwiftCompartidoTests.AICredentialTests testSecureStringInitialization]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.AICredentialTests testValidateAPIKey_Anthropic_Invalid]' started.
+Test Case '-[SwiftCompartidoTests.AICredentialTests testValidateAPIKey_Anthropic_Invalid]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.AICredentialTests testValidateAPIKey_Anthropic_Valid]' started.
+Test Case '-[SwiftCompartidoTests.AICredentialTests testValidateAPIKey_Anthropic_Valid]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.AICredentialTests testValidateAPIKey_ElevenLabs_Invalid]' started.
+Test Case '-[SwiftCompartidoTests.AICredentialTests testValidateAPIKey_ElevenLabs_Invalid]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.AICredentialTests testValidateAPIKey_ElevenLabs_Valid]' started.
+Test Case '-[SwiftCompartidoTests.AICredentialTests testValidateAPIKey_ElevenLabs_Valid]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.AICredentialTests testValidateAPIKey_Empty]' started.
+Test Case '-[SwiftCompartidoTests.AICredentialTests testValidateAPIKey_Empty]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.AICredentialTests testValidateAPIKey_OpenAI_Invalid]' started.
+Test Case '-[SwiftCompartidoTests.AICredentialTests testValidateAPIKey_OpenAI_Invalid]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.AICredentialTests testValidateAPIKey_OpenAI_Valid]' started.
+Test Case '-[SwiftCompartidoTests.AICredentialTests testValidateAPIKey_OpenAI_Valid]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.AICredentialTests testValidateAPIKey_TooShort]' started.
+Test Case '-[SwiftCompartidoTests.AICredentialTests testValidateAPIKey_TooShort]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.AICredentialTests testValidateAPIKey_UnknownProvider]' started.
+Test Case '-[SwiftCompartidoTests.AICredentialTests testValidateAPIKey_UnknownProvider]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.AICredentialTests testValidateAPIKey_UnknownProvider_TooLong]' started.
+Test Case '-[SwiftCompartidoTests.AICredentialTests testValidateAPIKey_UnknownProvider_TooLong]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.AICredentialTests testValidateAPIKey_Whitespace]' started.
+Test Case '-[SwiftCompartidoTests.AICredentialTests testValidateAPIKey_Whitespace]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.AICredentialTests testValidateCertificate_Empty]' started.
+Test Case '-[SwiftCompartidoTests.AICredentialTests testValidateCertificate_Empty]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.AICredentialTests testValidateCertificate_TooSmall]' started.
+Test Case '-[SwiftCompartidoTests.AICredentialTests testValidateCertificate_TooSmall]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.AICredentialTests testValidateCertificate_Valid]' started.
+Test Case '-[SwiftCompartidoTests.AICredentialTests testValidateCertificate_Valid]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.AICredentialTests testValidateOAuthToken_Empty]' started.
+Test Case '-[SwiftCompartidoTests.AICredentialTests testValidateOAuthToken_Empty]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.AICredentialTests testValidateOAuthToken_TooShort]' started.
+Test Case '-[SwiftCompartidoTests.AICredentialTests testValidateOAuthToken_TooShort]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.AICredentialTests testValidateOAuthToken_Valid]' started.
+Test Case '-[SwiftCompartidoTests.AICredentialTests testValidateOAuthToken_Valid]' passed (0.000 seconds).
+Test Suite 'AICredentialTests' passed at 2025-10-19 10:33:32.784.
+	 Executed 27 tests, with 0 failures (0 unexpected) in 0.003 (0.005) seconds
+Test Suite 'DocumentExportTests' started at 2025-10-19 10:33:32.784.
+Test Case '-[SwiftCompartidoTests.DocumentExportTests testExportEmptyDocument]' started.
+Test Case '-[SwiftCompartidoTests.DocumentExportTests testExportEmptyDocument]' passed (0.006 seconds).
+Test Case '-[SwiftCompartidoTests.DocumentExportTests testExportFilenameDefaults]' started.
+Test Case '-[SwiftCompartidoTests.DocumentExportTests testExportFilenameDefaults]' passed (0.002 seconds).
+Test Case '-[SwiftCompartidoTests.DocumentExportTests testExportFilenameWithMultipleDots]' started.
+Test Case '-[SwiftCompartidoTests.DocumentExportTests testExportFilenameWithMultipleDots]' passed (0.001 seconds).
+Test Case '-[SwiftCompartidoTests.DocumentExportTests testExportFilenameWithoutExtension]' started.
+Test Case '-[SwiftCompartidoTests.DocumentExportTests testExportFilenameWithoutExtension]' passed (0.001 seconds).
+Test Case '-[SwiftCompartidoTests.DocumentExportTests testExportPerformance]' started.
+Test Case '-[SwiftCompartidoTests.DocumentExportTests testExportPerformance]' passed (0.864 seconds).
+Test Case '-[SwiftCompartidoTests.DocumentExportTests testExportPreservesElementOrder]' started.
+Test Case '-[SwiftCompartidoTests.DocumentExportTests testExportPreservesElementOrder]' passed (0.002 seconds).
+Test Case '-[SwiftCompartidoTests.DocumentExportTests testExportToFDX]' started.
+Test Case '-[SwiftCompartidoTests.DocumentExportTests testExportToFDX]' passed (0.002 seconds).
+Test Case '-[SwiftCompartidoTests.DocumentExportTests testExportToFDXWithSpecialCharacters]' started.
+Test Case '-[SwiftCompartidoTests.DocumentExportTests testExportToFDXWithSpecialCharacters]' passed (0.002 seconds).
+Test Case '-[SwiftCompartidoTests.DocumentExportTests testExportToFountain]' started.
+Test Case '-[SwiftCompartidoTests.DocumentExportTests testExportToFountain]' passed (0.002 seconds).
+Test Case '-[SwiftCompartidoTests.DocumentExportTests testExportToFountainWithTitlePage]' started.
+Test Case '-[SwiftCompartidoTests.DocumentExportTests testExportToFountainWithTitlePage]' passed (0.002 seconds).
+Test Case '-[SwiftCompartidoTests.DocumentExportTests testExportWithCenteredText]' started.
+Test Case '-[SwiftCompartidoTests.DocumentExportTests testExportWithCenteredText]' passed (0.001 seconds).
+Test Case '-[SwiftCompartidoTests.DocumentExportTests testExportWithSceneNumbers]' started.
+Test Case '-[SwiftCompartidoTests.DocumentExportTests testExportWithSceneNumbers]' passed (0.002 seconds).
+Test Case '-[SwiftCompartidoTests.DocumentExportTests testExportWithTransitions]' started.
+Test Case '-[SwiftCompartidoTests.DocumentExportTests testExportWithTransitions]' passed (0.002 seconds).
+Test Case '-[SwiftCompartidoTests.DocumentExportTests testFDXImportExportFidelity]' started.
+Test Case '-[SwiftCompartidoTests.DocumentExportTests testFDXImportExportFidelity]' passed (0.004 seconds).
+Test Case '-[SwiftCompartidoTests.DocumentExportTests testImportExportFidelity]' started.
+Test Case '-[SwiftCompartidoTests.DocumentExportTests testImportExportFidelity]' passed (0.004 seconds).
+Test Case '-[SwiftCompartidoTests.DocumentExportTests testSyntheticImportExportFidelity]' started.
+Test Case '-[SwiftCompartidoTests.DocumentExportTests testSyntheticImportExportFidelity]' passed (0.004 seconds).
+Test Suite 'DocumentExportTests' passed at 2025-10-19 10:33:33.686.
+	 Executed 16 tests, with 0 failures (0 unexpected) in 0.900 (0.901) seconds
+Test Suite 'DocumentImportTests' started at 2025-10-19 10:33:33.686.
+Test Case '-[SwiftCompartidoTests.DocumentImportTests testEmptyAndNilFilenames]' started.
+Test Case '-[SwiftCompartidoTests.DocumentImportTests testEmptyAndNilFilenames]' passed (0.001 seconds).
+Test Case '-[SwiftCompartidoTests.DocumentImportTests testFilenamePreservation]' started.
+Test Case '-[SwiftCompartidoTests.DocumentImportTests testFilenamePreservation]' passed (0.002 seconds).
+Test Case '-[SwiftCompartidoTests.DocumentImportTests testFilenameTransformation]' started.
+Test Case '-[SwiftCompartidoTests.DocumentImportTests testFilenameTransformation]' passed (0.001 seconds).
+Test Case '-[SwiftCompartidoTests.DocumentImportTests testGuionFileAlreadyGuionExtension]' started.
+Test Case '-[SwiftCompartidoTests.DocumentImportTests testGuionFileAlreadyGuionExtension]' passed (0.001 seconds).
+Test Case '-[SwiftCompartidoTests.DocumentImportTests testImportedFilenameTransformation]' started.
+Test Case '-[SwiftCompartidoTests.DocumentImportTests testImportedFilenameTransformation]' passed (0.001 seconds).
+Test Case '-[SwiftCompartidoTests.DocumentImportTests testImportFDXFile]' started.
+Test Case '-[SwiftCompartidoTests.DocumentImportTests testImportFDXFile]' passed (0.001 seconds).
+Test Case '-[SwiftCompartidoTests.DocumentImportTests testImportFountainFile]' started.
+Test Case '-[SwiftCompartidoTests.DocumentImportTests testImportFountainFile]' passed (0.001 seconds).
+Test Case '-[SwiftCompartidoTests.DocumentImportTests testImportHighlandFile]' started.
+Test Case '-[SwiftCompartidoTests.DocumentImportTests testImportHighlandFile]' passed (0.001 seconds).
+Test Case '-[SwiftCompartidoTests.DocumentImportTests testImportVsNativePerformance]' started.
+Test Case '-[SwiftCompartidoTests.DocumentImportTests testImportVsNativePerformance]' passed (0.436 seconds).
+Test Case '-[SwiftCompartidoTests.DocumentImportTests testMultipleDotsInFilename]' started.
+Test Case '-[SwiftCompartidoTests.DocumentImportTests testMultipleDotsInFilename]' passed (0.002 seconds).
+Test Case '-[SwiftCompartidoTests.DocumentImportTests testNativeGuionFileNoReparsing]' started.
+Test Case '-[SwiftCompartidoTests.DocumentImportTests testNativeGuionFileNoReparsing]' passed (0.025 seconds).
+Test Case '-[SwiftCompartidoTests.DocumentImportTests testOpenNativeGuionFile]' started.
+Test Case '-[SwiftCompartidoTests.DocumentImportTests testOpenNativeGuionFile]' passed (0.002 seconds).
+Test Case '-[SwiftCompartidoTests.DocumentImportTests testSpecialCharactersInFilename]' started.
+Test Case '-[SwiftCompartidoTests.DocumentImportTests testSpecialCharactersInFilename]' passed (0.001 seconds).
+Test Suite 'DocumentImportTests' passed at 2025-10-19 10:33:34.163.
+	 Executed 13 tests, with 0 failures (0 unexpected) in 0.477 (0.477) seconds
+Test Suite 'ExportDocumentStructTests' started at 2025-10-19 10:33:34.163.
+Test Case '-[SwiftCompartidoTests.ExportDocumentStructTests testExportErrorDescriptions]' started.
+Test Case '-[SwiftCompartidoTests.ExportDocumentStructTests testExportErrorDescriptions]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.ExportDocumentStructTests testExportFormatAllCases]' started.
+Test Case '-[SwiftCompartidoTests.ExportDocumentStructTests testExportFormatAllCases]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.ExportDocumentStructTests testExportFormatContentTypes]' started.
+Test Case '-[SwiftCompartidoTests.ExportDocumentStructTests testExportFormatContentTypes]' passed (0.002 seconds).
+Test Case '-[SwiftCompartidoTests.ExportDocumentStructTests testExportFormatDisplayNames]' started.
+Test Case '-[SwiftCompartidoTests.ExportDocumentStructTests testExportFormatDisplayNames]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.ExportDocumentStructTests testExportFormatExtensions]' started.
+Test Case '-[SwiftCompartidoTests.ExportDocumentStructTests testExportFormatExtensions]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.ExportDocumentStructTests testExportFormatRawValues]' started.
+Test Case '-[SwiftCompartidoTests.ExportDocumentStructTests testExportFormatRawValues]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.ExportDocumentStructTests testFDXExportDocumentContentTypes]' started.
+Test Case '-[SwiftCompartidoTests.ExportDocumentStructTests testFDXExportDocumentContentTypes]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.ExportDocumentStructTests testFDXExportDocumentInit]' started.
+Test Case '-[SwiftCompartidoTests.ExportDocumentStructTests testFDXExportDocumentInit]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.ExportDocumentStructTests testFountainExportDocumentContentTypes]' started.
+Test Case '-[SwiftCompartidoTests.ExportDocumentStructTests testFountainExportDocumentContentTypes]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.ExportDocumentStructTests testFountainExportDocumentInit]' started.
+Test Case '-[SwiftCompartidoTests.ExportDocumentStructTests testFountainExportDocumentInit]' passed (0.000 seconds).
+Test Suite 'ExportDocumentStructTests' passed at 2025-10-19 10:33:34.166.
+	 Executed 10 tests, with 0 failures (0 unexpected) in 0.002 (0.003) seconds
+Test Suite 'FountainParserTests' started at 2025-10-19 10:33:34.166.
+Test Case '-[SwiftCompartidoTests.FountainParserTests testBoneyardMultiLine]' started.
+Test Case '-[SwiftCompartidoTests.FountainParserTests testBoneyardMultiLine]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.FountainParserTests testBoneyardSingleLine]' started.
+Test Case '-[SwiftCompartidoTests.FountainParserTests testBoneyardSingleLine]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.FountainParserTests testCenteredText]' started.
+Test Case '-[SwiftCompartidoTests.FountainParserTests testCenteredText]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.FountainParserTests testCharacterWithContd]' started.
+Test Case '-[SwiftCompartidoTests.FountainParserTests testCharacterWithContd]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.FountainParserTests testComment]' started.
+Test Case '-[SwiftCompartidoTests.FountainParserTests testComment]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.FountainParserTests testDialogueContinuationWithDoubleSpaces]' started.
+Test Case '-[SwiftCompartidoTests.FountainParserTests testDialogueContinuationWithDoubleSpaces]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.FountainParserTests testDualDialogue]' started.
+Test Case '-[SwiftCompartidoTests.FountainParserTests testDualDialogue]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.FountainParserTests testEmptyDialogueLineWithDoubleSpaces]' started.
+Test Case '-[SwiftCompartidoTests.FountainParserTests testEmptyDialogueLineWithDoubleSpaces]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.FountainParserTests testForcedActionWithExclamation]' started.
+Test Case '-[SwiftCompartidoTests.FountainParserTests testForcedActionWithExclamation]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.FountainParserTests testForcedCharacterWithAt]' started.
+Test Case '-[SwiftCompartidoTests.FountainParserTests testForcedCharacterWithAt]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.FountainParserTests testForcedSceneHeading]' started.
+Test Case '-[SwiftCompartidoTests.FountainParserTests testForcedSceneHeading]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.FountainParserTests testForcedSceneHeadingWithNumber]' started.
+Test Case '-[SwiftCompartidoTests.FountainParserTests testForcedSceneHeadingWithNumber]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.FountainParserTests testForcedTransition]' started.
+Test Case '-[SwiftCompartidoTests.FountainParserTests testForcedTransition]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.FountainParserTests testLyricsWithSpaceBetween]' started.
+Test Case '-[SwiftCompartidoTests.FountainParserTests testLyricsWithSpaceBetween]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.FountainParserTests testLyricsWithTilde]' started.
+Test Case '-[SwiftCompartidoTests.FountainParserTests testLyricsWithTilde]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.FountainParserTests testMultipleSpacesAsAction]' started.
+Test Case '-[SwiftCompartidoTests.FountainParserTests testMultipleSpacesAsAction]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.FountainParserTests testOverBlackSceneHeading]' started.
+Test Case '-[SwiftCompartidoTests.FountainParserTests testOverBlackSceneHeading]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.FountainParserTests testPageBreaks]' started.
+Test Case '-[SwiftCompartidoTests.FountainParserTests testPageBreaks]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.FountainParserTests testParentheticalInDialogue]' started.
+Test Case '-[SwiftCompartidoTests.FountainParserTests testParentheticalInDialogue]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.FountainParserTests testSceneHeadingNotSurroundedByBlanks]' started.
+Test Case '-[SwiftCompartidoTests.FountainParserTests testSceneHeadingNotSurroundedByBlanks]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.FountainParserTests testSceneHeadingWithNumber]' started.
+Test Case '-[SwiftCompartidoTests.FountainParserTests testSceneHeadingWithNumber]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.FountainParserTests testSectionHeading]' started.
+Test Case '-[SwiftCompartidoTests.FountainParserTests testSectionHeading]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.FountainParserTests testSynopsis]' started.
+Test Case '-[SwiftCompartidoTests.FountainParserTests testSynopsis]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.FountainParserTests testTitlePageAuthorConversion]' started.
+Test Case '-[SwiftCompartidoTests.FountainParserTests testTitlePageAuthorConversion]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.FountainParserTests testTitlePageDirective]' started.
+Test Case '-[SwiftCompartidoTests.FountainParserTests testTitlePageDirective]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.FountainParserTests testTitlePageInline]' started.
+Test Case '-[SwiftCompartidoTests.FountainParserTests testTitlePageInline]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.FountainParserTests testTransitions]' started.
+Test Case '-[SwiftCompartidoTests.FountainParserTests testTransitions]' passed (0.000 seconds).
+Test Suite 'FountainParserTests' passed at 2025-10-19 10:33:34.173.
+	 Executed 27 tests, with 0 failures (0 unexpected) in 0.006 (0.007) seconds
+Test Suite 'FountainRegexesTests' started at 2025-10-19 10:33:34.173.
+Test Case '-[SwiftCompartidoTests.FountainRegexesTests testActionPatternCompiles]' started.
+Test Case '-[SwiftCompartidoTests.FountainRegexesTests testActionPatternCompiles]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.FountainRegexesTests testBlockCommentPatternCompiles]' started.
+Test Case '-[SwiftCompartidoTests.FountainRegexesTests testBlockCommentPatternCompiles]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.FountainRegexesTests testBoldItalicUnderlinePatternCompiles]' started.
+Test Case '-[SwiftCompartidoTests.FountainRegexesTests testBoldItalicUnderlinePatternCompiles]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.FountainRegexesTests testBoldPatternCompiles]' started.
+Test Case '-[SwiftCompartidoTests.FountainRegexesTests testBoldPatternCompiles]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.FountainRegexesTests testBracketCommentPatternCompiles]' started.
+Test Case '-[SwiftCompartidoTests.FountainRegexesTests testBracketCommentPatternCompiles]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.FountainRegexesTests testCenteredTextPatternCompiles]' started.
+Test Case '-[SwiftCompartidoTests.FountainRegexesTests testCenteredTextPatternCompiles]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.FountainRegexesTests testCharacterCuePatternCompiles]' started.
+Test Case '-[SwiftCompartidoTests.FountainRegexesTests testCharacterCuePatternCompiles]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.FountainRegexesTests testDialoguePatternCompiles]' started.
+Test Case '-[SwiftCompartidoTests.FountainRegexesTests testDialoguePatternCompiles]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.FountainRegexesTests testDualDialoguePatternCompiles]' started.
+Test Case '-[SwiftCompartidoTests.FountainRegexesTests testDualDialoguePatternCompiles]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.FountainRegexesTests testForcedTransitionPatternCompiles]' started.
+Test Case '-[SwiftCompartidoTests.FountainRegexesTests testForcedTransitionPatternCompiles]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.FountainRegexesTests testInlineDirectiveMatches]' started.
+Test Case '-[SwiftCompartidoTests.FountainRegexesTests testInlineDirectiveMatches]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.FountainRegexesTests testInlineDirectivePatternCompiles]' started.
+Test Case '-[SwiftCompartidoTests.FountainRegexesTests testInlineDirectivePatternCompiles]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.FountainRegexesTests testItalicPatternCompiles]' started.
+Test Case '-[SwiftCompartidoTests.FountainRegexesTests testItalicPatternCompiles]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.FountainRegexesTests testPageBreakMatches]' started.
+Test Case '-[SwiftCompartidoTests.FountainRegexesTests testPageBreakMatches]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.FountainRegexesTests testPageBreakPatternCompiles]' started.
+Test Case '-[SwiftCompartidoTests.FountainRegexesTests testPageBreakPatternCompiles]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.FountainRegexesTests testParentheticalPatternCompiles]' started.
+Test Case '-[SwiftCompartidoTests.FountainRegexesTests testParentheticalPatternCompiles]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.FountainRegexesTests testSceneHeaderMatches]' started.
+Test Case '-[SwiftCompartidoTests.FountainRegexesTests testSceneHeaderMatches]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.FountainRegexesTests testSceneHeaderPatternCompiles]' started.
+Test Case '-[SwiftCompartidoTests.FountainRegexesTests testSceneHeaderPatternCompiles]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.FountainRegexesTests testSceneNumberMatches]' started.
+Test Case '-[SwiftCompartidoTests.FountainRegexesTests testSceneNumberMatches]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.FountainRegexesTests testSceneNumberPatternCompiles]' started.
+Test Case '-[SwiftCompartidoTests.FountainRegexesTests testSceneNumberPatternCompiles]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.FountainRegexesTests testSectionHeaderMatches]' started.
+Test Case '-[SwiftCompartidoTests.FountainRegexesTests testSectionHeaderMatches]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.FountainRegexesTests testSectionHeaderPatternCompiles]' started.
+Test Case '-[SwiftCompartidoTests.FountainRegexesTests testSectionHeaderPatternCompiles]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.FountainRegexesTests testSynopsisPatternCompiles]' started.
+Test Case '-[SwiftCompartidoTests.FountainRegexesTests testSynopsisPatternCompiles]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.FountainRegexesTests testTemplateConstantsNonEmpty]' started.
+Test Case '-[SwiftCompartidoTests.FountainRegexesTests testTemplateConstantsNonEmpty]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.FountainRegexesTests testTitlePagePatternCompiles]' started.
+Test Case '-[SwiftCompartidoTests.FountainRegexesTests testTitlePagePatternCompiles]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.FountainRegexesTests testTransitionMatches]' started.
+Test Case '-[SwiftCompartidoTests.FountainRegexesTests testTransitionMatches]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.FountainRegexesTests testTransitionPatternCompiles]' started.
+Test Case '-[SwiftCompartidoTests.FountainRegexesTests testTransitionPatternCompiles]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.FountainRegexesTests testUnderlinePatternCompiles]' started.
+Test Case '-[SwiftCompartidoTests.FountainRegexesTests testUnderlinePatternCompiles]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.FountainRegexesTests testUniversalLineBreaksPatternCompiles]' started.
+Test Case '-[SwiftCompartidoTests.FountainRegexesTests testUniversalLineBreaksPatternCompiles]' passed (0.000 seconds).
+Test Suite 'FountainRegexesTests' passed at 2025-10-19 10:33:34.177.
+	 Executed 29 tests, with 0 failures (0 unexpected) in 0.002 (0.004) seconds
+Test Suite 'GeneratedAudioDataTests' started at 2025-10-19 10:33:34.177.
+Test Case '-[SwiftCompartidoTests.GeneratedAudioDataTests testAudioFormatFileExtensions]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedAudioDataTests testAudioFormatFileExtensions]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedAudioDataTests testAudioFormatMimeTypes]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedAudioDataTests testAudioFormatMimeTypes]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedAudioDataTests testAudioFormatRawValues]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedAudioDataTests testAudioFormatRawValues]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedAudioDataTests testAudioGenerationConfigBoundaryValues]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedAudioDataTests testAudioGenerationConfigBoundaryValues]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedAudioDataTests testAudioGenerationConfigCodable]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedAudioDataTests testAudioGenerationConfigCodable]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedAudioDataTests testAudioGenerationConfigDefault]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedAudioDataTests testAudioGenerationConfigDefault]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedAudioDataTests testAudioGenerationConfigDefaults]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedAudioDataTests testAudioGenerationConfigDefaults]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedAudioDataTests testAudioGenerationConfigExpressive]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedAudioDataTests testAudioGenerationConfigExpressive]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedAudioDataTests testAudioGenerationConfigInitialization]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedAudioDataTests testAudioGenerationConfigInitialization]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedAudioDataTests testAudioGenerationConfigStable]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedAudioDataTests testAudioGenerationConfigStable]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedAudioDataTests testGeneratedAudioDataCodable]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedAudioDataTests testGeneratedAudioDataCodable]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedAudioDataTests testGeneratedAudioDataCodableWithNilValues]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedAudioDataTests testGeneratedAudioDataCodableWithNilValues]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedAudioDataTests testGeneratedAudioDataFileSize]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedAudioDataTests testGeneratedAudioDataFileSize]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedAudioDataTests testGeneratedAudioDataInitialization]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedAudioDataTests testGeneratedAudioDataInitialization]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedAudioDataTests testGeneratedAudioDataWithAllFormats]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedAudioDataTests testGeneratedAudioDataWithAllFormats]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedAudioDataTests testGeneratedAudioDataWithNilAudioData]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedAudioDataTests testGeneratedAudioDataWithNilAudioData]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedAudioDataTests testGeneratedAudioDataWithOptionalParameters]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedAudioDataTests testGeneratedAudioDataWithOptionalParameters]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedAudioDataTests testPreferredFormat]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedAudioDataTests testPreferredFormat]' passed (0.000 seconds).
+Test Suite 'GeneratedAudioDataTests' passed at 2025-10-19 10:33:34.179.
+	 Executed 18 tests, with 0 failures (0 unexpected) in 0.002 (0.002) seconds
+Test Suite 'GeneratedEmbeddingDataTests' started at 2025-10-19 10:33:34.179.
+Test Case '-[SwiftCompartidoTests.GeneratedEmbeddingDataTests testBatchIndex]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedEmbeddingDataTests testBatchIndex]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedEmbeddingDataTests testBinaryFormatRoundTrip]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedEmbeddingDataTests testBinaryFormatRoundTrip]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedEmbeddingDataTests testDataSize]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedEmbeddingDataTests testDataSize]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedEmbeddingDataTests testDataSizeWithNilEmbedding]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedEmbeddingDataTests testDataSizeWithNilEmbedding]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedEmbeddingDataTests testDeserializeFromBinary]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedEmbeddingDataTests testDeserializeFromBinary]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedEmbeddingDataTests testEmbeddingConfigCodable]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedEmbeddingDataTests testEmbeddingConfigCodable]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedEmbeddingDataTests testEmbeddingConfigDefault]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedEmbeddingDataTests testEmbeddingConfigDefault]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedEmbeddingDataTests testEmbeddingConfigDefaults]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedEmbeddingDataTests testEmbeddingConfigDefaults]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedEmbeddingDataTests testEmbeddingConfigHighQuality]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedEmbeddingDataTests testEmbeddingConfigHighQuality]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedEmbeddingDataTests testEmbeddingConfigInitialization]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedEmbeddingDataTests testEmbeddingConfigInitialization]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedEmbeddingDataTests testEmbeddingConfigLegacy]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedEmbeddingDataTests testEmbeddingConfigLegacy]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedEmbeddingDataTests testEmbeddingConfigModelDefaultDimensions]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedEmbeddingDataTests testEmbeddingConfigModelDefaultDimensions]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedEmbeddingDataTests testEmbeddingConfigModelDisplayNames]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedEmbeddingDataTests testEmbeddingConfigModelDisplayNames]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedEmbeddingDataTests testEmbeddingConfigModelSupportsCustomDimensions]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedEmbeddingDataTests testEmbeddingConfigModelSupportsCustomDimensions]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedEmbeddingDataTests testEmbeddingConfigPerformance]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedEmbeddingDataTests testEmbeddingConfigPerformance]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedEmbeddingDataTests testGeneratedEmbeddingDataCodable]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedEmbeddingDataTests testGeneratedEmbeddingDataCodable]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedEmbeddingDataTests testGeneratedEmbeddingDataCodableWithNilValues]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedEmbeddingDataTests testGeneratedEmbeddingDataCodableWithNilValues]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedEmbeddingDataTests testGeneratedEmbeddingDataEmptyVector]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedEmbeddingDataTests testGeneratedEmbeddingDataEmptyVector]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedEmbeddingDataTests testGeneratedEmbeddingDataInitialization]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedEmbeddingDataTests testGeneratedEmbeddingDataInitialization]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedEmbeddingDataTests testGeneratedEmbeddingDataLargeVector]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedEmbeddingDataTests testGeneratedEmbeddingDataLargeVector]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedEmbeddingDataTests testGeneratedEmbeddingDataWithExtremeValues]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedEmbeddingDataTests testGeneratedEmbeddingDataWithExtremeValues]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedEmbeddingDataTests testGeneratedEmbeddingDataWithNegativeValues]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedEmbeddingDataTests testGeneratedEmbeddingDataWithNegativeValues]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedEmbeddingDataTests testGeneratedEmbeddingDataWithNilEmbedding]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedEmbeddingDataTests testGeneratedEmbeddingDataWithNilEmbedding]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedEmbeddingDataTests testGeneratedEmbeddingDataWithOptionalParameters]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedEmbeddingDataTests testGeneratedEmbeddingDataWithOptionalParameters]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedEmbeddingDataTests testInputTextTruncation]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedEmbeddingDataTests testInputTextTruncation]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedEmbeddingDataTests testPreferredFormat]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedEmbeddingDataTests testPreferredFormat]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedEmbeddingDataTests testSerializeLargeVector]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedEmbeddingDataTests testSerializeLargeVector]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedEmbeddingDataTests testSerializeNilEmbeddingThrows]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedEmbeddingDataTests testSerializeNilEmbeddingThrows]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedEmbeddingDataTests testSerializePreservesFloatPrecision]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedEmbeddingDataTests testSerializePreservesFloatPrecision]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedEmbeddingDataTests testSerializeToBinary]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedEmbeddingDataTests testSerializeToBinary]' passed (0.000 seconds).
+Test Suite 'GeneratedEmbeddingDataTests' passed at 2025-10-19 10:33:34.184.
+	 Executed 30 tests, with 0 failures (0 unexpected) in 0.003 (0.004) seconds
+Test Suite 'GeneratedImageDataTests' started at 2025-10-19 10:33:34.184.
+Test Case '-[SwiftCompartidoTests.GeneratedImageDataTests testAllImageSizes]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedImageDataTests testAllImageSizes]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedImageDataTests testGeneratedImageDataCodable]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedImageDataTests testGeneratedImageDataCodable]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedImageDataTests testGeneratedImageDataCodableWithNilValues]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedImageDataTests testGeneratedImageDataCodableWithNilValues]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedImageDataTests testGeneratedImageDataCustomDimensions]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedImageDataTests testGeneratedImageDataCustomDimensions]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedImageDataTests testGeneratedImageDataFileSize]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedImageDataTests testGeneratedImageDataFileSize]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedImageDataTests testGeneratedImageDataInitialization]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedImageDataTests testGeneratedImageDataInitialization]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedImageDataTests testGeneratedImageDataWithAllFormats]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedImageDataTests testGeneratedImageDataWithAllFormats]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedImageDataTests testGeneratedImageDataWithNilImageData]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedImageDataTests testGeneratedImageDataWithNilImageData]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedImageDataTests testGeneratedImageDataWithOptionalParameters]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedImageDataTests testGeneratedImageDataWithOptionalParameters]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedImageDataTests testImageFormatFileExtensions]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedImageDataTests testImageFormatFileExtensions]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedImageDataTests testImageFormatMimeTypes]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedImageDataTests testImageFormatMimeTypes]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedImageDataTests testImageFormatRawValues]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedImageDataTests testImageFormatRawValues]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedImageDataTests testImageGenerationConfigCodable]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedImageDataTests testImageGenerationConfigCodable]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedImageDataTests testImageGenerationConfigDefaults]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedImageDataTests testImageGenerationConfigDefaults]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedImageDataTests testImageGenerationConfigInitialization]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedImageDataTests testImageGenerationConfigInitialization]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedImageDataTests testImageGenerationConfigQuality]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedImageDataTests testImageGenerationConfigQuality]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedImageDataTests testImageGenerationConfigStyle]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedImageDataTests testImageGenerationConfigStyle]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedImageDataTests testImageGenerationConfigWithDifferentSizes]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedImageDataTests testImageGenerationConfigWithDifferentSizes]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedImageDataTests testImageGenerationConfigWithQualityAndStyle]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedImageDataTests testImageGenerationConfigWithQualityAndStyle]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedImageDataTests testImageSizeAspectRatio]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedImageDataTests testImageSizeAspectRatio]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedImageDataTests testImageSizePortrait9x16]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedImageDataTests testImageSizePortrait9x16]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedImageDataTests testImageSizeSquare1024]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedImageDataTests testImageSizeSquare1024]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedImageDataTests testImageSizeSquare256]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedImageDataTests testImageSizeSquare256]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedImageDataTests testImageSizeSquare512]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedImageDataTests testImageSizeSquare512]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedImageDataTests testImageSizeUseCase]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedImageDataTests testImageSizeUseCase]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedImageDataTests testImageSizeWide16x9]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedImageDataTests testImageSizeWide16x9]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedImageDataTests testLargeImageData]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedImageDataTests testLargeImageData]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedImageDataTests testPreferredFormat]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedImageDataTests testPreferredFormat]' passed (0.000 seconds).
+Test Suite 'GeneratedImageDataTests' passed at 2025-10-19 10:33:34.187.
+	 Executed 28 tests, with 0 failures (0 unexpected) in 0.003 (0.004) seconds
+Test Suite 'GeneratedRecordTests' started at 2025-10-19 10:33:34.187.
+Test Case '-[SwiftCompartidoTests.GeneratedRecordTests testGeneratedAudioRecordFileStored]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedRecordTests testGeneratedAudioRecordFileStored]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedRecordTests testGeneratedAudioRecordFromTypedData]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedRecordTests testGeneratedAudioRecordFromTypedData]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedRecordTests testGeneratedAudioRecordInitialization]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedRecordTests testGeneratedAudioRecordInitialization]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedRecordTests testGeneratedAudioRecordTouch]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedRecordTests testGeneratedAudioRecordTouch]' passed (0.013 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedRecordTests testGeneratedEmbeddingRecordDataSize]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedRecordTests testGeneratedEmbeddingRecordDataSize]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedRecordTests testGeneratedEmbeddingRecordFileStored]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedRecordTests testGeneratedEmbeddingRecordFileStored]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedRecordTests testGeneratedEmbeddingRecordFromTypedData]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedRecordTests testGeneratedEmbeddingRecordFromTypedData]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedRecordTests testGeneratedEmbeddingRecordGetEmbeddingFromMemory]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedRecordTests testGeneratedEmbeddingRecordGetEmbeddingFromMemory]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedRecordTests testGeneratedEmbeddingRecordInitialization]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedRecordTests testGeneratedEmbeddingRecordInitialization]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedRecordTests testGeneratedImageRecordFileSize]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedRecordTests testGeneratedImageRecordFileSize]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedRecordTests testGeneratedImageRecordFileStored]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedRecordTests testGeneratedImageRecordFileStored]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedRecordTests testGeneratedImageRecordFromTypedData]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedRecordTests testGeneratedImageRecordFromTypedData]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedRecordTests testGeneratedImageRecordGetImageDataFromMemory]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedRecordTests testGeneratedImageRecordGetImageDataFromMemory]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedRecordTests testGeneratedImageRecordInitialization]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedRecordTests testGeneratedImageRecordInitialization]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedRecordTests testGeneratedTextRecordFileStored]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedRecordTests testGeneratedTextRecordFileStored]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedRecordTests testGeneratedTextRecordFromTypedData]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedRecordTests testGeneratedTextRecordFromTypedData]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedRecordTests testGeneratedTextRecordGetTextFromMemory]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedRecordTests testGeneratedTextRecordGetTextFromMemory]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedRecordTests testGeneratedTextRecordGetTextNoContent]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedRecordTests testGeneratedTextRecordGetTextNoContent]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedRecordTests testGeneratedTextRecordInitialization]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedRecordTests testGeneratedTextRecordInitialization]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedRecordTests testMultipleRecordTypes]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedRecordTests testMultipleRecordTypes]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedRecordTests testRecordWithEstimatedCost]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedRecordTests testRecordWithEstimatedCost]' passed (0.000 seconds).
+Test Suite 'GeneratedRecordTests' passed at 2025-10-19 10:33:34.204.
+	 Executed 21 tests, with 0 failures (0 unexpected) in 0.015 (0.017) seconds
+Test Suite 'GeneratedTextDataTests' started at 2025-10-19 10:33:34.204.
+Test Case '-[SwiftCompartidoTests.GeneratedTextDataTests testCharacterCount]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedTextDataTests testCharacterCount]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedTextDataTests testCharacterCountWithEmptyText]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedTextDataTests testCharacterCountWithEmptyText]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedTextDataTests testCharacterCountWithWhitespace]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedTextDataTests testCharacterCountWithWhitespace]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedTextDataTests testGeneratedTextDataCodable]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedTextDataTests testGeneratedTextDataCodable]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedTextDataTests testGeneratedTextDataCodableWithNilValues]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedTextDataTests testGeneratedTextDataCodableWithNilValues]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedTextDataTests testGeneratedTextDataInitialization]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedTextDataTests testGeneratedTextDataInitialization]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedTextDataTests testGeneratedTextDataWithLongText]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedTextDataTests testGeneratedTextDataWithLongText]' passed (0.001 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedTextDataTests testGeneratedTextDataWithOptionalParameters]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedTextDataTests testGeneratedTextDataWithOptionalParameters]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedTextDataTests testGeneratedTextDataWithUnicodeCharacters]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedTextDataTests testGeneratedTextDataWithUnicodeCharacters]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedTextDataTests testPreferredFormat]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedTextDataTests testPreferredFormat]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedTextDataTests testTextGenerationConfigBoundaryValues]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedTextDataTests testTextGenerationConfigBoundaryValues]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedTextDataTests testTextGenerationConfigCodable]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedTextDataTests testTextGenerationConfigCodable]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedTextDataTests testTextGenerationConfigConservative]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedTextDataTests testTextGenerationConfigConservative]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedTextDataTests testTextGenerationConfigCreative]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedTextDataTests testTextGenerationConfigCreative]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedTextDataTests testTextGenerationConfigDefault]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedTextDataTests testTextGenerationConfigDefault]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedTextDataTests testTextGenerationConfigDefaults]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedTextDataTests testTextGenerationConfigDefaults]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedTextDataTests testTextGenerationConfigInitialization]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedTextDataTests testTextGenerationConfigInitialization]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedTextDataTests testTokenCounts]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedTextDataTests testTokenCounts]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedTextDataTests testTokenCountsWithNilValues]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedTextDataTests testTokenCountsWithNilValues]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedTextDataTests testWordCount]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedTextDataTests testWordCount]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedTextDataTests testWordCountWithEmptyText]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedTextDataTests testWordCountWithEmptyText]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedTextDataTests testWordCountWithMultipleSpaces]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedTextDataTests testWordCountWithMultipleSpaces]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedTextDataTests testWordCountWithNewlines]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedTextDataTests testWordCountWithNewlines]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GeneratedTextDataTests testWordCountWithWhitespaceOnly]' started.
+Test Case '-[SwiftCompartidoTests.GeneratedTextDataTests testWordCountWithWhitespaceOnly]' passed (0.000 seconds).
+Test Suite 'GeneratedTextDataTests' passed at 2025-10-19 10:33:34.208.
+	 Executed 24 tests, with 0 failures (0 unexpected) in 0.003 (0.004) seconds
+Test Suite 'GuionSerializationTests' started at 2025-10-19 10:33:34.208.
+Test Case '-[SwiftCompartidoTests.GuionSerializationTests testBinaryDataCorruptedData]' started.
+Test Case '-[SwiftCompartidoTests.GuionSerializationTests testBinaryDataCorruptedData]' passed (0.002 seconds).
+Test Case '-[SwiftCompartidoTests.GuionSerializationTests testBinaryDataEncoding]' started.
+Test Case '-[SwiftCompartidoTests.GuionSerializationTests testBinaryDataEncoding]' passed (0.002 seconds).
+Test Case '-[SwiftCompartidoTests.GuionSerializationTests testBinaryDataUnsupportedVersion]' started.
+Test Case '-[SwiftCompartidoTests.GuionSerializationTests testBinaryDataUnsupportedVersion]' passed (0.002 seconds).
+Test Case '-[SwiftCompartidoTests.GuionSerializationTests testDecodingCorruptedFile]' started.
+Test Case '-[SwiftCompartidoTests.GuionSerializationTests testDecodingCorruptedFile]' passed (0.002 seconds).
+Test Case '-[SwiftCompartidoTests.GuionSerializationTests testDocumentValidation]' started.
+Test Case '-[SwiftCompartidoTests.GuionSerializationTests testDocumentValidation]' passed (0.002 seconds).
+Test Case '-[SwiftCompartidoTests.GuionSerializationTests testDocumentWithAllElementTypes]' started.
+Test Case '-[SwiftCompartidoTests.GuionSerializationTests testDocumentWithAllElementTypes]' passed (0.003 seconds).
+Test Case '-[SwiftCompartidoTests.GuionSerializationTests testDocumentWithSpecialCharacters]' started.
+Test Case '-[SwiftCompartidoTests.GuionSerializationTests testDocumentWithSpecialCharacters]' passed (0.003 seconds).
+Test Case '-[SwiftCompartidoTests.GuionSerializationTests testEmptyDocument]' started.
+Test Case '-[SwiftCompartidoTests.GuionSerializationTests testEmptyDocument]' passed (0.002 seconds).
+Test Case '-[SwiftCompartidoTests.GuionSerializationTests testEncodingErrors]' started.
+Test Case '-[SwiftCompartidoTests.GuionSerializationTests testEncodingErrors]' passed (0.002 seconds).
+Test Case '-[SwiftCompartidoTests.GuionSerializationTests testErrorDescriptions]' started.
+Test Case '-[SwiftCompartidoTests.GuionSerializationTests testErrorDescriptions]' passed (0.002 seconds).
+Test Case '-[SwiftCompartidoTests.GuionSerializationTests testLargeDocumentPerformance]' started.
+Test Case '-[SwiftCompartidoTests.GuionSerializationTests testLargeDocumentPerformance]' passed (1.868 seconds).
+Test Case '-[SwiftCompartidoTests.GuionSerializationTests testLocationCachingForSceneHeadings]' started.
+Test Case '-[SwiftCompartidoTests.GuionSerializationTests testLocationCachingForSceneHeadings]' passed (0.002 seconds).
+Test Case '-[SwiftCompartidoTests.GuionSerializationTests testMultipleTitlePageEntries]' started.
+Test Case '-[SwiftCompartidoTests.GuionSerializationTests testMultipleTitlePageEntries]' passed (0.003 seconds).
+Test Case '-[SwiftCompartidoTests.GuionSerializationTests testPreserveRelationships]' started.
+Test Case '-[SwiftCompartidoTests.GuionSerializationTests testPreserveRelationships]' passed (0.003 seconds).
+Test Case '-[SwiftCompartidoTests.GuionSerializationTests testPreserveSceneLocations]' started.
+Test Case '-[SwiftCompartidoTests.GuionSerializationTests testPreserveSceneLocations]' passed (0.003 seconds).
+Test Case '-[SwiftCompartidoTests.GuionSerializationTests testRoundTripSerialization]' started.
+Test Case '-[SwiftCompartidoTests.GuionSerializationTests testRoundTripSerialization]' passed (0.002 seconds).
+Test Case '-[SwiftCompartidoTests.GuionSerializationTests testSceneNumberPreservation]' started.
+Test Case '-[SwiftCompartidoTests.GuionSerializationTests testSceneNumberPreservation]' passed (0.004 seconds).
+Test Case '-[SwiftCompartidoTests.GuionSerializationTests testUnsupportedVersionError]' started.
+Test Case '-[SwiftCompartidoTests.GuionSerializationTests testUnsupportedVersionError]' passed (0.002 seconds).
+Test Case '-[SwiftCompartidoTests.GuionSerializationTests testValidationMissingData]' started.
+Test Case '-[SwiftCompartidoTests.GuionSerializationTests testValidationMissingData]' passed (0.001 seconds).
+Test Case '-[SwiftCompartidoTests.GuionSerializationTests testValidationReparseMissingLocation]' started.
+Test Case '-[SwiftCompartidoTests.GuionSerializationTests testValidationReparseMissingLocation]' passed (0.002 seconds).
+Test Case '-[SwiftCompartidoTests.GuionSerializationTests testValidationSucceedsWithValidRelationships]' started.
+Test Case '-[SwiftCompartidoTests.GuionSerializationTests testValidationSucceedsWithValidRelationships]' passed (0.002 seconds).
+Test Case '-[SwiftCompartidoTests.GuionSerializationTests testVersionCompatibility]' started.
+Test Case '-[SwiftCompartidoTests.GuionSerializationTests testVersionCompatibility]' passed (0.002 seconds).
+Test Suite 'GuionSerializationTests' passed at 2025-10-19 10:33:36.122.
+	 Executed 22 tests, with 0 failures (0 unexpected) in 1.913 (1.914) seconds
+Test Suite 'GuionViewerTests' started at 2025-10-19 10:33:36.122.
+Test Case '-[SwiftCompartidoTests.GuionViewerTests testBrowserDataExtractionPerformance]' started.
+Test Case '-[SwiftCompartidoTests.GuionViewerTests testBrowserDataExtractionPerformance]' passed (5.727 seconds).
+Test Case '-[SwiftCompartidoTests.GuionViewerTests testDocumentWithCompleteHierarchy]' started.
+Test Case '-[SwiftCompartidoTests.GuionViewerTests testDocumentWithCompleteHierarchy]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GuionViewerTests testDocumentWithMixedContent]' started.
+Test Case '-[SwiftCompartidoTests.GuionViewerTests testDocumentWithMixedContent]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GuionViewerTests testDocumentWithOnlyActionHasNoChapters]' started.
+Test Case '-[SwiftCompartidoTests.GuionViewerTests testDocumentWithOnlyActionHasNoChapters]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GuionViewerTests testDocumentWithOnlyScenesNoStructure]' started.
+Test Case '-[SwiftCompartidoTests.GuionViewerTests testDocumentWithOnlyScenesNoStructure]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GuionViewerTests testEmptyDocumentCreatesEmptyBrowserData]' started.
+Test Case '-[SwiftCompartidoTests.GuionViewerTests testEmptyDocumentCreatesEmptyBrowserData]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GuionViewerTests testEndToEndDocumentToViewerFlow]' started.
+Test Case '-[SwiftCompartidoTests.GuionViewerTests testEndToEndDocumentToViewerFlow]' passed (0.001 seconds).
+Test Case '-[SwiftCompartidoTests.GuionViewerTests testEndToEndFountainToViewerFlow]' started.
+Test Case '-[SwiftCompartidoTests.GuionViewerTests testEndToEndFountainToViewerFlow]' passed (0.002 seconds).
+Test Case '-[SwiftCompartidoTests.GuionViewerTests testExtractSceneBrowserDataFromDocument]' started.
+Test Case '-[SwiftCompartidoTests.GuionViewerTests testExtractSceneBrowserDataFromDocument]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GuionViewerTests testGuionViewerStateEmptyCase]' started.
+Test Case '-[SwiftCompartidoTests.GuionViewerTests testGuionViewerStateEmptyCase]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GuionViewerTests testGuionViewerStateErrorCase]' started.
+Test Case '-[SwiftCompartidoTests.GuionViewerTests testGuionViewerStateErrorCase]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GuionViewerTests testGuionViewerStateLoadedCase]' started.
+Test Case '-[SwiftCompartidoTests.GuionViewerTests testGuionViewerStateLoadedCase]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GuionViewerTests testGuionViewerStateLoadingCase]' started.
+Test Case '-[SwiftCompartidoTests.GuionViewerTests testGuionViewerStateLoadingCase]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GuionViewerTests testInitWithBrowserData]' started.
+Test Case '-[SwiftCompartidoTests.GuionViewerTests testInitWithBrowserData]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GuionViewerTests testInitWithFountainScript]' started.
+Test Case '-[SwiftCompartidoTests.GuionViewerTests testInitWithFountainScript]' passed (0.002 seconds).
+Test Case '-[SwiftCompartidoTests.GuionViewerTests testInitWithGuionDocumentModel]' started.
+Test Case '-[SwiftCompartidoTests.GuionViewerTests testInitWithGuionDocumentModel]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GuionViewerTests testLargeDocumentConversionPerformance]' started.
+Test Case '-[SwiftCompartidoTests.GuionViewerTests testLargeDocumentConversionPerformance]' passed (5.609 seconds).
+Test Case '-[SwiftCompartidoTests.GuionViewerTests testLoadFailedError]' started.
+Test Case '-[SwiftCompartidoTests.GuionViewerTests testLoadFailedError]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GuionViewerTests testManualSummaryElementRoundTrip]' started.
+Test Case '-[SwiftCompartidoTests.GuionViewerTests testManualSummaryElementRoundTrip]' passed (0.001 seconds).
+Test Case '-[SwiftCompartidoTests.GuionViewerTests testMissingModelContextError]' started.
+Test Case '-[SwiftCompartidoTests.GuionViewerTests testMissingModelContextError]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GuionViewerTests testModelBasedSceneElementsPopulated]' started.
+Test Case '-[SwiftCompartidoTests.GuionViewerTests testModelBasedSceneElementsPopulated]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GuionViewerTests testRealScreenplaySceneElements]' started.
+Test Case '-[SwiftCompartidoTests.GuionViewerTests testRealScreenplaySceneElements]' passed (0.003 seconds).
+Test Case '-[SwiftCompartidoTests.GuionViewerTests testRoundTripFidelity]' started.
+Test Case '-[SwiftCompartidoTests.GuionViewerTests testRoundTripFidelity]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GuionViewerTests testSummaryElementCreation]' started.
+Test Case '-[SwiftCompartidoTests.GuionViewerTests testSummaryElementCreation]' passed (0.003 seconds).
+Test Case '-[SwiftCompartidoTests.GuionViewerTests testSummaryElementRoundTrip]' started.
+Test Case '-[SwiftCompartidoTests.GuionViewerTests testSummaryElementRoundTrip]' passed (0.002 seconds).
+Test Case '-[SwiftCompartidoTests.GuionViewerTests testToFountainScriptPreservesFilename]' started.
+Test Case '-[SwiftCompartidoTests.GuionViewerTests testToFountainScriptPreservesFilename]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GuionViewerTests testToFountainScriptPreservesSuppressSceneNumbers]' started.
+Test Case '-[SwiftCompartidoTests.GuionViewerTests testToFountainScriptPreservesSuppressSceneNumbers]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GuionViewerTests testToFountainScriptWithElements]' started.
+Test Case '-[SwiftCompartidoTests.GuionViewerTests testToFountainScriptWithElements]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GuionViewerTests testToFountainScriptWithEmptyTitlePage]' started.
+Test Case '-[SwiftCompartidoTests.GuionViewerTests testToFountainScriptWithEmptyTitlePage]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GuionViewerTests testToFountainScriptWithSpecialElements]' started.
+Test Case '-[SwiftCompartidoTests.GuionViewerTests testToFountainScriptWithSpecialElements]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GuionViewerTests testToFountainScriptWithTitlePage]' started.
+Test Case '-[SwiftCompartidoTests.GuionViewerTests testToFountainScriptWithTitlePage]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GuionViewerTests testUnsupportedFileTypeError]' started.
+Test Case '-[SwiftCompartidoTests.GuionViewerTests testUnsupportedFileTypeError]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.GuionViewerTests testUnsupportedInitializationError]' started.
+Test Case '-[SwiftCompartidoTests.GuionViewerTests testUnsupportedInitializationError]' passed (0.000 seconds).
+Test Suite 'GuionViewerTests' passed at 2025-10-19 10:33:47.477.
+	 Executed 33 tests, with 0 failures (0 unexpected) in 11.353 (11.355) seconds
+Test Suite 'OutlineLevelParsingTests' started at 2025-10-19 10:33:47.477.
+Test Case '-[SwiftCompartidoTests.OutlineLevelParsingTests testChapterSceneGroupHierarchy]' started.
+Test Case '-[SwiftCompartidoTests.OutlineLevelParsingTests testChapterSceneGroupHierarchy]' passed (0.001 seconds).
+Test Case '-[SwiftCompartidoTests.OutlineLevelParsingTests testEmptyScript]' started.
+Test Case '-[SwiftCompartidoTests.OutlineLevelParsingTests testEmptyScript]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.OutlineLevelParsingTests testENDMarkersNotCountedAsChapters]' started.
+Test Case '-[SwiftCompartidoTests.OutlineLevelParsingTests testENDMarkersNotCountedAsChapters]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.OutlineLevelParsingTests testLevel2ChaptersDetection]' started.
+Test Case '-[SwiftCompartidoTests.OutlineLevelParsingTests testLevel2ChaptersDetection]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.OutlineLevelParsingTests testLevel3SceneGroupDetection]' started.
+Test Case '-[SwiftCompartidoTests.OutlineLevelParsingTests testLevel3SceneGroupDetection]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.OutlineLevelParsingTests testMissingLevel2And3CreatesMultipleSyntheticElements]' started.
+Test Case '-[SwiftCompartidoTests.OutlineLevelParsingTests testMissingLevel2And3CreatesMultipleSyntheticElements]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.OutlineLevelParsingTests testMissingLevel3CreatesSymtheticElement]' started.
+Test Case '-[SwiftCompartidoTests.OutlineLevelParsingTests testMissingLevel3CreatesSymtheticElement]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.OutlineLevelParsingTests testMissingLevelWhenSceneGroupExists]' started.
+Test Case '-[SwiftCompartidoTests.OutlineLevelParsingTests testMissingLevelWhenSceneGroupExists]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.OutlineLevelParsingTests testMixedHierarchyLevels]' started.
+Test Case '-[SwiftCompartidoTests.OutlineLevelParsingTests testMixedHierarchyLevels]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.OutlineLevelParsingTests testMrMrCharlesDocument]' started.
+Test Case '-[SwiftCompartidoTests.OutlineLevelParsingTests testMrMrCharlesDocument]' passed (0.001 seconds).
+Test Case '-[SwiftCompartidoTests.OutlineLevelParsingTests testMultipleLevel1HeadersAllowed]' started.
+Test Case '-[SwiftCompartidoTests.OutlineLevelParsingTests testMultipleLevel1HeadersAllowed]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.OutlineLevelParsingTests testMultipleLevel1HeadersWithComplexHierarchies]' started.
+Test Case '-[SwiftCompartidoTests.OutlineLevelParsingTests testMultipleLevel1HeadersWithComplexHierarchies]' passed (0.001 seconds).
+Test Case '-[SwiftCompartidoTests.OutlineLevelParsingTests testMultipleLevel1HeadersWithSeparateHierarchies]' started.
+Test Case '-[SwiftCompartidoTests.OutlineLevelParsingTests testMultipleLevel1HeadersWithSeparateHierarchies]' passed (0.001 seconds).
+Test Case '-[SwiftCompartidoTests.OutlineLevelParsingTests testMultipleScenesWithMissingLevel3]' started.
+Test Case '-[SwiftCompartidoTests.OutlineLevelParsingTests testMultipleScenesWithMissingLevel3]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.OutlineLevelParsingTests testNoLevel1CreatesSymtheticTitle]' started.
+Test Case '-[SwiftCompartidoTests.OutlineLevelParsingTests testNoLevel1CreatesSymtheticTitle]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.OutlineLevelParsingTests testSceneBrowserWithMultipleChapters]' started.
+Test Case '-[SwiftCompartidoTests.OutlineLevelParsingTests testSceneBrowserWithMultipleChapters]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.OutlineLevelParsingTests testSceneDirectiveExtraction]' started.
+Test Case '-[SwiftCompartidoTests.OutlineLevelParsingTests testSceneDirectiveExtraction]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.OutlineLevelParsingTests testSceneHeadersUnderSceneGroups]' started.
+Test Case '-[SwiftCompartidoTests.OutlineLevelParsingTests testSceneHeadersUnderSceneGroups]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.OutlineLevelParsingTests testScriptWithOnlyScenes]' started.
+Test Case '-[SwiftCompartidoTests.OutlineLevelParsingTests testScriptWithOnlyScenes]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.OutlineLevelParsingTests testSHOTDirectivesNotCountedAsChapters]' started.
+Test Case '-[SwiftCompartidoTests.OutlineLevelParsingTests testSHOTDirectivesNotCountedAsChapters]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.OutlineLevelParsingTests testSingleLevel1Header]' started.
+Test Case '-[SwiftCompartidoTests.OutlineLevelParsingTests testSingleLevel1Header]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.OutlineLevelParsingTests testSyntheticElementsNotEncodedInSerialization]' started.
+Test Case '-[SwiftCompartidoTests.OutlineLevelParsingTests testSyntheticElementsNotEncodedInSerialization]' passed (0.001 seconds).
+Test Suite 'OutlineLevelParsingTests' passed at 2025-10-19 10:33:47.486.
+	 Executed 22 tests, with 0 failures (0 unexpected) in 0.009 (0.010) seconds
+Test Suite 'OutputFileTypeTests' started at 2025-10-19 10:33:47.486.
+Test Case '-[SwiftCompartidoTests.OutputFileTypeTests testBinaryFileType]' started.
+Test Case '-[SwiftCompartidoTests.OutputFileTypeTests testBinaryFileType]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.OutputFileTypeTests testCodableRoundTrip]' started.
+Test Case '-[SwiftCompartidoTests.OutputFileTypeTests testCodableRoundTrip]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.OutputFileTypeTests testCodableWithNilUTType]' started.
+Test Case '-[SwiftCompartidoTests.OutputFileTypeTests testCodableWithNilUTType]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.OutputFileTypeTests testCustomInitialization]' started.
+Test Case '-[SwiftCompartidoTests.OutputFileTypeTests testCustomInitialization]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.OutputFileTypeTests testCustomThreshold]' started.
+Test Case '-[SwiftCompartidoTests.OutputFileTypeTests testCustomThreshold]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.OutputFileTypeTests testEquality]' started.
+Test Case '-[SwiftCompartidoTests.OutputFileTypeTests testEquality]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.OutputFileTypeTests testHashable]' started.
+Test Case '-[SwiftCompartidoTests.OutputFileTypeTests testHashable]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.OutputFileTypeTests testInequality_DifferentExtension]' started.
+Test Case '-[SwiftCompartidoTests.OutputFileTypeTests testInequality_DifferentExtension]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.OutputFileTypeTests testJPEGFileType]' started.
+Test Case '-[SwiftCompartidoTests.OutputFileTypeTests testJPEGFileType]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.OutputFileTypeTests testJSONFileType]' started.
+Test Case '-[SwiftCompartidoTests.OutputFileTypeTests testJSONFileType]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.OutputFileTypeTests testM4AFileType]' started.
+Test Case '-[SwiftCompartidoTests.OutputFileTypeTests testM4AFileType]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.OutputFileTypeTests testMOVFileType]' started.
+Test Case '-[SwiftCompartidoTests.OutputFileTypeTests testMOVFileType]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.OutputFileTypeTests testMP3FileType]' started.
+Test Case '-[SwiftCompartidoTests.OutputFileTypeTests testMP3FileType]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.OutputFileTypeTests testMP4FileType]' started.
+Test Case '-[SwiftCompartidoTests.OutputFileTypeTests testMP4FileType]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.OutputFileTypeTests testPlainTextFileType]' started.
+Test Case '-[SwiftCompartidoTests.OutputFileTypeTests testPlainTextFileType]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.OutputFileTypeTests testPlistFileType]' started.
+Test Case '-[SwiftCompartidoTests.OutputFileTypeTests testPlistFileType]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.OutputFileTypeTests testPNGFileType]' started.
+Test Case '-[SwiftCompartidoTests.OutputFileTypeTests testPNGFileType]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.OutputFileTypeTests testSendableConformance]' started.
+Test Case '-[SwiftCompartidoTests.OutputFileTypeTests testSendableConformance]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.OutputFileTypeTests testShouldStoreAsFile_BelowThreshold]' started.
+Test Case '-[SwiftCompartidoTests.OutputFileTypeTests testShouldStoreAsFile_BelowThreshold]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.OutputFileTypeTests testShouldStoreAsFile_EqualToThreshold]' started.
+Test Case '-[SwiftCompartidoTests.OutputFileTypeTests testShouldStoreAsFile_EqualToThreshold]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.OutputFileTypeTests testShouldStoreAsFile_ExceedsThreshold]' started.
+Test Case '-[SwiftCompartidoTests.OutputFileTypeTests testShouldStoreAsFile_ExceedsThreshold]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.OutputFileTypeTests testShouldStoreAsFile_NoThreshold]' started.
+Test Case '-[SwiftCompartidoTests.OutputFileTypeTests testShouldStoreAsFile_NoThreshold]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.OutputFileTypeTests testShouldStoreAsFile_UnknownSize_Audio]' started.
+Test Case '-[SwiftCompartidoTests.OutputFileTypeTests testShouldStoreAsFile_UnknownSize_Audio]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.OutputFileTypeTests testShouldStoreAsFile_UnknownSize_Text]' started.
+Test Case '-[SwiftCompartidoTests.OutputFileTypeTests testShouldStoreAsFile_UnknownSize_Text]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.OutputFileTypeTests testWAVFileType]' started.
+Test Case '-[SwiftCompartidoTests.OutputFileTypeTests testWAVFileType]' passed (0.000 seconds).
+Test Suite 'OutputFileTypeTests' passed at 2025-10-19 10:33:47.490.
+	 Executed 25 tests, with 0 failures (0 unexpected) in 0.002 (0.004) seconds
+Test Suite 'ProviderCategoryTests' started at 2025-10-19 10:33:47.490.
+Test Case '-[SwiftCompartidoTests.ProviderCategoryTests testAllCasesArePresent]' started.
+Test Case '-[SwiftCompartidoTests.ProviderCategoryTests testAllCasesArePresent]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.ProviderCategoryTests testCodableRoundTrip]' started.
+Test Case '-[SwiftCompartidoTests.ProviderCategoryTests testCodableRoundTrip]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.ProviderCategoryTests testDecodingFromRawValue]' started.
+Test Case '-[SwiftCompartidoTests.ProviderCategoryTests testDecodingFromRawValue]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.ProviderCategoryTests testDescriptions]' started.
+Test Case '-[SwiftCompartidoTests.ProviderCategoryTests testDescriptions]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.ProviderCategoryTests testDisplayNames]' started.
+Test Case '-[SwiftCompartidoTests.ProviderCategoryTests testDisplayNames]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.ProviderCategoryTests testIdentifiableConformance]' started.
+Test Case '-[SwiftCompartidoTests.ProviderCategoryTests testIdentifiableConformance]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.ProviderCategoryTests testRawValuesAreCorrect]' started.
+Test Case '-[SwiftCompartidoTests.ProviderCategoryTests testRawValuesAreCorrect]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.ProviderCategoryTests testSendableConformance]' started.
+Test Case '-[SwiftCompartidoTests.ProviderCategoryTests testSendableConformance]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.ProviderCategoryTests testSymbolNames]' started.
+Test Case '-[SwiftCompartidoTests.ProviderCategoryTests testSymbolNames]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.ProviderCategoryTests testTypicallyNeedsFileStorage]' started.
+Test Case '-[SwiftCompartidoTests.ProviderCategoryTests testTypicallyNeedsFileStorage]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.ProviderCategoryTests testTypicalSizeRanges]' started.
+Test Case '-[SwiftCompartidoTests.ProviderCategoryTests testTypicalSizeRanges]' passed (0.000 seconds).
+Test Suite 'ProviderCategoryTests' passed at 2025-10-19 10:33:47.491.
+	 Executed 11 tests, with 0 failures (0 unexpected) in 0.001 (0.001) seconds
+Test Suite 'SceneBrowserTests' started at 2025-10-19 10:33:47.491.
+Test Case '-[SwiftCompartidoTests.SceneBrowserTests testChapterDataInitialization]' started.
+Test Case '-[SwiftCompartidoTests.SceneBrowserTests testChapterDataInitialization]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.SceneBrowserTests testEmptyScript]' started.
+Test Case '-[SwiftCompartidoTests.SceneBrowserTests testEmptyScript]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.SceneBrowserTests testExtractSceneBrowserDataWithTestFixture]' started.
+Test Case '-[SwiftCompartidoTests.SceneBrowserTests testExtractSceneBrowserDataWithTestFixture]' passed (0.002 seconds).
+Test Case '-[SwiftCompartidoTests.SceneBrowserTests testMultipleChapters]' started.
+Test Case '-[SwiftCompartidoTests.SceneBrowserTests testMultipleChapters]' passed (0.001 seconds).
+Test Case '-[SwiftCompartidoTests.SceneBrowserTests testOverBlackAttachmentToNextScene]' started.
+Test Case '-[SwiftCompartidoTests.SceneBrowserTests testOverBlackAttachmentToNextScene]' passed (0.001 seconds).
+Test Case '-[SwiftCompartidoTests.SceneBrowserTests testOverBlackDetection]' started.
+Test Case '-[SwiftCompartidoTests.SceneBrowserTests testOverBlackDetection]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.SceneBrowserTests testSceneBrowserDataInitialization]' started.
+Test Case '-[SwiftCompartidoTests.SceneBrowserTests testSceneBrowserDataInitialization]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.SceneBrowserTests testSceneDataInitialization]' started.
+Test Case '-[SwiftCompartidoTests.SceneBrowserTests testSceneDataInitialization]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.SceneBrowserTests testSceneDataWithPreScene]' started.
+Test Case '-[SwiftCompartidoTests.SceneBrowserTests testSceneDataWithPreScene]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.SceneBrowserTests testSceneDirectiveMetadata]' started.
+Test Case '-[SwiftCompartidoTests.SceneBrowserTests testSceneDirectiveMetadata]' passed (0.001 seconds).
+Test Case '-[SwiftCompartidoTests.SceneBrowserTests testSceneGroupDataInitialization]' started.
+Test Case '-[SwiftCompartidoTests.SceneBrowserTests testSceneGroupDataInitialization]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.SceneBrowserTests testSceneGroupsInChapter]' started.
+Test Case '-[SwiftCompartidoTests.SceneBrowserTests testSceneGroupsInChapter]' passed (0.001 seconds).
+Test Case '-[SwiftCompartidoTests.SceneBrowserTests testScenesInSceneGroup]' started.
+Test Case '-[SwiftCompartidoTests.SceneBrowserTests testScenesInSceneGroup]' passed (0.001 seconds).
+Test Case '-[SwiftCompartidoTests.SceneBrowserTests testScriptWithOnlyTitle]' started.
+Test Case '-[SwiftCompartidoTests.SceneBrowserTests testScriptWithOnlyTitle]' passed (0.000 seconds).
+Test Suite 'SceneBrowserTests' passed at 2025-10-19 10:33:47.502.
+	 Executed 14 tests, with 0 failures (0 unexpected) in 0.009 (0.010) seconds
+Test Suite 'SceneBrowserUITests' started at 2025-10-19 10:33:47.502.
+Test Case '-[SwiftCompartidoTests.SceneBrowserUITests testBrowserDataHierarchy]' started.
+Test Case '-[SwiftCompartidoTests.SceneBrowserUITests testBrowserDataHierarchy]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.SceneBrowserUITests testChapterExpansionState]' started.
+Test Case '-[SwiftCompartidoTests.SceneBrowserUITests testChapterExpansionState]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.SceneBrowserUITests testChapterWithNoSceneGroups]' started.
+Test Case '-[SwiftCompartidoTests.SceneBrowserUITests testChapterWithNoSceneGroups]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.SceneBrowserUITests testDataIntegrityWithRealScript]' started.
+Test Case '-[SwiftCompartidoTests.SceneBrowserUITests testDataIntegrityWithRealScript]' passed (0.001 seconds).
+Test Case '-[SwiftCompartidoTests.SceneBrowserUITests testDialogueBlockGrouping]' started.
+Test Case '-[SwiftCompartidoTests.SceneBrowserUITests testDialogueBlockGrouping]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.SceneBrowserUITests testDialogueDisplayInExpandedScene]' started.
+Test Case '-[SwiftCompartidoTests.SceneBrowserUITests testDialogueDisplayInExpandedScene]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.SceneBrowserUITests testDialogueElementModels]' started.
+Test Case '-[SwiftCompartidoTests.SceneBrowserUITests testDialogueElementModels]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.SceneBrowserUITests testDialogueInRealScript]' started.
+Test Case '-[SwiftCompartidoTests.SceneBrowserUITests testDialogueInRealScript]' passed (0.001 seconds).
+Test Case '-[SwiftCompartidoTests.SceneBrowserUITests testEmptyChapterHandling]' started.
+Test Case '-[SwiftCompartidoTests.SceneBrowserUITests testEmptyChapterHandling]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.SceneBrowserUITests testEmptyPreSceneText]' started.
+Test Case '-[SwiftCompartidoTests.SceneBrowserUITests testEmptyPreSceneText]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.SceneBrowserUITests testHierarchyIntegrityWithRealData]' started.
+Test Case '-[SwiftCompartidoTests.SceneBrowserUITests testHierarchyIntegrityWithRealData]' passed (0.001 seconds).
+Test Case '-[SwiftCompartidoTests.SceneBrowserUITests testLargeScriptPerformance]' started.
+Test Case '-[SwiftCompartidoTests.SceneBrowserUITests testLargeScriptPerformance]' passed (0.124 seconds).
+Test Case '-[SwiftCompartidoTests.SceneBrowserUITests testMultipleChapters]' started.
+Test Case '-[SwiftCompartidoTests.SceneBrowserUITests testMultipleChapters]' passed (0.002 seconds).
+Test Case '-[SwiftCompartidoTests.SceneBrowserUITests testPreSceneContentAttachment]' started.
+Test Case '-[SwiftCompartidoTests.SceneBrowserUITests testPreSceneContentAttachment]' passed (0.001 seconds).
+Test Case '-[SwiftCompartidoTests.SceneBrowserUITests testPreSceneTextProperty]' started.
+Test Case '-[SwiftCompartidoTests.SceneBrowserUITests testPreSceneTextProperty]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.SceneBrowserUITests testSceneBrowserDataFromTestFixture]' started.
+Test Case '-[SwiftCompartidoTests.SceneBrowserUITests testSceneBrowserDataFromTestFixture]' passed (0.001 seconds).
+Test Case '-[SwiftCompartidoTests.SceneBrowserUITests testSceneContentExtraction]' started.
+Test Case '-[SwiftCompartidoTests.SceneBrowserUITests testSceneContentExtraction]' passed (0.001 seconds).
+Test Case '-[SwiftCompartidoTests.SceneBrowserUITests testSceneDirectiveMetadata]' started.
+Test Case '-[SwiftCompartidoTests.SceneBrowserUITests testSceneDirectiveMetadata]' passed (0.002 seconds).
+Test Case '-[SwiftCompartidoTests.SceneBrowserUITests testSceneExpansionState]' started.
+Test Case '-[SwiftCompartidoTests.SceneBrowserUITests testSceneExpansionState]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.SceneBrowserUITests testSceneGroupExpansionState]' started.
+Test Case '-[SwiftCompartidoTests.SceneBrowserUITests testSceneGroupExpansionState]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.SceneBrowserUITests testSceneGroupWithNoScenes]' started.
+Test Case '-[SwiftCompartidoTests.SceneBrowserUITests testSceneGroupWithNoScenes]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.SceneBrowserUITests testSceneIdUniqueness]' started.
+Test Case '-[SwiftCompartidoTests.SceneBrowserUITests testSceneIdUniqueness]' passed (0.002 seconds).
+Test Case '-[SwiftCompartidoTests.SceneBrowserUITests testSceneLocationParsing]' started.
+Test Case '-[SwiftCompartidoTests.SceneBrowserUITests testSceneLocationParsing]' passed (0.001 seconds).
+Test Case '-[SwiftCompartidoTests.SceneBrowserUITests testSceneWithNilLocation]' started.
+Test Case '-[SwiftCompartidoTests.SceneBrowserUITests testSceneWithNilLocation]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.SceneBrowserUITests testSceneWithNoElements]' started.
+Test Case '-[SwiftCompartidoTests.SceneBrowserUITests testSceneWithNoElements]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.SceneBrowserUITests testSyntheticChapterWithNoChapters]' started.
+/Users/stovak/Projects/SwiftCompartido/Tests/SwiftCompartidoTests/SceneBrowserUITests.swift:546: error: -[SwiftCompartidoTests.SceneBrowserUITests testSyntheticChapterWithNoChapters] : XCTAssertEqual failed: ("(Untitled Section)") is not equal to ("Scenes") - Synthetic chapter should be named 'Scenes'
+Test Case '-[SwiftCompartidoTests.SceneBrowserUITests testSyntheticChapterWithNoChapters]' failed (0.024 seconds).
+Test Case '-[SwiftCompartidoTests.SceneBrowserUITests testSyntheticChapterWithNoSceneGroups]' started.
+Test Case '-[SwiftCompartidoTests.SceneBrowserUITests testSyntheticChapterWithNoSceneGroups]' passed (0.001 seconds).
+Test Case '-[SwiftCompartidoTests.SceneBrowserUITests testSyntheticElementsNotExported]' started.
+Test Case '-[SwiftCompartidoTests.SceneBrowserUITests testSyntheticElementsNotExported]' passed (0.000 seconds).
+Test Suite 'SceneBrowserUITests' failed at 2025-10-19 10:33:47.669.
+	 Executed 28 tests, with 1 failure (0 unexpected) in 0.166 (0.167) seconds
+Test Suite 'SerializationFormatTests' started at 2025-10-19 10:33:47.669.
+Test Case '-[SwiftCompartidoTests.SerializationFormatTests testAllCasesArePresent]' started.
+Test Case '-[SwiftCompartidoTests.SerializationFormatTests testAllCasesArePresent]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.SerializationFormatTests testCodableRoundTrip]' started.
+Test Case '-[SwiftCompartidoTests.SerializationFormatTests testCodableRoundTrip]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.SerializationFormatTests testDecodingFromRawValue]' started.
+Test Case '-[SwiftCompartidoTests.SerializationFormatTests testDecodingFromRawValue]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.SerializationFormatTests testDescriptions]' started.
+Test Case '-[SwiftCompartidoTests.SerializationFormatTests testDescriptions]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.SerializationFormatTests testDisplayNames]' started.
+Test Case '-[SwiftCompartidoTests.SerializationFormatTests testDisplayNames]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.SerializationFormatTests testFileExtensions]' started.
+Test Case '-[SwiftCompartidoTests.SerializationFormatTests testFileExtensions]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.SerializationFormatTests testHasDefaultImplementation]' started.
+Test Case '-[SwiftCompartidoTests.SerializationFormatTests testHasDefaultImplementation]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.SerializationFormatTests testIdentifiableConformance]' started.
+Test Case '-[SwiftCompartidoTests.SerializationFormatTests testIdentifiableConformance]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.SerializationFormatTests testIsHumanReadable]' started.
+Test Case '-[SwiftCompartidoTests.SerializationFormatTests testIsHumanReadable]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.SerializationFormatTests testIsImplemented]' started.
+Test Case '-[SwiftCompartidoTests.SerializationFormatTests testIsImplemented]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.SerializationFormatTests testMimeTypes]' started.
+Test Case '-[SwiftCompartidoTests.SerializationFormatTests testMimeTypes]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.SerializationFormatTests testRawValuesAreCorrect]' started.
+Test Case '-[SwiftCompartidoTests.SerializationFormatTests testRawValuesAreCorrect]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.SerializationFormatTests testRecommendForInspection]' started.
+Test Case '-[SwiftCompartidoTests.SerializationFormatTests testRecommendForInspection]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.SerializationFormatTests testRecommendForLargeData]' started.
+Test Case '-[SwiftCompartidoTests.SerializationFormatTests testRecommendForLargeData]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.SerializationFormatTests testRecommendForSmallBinaryData]' started.
+Test Case '-[SwiftCompartidoTests.SerializationFormatTests testRecommendForSmallBinaryData]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.SerializationFormatTests testRecommendForTextualData]' started.
+Test Case '-[SwiftCompartidoTests.SerializationFormatTests testRecommendForTextualData]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.SerializationFormatTests testRecommendForUnknownSize]' started.
+Test Case '-[SwiftCompartidoTests.SerializationFormatTests testRecommendForUnknownSize]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.SerializationFormatTests testSendableConformance]' started.
+Test Case '-[SwiftCompartidoTests.SerializationFormatTests testSendableConformance]' passed (0.000 seconds).
+Test Suite 'SerializationFormatTests' passed at 2025-10-19 10:33:47.671.
+	 Executed 18 tests, with 0 failures (0 unexpected) in 0.001 (0.002) seconds
+Test Suite 'StorageAreaReferenceTests' started at 2025-10-19 10:33:47.671.
+Test Case '-[SwiftCompartidoTests.StorageAreaReferenceTests testCodableRoundTrip]' started.
+Test Case '-[SwiftCompartidoTests.StorageAreaReferenceTests testCodableRoundTrip]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.StorageAreaReferenceTests testCreateDirectoryIfNeeded_Idempotent]' started.
+Test Case '-[SwiftCompartidoTests.StorageAreaReferenceTests testCreateDirectoryIfNeeded_Idempotent]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.StorageAreaReferenceTests testCreateDirectoryIfNeeded]' started.
+Test Case '-[SwiftCompartidoTests.StorageAreaReferenceTests testCreateDirectoryIfNeeded]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.StorageAreaReferenceTests testDefaultDataFileURL]' started.
+Test Case '-[SwiftCompartidoTests.StorageAreaReferenceTests testDefaultDataFileURL]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.StorageAreaReferenceTests testDescription]' started.
+Test Case '-[SwiftCompartidoTests.StorageAreaReferenceTests testDescription]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.StorageAreaReferenceTests testEquality]' started.
+Test Case '-[SwiftCompartidoTests.StorageAreaReferenceTests testEquality]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.StorageAreaReferenceTests testFileURL]' started.
+Test Case '-[SwiftCompartidoTests.StorageAreaReferenceTests testFileURL]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.StorageAreaReferenceTests testFileURL_WithExtension]' started.
+Test Case '-[SwiftCompartidoTests.StorageAreaReferenceTests testFileURL_WithExtension]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.StorageAreaReferenceTests testInBundleStorageArea]' started.
+Test Case '-[SwiftCompartidoTests.StorageAreaReferenceTests testInBundleStorageArea]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.StorageAreaReferenceTests testInequality_DifferentRequestID]' started.
+Test Case '-[SwiftCompartidoTests.StorageAreaReferenceTests testInequality_DifferentRequestID]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.StorageAreaReferenceTests testInitialization]' started.
+Test Case '-[SwiftCompartidoTests.StorageAreaReferenceTests testInitialization]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.StorageAreaReferenceTests testListFiles]' started.
+Test Case '-[SwiftCompartidoTests.StorageAreaReferenceTests testListFiles]' passed (0.001 seconds).
+Test Case '-[SwiftCompartidoTests.StorageAreaReferenceTests testSendableConformance]' started.
+Test Case '-[SwiftCompartidoTests.StorageAreaReferenceTests testSendableConformance]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.StorageAreaReferenceTests testTemporaryStorageArea]' started.
+Test Case '-[SwiftCompartidoTests.StorageAreaReferenceTests testTemporaryStorageArea]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.StorageAreaReferenceTests testTemporaryStorageArea_WithRequestID]' started.
+Test Case '-[SwiftCompartidoTests.StorageAreaReferenceTests testTemporaryStorageArea_WithRequestID]' passed (0.000 seconds).
+Test Suite 'StorageAreaReferenceTests' passed at 2025-10-19 10:33:47.676.
+	 Executed 15 tests, with 0 failures (0 unexpected) in 0.004 (0.005) seconds
+Test Suite 'TextConfigurationViewTests' started at 2025-10-19 10:33:47.676.
+Test Case '-[SwiftCompartidoTests.TextConfigurationViewTests testTextConfigurationView_Codable]' started.
+Test Case '-[SwiftCompartidoTests.TextConfigurationViewTests testTextConfigurationView_Codable]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.TextConfigurationViewTests testTextConfigurationView_CodableWithNils]' started.
+Test Case '-[SwiftCompartidoTests.TextConfigurationViewTests testTextConfigurationView_CodableWithNils]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.TextConfigurationViewTests testTextConfigurationView_CreatesView]' started.
+Test Case '-[SwiftCompartidoTests.TextConfigurationViewTests testTextConfigurationView_CreatesView]' passed (0.017 seconds).
+Test Case '-[SwiftCompartidoTests.TextConfigurationViewTests testTextConfigurationView_CustomConfiguration]' started.
+Test Case '-[SwiftCompartidoTests.TextConfigurationViewTests testTextConfigurationView_CustomConfiguration]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.TextConfigurationViewTests testTextConfigurationView_DefaultConfiguration]' started.
+Test Case '-[SwiftCompartidoTests.TextConfigurationViewTests testTextConfigurationView_DefaultConfiguration]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.TextConfigurationViewTests testTextConfigurationView_EmptyStopSequences]' started.
+Test Case '-[SwiftCompartidoTests.TextConfigurationViewTests testTextConfigurationView_EmptyStopSequences]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.TextConfigurationViewTests testTextConfigurationView_EmptySystemPrompt]' started.
+Test Case '-[SwiftCompartidoTests.TextConfigurationViewTests testTextConfigurationView_EmptySystemPrompt]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.TextConfigurationViewTests testTextConfigurationView_FrequencyPenaltyModification]' started.
+Test Case '-[SwiftCompartidoTests.TextConfigurationViewTests testTextConfigurationView_FrequencyPenaltyModification]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.TextConfigurationViewTests testTextConfigurationView_FrequencyPenaltyRange]' started.
+Test Case '-[SwiftCompartidoTests.TextConfigurationViewTests testTextConfigurationView_FrequencyPenaltyRange]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.TextConfigurationViewTests testTextConfigurationView_Initialization]' started.
+Test Case '-[SwiftCompartidoTests.TextConfigurationViewTests testTextConfigurationView_Initialization]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.TextConfigurationViewTests testTextConfigurationView_MaxTokensModification]' started.
+Test Case '-[SwiftCompartidoTests.TextConfigurationViewTests testTextConfigurationView_MaxTokensModification]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.TextConfigurationViewTests testTextConfigurationView_MaxTokensRange]' started.
+Test Case '-[SwiftCompartidoTests.TextConfigurationViewTests testTextConfigurationView_MaxTokensRange]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.TextConfigurationViewTests testTextConfigurationView_MultipleStopSequences]' started.
+Test Case '-[SwiftCompartidoTests.TextConfigurationViewTests testTextConfigurationView_MultipleStopSequences]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.TextConfigurationViewTests testTextConfigurationView_PresencePenaltyModification]' started.
+Test Case '-[SwiftCompartidoTests.TextConfigurationViewTests testTextConfigurationView_PresencePenaltyModification]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.TextConfigurationViewTests testTextConfigurationView_PresencePenaltyRange]' started.
+Test Case '-[SwiftCompartidoTests.TextConfigurationViewTests testTextConfigurationView_PresencePenaltyRange]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.TextConfigurationViewTests testTextConfigurationView_PreviewConfiguration]' started.
+Test Case '-[SwiftCompartidoTests.TextConfigurationViewTests testTextConfigurationView_PreviewConfiguration]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.TextConfigurationViewTests testTextConfigurationView_ResetToDefaults]' started.
+Test Case '-[SwiftCompartidoTests.TextConfigurationViewTests testTextConfigurationView_ResetToDefaults]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.TextConfigurationViewTests testTextConfigurationView_SingleStopSequence]' started.
+Test Case '-[SwiftCompartidoTests.TextConfigurationViewTests testTextConfigurationView_SingleStopSequence]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.TextConfigurationViewTests testTextConfigurationView_StopSequencesModification]' started.
+Test Case '-[SwiftCompartidoTests.TextConfigurationViewTests testTextConfigurationView_StopSequencesModification]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.TextConfigurationViewTests testTextConfigurationView_SystemPromptModification]' started.
+Test Case '-[SwiftCompartidoTests.TextConfigurationViewTests testTextConfigurationView_SystemPromptModification]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.TextConfigurationViewTests testTextConfigurationView_TemperatureModification]' started.
+Test Case '-[SwiftCompartidoTests.TextConfigurationViewTests testTextConfigurationView_TemperatureModification]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.TextConfigurationViewTests testTextConfigurationView_TemperatureRange]' started.
+Test Case '-[SwiftCompartidoTests.TextConfigurationViewTests testTextConfigurationView_TemperatureRange]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.TextConfigurationViewTests testTextConfigurationView_TopPModification]' started.
+Test Case '-[SwiftCompartidoTests.TextConfigurationViewTests testTextConfigurationView_TopPModification]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.TextConfigurationViewTests testTextConfigurationView_TopPRange]' started.
+Test Case '-[SwiftCompartidoTests.TextConfigurationViewTests testTextConfigurationView_TopPRange]' passed (0.000 seconds).
+Test Suite 'TextConfigurationViewTests' passed at 2025-10-19 10:33:47.696.
+	 Executed 24 tests, with 0 failures (0 unexpected) in 0.019 (0.020) seconds
+Test Suite 'TypedDataFileReferenceTests' started at 2025-10-19 10:33:47.696.
+Test Case '-[SwiftCompartidoTests.TypedDataFileReferenceTests testCodableRoundTrip]' started.
+Test Case '-[SwiftCompartidoTests.TypedDataFileReferenceTests testCodableRoundTrip]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.TypedDataFileReferenceTests testDescription]' started.
+Test Case '-[SwiftCompartidoTests.TypedDataFileReferenceTests testDescription]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.TypedDataFileReferenceTests testEquality]' started.
+Test Case '-[SwiftCompartidoTests.TypedDataFileReferenceTests testEquality]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.TypedDataFileReferenceTests testFileExists]' started.
+Test Case '-[SwiftCompartidoTests.TypedDataFileReferenceTests testFileExists]' passed (0.001 seconds).
+Test Case '-[SwiftCompartidoTests.TypedDataFileReferenceTests testFileExtension]' started.
+Test Case '-[SwiftCompartidoTests.TypedDataFileReferenceTests testFileExtension]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.TypedDataFileReferenceTests testFileURL_InBundle]' started.
+Test Case '-[SwiftCompartidoTests.TypedDataFileReferenceTests testFileURL_InBundle]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.TypedDataFileReferenceTests testFileURL_InStorageArea]' started.
+Test Case '-[SwiftCompartidoTests.TypedDataFileReferenceTests testFileURL_InStorageArea]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.TypedDataFileReferenceTests testFromData]' started.
+Test Case '-[SwiftCompartidoTests.TypedDataFileReferenceTests testFromData]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.TypedDataFileReferenceTests testFromData_WithChecksum]' started.
+Test Case '-[SwiftCompartidoTests.TypedDataFileReferenceTests testFromData_WithChecksum]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.TypedDataFileReferenceTests testFromFileURL]' started.
+Test Case '-[SwiftCompartidoTests.TypedDataFileReferenceTests testFromFileURL]' passed (0.001 seconds).
+Test Case '-[SwiftCompartidoTests.TypedDataFileReferenceTests testInitialization]' started.
+Test Case '-[SwiftCompartidoTests.TypedDataFileReferenceTests testInitialization]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.TypedDataFileReferenceTests testReadData]' started.
+Test Case '-[SwiftCompartidoTests.TypedDataFileReferenceTests testReadData]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.TypedDataFileReferenceTests testRelativePath]' started.
+Test Case '-[SwiftCompartidoTests.TypedDataFileReferenceTests testRelativePath]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.TypedDataFileReferenceTests testSendableConformance]' started.
+Test Case '-[SwiftCompartidoTests.TypedDataFileReferenceTests testSendableConformance]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.TypedDataFileReferenceTests testVerifySizeMatches_Mismatch]' started.
+Test Case '-[SwiftCompartidoTests.TypedDataFileReferenceTests testVerifySizeMatches_Mismatch]' passed (0.000 seconds).
+Test Case '-[SwiftCompartidoTests.TypedDataFileReferenceTests testVerifySizeMatches]' started.
+Test Case '-[SwiftCompartidoTests.TypedDataFileReferenceTests testVerifySizeMatches]' passed (0.000 seconds).
+Test Suite 'TypedDataFileReferenceTests' passed at 2025-10-19 10:33:47.701.
+	 Executed 16 tests, with 0 failures (0 unexpected) in 0.005 (0.006) seconds
+Test Suite 'SwiftCompartidoPackageTests.xctest' failed at 2025-10-19 10:33:47.701.
+	 Executed 471 tests, with 1 failure (0 unexpected) in 14.897 (14.922) seconds
+Test Suite 'All tests' failed at 2025-10-19 10:33:47.701.
+	 Executed 471 tests, with 1 failure (0 unexpected) in 14.897 (14.923) seconds
+💾 Fountain export time for 1000 elements: 0.012089014053344727s
+💾 FDX export time for 1000 elements: 0.007104992866516113s
+📊 PERFORMANCE METRICS:
+   Fountain export: 0.012s
+   FDX export: 0.007s
+📊 Performance: Native .guion load: 0.21563208103179932s for 500 elements
+📊 PERFORMANCE METRICS:
+   Native load: 0.216s
+💾 Native .guion save time: 0.0014369487762451172s, load time: 0.010982990264892578s
+💾 Save time for 1000 elements: 0.009564995765686035s
+📥 Load time for 1000 elements: 0.8517589569091797s
+📊 PERFORMANCE METRICS:
+   Serialization save: 0.010s
+   Serialization load: 0.852s
+⚡ Performance: Browser data extraction took 0.007 seconds
+📊 Chapters: 1
+⚡ Performance: BigFish document conversion took 0.009 seconds
+📊 Elements converted: 2756
+
+📝 Testing manual summary element round-trip
+📄 Exported Fountain:
+# Test Script
+
+## CHAPTER 1
+
+### ACT ONE
+
+INT. COFFEE SHOP - DAY
+
+#### SUMMARY: Alice orders coffee and meets Bob.
+
+ALICE walks to the counter.
+
+ALICE
+One coffee, please.
+
+📊 Re-imported screenplay has 8 elements
+📊 Found 1 summary elements after re-import
+   ✅  SUMMARY: Alice orders coffee and meets Bob.
+
+🎬 Scene heading at index 3: INT. COFFEE SHOP - DAY
+   Next: Section Heading -  SUMMARY: Alice orders coffee and meets Bob.
+   ✅ Summary element preserved in correct position
+
+✅ Manual round-trip test complete - summary perfectly preserved!
+📊 Scene has 4 model elements
+  [0] Scene Heading: INT. COFFEE SHOP - DAY
+  [1] Action: JOHN sits at a table with his laptop.
+  [2] Character: JOHN
+  [3] Dialogue: I need more coffee.
+✅ Model-based scene elements correctly populated with 4 elements
+
+📊 Real screenplay scene: INT. COFFEE SHOP - DAY
+   Model elements: 26
+   [0] Scene Heading: INT. COFFEE SHOP - DAY
+   [1] Action: ALICE sits at a table with her laptop.
+   [2] Character: ALICE
+   [3] Dialogue: Hello, Bob! How are you today?
+   [4] Action: BOB enters and approaches the table.
+   [5] Character: BOB
+   [6] Dialogue: I'm doing great, Alice! Thanks for asking.
+   [7] Character: ALICE
+   [8] Dialogue: Would you like some coffee?
+   [9] Character: BOB
+
+📊 Document has 8 total elements
+📊 Found 1 summary elements
+  [0] Section Heading (depth: 1):  Test Script
+  [1] Section Heading (depth: 2):  CHAPTER 1
+  [2] Section Heading (depth: 3):  ACT ONE
+  [3] Scene Heading (depth: 0): INT. COFFEE SHOP - DAY
+  [4] Section Heading (depth: 4):  SUMMARY: Characters: JOHN. JOHN sits at a table w
+  [5] Action (depth: 0): JOHN sits at a table with his laptop.
+  [6] Character (depth: 0): JOHN
+  [7] Dialogue (depth: 0): I need more coffee.
+
+🎬 Found scene heading at index 3: INT. COFFEE SHOP - DAY
+   Next element: Section Heading -  SUMMARY: Characters: JOHN. JOHN sits at a table w
+   ✅ Found summary element:  SUMMARY: Characters: JOHN. JOHN sits at a table w
+
+✅ Summary element structure test complete
+
+📝 Testing round-trip export/import of summary elements
+📊 Document created with 5 elements
+📊 Document has 0 summary elements
+ℹ️  No summaries were generated (scene may be too simple or summarizer unavailable)
+ℹ️  Skipping round-trip test - structure is correct even if summaries aren't generated
+
+✅ Test complete - verified structure works correctly
+
+=== DEBUG: Loading file from: /Users/stovak/Projects/SwiftCompartido/.build/checkouts/SwiftFijos/Fixtures/test.fountain ===
+Loaded 26 elements
+Found 0 Section Headings
+
+=== DEBUG: All Level 2 Elements ===
+[1] '(Untitled Section)' - isChapter:true END:false ERROR:false
+
+=== DEBUG: Chapters Found ===
+[0] '(Untitled Section)'
+Total chapters: 1
+
+✅ Dialogue block grouping test passed
+✅ Dialogue display test passed - all elements present and correctly typed
+✅ Element model conversion test passed
+📝 Found scene with dialogue: 'INT. COFFEE SHOP - DAY'
+  Character: ALICE
+  Dialogue: Hello, Bob! How are you today?
+  Character: BOB
+  Dialogue: I'm doing great, Alice! Thanks for asking.
+  Character: ALICE
+  Dialogue: Would you like some coffee?
+  Character: BOB
+  Dialogue: That sounds wonderful.
+  Character: CHARLIE
+  Parenthetical: (from across the room)
+  Dialogue: Hey, you two! Mind if I join?
+  Character: ALICE
+  Dialogue: Of course, Charlie! Come on over.
+  Character: CHARLIE
+  Dialogue: Thanks! I have some exciting news.
+  Character: BOB
+  Dialogue: What is it?
+  Character: CHARLIE
+  Dialogue: I got the job!
+  Character: ALICE
+  Dialogue: That's amazing, Charlie!
+✅ Dialogue verification passed
+⚡ Performance: BigFish extraction took 0.007 seconds
+📊 PERFORMANCE METRICS:
+   BigFish extraction: 0.007s
+📋 Outline elements:
+  - sectionHeader level:1 parent:nil 'test-no-groups'
+  - sectionHeader level:2 parent:outline-0 '(Untitled Section)'
+  - sceneHeader level:3 parent:outline-1 'INT. ROOM - DAY'
+  - sceneHeader level:4 parent:outline-2 'EXT. STREET - NIGHT'
+  - blank level:-1 parent:nil ''
+📊 Browser data:
+  Chapters: 1
+  Chapter: '(Untitled Section)'
+    Group: 'INT. ROOM - DAY' (1 scenes)
+      Scene: 'EXT. STREET - NIGHT'
+✅ Verified synthetic elements are not exported
+􀟈  Test run started.
+􀄵  Testing Library Version: 1085
+􀄵  Target Platform: arm64e-apple-macos14.0
+􀟈  Suite "Enhanced Outline Level Tests" started.
+􀟈  Suite TextPackTests started.
+􀟈  Suite AudioPlayerManagerTests started.
+􀟈  Suite "Scene Summarization Tests" started.
+􀟈  Suite "GuionElement Tests" started.
+􀟈  Suite "GuionSerializationError Tests" started.
+􀟈  Suite "CharacterInfo Tests" started.
+􀟈  Suite "ElementType Enum Tests" started.
+􀟈  Test testScenesAtLocation() started.
+􀟈  Suite AIResponseDataTests started.
+􀟈  Suite AIRequestTests started.
+􀟈  Suite "FDXDocumentWriter Tests" started.
+􀟈  Test testSceneAndSetupParsing() started.
+􀟈  Suite "ProgressUpdate Tests" started.
+􀟈  Test testGetLocationsByAppearance() started.
+􀟈  Test testGroupScenesByLocation() started.
+􀟈  Suite "OperationProgress Tests" started.
+􀟈  Test testTimeOfDayParsing() started.
+􀟈  Test testSceneLightingParsing() started.
+􀟈  Suite CloudKitSupportTests started.
+􀟈  Test testSceneLocationEquality() started.
+􀟈  Test testLocationKeyNormalization() started.
+􀟈  Test testComplexSceneHeadings() started.
+􀟈  Test testLightingAndTimeAnalysis() started.
+􀟈  Test testSceneLocationDescription() started.
+􀟈  Test testGetLocationsByFrequency() started.
+􀟈  Test testExtractSceneLocations() started.
+􀟈  Test testWriteLocationBreakdownJSON() started.
+􀟈  Test testAllLocations() started.
+􀟈  Test testProductionScenario() started.
+􀟈  Test testModifierParsing() started.
+􀟈  Test testGuionElementSceneLocation() started.
+􀟈  Test "Scene directive parsing" started.
+􀟈  Test "Scene text extraction for non-scene elements returns string" started.
+􀟈  Test "Outline with level 1 header should respect existing title" started.
+􀟈  Test "Scene text extraction returns complete scene content" started.
+􀟈  Test "ElementType property returns 'outline' for API compatibility" started.
+􀟈  Test "Parent-child relationships and tree structure" started.
+􀟈  Test "END marker detection" started.
+􀟈  Test "Stop resets player state" started.
+􀟈  Test "Chapter level headers identification" started.
+􀟈  Test testReadLocationsJSON() started.
+􀟈  Test "Convenience tree extraction method" started.
+􀟈  Test testTextPackWithBigFishFixture() started.
+􀟈  Test testReadTitlePageJSON() started.
+􀟈  Test "Multiple level 1 headers are allowed" started.
+􀟈  Test "Play from GeneratedAudioRecord with in-memory data" started.
+􀟈  Test "Play from GeneratedAudioRecord with file reference" started.
+􀟈  Test "Outline with no level 1 header should generate script title" started.
+􀟈  Test "Tree structure functionality" started.
+􀟈  Test testReadTextPackRoundTrip() started.
+􀟈  Test testTextPackContainsResourcesDirectory() started.
+􀟈  Test "AudioPlayerManager initializes correctly" started.
+􀟈  Test "Play from GeneratedAudioRecord prefers file reference over in-memory" started.
+􀟈  Test testTextPackContainsInfoJSON() started.
+􀟈  Test "Toggle play/pause works correctly" started.
+􀟈  Test "AudioPlayerError has proper descriptions" started.
+􀟈  Test testCreateTextPackFromScreenplay() started.
+􀟈  Test "Play from GeneratedAudioRecord with no data throws error" started.
+􀟈  Test testCharacterExtractionWithSceneMapping() started.
+􀟈  Test "Play from URL initializes player" started.
+􀟈  Test testReadCharactersJSON() started.
+􀟈  Test testReadElementsJSON() started.
+􀟈  Test "Pause and resume work correctly" started.
+􀟈  Test testReadTextPackFromNonDirectory() started.
+􀟈  Test "Play from URL with no duration" started.
+􀟈  Test testTextPackContainsScreenplayFountain() started.
+􀟈  Test "Play from nonexistent URL throws error" started.
+􀟈  Test "SceneSummarizer handles scene with minimal dialogue" started.
+􀟈  Test "Complete playback workflow from record" started.
+􀟈  Test "Scene text extraction correctly handles duplicate scene headings" started.
+􀟈  Test "Protocol-based conversion preserves summary" started.
+􀟈  Test testReadTextPackMissingScreenplayFile() started.
+􀟈  Test "Scene text extraction and summarization integration" started.
+􀟈  Test "SceneSummarizer extracts basic scene information" started.
+􀟈  Test "SceneSummarizer handles empty text" started.
+􀟈  Test "GuionElementModel includes summary field" started.
+􀟈  Test "Test GuionElementProtocol description extension with custom type" started.
+􀟈  Test "Initialize GuionElement with elementType and elementText" started.
+􀟈  Test "Test multiple elements with different types" started.
+􀟈  Test "Test description for dual dialogue element" started.
+􀟈  Test "Test description for section heading with depth" started.
+􀟈  Test "Test description for centered element" started.
+􀟈  Test "Initialize GuionElement with default values" started.
+􀟈  Test "Initialize GuionElement with type and text convenience initializer" started.
+􀟈  Test "Initialize GuionElement from protocol conforming type" started.
+􀟈  Test "Test description for basic element" started.
+􀟈  Test "Test corruptedFile recovery suggestion" started.
+􀟈  Test "Test decodingFailed recovery suggestion" started.
+􀟈  Test "Write characters JSON with special character names" started.
+􀟈  Test "Write empty characters to JSON" started.
+􀟈  Test "Test encodingFailed recovery suggestion" started.
+􀟈  Test "Test GuionElement is Sendable" started.
+􀟈  Test "Test modifying element properties" started.
+􀟈  Test "Test missingData error description" started.
+􀟈  Test "Extract characters and write to JSON file" started.
+􀟈  Test "Test corruptedFile error description" started.
+􀟈  Test "Test encodingFailed error description" started.
+􀟈  Test "Test decodingFailed error description" started.
+􀟈  Test "Outline level 6 represents beat" started.
+􀟈  Test "Test missingData recovery suggestion" started.
+􀟈  Test "Test unsupportedVersion recovery suggestion" started.
+􀟈  Test "Section heading string representation includes level" started.
+􀟈  Test "Test unsupportedVersion error description" started.
+􀟈  Test "Pattern matching with switch statement" started.
+􀟈  Test "Equality comparison for simple cases" started.
+􀟈  Test "Create all basic element type cases" started.
+􀟈  Test "Encode and decode all basic types" started.
+􀟈  Test "Outline level 2 represents act" started.
+􀟈  Test "Create section heading with levels 1-6" started.
+􀟈  Test "AIRequest withParameters merges parameters" started.
+􀟈  Test "AIRequest withTimeout updates timeout" started.
+􀟈  Test "Level property returns correct value for section headings" started.
+􀟈  Test "AIRequest equality based on ID" started.
+􀟈  Test "Initialize section heading from string defaults to level 1" started.
+􀟈  Test "Initialize from invalid string returns action as default" started.
+􀟈  Test "AIRequest initializes with defaults" started.
+􀟈  Test "AIResponseData is Sendable" started.
+􀟈  Test "ResponseContent audio type" started.
+􀟈  Test "SendableValue array type" started.
+􀟈  Test "Initialize from valid string values" started.
+􀟈  Test "String representation matches expected values" started.
+􀟈  Test "AIRequest is Hashable by ID" started.
+􀟈  Test "ResponseContent image type" started.
+􀟈  Test "AIResponseData initializes with success result" started.
+􀟈  Test "Extract associated value from section heading" started.
+􀟈  Test "Encode and decode section heading preserves level" started.
+􀟈  Test "AIRequest is Sendable" started.
+􀟈  Test "Outline level 4 represents scene group" started.
+􀟈  Test "AIRequest initializes with all parameters" started.
+􀟈  Test "Outline level 5 represents sub-scene" started.
+􀟈  Test "ResponseContent text type" started.
+􀟈  Test "SendableValue int type" started.
+􀟈  Test "AIResponseData with text content and usage" started.
+􀟈  Test "Level property returns 0 for non-section heading types" started.
+􀟈  Test "Outline level 1 represents title" started.
+􀟈  Test "SendableValue double type" started.
+􀟈  Test "AIResponseData error handling" started.
+􀟈  Test "isSectionHeading helper returns correct value" started.
+􀟈  Test "isDialogueRelated helper returns correct value" started.
+􀟈  Test "SendableValue null type" started.
+􀟈  Test "Equality comparison for section headings with levels" started.
+􀟈  Test "UsageStats initializes with all parameters" started.
+􀟈  Test "FDX with complex scene numbers" started.
+􀟈  Test "ImageFormat all cases" started.
+􀟈  Test "Outline summary is represented by synopsis" started.
+􀟈  Test "FDX with title page entries" started.
+􀟈  Test "FDX handles empty title page" started.
+􀟈  Test "Outline level 3 represents sequence" started.
+􀟈  Test "AIRequest withCache updates cache setting" started.
+􀟈  Test "SendableValue bool type" started.
+􀟈  Test "AIResponseData initializes with Result type" started.
+􀟈  Test "ResponseContent data type" started.
+􀟈  Test "UsageStats initializes with partial parameters" started.
+􀟈  Test "Create FDX from empty document" started.
+􀟈  Test "Create FDX with basic elements" started.
+􀟈  Test "FDX filters out whitespace-only title page values" started.
+􀟈  Test "UsageStats equality" started.
+􀟈  Test "SendableValue string type" started.
+􀟈  Test "ProgressUpdate.determinate handles zero total" started.
+􀟈  Test "AIResponseData initializes with failure result" started.
+􀟈  Test "ResponseContent data conversion for text" started.
+􀟈  Test "AIResponseData timestamp is set" started.
+􀟈  Test "FDX escapes special XML characters" started.
+􀟈  Test "AIResponseData with image content" started.
+􀟈  Test "AIResponseData with audio content" started.
+􀟈  Test "ResponseContent data conversion for structured" started.
+􀟈  Test "FDX round-trip test" started.
+􀟈  Test "ResponseContent structured type" started.
+􀟈  Test "ProgressUpdate initializes with all fields correctly" started.
+􀟈  Test "ProgressUpdate is Sendable" started.
+􀟈  Test "ProgressUpdate with additional info" started.
+􀟈  Test "AudioFormat all cases" started.
+􀟈  Test "SendableValue dictionary type" started.
+􀟈  Test "ProgressUpdate handles large unit counts" started.
+􀟈  Test "ContentType all cases" started.
+􀟈  Test "ProgressUpdate handles 100% completion" started.
+􀟈  Test "SendableValue nested structures" started.
+􀟈  Test "ProgressUpdate equality works correctly" started.
+􀟈  Test "ProgressUpdate.indeterminate has nil fraction" started.
+􀟈  Test "OperationProgress indeterminate progress" started.
+􀟈  Test "ProgressUpdate.determinate calculates fraction correctly" started.
+􀟈  Test "OperationProgress can change from indeterminate to determinate" started.
+􀟈  Test "OperationProgress complete with indeterminate" started.
+􀟈  Test "OperationProgress calculates fraction correctly" started.
+􀟈  Test "UsageStats initializes with minimal parameters" started.
+􀟈  Test "OperationProgress handler receives updates" started.
+􀟈  Test "OperationProgress update changes completed units" started.
+
+Total unique locations: 143
+􀟈  Test "OperationProgress is Sendable" started.
+􀟈  Test "OperationProgress cancel sets flag" started.
+􀟈  Test "OperationProgress complete sets to total" started.
+􀟈  Test "OperationProgress throttles rapid updates" started.
+􀟈  Test "OperationProgress initializes with total units" started.
+
+Top locations by frequency:
+  1. HOSPITAL - ROOM - 8 scenes
+  2. HOSPITAL - HALLWAY - 5 scenes
+􀟈  Test "OperationProgress increment adds to completed units" started.
+􀟈  Test "OperationProgress initializes with defaults" started.
+􀟈  Test "OperationProgress thread safety with concurrent updates" started.
+􀟈  Test "OperationProgress nil handler doesn't crash" started.
+  3. GUEST - ROOM - 5 scenes
+  4. SHACK - 4 scenes
+  5. UPSTAIRS - HALLWAY - 4 scenes
+Location 'WILL AND JOSEPHINE’S - ROOM' has 2 scenes
+
+Locations with multiple lighting types:
+  SHACK: ["INT", "EXT"]
+  EDWARD’S CAR: ["EXT", "INT"]
+  BLOOM HOUSE: ["EXT", "INT/EXT", "INT"]
+
+Locations with multiple times of day:
+  STABLES: ["DAY", "NIGHT"]
+  SHACK: ["DAY", "ANOTHER DAY"]
+  THE DARK FOREST: ["DAY", "NIGHT"]
+􀟈  Test "GeneratedImageRecord defaults to local storage mode" started.
+􀟈  Test "Audio record can save to CloudKit storage" started.
+􀟈  Test "Conflict resolution prefers higher version number" started.
+􀟈  Test "Conflict version increments correctly" started.
+􀟈  Test "Setting cloudKitRecordID enables CloudKit" started.
+􀟈  Test "Audio record can save to local storage" started.
+􀟈  Test "GeneratedTextRecord defaults to local storage mode" started.
+􀟈  Test "Sync status can be updated" started.
+
+First INT. HOUSE - DAY summary: Characters: ALICE. ALICE enters the house. She looks around the empty room.
+Second INT. HOUSE - DAY summary: Characters: CHARLIE. Later that afternoon, CHARLIE enters the same house.
+􀟈  Test "Image record dual storage saves both local and CloudKit" started.
+􀟈  Test "Record with CloudKit storage mode enables CloudKit" started.
+􀟈  Test "GeneratedTextRecord conforms to CloudKitSyncable" started.
+􀟈  Test "Text record can save large text to file" started.
+􀟈  Test "Audio record can save to hybrid storage" started.
+􀟈  Test "Conflict resolution handles newly created records correctly" started.
+􀟈  Test "Text record can save small text in-memory" started.
+􀟈  Test "Conflict resolution with equal versions uses most recent timestamp" started.
+􀟈  Test "GeneratedEmbeddingRecord defaults to local storage mode" started.
+􀟈  Test "SwiftCompartidoSchema includes all model types" started.
+􀟈  Test "GeneratedAudioRecord defaults to local storage mode" started.
+􀟈  Test "Conflict resolution with equal versions and timestamps prefers local" started.
+􀟈  Test "Record with hybrid storage mode enables CloudKit" started.
+􁁛  Test testSceneLocationEquality() passed after 0.230 seconds.
+􁁛  Test testSceneLightingParsing() passed after 0.230 seconds.
+􁁛  Test testComplexSceneHeadings() passed after 0.230 seconds.
+􁁛  Test testSceneAndSetupParsing() passed after 0.231 seconds.
+􁁛  Test testSceneLocationDescription() passed after 0.230 seconds.
+􁁛  Test testLocationKeyNormalization() passed after 0.231 seconds.
+􁁛  Test testTimeOfDayParsing() passed after 0.231 seconds.
+􁁛  Test testProductionScenario() passed after 0.231 seconds.
+􁁛  Test testModifierParsing() passed after 0.231 seconds.
+􁁛  Test testGuionElementSceneLocation() passed after 0.231 seconds.
+􁁛  Test testGetLocationsByAppearance() passed after 0.233 seconds.
+􁁛  Test testAllLocations() passed after 0.232 seconds.
+􁁛  Test "Scene text extraction for non-scene elements returns string" passed after 0.232 seconds.
+􁁛  Test "Outline with level 1 header should respect existing title" passed after 0.232 seconds.
+􁁛  Test testExtractSceneLocations() passed after 0.232 seconds.
+􁁛  Test testGetLocationsByFrequency() passed after 0.233 seconds.
+􁁛  Test testGroupScenesByLocation() passed after 0.233 seconds.
+􁁛  Test testReadLocationsJSON() passed after 0.232 seconds.
+􁁛  Test "Scene directive parsing" passed after 0.232 seconds.
+􁁛  Test testScenesAtLocation() passed after 0.233 seconds.
+􁁛  Test testReadTitlePageJSON() passed after 0.232 seconds.
+􁁛  Test "ElementType property returns 'outline' for API compatibility" passed after 0.232 seconds.
+􁁛  Test testLightingAndTimeAnalysis() passed after 0.233 seconds.
+􁁛  Test testTextPackContainsResourcesDirectory() passed after 0.232 seconds.
+􁁛  Test testTextPackContainsInfoJSON() passed after 0.233 seconds.
+􁁛  Test testCreateTextPackFromScreenplay() passed after 0.234 seconds.
+􁁛  Test testReadTextPackRoundTrip() passed after 0.234 seconds.
+􁁛  Test testCharacterExtractionWithSceneMapping() passed after 0.234 seconds.
+􁁛  Test testReadElementsJSON() passed after 0.234 seconds.
+􁁛  Test testReadTextPackFromNonDirectory() passed after 0.234 seconds.
+􁁛  Test testReadCharactersJSON() passed after 0.234 seconds.
+􁁛  Test testTextPackContainsScreenplayFountain() passed after 0.234 seconds.
+􁁛  Test "Scene text extraction correctly handles duplicate scene headings" passed after 0.234 seconds.
+􁁛  Test "Protocol-based conversion preserves summary" passed after 0.234 seconds.
+􁁛  Test testReadTextPackMissingScreenplayFile() passed after 0.234 seconds.
+􁁛  Test testWriteLocationBreakdownJSON() passed after 0.235 seconds.
+􁁛  Test "SceneSummarizer handles empty text" passed after 0.234 seconds.
+􁁛  Test "GuionElementModel includes summary field" passed after 0.235 seconds.
+􁁛  Test "Test GuionElementProtocol description extension with custom type" passed after 0.236 seconds.
+􁁛  Test "Initialize GuionElement with elementType and elementText" passed after 0.236 seconds.
+􁁛  Test "Test multiple elements with different types" passed after 0.236 seconds.
+􁁛  Test "Test description for dual dialogue element" passed after 0.236 seconds.
+􁁛  Test "Test description for section heading with depth" passed after 0.236 seconds.
+􁁛  Test "Test description for centered element" passed after 0.236 seconds.
+􁁛  Test "Initialize GuionElement with default values" passed after 0.236 seconds.
+􁁛  Test "Initialize GuionElement with type and text convenience initializer" passed after 0.236 seconds.
+􁁛  Test "Initialize GuionElement from protocol conforming type" passed after 0.236 seconds.
+􁁛  Test "Test description for basic element" passed after 0.236 seconds.
+􁁛  Test "Test corruptedFile recovery suggestion" passed after 0.236 seconds.
+􁁛  Test "Test decodingFailed recovery suggestion" passed after 0.236 seconds.
+􁁛  Test "Write characters JSON with special character names" passed after 0.236 seconds.
+􁁛  Test "Write empty characters to JSON" passed after 0.236 seconds.
+􁁛  Test "Test encodingFailed recovery suggestion" passed after 0.236 seconds.
+􁁛  Test "Test GuionElement is Sendable" passed after 0.236 seconds.
+􁁛  Test "Test modifying element properties" passed after 0.236 seconds.
+􁁛  Test "Test missingData error description" passed after 0.236 seconds.
+􁁛  Test "Extract characters and write to JSON file" passed after 0.236 seconds.
+􁁛  Test "Test corruptedFile error description" passed after 0.236 seconds.
+􁁛  Test "Test encodingFailed error description" passed after 0.236 seconds.
+􁁛  Test "Test decodingFailed error description" passed after 0.236 seconds.
+􁁛  Test "Outline level 6 represents beat" passed after 0.236 seconds.
+􁁛  Test "Test missingData recovery suggestion" passed after 0.236 seconds.
+􁁛  Test "Test unsupportedVersion recovery suggestion" passed after 0.236 seconds.
+􁁛  Test "Section heading string representation includes level" passed after 0.236 seconds.
+􁁛  Test "Test unsupportedVersion error description" passed after 0.236 seconds.
+􁁛  Test "Pattern matching with switch statement" passed after 0.236 seconds.
+􁁛  Test "Equality comparison for simple cases" passed after 0.236 seconds.
+􁁛  Test "Create all basic element type cases" passed after 0.236 seconds.
+􁁛  Test "Encode and decode all basic types" passed after 0.235 seconds.
+􁁛  Test "Outline level 2 represents act" passed after 0.235 seconds.
+􁁛  Test "Create section heading with levels 1-6" passed after 0.236 seconds.
+􁁛  Test "AIRequest withParameters merges parameters" passed after 0.235 seconds.
+􁁛  Test "AIRequest withTimeout updates timeout" passed after 0.235 seconds.
+􁁛  Test "Level property returns correct value for section headings" passed after 0.235 seconds.
+􁁛  Test "AIRequest equality based on ID" passed after 0.235 seconds.
+􁁛  Test "Initialize section heading from string defaults to level 1" passed after 0.235 seconds.
+􁁛  Test "Initialize from invalid string returns action as default" passed after 0.235 seconds.
+􁁛  Test "AIRequest initializes with defaults" passed after 0.235 seconds.
+􁁛  Test "ResponseContent audio type" passed after 0.235 seconds.
+􁁛  Test "SendableValue array type" passed after 0.235 seconds.
+􁁛  Test "Initialize from valid string values" passed after 0.235 seconds.
+􁁛  Test "String representation matches expected values" passed after 0.235 seconds.
+􁁛  Test "AIRequest is Hashable by ID" passed after 0.235 seconds.
+􁁛  Test "ResponseContent image type" passed after 0.235 seconds.
+􁁛  Test "AIResponseData initializes with success result" passed after 0.235 seconds.
+􁁛  Test "Extract associated value from section heading" passed after 0.235 seconds.
+􁁛  Test "Encode and decode section heading preserves level" passed after 0.235 seconds.
+􁁛  Test "Outline level 4 represents scene group" passed after 0.235 seconds.
+􁁛  Test "AIRequest initializes with all parameters" passed after 0.235 seconds.
+􁁛  Test "Outline level 5 represents sub-scene" passed after 0.235 seconds.
+􁁛  Test "ResponseContent text type" passed after 0.235 seconds.
+􁁛  Test "SendableValue int type" passed after 0.235 seconds.
+􁁛  Test "Level property returns 0 for non-section heading types" passed after 0.235 seconds.
+􁁛  Test "Outline level 1 represents title" passed after 0.235 seconds.
+􁁛  Test "AIResponseData with text content and usage" passed after 0.235 seconds.
+􁁛  Test "SendableValue double type" passed after 0.235 seconds.
+􁁛  Test "AIResponseData error handling" passed after 0.235 seconds.
+􁁛  Test "isSectionHeading helper returns correct value" passed after 0.235 seconds.
+􁁛  Test "SendableValue null type" passed after 0.235 seconds.
+􁁛  Test "isDialogueRelated helper returns correct value" passed after 0.235 seconds.
+􁁛  Test "Equality comparison for section headings with levels" passed after 0.235 seconds.
+􁁛  Test "UsageStats initializes with all parameters" passed after 0.235 seconds.
+􁁛  Test "ImageFormat all cases" passed after 0.235 seconds.
+􁁛  Test "Outline summary is represented by synopsis" passed after 0.235 seconds.
+􁁛  Test "Outline level 3 represents sequence" passed after 0.235 seconds.
+􁁛  Test "AIRequest withCache updates cache setting" passed after 0.235 seconds.
+􁁛  Test "SendableValue bool type" passed after 0.235 seconds.
+􁁛  Test "AIResponseData initializes with Result type" passed after 0.235 seconds.
+􁁛  Test "ResponseContent data type" passed after 0.235 seconds.
+􁁛  Test "UsageStats initializes with partial parameters" passed after 0.235 seconds.
+􁁛  Test "SendableValue string type" passed after 0.235 seconds.
+􁁛  Test "UsageStats equality" passed after 0.235 seconds.
+􁁛  Test "ProgressUpdate.determinate handles zero total" passed after 0.235 seconds.
+􁁛  Test "ResponseContent data conversion for text" passed after 0.235 seconds.
+􁁛  Test "AIResponseData initializes with failure result" passed after 0.235 seconds.
+􁁛  Test "AIResponseData timestamp is set" passed after 0.235 seconds.
+􁁛  Test "AIResponseData with audio content" passed after 0.235 seconds.
+􁁛  Test "AIResponseData with image content" passed after 0.235 seconds.
+􁁛  Test "ResponseContent data conversion for structured" passed after 0.235 seconds.
+􁁛  Test "ResponseContent structured type" passed after 0.235 seconds.
+􁁛  Test "ProgressUpdate initializes with all fields correctly" passed after 0.235 seconds.
+􁁛  Test "ProgressUpdate with additional info" passed after 0.234 seconds.
+􁁛  Test "AudioFormat all cases" passed after 0.234 seconds.
+􁁛  Test "SendableValue dictionary type" passed after 0.234 seconds.
+􁁛  Test "ProgressUpdate handles large unit counts" passed after 0.234 seconds.
+􁁛  Test "ContentType all cases" passed after 0.234 seconds.
+􁁛  Test "ProgressUpdate handles 100% completion" passed after 0.234 seconds.
+􁁛  Test "SendableValue nested structures" passed after 0.234 seconds.
+􁁛  Test "ProgressUpdate equality works correctly" passed after 0.234 seconds.
+􁁛  Test "ProgressUpdate.indeterminate has nil fraction" passed after 0.234 seconds.
+􁁛  Test "ProgressUpdate.determinate calculates fraction correctly" passed after 0.234 seconds.
+􁁛  Test "OperationProgress complete with indeterminate" passed after 0.234 seconds.
+􁁛  Test "UsageStats initializes with minimal parameters" passed after 0.234 seconds.
+􁁛  Test "OperationProgress update changes completed units" passed after 0.057 seconds.
+􁁛  Test "OperationProgress cancel sets flag" passed after 0.047 seconds.
+􁁛  Test "OperationProgress complete sets to total" passed after 0.047 seconds.
+􁁛  Test "OperationProgress initializes with total units" passed after 0.046 seconds.
+􁁛  Test "OperationProgress increment adds to completed units" passed after 0.042 seconds.
+􁁛  Test "OperationProgress initializes with defaults" passed after 0.042 seconds.
+􁁛  Test "OperationProgress nil handler doesn't crash" passed after 0.043 seconds.
+􁁛  Test "GeneratedImageRecord defaults to local storage mode" passed after 0.026 seconds.
+􁁛  Test "Audio record can save to CloudKit storage" passed after 0.026 seconds.
+􁁛  Test "Conflict resolution prefers higher version number" passed after 0.026 seconds.
+􁁛  Test "Conflict version increments correctly" passed after 0.026 seconds.
+􁁛  Test "Setting cloudKitRecordID enables CloudKit" passed after 0.026 seconds.
+􁁛  Test "Audio record can save to local storage" passed after 0.026 seconds.
+􁁛  Test "GeneratedTextRecord defaults to local storage mode" passed after 0.024 seconds.
+􁁛  Test "Sync status can be updated" passed after 0.023 seconds.
+􁁛  Test "Image record dual storage saves both local and CloudKit" passed after 0.022 seconds.
+􁁛  Test "Record with CloudKit storage mode enables CloudKit" passed after 0.011 seconds.
+􁁛  Test "GeneratedTextRecord conforms to CloudKitSyncable" passed after 0.011 seconds.
+􁁛  Test "Text record can save large text to file" passed after 0.011 seconds.
+􁁛  Test "Audio record can save to hybrid storage" passed after 0.011 seconds.
+􁁛  Test "Conflict resolution handles newly created records correctly" passed after 0.011 seconds.
+􁁛  Test "Text record can save small text in-memory" passed after 0.011 seconds.
+􁁛  Test "Conflict resolution with equal versions uses most recent timestamp" passed after 0.011 seconds.
+􁁛  Test "GeneratedEmbeddingRecord defaults to local storage mode" passed after 0.011 seconds.
+􁁛  Test "SwiftCompartidoSchema includes all model types" passed after 0.011 seconds.
+􁁛  Test "GeneratedAudioRecord defaults to local storage mode" passed after 0.011 seconds.
+􁁛  Test "Conflict resolution with equal versions and timestamps prefers local" passed after 0.011 seconds.
+􁁛  Test "Record with hybrid storage mode enables CloudKit" passed after 0.011 seconds.
+􁁛  Suite "GuionElement Tests" passed after 0.241 seconds.
+􁁛  Suite "GuionSerializationError Tests" passed after 0.241 seconds.
+􁁛  Suite "CharacterInfo Tests" passed after 0.241 seconds.
+􁁛  Suite "ElementType Enum Tests" passed after 0.241 seconds.
+􁁛  Test "AIResponseData is Sendable" passed after 0.238 seconds.
+􁁛  Test "AIRequest is Sendable" passed after 0.238 seconds.
+􁁛  Test "ProgressUpdate is Sendable" passed after 0.237 seconds.
+􁁛  Test "OperationProgress is Sendable" passed after 0.054 seconds.
+􁁛  Test "OperationProgress thread safety with concurrent updates" passed after 0.044 seconds.
+􁁛  Suite CloudKitSupportTests passed after 0.241 seconds.
+􁁛  Suite AIResponseDataTests passed after 0.241 seconds.
+􁁛  Suite AIRequestTests passed after 0.241 seconds.
+􁁛  Suite "ProgressUpdate Tests" passed after 0.241 seconds.
+􁁛  Test "OperationProgress indeterminate progress" passed after 0.281 seconds.
+􁁛  Test "OperationProgress can change from indeterminate to determinate" passed after 0.281 seconds.
+􁁛  Test "OperationProgress calculates fraction correctly" passed after 0.281 seconds.
+􁁛  Test "OperationProgress handler receives updates" passed after 0.280 seconds.
+􁁛  Test "END marker detection" passed after 0.339 seconds.
+􁁛  Test "Parent-child relationships and tree structure" passed after 0.350 seconds.
+􁁛  Test "Scene text extraction returns complete scene content" passed after 0.351 seconds.
+􁁛  Test "Multiple level 1 headers are allowed" passed after 0.371 seconds.
+􁁛  Test "Tree structure functionality" passed after 0.373 seconds.
+􁁛  Test "Chapter level headers identification" passed after 0.374 seconds.
+􁁛  Test "Outline with no level 1 header should generate script title" passed after 0.379 seconds.
+Generated summary: Characters: EDWARD. WILL BLOOM, AGE 3, listens wide-eyed as his father EDWARD BLOOM, 40’s and handsome, tells the story....
+􁁛  Test "SceneSummarizer extracts basic scene information" passed after 0.385 seconds.
+􁁛  Test "Convenience tree extraction method" passed after 0.386 seconds.
+􁁛  Suite "Enhanced Outline Level Tests" passed after 0.387 seconds.
+􁁛  Test "SceneSummarizer handles scene with minimal dialogue" passed after 0.389 seconds.
+􁁛  Test "FDX with complex scene numbers" passed after 0.392 seconds.
+􁁛  Test "FDX handles empty title page" passed after 0.393 seconds.
+􁁛  Test "FDX with title page entries" passed after 0.395 seconds.
+􁁛  Test "Create FDX from empty document" passed after 0.396 seconds.
+􁁛  Test "Create FDX with basic elements" passed after 0.397 seconds.
+􁁛  Test "FDX filters out whitespace-only title page values" passed after 0.398 seconds.
+􁁛  Test "FDX escapes special XML characters" passed after 0.400 seconds.
+􁁛  Test "FDX round-trip test" passed after 0.401 seconds.
+􁁛  Suite "FDXDocumentWriter Tests" passed after 0.405 seconds.
+􁁛  Test "OperationProgress throttles rapid updates" passed after 0.250 seconds.
+􁁛  Suite "OperationProgress Tests" passed after 0.442 seconds.
+􁁛  Test testTextPackWithBigFishFixture() passed after 0.520 seconds.
+􁁛  Suite TextPackTests passed after 0.522 seconds.
+Scene: INT.  WILL’S BEDROOM - NIGHT (1973)
+Summary: Characters: EDWARD. WILL BLOOM, AGE 3, listens wide-eyed as his father EDWARD BLOOM, 40’s and handsome, tells the story....
+􁁛  Test "Scene text extraction and summarization integration" passed after 0.798 seconds.
+􁁛  Suite "Scene Summarization Tests" passed after 0.799 seconds.
+􁁛  Test "Stop resets player state" passed after 0.802 seconds.
+􁁛  Test "Play from GeneratedAudioRecord with in-memory data" passed after 0.802 seconds.
+􁁛  Test "Play from GeneratedAudioRecord prefers file reference over in-memory" passed after 0.802 seconds.
+􁁛  Test "AudioPlayerManager initializes correctly" passed after 0.802 seconds.
+􁁛  Test "Toggle play/pause works correctly" passed after 0.802 seconds.
+􁁛  Test "Play from GeneratedAudioRecord with file reference" passed after 0.802 seconds.
+􁁛  Test "AudioPlayerError has proper descriptions" passed after 0.802 seconds.
+􁁛  Test "Play from GeneratedAudioRecord with no data throws error" passed after 0.802 seconds.
+􁁛  Test "Pause and resume work correctly" passed after 0.802 seconds.
+􁁛  Test "Play from URL initializes player" passed after 0.802 seconds.
+􁁛  Test "Play from nonexistent URL throws error" passed after 0.802 seconds.
+􁁛  Test "Complete playback workflow from record" passed after 0.802 seconds.
+􁁛  Test "Play from URL with no duration" passed after 0.802 seconds.
+􁁛  Suite AudioPlayerManagerTests passed after 0.803 seconds.
+􁁛  Test run with 204 tests in 14 suites passed after 0.804 seconds.

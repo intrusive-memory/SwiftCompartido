@@ -1,0 +1,32 @@
+📊 PERFORMANCE METRICS:
+   Fountain export: 0.012s
+   FDX export: 0.007s
+📊 Performance: Native .guion load: 0.21563208103179932s for 500 elements
+📊 PERFORMANCE METRICS:
+   Native load: 0.216s
+💾 Native .guion save time: 0.0014369487762451172s, load time: 0.010982990264892578s
+💾 Save time for 1000 elements: 0.009564995765686035s
+📥 Load time for 1000 elements: 0.8517589569091797s
+📊 PERFORMANCE METRICS:
+   Serialization save: 0.010s
+   Serialization load: 0.852s
+⚡ Performance: Browser data extraction took 0.007 seconds
+📊 Chapters: 1
+⚡ Performance: BigFish document conversion took 0.009 seconds
+📊 Elements converted: 2756
+
+📝 Testing manual summary element round-trip
+📄 Exported Fountain:
+# Test Script
+--
+📊 PERFORMANCE METRICS:
+   BigFish extraction: 0.007s
+📋 Outline elements:
+  - sectionHeader level:1 parent:nil 'test-no-groups'
+  - sectionHeader level:2 parent:outline-0 '(Untitled Section)'
+  - sceneHeader level:3 parent:outline-1 'INT. ROOM - DAY'
+  - sceneHeader level:4 parent:outline-2 'EXT. STREET - NIGHT'
+  - blank level:-1 parent:nil ''
+📊 Browser data:
+  Chapters: 1
+  Chapter: '(Untitled Section)'

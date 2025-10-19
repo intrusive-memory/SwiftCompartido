@@ -132,15 +132,26 @@ public final class OperationProgress: @unchecked Sendable {
         force: Bool = false
     ) {
         lock.lock()
-        let newCount = self.completedUnitCount + delta
-        lock.unlock()
+        defer { lock.unlock() }
 
-        update(
-            completedUnits: newCount,
-            description: description,
-            additionalInfo: additionalInfo,
-            force: force
-        )
+        self.completedUnitCount += delta
+        self.lastDescription = description
+
+        // Check if enough time has passed since last update
+        let now = Date()
+        let shouldUpdate = force ||
+            lastUpdateTime == nil ||
+            now.timeIntervalSince(lastUpdateTime!) >= updateInterval
+
+        guard shouldUpdate, let handler = handler else {
+            return
+        }
+
+        lastUpdateTime = now
+
+        // Create and deliver the update
+        let update = createUpdate(description: description, additionalInfo: additionalInfo)
+        handler(update)
     }
 
     /// Marks the operation as complete and delivers a final progress update.
