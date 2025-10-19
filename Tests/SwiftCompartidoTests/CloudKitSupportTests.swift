@@ -334,4 +334,116 @@ struct CloudKitSupportTests {
         #expect(record.syncStatus == .synced)
         #expect(record.lastSyncedAt != nil)
     }
+
+    @Test("Conflict resolution prefers higher version number")
+    func conflictResolutionPrefersHigherVersion() {
+        let localRecord = GeneratedTextRecord(
+            providerId: "test",
+            requestorID: "test.text",
+            text: "Local",
+            wordCount: 1,
+            characterCount: 5
+        )
+        localRecord.conflictVersion = 2
+
+        let remoteRecord = GeneratedTextRecord(
+            providerId: "test",
+            requestorID: "test.text",
+            text: "Remote",
+            wordCount: 1,
+            characterCount: 6
+        )
+        remoteRecord.conflictVersion = 3
+
+        let resolution = localRecord.resolveConflict(with: remoteRecord)
+        #expect(resolution == .useRemote)
+    }
+
+    @Test("Conflict resolution with equal versions uses most recent timestamp")
+    func conflictResolutionWithEqualVersionsUsesTimestamp() {
+        let now = Date()
+        let earlier = now.addingTimeInterval(-3600) // 1 hour ago
+
+        let localRecord = GeneratedTextRecord(
+            providerId: "test",
+            requestorID: "test.text",
+            text: "Local",
+            wordCount: 1,
+            characterCount: 5
+        )
+        localRecord.conflictVersion = 1
+        localRecord.modifiedAt = earlier
+
+        let remoteRecord = GeneratedTextRecord(
+            providerId: "test",
+            requestorID: "test.text",
+            text: "Remote",
+            wordCount: 1,
+            characterCount: 6
+        )
+        remoteRecord.conflictVersion = 1
+        remoteRecord.modifiedAt = now
+
+        let resolution = localRecord.resolveConflict(with: remoteRecord)
+        #expect(resolution == .useRemote, "Should use remote because it has more recent timestamp")
+    }
+
+    @Test("Conflict resolution with equal versions and timestamps prefers local")
+    func conflictResolutionWithEqualVersionsAndTimestampsUsesLocal() {
+        let now = Date()
+
+        let localRecord = GeneratedTextRecord(
+            providerId: "test",
+            requestorID: "test.text",
+            text: "Local",
+            wordCount: 1,
+            characterCount: 5
+        )
+        localRecord.conflictVersion = 1
+        localRecord.modifiedAt = now
+
+        let remoteRecord = GeneratedTextRecord(
+            providerId: "test",
+            requestorID: "test.text",
+            text: "Remote",
+            wordCount: 1,
+            characterCount: 6
+        )
+        remoteRecord.conflictVersion = 1
+        remoteRecord.modifiedAt = now
+
+        let resolution = localRecord.resolveConflict(with: remoteRecord)
+        #expect(resolution == .useLocal, "Should use local when everything is equal")
+    }
+
+    @Test("Conflict resolution handles newly created records correctly")
+    func conflictResolutionHandlesNewRecordsCorrectly() {
+        // Simulate two devices creating records simultaneously
+        let device1Time = Date()
+        let device2Time = device1Time.addingTimeInterval(0.5) // 500ms later
+
+        let device1Record = GeneratedTextRecord(
+            providerId: "test",
+            requestorID: "test.text",
+            text: "Device 1",
+            wordCount: 2,
+            characterCount: 8
+        )
+        device1Record.modifiedAt = device1Time
+        // conflictVersion = 1 (default)
+
+        let device2Record = GeneratedTextRecord(
+            providerId: "test",
+            requestorID: "test.text",
+            text: "Device 2",
+            wordCount: 2,
+            characterCount: 8
+        )
+        device2Record.modifiedAt = device2Time
+        // conflictVersion = 1 (default)
+
+        // Device 1 sees Device 2's record as remote
+        let resolution = device1Record.resolveConflict(with: device2Record)
+        #expect(resolution == .useRemote, "Should use Device 2's record because it's more recent")
+    }
 }

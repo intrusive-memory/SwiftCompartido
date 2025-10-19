@@ -269,7 +269,12 @@ extension GeneratedEmbeddingRecord {
 /// Conflict resolution helpers
 extension CloudKitSyncable {
 
-    /// Resolves a sync conflict using the most recent modification
+    /// Resolves a sync conflict using version numbers and modification timestamps
+    ///
+    /// Strategy:
+    /// 1. If conflict versions differ, use the higher version (explicit versioning wins)
+    /// 2. If versions are equal, use the most recently modified record
+    /// 3. If timestamps are equal (rare), prefer local to avoid unnecessary sync
     ///
     /// - Parameter remote: Remote version from CloudKit
     /// - Returns: Which version to keep (.local or .remote)
@@ -281,10 +286,16 @@ extension CloudKitSyncable {
             return .useLocal
         }
 
-        // Fall back to modification time
-        // Note: This assumes both have a `modifiedAt` property
-        // For stricter typing, this could be moved to a separate protocol
-        return .useLocal // Default to local in case of tie
+        // Versions are equal - compare modification timestamps
+        // This handles the critical case where both records start at version 1
+        if remote.modifiedAt > self.modifiedAt {
+            return .useRemote
+        } else if self.modifiedAt > remote.modifiedAt {
+            return .useLocal
+        }
+
+        // Timestamps exactly equal (extremely rare) - prefer local to avoid sync churn
+        return .useLocal
     }
 }
 
