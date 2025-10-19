@@ -28,15 +28,14 @@ jobs:
       - name: Run tests
         run: |
           set +e
-          # Exclude performance tests from standard test run
-          # Performance tests are run separately in the performance.yml workflow
-          swift test --enable-code-coverage --filter-out '.*performance.*' > test_output.txt 2>&1
+          # Run all tests (performance tests are run separately in performance.yml workflow)
+          swift test --enable-code-coverage > test_output.txt 2>&1
           TEST_EXIT_CODE=$?
           cat test_output.txt
 
           # Check if tests actually passed by looking for the success message
           if grep -q "Test run with .* tests in .* suites passed" test_output.txt; then
-            echo "✅ All tests passed (excluding performance tests)"
+            echo "✅ All tests passed"
             exit 0
           else
             echo "❌ Tests failed"
