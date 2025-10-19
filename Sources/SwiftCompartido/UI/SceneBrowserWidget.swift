@@ -101,7 +101,11 @@ public struct SceneBrowserWidget: View {
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(Color(nsColor: .textBackgroundColor))
+            #if os(macOS)
+            .background(Color(.windowBackgroundColor))
+            #else
+            .background(Color(.systemBackground))
+            #endif
             .environment(\.screenplayFontSize, currentFontSize)
             .accessibilityElement(children: .contain)
             .onAppear {
