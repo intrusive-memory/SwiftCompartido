@@ -55,6 +55,109 @@ public struct TextPackWriter {
         return try createTextPack(from: screenplay)
     }
 
+    /// Create a TextPack bundle from a GuionParsedScreenplay with progress reporting
+    ///
+    /// This async version provides progress updates through five stages:
+    /// 1. Creating info.json (10%)
+    /// 2. Generating screenplay.fountain (30%)
+    /// 3. Extracting character data (20%)
+    /// 4. Extracting location data (20%)
+    /// 5. Writing resource files (20%)
+    ///
+    /// - Parameters:
+    ///   - screenplay: The screenplay to export
+    ///   - progress: Optional progress tracker for monitoring export progress
+    ///
+    /// - Throws: `CancellationError` if the task is cancelled during export
+    ///
+    /// - Returns: FileWrapper representing the TextPack bundle
+    ///
+    /// ## Usage
+    ///
+    /// ```swift
+    /// let progress = OperationProgress(totalUnits: 5) { update in
+    ///     print("Export: \(update.description) - \(Int((update.fractionCompleted ?? 0) * 100))%")
+    /// }
+    ///
+    /// let bundle = try await TextPackWriter.createTextPack(
+    ///     from: screenplay,
+    ///     progress: progress
+    /// )
+    /// ```
+    public static func createTextPack(
+        from screenplay: GuionParsedScreenplay,
+        progress: OperationProgress?
+    ) async throws -> FileWrapper {
+        // Set total stages
+        progress?.setTotalUnitCount(5)
+
+        // Check cancellation before starting
+        try Task.checkCancellation()
+
+        // Stage 1: Create info.json (10%)
+        progress?.update(completedUnits: 0, description: "Creating bundle metadata...")
+
+        let fileWrappers: [String: FileWrapper] = [:]
+        let bundle = FileWrapper(directoryWithFileWrappers: fileWrappers)
+
+        let info = TextPackInfo(
+            filename: screenplay.filename,
+            suppressSceneNumbers: screenplay.suppressSceneNumbers,
+            resources: [
+                "characters.json",
+                "locations.json",
+                "elements.json",
+                "titlepage.json"
+            ]
+        )
+
+        let infoData = try JSONEncoder.textPackEncoder.encode(info)
+        bundle.addRegularFile(withContents: infoData, preferredFilename: "info.json")
+
+        progress?.update(completedUnits: 1, description: "Metadata created")
+
+        // Check cancellation
+        try Task.checkCancellation()
+
+        // Stage 2: Create screenplay.fountain (30%)
+        progress?.update(completedUnits: 1, description: "Generating screenplay text...")
+
+        let fountainContent = screenplay.stringFromDocument()
+        let fountainData = Data(fountainContent.utf8)
+        bundle.addRegularFile(withContents: fountainData, preferredFilename: "screenplay.fountain")
+
+        progress?.update(completedUnits: 2, description: "Screenplay generated")
+
+        // Check cancellation
+        try Task.checkCancellation()
+
+        // Stage 3-5: Create Resources directory (60%)
+        progress?.update(completedUnits: 2, description: "Creating resources...")
+
+        let resources = try await createResourcesDirectory(from: screenplay, progress: progress)
+        resources.preferredFilename = "Resources"
+        bundle.addFileWrapper(resources)
+
+        // Complete
+        progress?.complete(description: "Export complete")
+
+        return bundle
+    }
+
+    /// Create a TextPack bundle from a GuionDocumentModel with progress reporting
+    /// - Parameters:
+    ///   - document: The document model to export
+    ///   - progress: Optional progress tracker
+    /// - Returns: FileWrapper representing the TextPack bundle
+    public static func createTextPack(
+        from document: GuionDocumentModel,
+        progress: OperationProgress?
+    ) async throws -> FileWrapper {
+        // Convert to GuionParsedScreenplay first
+        let screenplay = document.toGuionParsedScreenplay()
+        return try await createTextPack(from: screenplay, progress: progress)
+    }
+
     // MARK: - Private Helpers
 
     private static func createResourcesDirectory(from screenplay: GuionParsedScreenplay) throws -> FileWrapper {
@@ -80,6 +183,51 @@ public struct TextPackWriter {
         let titlePage = TitlePageData(titlePage: screenplay.titlePage)
         let titlePageData = try JSONEncoder.textPackEncoder.encode(titlePage)
         resourcesDir.addRegularFile(withContents: titlePageData, preferredFilename: "titlepage.json")
+
+        return resourcesDir
+    }
+
+    /// Async version of createResourcesDirectory with progress reporting
+    private static func createResourcesDirectory(
+        from screenplay: GuionParsedScreenplay,
+        progress: OperationProgress?
+    ) async throws -> FileWrapper {
+        let resourceWrappers: [String: FileWrapper] = [:]
+        let resourcesDir = FileWrapper(directoryWithFileWrappers: resourceWrappers)
+
+        // Stage 3: Extract characters (20%)
+        try Task.checkCancellation()
+        progress?.update(completedUnits: 2, description: "Extracting character data...")
+
+        let characters = extractCharacterData(from: screenplay)
+        let charactersData = try JSONEncoder.textPackEncoder.encode(characters)
+        resourcesDir.addRegularFile(withContents: charactersData, preferredFilename: "characters.json")
+
+        progress?.update(completedUnits: 3, description: "Characters extracted")
+
+        // Stage 4: Extract locations (20%)
+        try Task.checkCancellation()
+        progress?.update(completedUnits: 3, description: "Extracting location data...")
+
+        let locations = extractLocationData(from: screenplay)
+        let locationsData = try JSONEncoder.textPackEncoder.encode(locations)
+        resourcesDir.addRegularFile(withContents: locationsData, preferredFilename: "locations.json")
+
+        progress?.update(completedUnits: 4, description: "Locations extracted")
+
+        // Stage 5: Write remaining resources (20%)
+        try Task.checkCancellation()
+        progress?.update(completedUnits: 4, description: "Writing resource files...")
+
+        let elements = ElementList(elements: screenplay.elements.map { ElementData(from: $0) })
+        let elementsData = try JSONEncoder.textPackEncoder.encode(elements)
+        resourcesDir.addRegularFile(withContents: elementsData, preferredFilename: "elements.json")
+
+        let titlePage = TitlePageData(titlePage: screenplay.titlePage)
+        let titlePageData = try JSONEncoder.textPackEncoder.encode(titlePage)
+        resourcesDir.addRegularFile(withContents: titlePageData, preferredFilename: "titlepage.json")
+
+        progress?.update(completedUnits: 5, description: "Resources written")
 
         return resourcesDir
     }
