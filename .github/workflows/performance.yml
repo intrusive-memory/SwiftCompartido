@@ -1,0 +1,172 @@
+name: Performance Tests
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+  schedule:
+    # Run performance tests weekly on Sundays at 00:00 UTC
+    - cron: '0 0 * * 0'
+
+jobs:
+  performance:
+    name: Run Performance Tests
+    runs-on: macos-26
+    # Performance tests are informational only - don't block PRs
+    continue-on-error: true
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Fetch all history for comparison
+
+      - name: Select Xcode
+        run: sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
+
+      - name: Show Swift version
+        run: swift --version
+
+      - name: Build in Release mode
+        run: swift build -c release
+
+      - name: Run performance tests
+        id: perf_tests
+        run: |
+          # Run only tests tagged with 'performance'
+          echo "Running performance tests..."
+
+          # Create output directory
+          mkdir -p performance-results
+
+          # Run tests with performance tag and capture output
+          set +e
+          swift test -c release --filter .*performance.* > performance-results/output.txt 2>&1
+          PERF_EXIT_CODE=$?
+          cat performance-results/output.txt
+
+          # Extract performance metrics from test output
+          echo "Extracting performance metrics..."
+          grep "📊 PERFORMANCE" performance-results/output.txt > performance-results/metrics.txt || true
+
+          # Create JSON output for benchmarking
+          python3 - <<'PYTHON_SCRIPT' > performance-results/benchmarks.json
+          import json
+          import re
+          import sys
+
+          metrics = {}
+
+          try:
+              with open('performance-results/metrics.txt', 'r') as f:
+                  for line in f:
+                      # Parse lines like "   Native load: 0.123s"
+                      match = re.search(r'([^:]+):\s*(\d+\.\d+)s', line)
+                      if match:
+                          name = match.group(1).strip()
+                          value = float(match.group(2))
+                          metrics[name] = {
+                              'name': name,
+                              'unit': 'seconds',
+                              'value': value
+                          }
+          except FileNotFoundError:
+              print("No metrics file found", file=sys.stderr)
+
+          # Output in GitHub benchmark format
+          benchmarks = [
+              {
+                  'name': v['name'],
+                  'unit': v['unit'],
+                  'value': v['value']
+              }
+              for v in metrics.values()
+          ]
+
+          print(json.dumps(benchmarks, indent=2))
+          PYTHON_SCRIPT
+
+          cat performance-results/benchmarks.json
+
+          # Exit with success even if tests failed (non-blocking)
+          exit 0
+
+      - name: Store benchmark result
+        uses: benchmark-action/github-action-benchmark@v1
+        if: github.event_name != 'pull_request'
+        with:
+          name: Swift Performance Benchmarks
+          tool: 'customSmallerIsBetter'
+          output-file-path: performance-results/benchmarks.json
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          auto-push: true
+          # Store results in gh-pages branch
+          gh-pages-branch: gh-pages
+          benchmark-data-dir-path: dev/bench
+          # Alert if performance degrades by more than 20%
+          alert-threshold: '120%'
+          comment-on-alert: true
+          fail-on-alert: false
+          alert-comment-cc-users: '@intrusive-memory'
+
+      - name: Comment benchmark result on PR
+        uses: benchmark-action/github-action-benchmark@v1
+        if: github.event_name == 'pull_request'
+        with:
+          name: Swift Performance Benchmarks
+          tool: 'customSmallerIsBetter'
+          output-file-path: performance-results/benchmarks.json
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          auto-push: false
+          comment-always: true
+          # Don't fail on performance regression in PRs
+          fail-on-alert: false
+          alert-threshold: '120%'
+          summary-always: true
+
+      - name: Upload performance results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: performance-results
+          path: performance-results/
+          retention-days: 90
+
+      - name: Generate performance summary
+        if: always()
+        run: |
+          echo "## Performance Test Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Performance tests completed. Results are informational only and do not block PRs." >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [ -f performance-results/benchmarks.json ]; then
+            echo "### Metrics" >> $GITHUB_STEP_SUMMARY
+            echo '```json' >> $GITHUB_STEP_SUMMARY
+            cat performance-results/benchmarks.json >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+          else
+            echo "No benchmark data generated." >> $GITHUB_STEP_SUMMARY
+          fi
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "📊 Full results available in [artifacts](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})" >> $GITHUB_STEP_SUMMARY
+
+          if [ "${{ github.event_name }}" != "pull_request" ]; then
+            echo "📈 Historical trends: [View Benchmarks](https://intrusive-memory.github.io/SwiftCompartido/dev/bench/)" >> $GITHUB_STEP_SUMMARY
+          fi
+
+  performance-report:
+    name: Performance Report Summary
+    runs-on: ubuntu-latest
+    needs: performance
+    if: always()
+
+    steps:
+      - name: Report Status
+        run: |
+          echo "Performance tests completed."
+          echo "Status: Informational only (non-blocking)"
+          echo "Results are tracked for trending analysis."

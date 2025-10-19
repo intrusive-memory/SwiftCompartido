@@ -4,9 +4,9 @@
 
 This document specifies the requirements for adding progress reporting capabilities to SwiftCompartido for resource-intensive operations.
 
-**Version:** 1.1.0
+**Version:** 1.2.0
 **Date:** 2025-10-19
-**Status:** Draft - Updated with Phased Gates
+**Status:** Draft - Ready for Phase 0 Implementation
 
 ---
 
@@ -272,6 +272,24 @@ public static func readTextPack(
 
 **NFR-4.3**: Sample code showing progress UI integration
 
+**NFR-4.4**: Performance testing guide (see `PERFORMANCE_TESTING.md`)
+
+### 5.5 Performance Testing Infrastructure
+
+**NFR-5.1**: Separate, non-blocking performance test workflow
+
+**NFR-5.2**: Performance tests run in release mode (`-c release`)
+
+**NFR-5.3**: Results tracked over time in gh-pages branch
+
+**NFR-5.4**: Alerts on performance regression >20%
+
+**NFR-5.5**: Performance tests never block PRs or merges
+
+**NFR-5.6**: All performance tests follow naming convention (`*performance*`)
+
+**NFR-5.7**: Metrics reported in standardized format for GitHub Actions parsing
+
 ---
 
 ## 6. Technical Design
@@ -445,10 +463,28 @@ public enum ProgressError: LocalizedError {
 
 ### 9.3 Performance Tests
 
+**IMPORTANT**: Performance tests run separately in `.github/workflows/performance.yml` and are **non-blocking**. See `PERFORMANCE_TESTING.md` for complete guide.
+
+Performance tests must:
+- Include `performance` in the function name (e.g., `testParsingPerformance()`)
+- Run in release mode (`-c release`)
+- Report metrics in standardized format: `print("📊 PERFORMANCE METRICS:")`
+- Compare WITH and WITHOUT progress to measure overhead
+
+Required performance test coverage:
 - [ ] Progress overhead measurement (<2%)
 - [ ] Memory usage with progress enabled
-- [ ] Callback frequency verification
+- [ ] Callback frequency verification (max 100 updates/sec)
 - [ ] Large file handling (100MB+)
+- [ ] Baseline performance for all progress-enabled operations
+- [ ] Performance regression detection (alert on >20% degradation)
+
+Performance test requirements:
+- **Non-Blocking**: Never block PRs or merges
+- **Tracked**: Results stored in gh-pages branch for trending
+- **Alerting**: Notify on >20% regression
+- **Separate**: Run in dedicated GitHub Actions workflow
+- **Release Mode**: Always `-c release` for production-like performance
 
 ---
 
@@ -1125,6 +1161,7 @@ None (progress is self-contained)
 |---------|------|--------|---------|
 | 1.0.0 | 2025-10-19 | Initial | Initial requirements document |
 | 1.1.0 | 2025-10-19 | Update | Added phased gate criteria, increased test coverage to 95%, added 77 testable gate checkpoints across 7 phases |
+| 1.2.0 | 2025-10-19 | Update | Added performance testing infrastructure, non-blocking performance workflow, GitHub Actions benchmarking integration |
 
 ---
 
