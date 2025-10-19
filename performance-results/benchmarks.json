@@ -1,0 +1,52 @@
+[
+  {
+    "name": "Fountain export",
+    "unit": "seconds",
+    "value": 0.012
+  },
+  {
+    "name": "FDX export",
+    "unit": "seconds",
+    "value": 0.007
+  },
+  {
+    "name": "Native .guion load",
+    "unit": "seconds",
+    "value": 0.21563208103179932
+  },
+  {
+    "name": "Native load",
+    "unit": "seconds",
+    "value": 0.216
+  },
+  {
+    "name": "\ud83d\udcbe Native .guion save time",
+    "unit": "seconds",
+    "value": 0.0014369487762451172
+  },
+  {
+    "name": "\ud83d\udcbe Save time for 1000 elements",
+    "unit": "seconds",
+    "value": 0.009564995765686035
+  },
+  {
+    "name": "\ud83d\udce5 Load time for 1000 elements",
+    "unit": "seconds",
+    "value": 0.8517589569091797
+  },
+  {
+    "name": "Serialization save",
+    "unit": "seconds",
+    "value": 0.01
+  },
+  {
+    "name": "Serialization load",
+    "unit": "seconds",
+    "value": 0.852
+  },
+  {
+    "name": "BigFish extraction",
+    "unit": "seconds",
+    "value": 0.007
+  }
+]

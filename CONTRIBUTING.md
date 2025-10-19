@@ -609,5 +609,5 @@ Thank you for contributing to SwiftCompartido! 🎉
 
 ---
 
-**Last Updated**: 2025-10-18
-**Version**: 1.0.0
+**Last Updated**: 2025-10-19
+**Version**: 1.3.0

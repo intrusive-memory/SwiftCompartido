@@ -138,7 +138,7 @@ xcrun llvm-cov report .build/debug/SwiftCompartidoPackageTests.xctest/Contents/M
 
 - **Minimum coverage**: 90% (current: 95%+)
 - **Test framework**: Swift Testing (NOT XCTest)
-- **Test count**: 176 tests across 12 suites
+- **Test count**: 275 tests across 20 suites
 - Use `@Test("description")` macro, not `func test...`
 - All tests must pass before merging PRs
 
@@ -403,6 +403,158 @@ let container = try SwiftCompartidoContainer.makeCloudKitAutomaticContainer()
 let container = try SwiftCompartidoContainer.makeHybridContainer()
 ```
 
+## Progress Reporting
+
+SwiftCompartido provides comprehensive progress reporting for long-running operations. All async parsing, conversion, and export operations support optional progress tracking.
+
+### Core Progress Types
+
+**OperationProgress** - Main progress tracking class:
+```swift
+let progress = OperationProgress(totalUnits: 100) { update in
+    print("\(update.description) - \(Int((update.fractionCompleted ?? 0) * 100))%")
+}
+```
+
+**ProgressUpdate** - Immutable progress snapshot:
+- `completedUnits: Int64` - Units completed so far
+- `totalUnits: Int64?` - Total units (if known)
+- `fractionCompleted: Double?` - Completion percentage (0.0-1.0)
+- `description: String` - Human-readable status message
+
+### Progress-Enabled Operations
+
+All major operations support progress reporting with `<2%` performance overhead:
+
+**Fountain Parsing:**
+```swift
+let progress = OperationProgress(totalUnits: nil) { update in
+    Task { @MainActor in
+        statusLabel.text = update.description
+        progressBar.doubleValue = update.fractionCompleted ?? 0.0
+    }
+}
+
+let parser = try await FountainParser(string: fountainText, progress: progress)
+```
+
+**FDX Parsing:**
+```swift
+let progress = OperationProgress(totalUnits: nil)
+let parser = try await FDXParser(data: fdxData, progress: progress)
+```
+
+**SwiftData Conversion:**
+```swift
+let progress = OperationProgress(totalUnits: nil)
+let document = await GuionDocumentParserSwiftData.parse(
+    script: screenplay,
+    in: modelContext,
+    generateSummaries: false,
+    progress: progress
+)
+```
+
+**TextPack Export:**
+```swift
+let progress = OperationProgress(totalUnits: 5) // 5 stages
+let bundle = try await TextPackWriter.createTextPack(
+    from: screenplay,
+    progress: progress
+)
+```
+
+**File I/O Operations:**
+```swift
+let progress = OperationProgress(totalUnits: Int64(audioData.count))
+try await record.saveAudio(audioData, to: storage, mode: .local, progress: progress)
+```
+
+### SwiftUI Integration
+
+Progress works seamlessly with SwiftUI's `@Published` properties:
+
+```swift
+@MainActor
+class DocumentViewModel: ObservableObject {
+    @Published var progressMessage = ""
+    @Published var progressFraction = 0.0
+
+    func parseScreenplay() async {
+        let progress = OperationProgress(totalUnits: nil) { update in
+            Task { @MainActor in
+                self.progressMessage = update.description
+                self.progressFraction = update.fractionCompleted ?? 0.0
+            }
+        }
+
+        let parser = try await FountainParser(string: text, progress: progress)
+        // ...
+    }
+}
+
+// In SwiftUI view:
+ProgressView(value: viewModel.progressFraction) {
+    Text(viewModel.progressMessage)
+}
+```
+
+### Cancellation Support
+
+All progress-enabled operations support cancellation via `Task.checkCancellation()`:
+
+```swift
+let parseTask = Task {
+    let progress = OperationProgress(totalUnits: nil)
+    return try await FountainParser(string: largeScript, progress: progress)
+}
+
+// Cancel from UI
+parseTask.cancel()
+
+do {
+    let result = try await parseTask.value
+} catch is CancellationError {
+    print("Operation cancelled by user")
+}
+```
+
+### Performance Characteristics
+
+- **Overhead**: <2% of operation time
+- **Update frequency**: Batched to max 100 updates/second
+- **Thread safety**: All progress APIs are `Sendable` and thread-safe
+- **Memory**: Bounded - no accumulation of progress updates
+- **Concurrency**: Fully Swift 6 compliant with actor isolation
+
+### Progress Reporting Phases
+
+The implementation follows a 7-phase architecture:
+
+1. **Phase 0**: Foundation (`OperationProgress`, `ProgressUpdate`)
+2. **Phase 1**: FountainParser progress (9 features)
+3. **Phase 2**: FDXParser progress (8 features)
+4. **Phase 3**: TextPack Reader progress (9 features)
+5. **Phase 4**: TextPack Writer progress (8 features)
+6. **Phase 5**: SwiftData operations progress (7 features)
+7. **Phase 6**: File I/O progress (7 features)
+8. **Phase 7**: Integration tests (8 tests)
+
+**Total**: 275 tests across 20 test suites with 95%+ coverage.
+
+### Backward Compatibility
+
+All progress parameters default to `nil` - existing code continues to work without modifications:
+
+```swift
+// Old code - still works
+let parser = try GuionParsedScreenplay(file: path)
+
+// New code - with progress
+let progress = OperationProgress(totalUnits: nil)
+let parser = try await FountainParser(string: text, progress: progress)
+```
+
 ## Documentation Resources
 
 - `README.md` - User-facing overview
@@ -413,7 +565,7 @@ let container = try SwiftCompartidoContainer.makeHybridContainer()
 
 ## Project Metadata
 
-- **Version**: 1.2.0 (with CloudKit support)
+- **Version**: 1.3.0 (with Progress Reporting)
 - **Swift**: 6.2+
 - **Platforms**: macOS 26.0+, iOS 26.0+
 - **Dependencies**: TextBundle, SwiftFijos (test-only)

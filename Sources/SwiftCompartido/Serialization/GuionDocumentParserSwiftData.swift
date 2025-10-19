@@ -25,8 +25,45 @@ public class GuionDocumentParserSwiftData {
     /// - Returns: The created GuionDocumentModel
     @MainActor
     public static func parse(script: GuionParsedScreenplay, in modelContext: ModelContext, generateSummaries: Bool = false) async -> GuionDocumentModel {
+        return await parse(script: script, in: modelContext, generateSummaries: generateSummaries, progress: nil)
+    }
+
+    /// Parse a GuionParsedScreenplay into SwiftData models with progress reporting
+    ///
+    /// This method provides progress updates during element conversion and optional
+    /// AI summary generation for scene headings.
+    ///
+    /// - Parameters:
+    ///   - script: The GuionParsedScreenplay to parse
+    ///   - modelContext: The ModelContext to use
+    ///   - generateSummaries: Whether to generate AI summaries for scene headings (default: false)
+    ///   - progress: Optional progress tracker for monitoring conversion progress
+    ///
+    /// - Returns: The created GuionDocumentModel
+    ///
+    /// ## Usage
+    ///
+    /// ```swift
+    /// let progress = OperationProgress(totalUnits: Int64(screenplay.elements.count)) { update in
+    ///     print("Converting: \(update.description)")
+    /// }
+    ///
+    /// let document = await GuionDocumentParserSwiftData.parse(
+    ///     script: screenplay,
+    ///     in: modelContext,
+    ///     generateSummaries: true,
+    ///     progress: progress
+    /// )
+    /// ```
+    @MainActor
+    public static func parse(
+        script: GuionParsedScreenplay,
+        in modelContext: ModelContext,
+        generateSummaries: Bool = false,
+        progress: OperationProgress?
+    ) async -> GuionDocumentModel {
         // Use the new conversion method from GuionDocumentModel
-        return await GuionDocumentModel.from(script, in: modelContext, generateSummaries: generateSummaries)
+        return await GuionDocumentModel.from(script, in: modelContext, generateSummaries: generateSummaries, progress: progress)
     }
 
     /// Load a guion document from URL and parse into SwiftData
@@ -38,18 +75,36 @@ public class GuionDocumentParserSwiftData {
     /// - Throws: Parsing errors
     @MainActor
     public static func loadAndParse(from url: URL, in modelContext: ModelContext, generateSummaries: Bool = false) async throws -> GuionDocumentModel {
+        return try await loadAndParse(from: url, in: modelContext, generateSummaries: generateSummaries, progress: nil)
+    }
+
+    /// Load a guion document from URL and parse into SwiftData with progress reporting
+    /// - Parameters:
+    ///   - url: The URL of the document
+    ///   - modelContext: The ModelContext to use
+    ///   - generateSummaries: Whether to generate AI summaries for scene headings (default: false)
+    ///   - progress: Optional progress tracker for monitoring load and conversion progress
+    /// - Returns: The created GuionDocumentModel
+    /// - Throws: Parsing errors
+    @MainActor
+    public static func loadAndParse(
+        from url: URL,
+        in modelContext: ModelContext,
+        generateSummaries: Bool = false,
+        progress: OperationProgress?
+    ) async throws -> GuionDocumentModel {
         let pathExtension = url.pathExtension.lowercased()
 
         switch pathExtension {
         case "highland":
             let script = try GuionParsedScreenplay(highland: url)
-            return await parse(script: script, in: modelContext, generateSummaries: generateSummaries)
+            return await parse(script: script, in: modelContext, generateSummaries: generateSummaries, progress: progress)
         case "textbundle":
             let script = try GuionParsedScreenplay(textBundle: url)
-            return await parse(script: script, in: modelContext, generateSummaries: generateSummaries)
+            return await parse(script: script, in: modelContext, generateSummaries: generateSummaries, progress: progress)
         case "fountain":
             let script = try GuionParsedScreenplay(file: url.path)
-            return await parse(script: script, in: modelContext, generateSummaries: generateSummaries)
+            return await parse(script: script, in: modelContext, generateSummaries: generateSummaries, progress: progress)
         case "fdx":
             let data = try Data(contentsOf: url)
             let parser = FDXParser()
@@ -73,8 +128,8 @@ public class GuionDocumentParserSwiftData {
                     suppressSceneNumbers: parsed.suppressSceneNumbers
                 )
 
-                // Use the new conversion method
-                return await GuionDocumentModel.from(screenplay, in: modelContext, generateSummaries: generateSummaries)
+                // Use the new conversion method with progress
+                return await GuionDocumentModel.from(screenplay, in: modelContext, generateSummaries: generateSummaries, progress: progress)
             } catch {
                 throw GuionDocumentParserError.invalidFDX
             }

@@ -104,6 +104,50 @@ public final class GuionDocumentModel {
         in context: ModelContext,
         generateSummaries: Bool = false
     ) async -> GuionDocumentModel {
+        return await from(screenplay, in: context, generateSummaries: generateSummaries, progress: nil)
+    }
+
+    /// Create a GuionDocumentModel from a GuionParsedScreenplay with progress reporting
+    ///
+    /// This method provides progress updates as elements are converted to SwiftData models.
+    /// If `generateSummaries` is enabled, progress includes AI summary generation.
+    ///
+    /// - Parameters:
+    ///   - screenplay: The screenplay to convert
+    ///   - context: The ModelContext to use
+    ///   - generateSummaries: Whether to generate AI summaries for scene headings (default: false)
+    ///   - progress: Optional progress tracker for monitoring conversion progress
+    ///
+    /// - Returns: The created GuionDocumentModel
+    ///
+    /// ## Usage
+    ///
+    /// ```swift
+    /// let progress = OperationProgress(totalUnits: Int64(screenplay.elements.count)) { update in
+    ///     print("Converting: \(update.description) - \(Int((update.fractionCompleted ?? 0) * 100))%")
+    /// }
+    ///
+    /// let document = await GuionDocumentModel.from(
+    ///     screenplay,
+    ///     in: modelContext,
+    ///     generateSummaries: true,
+    ///     progress: progress
+    /// )
+    /// ```
+    @MainActor
+    public static func from(
+        _ screenplay: GuionParsedScreenplay,
+        in context: ModelContext,
+        generateSummaries: Bool = false,
+        progress: OperationProgress?
+    ) async -> GuionDocumentModel {
+        // Calculate total work units
+        let titlePageWork = screenplay.titlePage.reduce(0) { $0 + $1.count }
+        let totalUnits = Int64(titlePageWork + screenplay.elements.count)
+        progress?.setTotalUnitCount(totalUnits)
+
+        var completedUnits: Int64 = 0
+
         let document = GuionDocumentModel(
             filename: screenplay.filename,
             rawContent: screenplay.stringFromDocument(),
@@ -111,21 +155,36 @@ public final class GuionDocumentModel {
         )
 
         // Convert title page entries
+        progress?.update(completedUnits: completedUnits, description: "Converting title page...")
+
         for dictionary in screenplay.titlePage {
             for (key, values) in dictionary {
                 let entry = TitlePageEntryModel(key: key, values: values)
                 entry.document = document
                 document.titlePage.append(entry)
+
+                completedUnits += 1
+                if completedUnits % 5 == 0 {
+                    progress?.update(completedUnits: completedUnits, description: "Converting title page...")
+                }
             }
         }
 
         // Generate summaries for scene headings if requested
         if generateSummaries {
+            progress?.update(completedUnits: completedUnits, description: "Extracting scene structure...")
+
             let outline = screenplay.extractOutline()
             var elementsWithSummaries: [GuionElement] = []
             var skipIndices = Set<Int>()
+            var sceneCount = 0
 
             for (index, element) in screenplay.elements.enumerated() {
+                // Check for cancellation every 10 elements
+                if index % 10 == 0 {
+                    try? Task.checkCancellation()
+                }
+
                 // Skip if already processed (e.g., OVER BLACK that was handled with scene)
                 if skipIndices.contains(index) {
                     continue
@@ -134,10 +193,18 @@ public final class GuionDocumentModel {
                 // Add the original element
                 elementsWithSummaries.append(element)
 
+                completedUnits += 1
+                if completedUnits % 10 == 0 {
+                    progress?.update(completedUnits: completedUnits, description: "Converting elements (\(index + 1)/\(screenplay.elements.count))...")
+                }
+
                 // Check if this is a scene heading that needs a summary
                 if element.elementType == .sceneHeading,
                    let sceneId = element.sceneId,
                    let scene = outline.first(where: { $0.sceneId == sceneId }) {
+
+                    sceneCount += 1
+                    progress?.update(completedUnits: completedUnits, description: "Generating summary for scene \(sceneCount)...")
 
                     // Generate summary
                     if let summaryText = await SceneSummarizer.summarizeScene(scene, from: screenplay, outline: outline) {
@@ -164,20 +231,39 @@ public final class GuionDocumentModel {
             }
 
             // Convert all elements including inserted summaries to models
-            for element in elementsWithSummaries {
+            progress?.update(completedUnits: completedUnits, description: "Creating SwiftData models...")
+
+            for (index, element) in elementsWithSummaries.enumerated() {
+                if index % 10 == 0 {
+                    try? Task.checkCancellation()
+                }
+
                 let elementModel = GuionElementModel(from: element)
                 elementModel.document = document
                 document.elements.append(elementModel)
             }
         } else {
             // Convert elements without summaries
-            for element in screenplay.elements {
+            progress?.update(completedUnits: completedUnits, description: "Converting elements...")
+
+            for (index, element) in screenplay.elements.enumerated() {
+                // Check for cancellation every 10 elements
+                if index % 10 == 0 {
+                    try? Task.checkCancellation()
+                }
+
                 let elementModel = GuionElementModel(from: element)
                 elementModel.document = document
                 document.elements.append(elementModel)
+
+                completedUnits += 1
+                if completedUnits % 10 == 0 {
+                    progress?.update(completedUnits: completedUnits, description: "Converting elements (\(index + 1)/\(screenplay.elements.count))...")
+                }
             }
         }
 
+        progress?.complete(description: "Conversion complete - \(document.elements.count) elements")
         context.insert(document)
         return document
     }

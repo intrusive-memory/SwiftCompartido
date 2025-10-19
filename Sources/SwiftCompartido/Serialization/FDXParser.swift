@@ -8,7 +8,7 @@ import Foundation
 import FoundationXML
 #endif
 
-public struct FDXParsedElement: GuionElementProtocol {
+public struct FDXParsedElement: GuionElementProtocol, Sendable {
     public var elementText: String
     public var elementType: ElementType
     public var isCentered: Bool
@@ -44,7 +44,7 @@ public struct FDXParsedElement: GuionElementProtocol {
     }
 }
 
-public struct FDXParsedTitlePageEntry {
+public struct FDXParsedTitlePageEntry: Sendable {
     public let key: String
     public let values: [String]
 
@@ -54,7 +54,7 @@ public struct FDXParsedTitlePageEntry {
     }
 }
 
-public struct FDXParsedDocument {
+public struct FDXParsedDocument: Sendable {
     public let filename: String?
     public let rawXML: String
     public let suppressSceneNumbers: Bool
@@ -76,7 +76,7 @@ public enum FDXParserError: Error {
 
 #if canImport(FoundationXML) || os(macOS) || os(iOS) || os(tvOS) || os(watchOS) || os(visionOS)
 /// Parses Final Draft FDX format files into GuionElements
-public final class FDXParser: NSObject {
+public final class FDXParser: NSObject, @unchecked Sendable {
     private enum Section {
         case none
         case scriptContent
@@ -104,6 +104,11 @@ public final class FDXParser: NSObject {
     private var parsedFilename: String?
     private var rawXML: String = ""
 
+    // Progress tracking
+    private var progress: OperationProgress?
+    private var elementCount: Int = 0
+    private var lastProgressUpdate: Int = 0
+
     public func parse(data: Data, filename: String?) throws -> FDXParsedDocument {
         reset()
 
@@ -117,6 +122,68 @@ public final class FDXParser: NSObject {
         guard parser.parse() else {
             throw FDXParserError.unableToParse
         }
+
+        let titleEntries: [FDXParsedTitlePageEntry]
+        if titlePageLines.isEmpty {
+            titleEntries = []
+        } else {
+            titleEntries = [FDXParsedTitlePageEntry(key: "Title Page", values: titlePageLines)]
+        }
+
+        return FDXParsedDocument(
+            filename: parsedFilename,
+            rawXML: rawXML,
+            suppressSceneNumbers: false,
+            elements: elements,
+            titlePageEntries: titleEntries
+        )
+    }
+
+    /// Async version of parse with progress reporting support.
+    ///
+    /// This method parses an FDX file with progress updates and cancellation support.
+    /// Progress is reported as XML elements are parsed and converted.
+    ///
+    /// - Parameters:
+    ///   - data: The FDX XML data to parse
+    ///   - filename: Optional filename for the document
+    ///   - progress: Optional progress tracker for monitoring parse progress
+    ///
+    /// - Throws: `FDXParserError.unableToParse` if parsing fails, or `CancellationError` if cancelled
+    ///
+    /// - Returns: The parsed FDX document
+    ///
+    /// ## Usage
+    ///
+    /// ```swift
+    /// let progress = OperationProgress(totalUnits: nil) { update in
+    ///     print("Parsing FDX: \(Int((update.fractionCompleted ?? 0) * 100))%")
+    /// }
+    ///
+    /// let document = try await parser.parse(data: fdxData, filename: "script.fdx", progress: progress)
+    /// ```
+    public func parse(data: Data, filename: String?, progress: OperationProgress?) async throws -> FDXParsedDocument {
+        reset()
+
+        self.progress = progress
+        parsedFilename = filename
+        rawXML = String(data: data, encoding: .utf8) ?? String(decoding: data, as: UTF8.self)
+
+        // Check for cancellation before starting
+        try Task.checkCancellation()
+
+        progress?.update(completedUnits: 0, description: "Parsing FDX XML...")
+
+        let parser = XMLParser(data: data)
+        parser.delegate = self
+        parser.shouldResolveExternalEntities = false
+
+        guard parser.parse() else {
+            throw FDXParserError.unableToParse
+        }
+
+        // Final progress update
+        progress?.complete(description: "Parsing complete - \(elements.count) elements")
 
         let titleEntries: [FDXParsedTitlePageEntry]
         if titlePageLines.isEmpty {
@@ -152,6 +219,9 @@ public final class FDXParser: NSObject {
         titlePageLines = []
         parsedFilename = nil
         rawXML = ""
+        progress = nil
+        elementCount = 0
+        lastProgressUpdate = 0
     }
 
     private func normalizedElementType(_ type: String) -> ElementType {
@@ -268,6 +338,21 @@ extension FDXParser: XMLParserDelegate {
                         sceneId: sceneId
                     )
                     elements.append(parsedElement)
+
+                    // Report progress every 10 elements
+                    elementCount += 1
+                    if elementCount - lastProgressUpdate >= 10 {
+                        progress?.update(
+                            completedUnits: Int64(elementCount),
+                            description: "Parsing FDX... (\(elementCount) elements)"
+                        )
+                        lastProgressUpdate = elementCount
+
+                        // Check for cancellation
+                        if Task.isCancelled {
+                            parser.abortParsing()
+                        }
+                    }
                 }
                 isProcessingScriptParagraph = false
                 currentParagraphType = nil
