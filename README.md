@@ -4,7 +4,7 @@
     <img src="https://img.shields.io/badge/Swift-6.2+-orange.svg" />
     <img src="https://img.shields.io/badge/Platform-macOS%2026.0+%20|%20iOS%2026.0+-lightgrey.svg" />
     <img src="https://img.shields.io/badge/License-MIT-blue.svg" />
-    <img src="https://img.shields.io/badge/Version-1.2.0-green.svg" />
+    <img src="https://img.shields.io/badge/Version-1.3.0-green.svg" />
 </p>
 
 **SwiftCompartido** is a comprehensive Swift package for screenplay management, AI-generated content storage, and document serialization. Built with SwiftData, SwiftUI, and modern Swift concurrency.
@@ -42,6 +42,14 @@
 - **SceneBrowser**: Hierarchical scene navigation
 - **TextConfigurationView**: AI text generation settings
 - **AudioPlayerManager**: Waveform visualization and playback
+
+### 📊 Progress Reporting
+- **Comprehensive Tracking**: Progress for all parsing, conversion, and export operations
+- **SwiftUI Integration**: Works seamlessly with `ProgressView` and `@Published` properties
+- **Cancellation Support**: All operations support `Task` cancellation with cleanup
+- **Performance Optimized**: <2% overhead, batched updates, thread-safe
+- **Backward Compatible**: Optional progress parameter - existing code unchanged
+- **275 Tests**: Full test coverage across 7 implementation phases
 
 ## Quick Start
 
@@ -179,6 +187,57 @@ struct ScreenplayView: View {
 
     var body: some View {
         GuionViewer(screenplay: screenplay)
+    }
+}
+```
+
+#### Progress Reporting for Long Operations
+
+```swift
+import SwiftCompartido
+import SwiftUI
+
+@MainActor
+class ParserViewModel: ObservableObject {
+    @Published var progressMessage = ""
+    @Published var progressFraction = 0.0
+    @Published var isProcessing = false
+
+    func parseScreenplay(_ text: String) async throws {
+        isProcessing = true
+        defer { isProcessing = false }
+
+        // Create progress tracker
+        let progress = OperationProgress(totalUnits: nil) { update in
+            Task { @MainActor in
+                self.progressMessage = update.description
+                self.progressFraction = update.fractionCompleted ?? 0.0
+            }
+        }
+
+        // Parse with progress
+        let parser = try await FountainParser(string: text, progress: progress)
+        // Use parser.elements...
+    }
+}
+
+// In SwiftUI view:
+struct ProgressParsingView: View {
+    @StateObject var viewModel = ParserViewModel()
+
+    var body: some View {
+        VStack {
+            if viewModel.isProcessing {
+                ProgressView(value: viewModel.progressFraction) {
+                    Text(viewModel.progressMessage)
+                }
+            }
+            Button("Parse") {
+                Task {
+                    try await viewModel.parseScreenplay(largeScript)
+                }
+            }
+        }
     }
 }
 ```

@@ -2,7 +2,7 @@
 
 > Fast reference for common patterns and code snippets
 
-**Version**: 1.0.0 | [Full AI Reference](./AI-REFERENCE.md)
+**Version**: 1.3.0 | [Full AI Reference](./AI-REFERENCE.md)
 
 ---
 
@@ -102,6 +102,40 @@ playerManager.pause()
 playerManager.resume()
 playerManager.stop()
 playerManager.seek(to: 30.0) // Seek to 30 seconds
+```
+
+### Parse with Progress Reporting (v1.3.0+)
+
+```swift
+// Simple progress handler
+let progress = OperationProgress(totalUnits: nil) { update in
+    print("\(update.description): \(update.fractionCompleted ?? 0.0)")
+}
+
+let parser = try await FountainParser(string: text, progress: progress)
+
+// SwiftUI integration
+@MainActor
+class ParserViewModel: ObservableObject {
+    @Published var progressMessage = ""
+    @Published var progressFraction = 0.0
+
+    func parse(_ text: String) async throws {
+        let progress = OperationProgress(totalUnits: nil) { update in
+            Task { @MainActor in
+                self.progressMessage = update.description
+                self.progressFraction = update.fractionCompleted ?? 0.0
+            }
+        }
+
+        let parser = try await FountainParser(string: text, progress: progress)
+    }
+}
+
+// In SwiftUI view:
+ProgressView(value: viewModel.progressFraction) {
+    Text(viewModel.progressMessage)
+}
 ```
 
 ---
@@ -568,6 +602,8 @@ import AVFoundation           // For AudioPlayerManager
 | `StorageAreaReference` | File storage area | File organization |
 | `AudioPlayerManager` | Audio playback | Play TTS/audio |
 | `GuionParsedScreenplay` | Screenplay | Parse/render scripts |
+| `OperationProgress` | Progress tracking | Long operations (v1.3.0+) |
+| `ProgressUpdate` | Progress state | Handler closures (v1.3.0+) |
 
 ### Error Types
 
@@ -590,5 +626,14 @@ import AVFoundation           // For AudioPlayerManager
 
 ---
 
-**Version**: 1.0.0
-**Last Updated**: 2025-10-18
+**Version**: 1.3.0
+**Last Updated**: 2025-10-19
+
+### What's New in 1.3.0
+
+- **Progress Reporting**: All parsing, conversion, and export operations now support progress tracking
+- **SwiftUI Integration**: Native `ProgressView` support with `@Published` properties
+- **Cancellation Support**: All progress-enabled operations support `Task` cancellation
+- **275 Tests**: 99 new tests covering progress reporting (7-phase implementation)
+- **<2% Overhead**: Minimal performance impact with batched updates
+- **100% Backward Compatible**: Optional progress parameters, existing code unchanged
