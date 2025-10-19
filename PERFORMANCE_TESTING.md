@@ -4,7 +4,7 @@
 
 SwiftCompartido uses a **separate, non-blocking performance testing system** to track performance metrics over time without blocking PRs or merges.
 
-**Version**: 1.1.0
+**Version**: 1.3.0
 **Last Updated**: 2025-10-19
 
 ---
