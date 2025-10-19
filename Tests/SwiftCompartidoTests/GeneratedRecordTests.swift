@@ -12,7 +12,6 @@ import XCTest
 import SwiftData
 @testable import SwiftCompartido
 
-@available(macOS 15.0, iOS 17.0, *)
 final class GeneratedRecordTests: XCTestCase {
 
     // MARK: - GeneratedAudioRecord Tests

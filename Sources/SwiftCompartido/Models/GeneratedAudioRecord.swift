@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftData
+import CloudKit
 
 /// SwiftData model for storing generated audio with file reference support.
 ///
@@ -31,7 +32,6 @@ import SwiftData
 ///     fileReference: fileRef
 /// )
 /// ```
-@available(macOS 15.0, iOS 17.0, *)
 @Model
 public final class GeneratedAudioRecord {
 
@@ -90,7 +90,7 @@ public final class GeneratedAudioRecord {
     /// Reference to file if audio is stored externally
     ///
     /// When audio is stored in a file, this property stores the reference.
-    @Attribute(.transformable(by: "TypedDataFileReferenceTransformer"))
+    /// SwiftData handles Codable types automatically.
     public var fileReference: TypedDataFileReference?
 
     // MARK: - Timestamps
@@ -105,6 +105,36 @@ public final class GeneratedAudioRecord {
 
     /// Estimated cost in USD (if available)
     public var estimatedCost: Double?
+
+    // MARK: - CloudKit Sync Properties
+
+    /// CloudKit record identifier (nil for local-only records)
+    public var cloudKitRecordID: String?
+
+    /// CloudKit change tag for conflict detection
+    public var cloudKitChangeTag: String?
+
+    /// When this record was last synced to CloudKit
+    public var lastSyncedAt: Date?
+
+    /// Current sync status
+    public var syncStatus: SyncStatus
+
+    /// Owner's CloudKit user record ID
+    public var ownerUserRecordID: String?
+
+    /// User record IDs with shared access
+    public var sharedWith: [String]?
+
+    /// Conflict resolution version (increments on each change)
+    public var conflictVersion: Int
+
+    /// Storage mode for the content
+    public var storageMode: StorageMode
+
+    /// CloudKit asset for audio files (when using CloudKit storage)
+    @Attribute(.externalStorage)
+    public var cloudKitAudioAsset: Data?
 
     // MARK: - Initialization
 
@@ -126,6 +156,7 @@ public final class GeneratedAudioRecord {
     ///   - modelIdentifier: Model identifier (optional)
     ///   - fileReference: File reference (optional)
     ///   - estimatedCost: Estimated cost (optional)
+    ///   - storageMode: Storage mode (defaults to local)
     public init(
         id: UUID = UUID(),
         providerId: String,
@@ -141,7 +172,8 @@ public final class GeneratedAudioRecord {
         prompt: String = "",
         modelIdentifier: String? = nil,
         fileReference: TypedDataFileReference? = nil,
-        estimatedCost: Double? = nil
+        estimatedCost: Double? = nil,
+        storageMode: StorageMode = .local
     ) {
         self.id = id
         self.providerId = providerId
@@ -160,6 +192,17 @@ public final class GeneratedAudioRecord {
         self.estimatedCost = estimatedCost
         self.generatedAt = Date()
         self.modifiedAt = Date()
+
+        // CloudKit defaults
+        self.cloudKitRecordID = nil
+        self.cloudKitChangeTag = nil
+        self.lastSyncedAt = nil
+        self.syncStatus = storageMode == .local ? .localOnly : .pending
+        self.ownerUserRecordID = nil
+        self.sharedWith = nil
+        self.conflictVersion = 1
+        self.storageMode = storageMode
+        self.cloudKitAudioAsset = nil
     }
 
     // MARK: - Convenience Initializer from TypedData
@@ -251,15 +294,24 @@ public final class GeneratedAudioRecord {
     public var fileSize: Int {
         audioData?.count ?? 0
     }
+
+    /// Whether CloudKit features are enabled for this record
+    public var isCloudKitEnabled: Bool {
+        cloudKitRecordID != nil || storageMode != .local
+    }
 }
+
+// MARK: - CloudKitSyncable Conformance
+
+extension GeneratedAudioRecord: CloudKitSyncable {}
 
 // MARK: - CustomStringConvertible
 
-@available(macOS 15.0, iOS 17.0, *)
 extension GeneratedAudioRecord: CustomStringConvertible {
     public var description: String {
         let storage = isFileStored ? "file" : "memory"
+        let sync = isCloudKitEnabled ? "cloudkit" : "local"
         let duration = durationSeconds.map { String(format: "%.1fs", $0) } ?? "unknown"
-        return "GeneratedAudioRecord(id: \(id), voice: \(voiceName), duration: \(duration), storage: \(storage))"
+        return "GeneratedAudioRecord(id: \(id), voice: \(voiceName), duration: \(duration), storage: \(storage), sync: \(sync))"
     }
 }

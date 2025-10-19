@@ -23,7 +23,6 @@ import Foundation
 ///     model: "dall-e-3"
 /// )
 /// ```
-@available(macOS 15.0, iOS 17.0, *)
 public struct GeneratedImageData: Codable, Sendable, SerializableTypedData {
 
     // MARK: - Image Format
@@ -118,7 +117,6 @@ public struct GeneratedImageData: Codable, Sendable, SerializableTypedData {
 ///
 /// Contains parameters that control how images are generated,
 /// such as size, quality, and style settings.
-@available(macOS 15.0, iOS 17.0, *)
 public struct ImageGenerationConfig: Codable, Sendable {
 
     /// Image size options based on video aspect ratios

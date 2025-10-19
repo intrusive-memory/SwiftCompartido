@@ -25,7 +25,6 @@ import Foundation
 ///     inputText: "The quick brown fox"
 /// )
 /// ```
-@available(macOS 15.0, iOS 17.0, *)
 public struct GeneratedEmbeddingData: Codable, Sendable, SerializableTypedData {
 
     // MARK: - Properties
@@ -258,7 +257,6 @@ public struct GeneratedEmbeddingData: Codable, Sendable, SerializableTypedData {
 ///
 /// Contains parameters that control how embeddings are generated,
 /// such as model selection and dimension count.
-@available(macOS 15.0, iOS 17.0, *)
 public struct EmbeddingConfig: Codable, Sendable {
 
     /// Embedding model options

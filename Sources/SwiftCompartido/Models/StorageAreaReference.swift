@@ -71,7 +71,6 @@ import Foundation
 ///     mimeType: "audio/mpeg"
 /// )
 /// ```
-@available(macOS 15.0, iOS 17.0, *)
 public struct StorageAreaReference: Sendable, Codable, Equatable, Hashable {
 
     // MARK: - Properties
@@ -229,7 +228,6 @@ public struct StorageAreaReference: Sendable, Codable, Equatable, Hashable {
 
 // MARK: - Convenience Constructors
 
-@available(macOS 15.0, iOS 17.0, *)
 extension StorageAreaReference {
 
     /// Creates a temporary storage area for testing
@@ -277,7 +275,6 @@ extension StorageAreaReference {
 
 // MARK: - CustomStringConvertible
 
-@available(macOS 15.0, iOS 17.0, *)
 extension StorageAreaReference: CustomStringConvertible {
     public var description: String {
         if let bundleID = bundleIdentifier {

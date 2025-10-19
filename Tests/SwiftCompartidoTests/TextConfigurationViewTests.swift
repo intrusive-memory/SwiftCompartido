@@ -9,7 +9,6 @@ import XCTest
 import SwiftUI
 @testable import SwiftCompartido
 
-@available(macOS 15.0, iOS 17.0, *)
 final class TextConfigurationViewTests: XCTestCase {
 
     // MARK: - Initialization Tests

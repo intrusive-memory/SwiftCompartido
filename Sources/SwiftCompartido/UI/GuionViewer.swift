@@ -124,7 +124,6 @@ import SwiftData
 /// ### Error Handling
 /// - ``GuionViewerError``
 ///
-@available(macOS 14.0, iOS 17.0, *)
 public struct GuionViewer: View {
     // MARK: - State
 
@@ -258,7 +257,6 @@ public struct GuionViewer: View {
 // MARK: - Viewer State
 
 /// State of the GuionViewer
-@available(macOS 14.0, iOS 17.0, *)
 public enum GuionViewerState {
     /// Loading screenplay from file
     case loading(URL)
@@ -318,7 +316,6 @@ public enum GuionViewerError: LocalizedError {
 
 // MARK: - Loading View
 
-@available(macOS 14.0, iOS 17.0, *)
 struct LoadingView: View {
     let url: URL
 
@@ -343,7 +340,6 @@ struct LoadingView: View {
 
 // MARK: - Error View
 
-@available(macOS 14.0, iOS 17.0, *)
 struct ErrorView: View {
     let error: GuionViewerError
 
@@ -392,7 +388,6 @@ extension GuionDocumentModel {
 
 // MARK: - Previews
 
-@available(macOS 14.0, iOS 17.0, *)
 #Preview("GuionViewer - Loaded") {
     GuionViewer(
         browserData: SceneBrowserData(
@@ -453,7 +448,6 @@ extension GuionDocumentModel {
     .frame(width: 600, height: 800)
 }
 
-@available(macOS 14.0, iOS 17.0, *)
 #Preview("GuionViewer - Empty") {
     GuionViewer(
         browserData: SceneBrowserData(
@@ -472,7 +466,6 @@ extension GuionDocumentModel {
     .frame(width: 600, height: 800)
 }
 
-@available(macOS 14.0, iOS 17.0, *)
 #Preview("GuionViewer - Loading") {
     let viewer = GuionViewer(
         fileURL: URL(fileURLWithPath: "/tmp/test.fountain")

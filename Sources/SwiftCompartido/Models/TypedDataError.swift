@@ -43,7 +43,6 @@ import Foundation
 ///     print("Invalid configuration: \(reason)")
 /// }
 /// ```
-@available(macOS 15.0, iOS 17.0, *)
 public enum TypedDataError: Error, Sendable, Equatable {
 
     // MARK: - Serialization Errors
@@ -218,7 +217,6 @@ public enum TypedDataError: Error, Sendable, Equatable {
 
 // MARK: - LocalizedError
 
-@available(macOS 15.0, iOS 17.0, *)
 extension TypedDataError: LocalizedError {
 
     public var errorDescription: String? {
@@ -345,7 +343,6 @@ extension TypedDataError: LocalizedError {
 
 // MARK: - CustomStringConvertible
 
-@available(macOS 15.0, iOS 17.0, *)
 extension TypedDataError: CustomStringConvertible {
     public var description: String {
         errorDescription ?? "TypedDataError"
@@ -354,7 +351,6 @@ extension TypedDataError: CustomStringConvertible {
 
 // MARK: - Convenience Constructors
 
-@available(macOS 15.0, iOS 17.0, *)
 extension TypedDataError {
 
     /// Creates a serialization error from an underlying error

@@ -22,7 +22,6 @@ import Foundation
 /// )
 /// print("Word count: \(textData.wordCount)")
 /// ```
-@available(macOS 15.0, iOS 17.0, *)
 public struct GeneratedTextData: Codable, Sendable, SerializableTypedData {
 
     // MARK: - Properties
@@ -94,7 +93,6 @@ public struct GeneratedTextData: Codable, Sendable, SerializableTypedData {
 ///
 /// Contains parameters that control how text is generated,
 /// such as temperature, token limits, and sampling parameters.
-@available(macOS 15.0, iOS 17.0, *)
 public struct TextGenerationConfig: Codable, Sendable {
 
     /// Sampling temperature (0.0 = deterministic, 2.0 = very random)
