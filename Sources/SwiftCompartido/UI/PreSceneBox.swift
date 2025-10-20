@@ -62,6 +62,7 @@ public struct PreSceneBox: View {
             if isExpanded {
                 VStack(alignment: .center, spacing: 4) {
                     ForEach(content.indices, id: \.self) { index in
+                        // Pre-scene content is typically centered and italic
                         Text(content[index].elementText)
                             .font(.custom("Courier New", size: fontSize))
                             .italic()
