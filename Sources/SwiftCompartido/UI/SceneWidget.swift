@@ -525,7 +525,9 @@ struct ActionView: View {
                 Spacer()
                     .frame(width: geometry.size.width * 0.10)
             }
+            .frame(width: geometry.size.width, alignment: .leading)
         }
+        .fixedSize(horizontal: false, vertical: true)
         .padding(.vertical, fontSize * 0.35)
     }
 }
