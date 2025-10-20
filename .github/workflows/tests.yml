@@ -23,13 +23,35 @@ jobs:
         run: swift --version
 
       - name: Build
-        run: swift build
+        run: |
+          TOTAL_CPUS=$(sysctl -n hw.ncpu)
+          echo "🔨 Building with $TOTAL_CPUS parallel jobs"
+          swift build -j $TOTAL_CPUS
 
       - name: Run tests
         run: |
           set +e
-          # Run all tests (performance tests are run separately in performance.yml workflow)
-          swift test --enable-code-coverage > test_output.txt 2>&1
+
+          # Calculate 80% of available CPUs for parallel testing
+          TOTAL_CPUS=$(sysctl -n hw.ncpu)
+          WORKERS=$(( TOTAL_CPUS * 80 / 100 ))
+          # Ensure at least 1 worker
+          if [ $WORKERS -lt 1 ]; then WORKERS=1; fi
+
+          echo "🖥️  Total CPUs: $TOTAL_CPUS"
+          echo "⚡ Using $WORKERS parallel workers (80% of available CPUs)"
+          echo "🔨 Build jobs: $TOTAL_CPUS"
+
+          # Run all tests with parallel execution
+          # -j: parallel build jobs
+          # --parallel: enable parallel test execution
+          # --num-workers: number of parallel test workers
+          swift test \
+            --enable-code-coverage \
+            --parallel \
+            --num-workers $WORKERS \
+            -j $TOTAL_CPUS \
+            > test_output.txt 2>&1
           TEST_EXIT_CODE=$?
           cat test_output.txt
 
