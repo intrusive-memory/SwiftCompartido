@@ -5,6 +5,47 @@ All notable changes to SwiftCompartido will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.2] - 2025-10-19
+
+### 🔧 Mac Catalyst Compatibility
+
+Minor patch release fixing Mac Catalyst compatibility in UI components and adding automated CI checks.
+
+### Fixed
+- **SceneBrowserWidget.swift**: Added platform-specific background color handling
+  - macOS: Uses `.windowBackgroundColor`
+  - iOS/Catalyst: Uses `.systemBackground`
+  - Prevents `windowBackgroundColor` compilation errors on Catalyst
+
+### Added
+- **CI/CD Enhancement**: Automated Mac Catalyst build validation
+  - New `catalyst-build` job in GitHub Actions workflow
+  - Builds for both x86_64 and arm64 Mac Catalyst targets
+  - Intelligent API compatibility checker using Python script
+  - Detects unguarded macOS-specific APIs (`windowBackgroundColor`, `NSColor`, `NSFont`)
+  - Handles nested `#if/#endif` blocks correctly
+  - Non-blocking (continues even if SwiftData limitations cause build failures)
+  - Uploads build logs as artifacts for debugging
+  - Generates detailed summary with known platform limitations
+
+### Platform Support
+- ✅ **macOS 26.0+**: Full native support
+- ✅ **iOS 26.0+**: Full native support
+- ⚠️ **Mac Catalyst 26.0+**: UI components compatible where platform allows
+  - Known limitation: SwiftData has limited Catalyst support (platform issue, not code issue)
+  - All UI components properly guarded for Catalyst compatibility
+
+### Testing
+- All 275 tests pass on macOS/iOS native builds
+- No regressions introduced
+- CI validates Catalyst API compatibility on every PR
+
+### Impact
+- **Risk**: Very Low
+- **Breaking Changes**: None
+- **Backward Compatibility**: 100% maintained
+- **Files Changed**: 2 (1 source file + 1 CI workflow)
+
 ## [1.3.0] - 2025-10-19
 
 ### 📊 Comprehensive Progress Reporting

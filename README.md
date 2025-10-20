@@ -2,9 +2,9 @@
 
 <p align="center">
     <img src="https://img.shields.io/badge/Swift-6.2+-orange.svg" />
-    <img src="https://img.shields.io/badge/Platform-macOS%2026.0+%20|%20iOS%2026.0+-lightgrey.svg" />
+    <img src="https://img.shields.io/badge/Platform-macOS%2026.0+%20|%20iOS%2026.0+%20|%20Mac%20Catalyst-lightgrey.svg" />
     <img src="https://img.shields.io/badge/License-MIT-blue.svg" />
-    <img src="https://img.shields.io/badge/Version-1.3.0-green.svg" />
+    <img src="https://img.shields.io/badge/Version-1.3.2-green.svg" />
 </p>
 
 **SwiftCompartido** is a comprehensive Swift package for screenplay management, AI-generated content storage, and document serialization. Built with SwiftData, SwiftUI, and modern Swift concurrency.

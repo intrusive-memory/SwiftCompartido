@@ -565,9 +565,11 @@ let parser = try await FountainParser(string: text, progress: progress)
 
 ## Project Metadata
 
-- **Version**: 1.3.0 (with Progress Reporting)
+- **Version**: 1.3.2 (with Mac Catalyst Compatibility)
 - **Swift**: 6.2+
-- **Platforms**: macOS 26.0+, iOS 26.0+
+- **Platforms**: macOS 26.0+, iOS 26.0+, Mac Catalyst 26.0+
 - **Dependencies**: TextBundle, SwiftFijos (test-only)
 - **CI/CD**: GitHub Actions on macOS-latest with Xcode 16.0+
+  - Automated Mac Catalyst build checks
+  - Platform API compatibility validation
 - **License**: MIT
