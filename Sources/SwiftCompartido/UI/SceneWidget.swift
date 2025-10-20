@@ -264,11 +264,6 @@ struct SceneElementView: View {
         }
     }
 
-    /// Estimated height for the element
-    private var elementHeight: CGFloat? {
-        // Return nil to let text determine height naturally
-        return nil
-    }
 }
 
 // MARK: - Dialogue Block Grouping
@@ -404,8 +399,7 @@ struct DialogueCharacterView: View {
             }
             .frame(width: geometry.size.width, alignment: .leading)
         }
-        .frame(height: nil)
-        .fixedSize(horizontal: false, vertical: true)
+        .fixedSize(horizontal: false, vertical: false)
     }
 }
 
@@ -437,7 +431,6 @@ struct DialogueParentheticalView: View {
             }
             .frame(width: geometry.size.width, alignment: .leading)
         }
-        .frame(height: nil)
         .fixedSize(horizontal: false, vertical: true)
     }
 }
@@ -469,8 +462,7 @@ struct DialogueTextView: View {
             }
             .frame(width: geometry.size.width, alignment: .leading)
         }
-        .frame(height: nil)
-        .fixedSize(horizontal: false, vertical: true)
+        .fixedSize(horizontal: false, vertical: false)
     }
 }
 
@@ -502,7 +494,6 @@ struct DialogueLyricsView: View {
             }
             .frame(width: geometry.size.width, alignment: .leading)
         }
-        .frame(height: nil)
         .fixedSize(horizontal: false, vertical: true)
     }
 }
