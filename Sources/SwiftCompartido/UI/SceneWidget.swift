@@ -148,7 +148,6 @@ struct SceneElementView: View {
             }
             .frame(width: geometry.size.width, alignment: .leading)
         }
-        .frame(height: elementHeight)
         .fixedSize(horizontal: false, vertical: false)
         .padding(.vertical, verticalPadding)
     }
