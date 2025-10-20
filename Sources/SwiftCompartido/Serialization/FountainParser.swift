@@ -270,6 +270,16 @@ public class FountainParser: @unchecked Sendable {
                 continue
             }
 
+            // Synopsis
+            if newlinesBefore > 0 && matches(string: line, pattern: "^\\s*=\\s+") {
+                let text = line
+                    .replacingOccurrences(of: "^\\s*=\\s+", with: "", options: .regularExpression)
+                    .trimmingCharacters(in: .whitespaces)
+                elements.append(GuionElement(type: .synopsis, text: text))
+                newlinesBefore = 0
+                continue
+            }
+
             // Section heading (Outline elements)
             if !trimmedLine.isEmpty && trimmedLine.first == "#" {
                 newlinesBefore = 0
@@ -669,6 +679,16 @@ public class FountainParser: @unchecked Sendable {
                     .replacingOccurrences(of: "]]", with: "")
                     .trimmingCharacters(in: .whitespaces)
                 elements.append(GuionElement(type: .comment, text: text))
+                continue
+            }
+
+            // Synopsis
+            if newlinesBefore > 0 && matches(string: line, pattern: "^\\s*=\\s+") {
+                let text = line
+                    .replacingOccurrences(of: "^\\s*=\\s+", with: "", options: .regularExpression)
+                    .trimmingCharacters(in: .whitespaces)
+                elements.append(GuionElement(type: .synopsis, text: text))
+                newlinesBefore = 0
                 continue
             }
 
