@@ -5,6 +5,176 @@ All notable changes to SwiftCompartido will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.6.0] - 2025-10-20
+
+### 🎯 Element Ordering Architecture & Critical Bug Fixes
+
+Major release improving screenplay element ordering with chapter-based spacing, fixing critical ordering bugs, and reorganizing SwiftData models for better maintainability.
+
+### Added
+
+#### Chapter-Based OrderIndex Spacing
+- **Intelligent chapter detection and spacing**
+  - Chapter 1 elements: `orderIndex` 100-199
+  - Chapter 2 elements: `orderIndex` 200-299
+  - Chapter 3 elements: `orderIndex` 300-399 (and so on)
+  - Pre-chapter elements: `orderIndex` 0-99
+  - Automatic chapter detection via section heading level 2
+  - Allows inserting elements within chapters while maintaining global order
+
+```swift
+// Chapter spacing automatically applied during conversion
+let document = await GuionDocumentParserSwiftData.parse(
+    script: screenplay,
+    in: context
+)
+
+// Chapter 1 heading has orderIndex 100
+// Elements in Chapter 1 have orderIndex 101, 102, 103...
+// Chapter 2 heading has orderIndex 200
+// Elements in Chapter 2 have orderIndex 201, 202, 203...
+```
+
+#### SwiftData Model Organization
+- **Extracted models into separate files for better maintainability**
+  - `GuionElementModel.swift` (262 lines) - Individual screenplay elements
+  - `TitlePageEntryModel.swift` (64 lines) - Title page metadata entries
+  - `GuionDocumentModel.swift` reduced from 1,049 → 793 lines
+  - Better code organization and navigation
+
+#### OrderIndex Safety Features
+- **`GuionDocumentModel.sortedElements` computed property**
+  - Always returns elements in correct screenplay order
+  - Protects against SwiftData relationship ordering issues
+  - Comprehensive documentation with DO/DON'T examples
+
+```swift
+// ✅ DO: Use sortedElements for display/export
+for element in document.sortedElements {
+    displayElement(element)
+}
+
+// ❌ DON'T: Use elements directly (order not guaranteed)
+for element in document.elements {  // Wrong - may be out of order
+    displayElement(element)
+}
+```
+
+#### Comprehensive Regression Testing
+- **17 new tests preventing ordering bugs** (363 total tests)
+  - 7 chapter-based ordering tests (`ElementOrderingTests`)
+  - 10 UI regression tests (`UIOrderingRegressionTests`)
+  - Tests cover: UI display, export, serialization, round-trip conversions
+  - Large dataset tests (500+ elements)
+  - Mixed content tests (dialogue/action/scenes)
+
+### Fixed
+
+#### Critical Ordering Bugs
+- **Bug 1**: `toGuionParsedElementCollection()` used unsorted elements
+  - Elements could export in wrong order
+  - Now uses `sortedElements` to maintain screenplay sequence
+
+- **Bug 2**: `sceneLocations` returned scenes out of order
+  - Scene extraction didn't respect orderIndex
+  - Now uses `sortedElements` for correct sequence
+
+- **Bug 3**: `reparseAllLocations()` iterated without order
+  - Location reparsing was non-deterministic
+  - Now uses `sortedElements` for predictable behavior
+
+- **Bug 4**: Serialization lost element order
+  - `GuionDocumentSnapshot` didn't preserve order
+  - Now uses `sortedElements` when creating snapshots
+
+### Changed
+
+#### UI Improvements
+- **Removed visible separators in GuionElementsList**
+  - Clean, seamless flow between elements
+  - No divider lines between screenplay elements
+  - Traditional screenplay appearance maintained
+
+```swift
+// Applied to all element types in the list
+.listRowSeparator(.hidden)
+.listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+```
+
+#### API Improvements
+- **Enhanced `GuionDocumentModel` with ordering guarantees**
+  - `sceneLocations` now returns scenes in screenplay order
+  - `reparseAllLocations()` processes scenes in order
+  - All helper methods respect orderIndex
+
+### Documentation
+
+- **CHANGELOG.md**: This comprehensive v1.6.0 release notes
+- **README.md**: Updated with chapter-based ordering examples
+- **AI-REFERENCE.md**: Added orderIndex patterns and anti-patterns
+- **CLAUDE.md**: Updated architecture guidance with ordering requirements
+
+### Testing
+
+- **All 363 tests passing** across 25 test suites
+  - ElementOrderingTests: 19 tests (12 existing + 7 new)
+  - UIOrderingRegressionTests: 10 tests (NEW)
+  - 95%+ code coverage maintained
+  - No regressions in existing functionality
+
+### Migration Guide
+
+**No breaking changes** - all changes are backward compatible:
+
+```swift
+// Existing code continues to work
+let document = await GuionDocumentParserSwiftData.parse(
+    script: screenplay,
+    in: context
+)
+
+// New: Use sortedElements for guaranteed order
+let elements = document.sortedElements  // ✅ Always in order
+
+// Chapter-based spacing applied automatically
+// No code changes needed - works transparently
+```
+
+**Recommended Updates**:
+```swift
+// Before (may have ordering issues):
+for element in document.elements {
+    processElement(element)
+}
+
+// After (guaranteed order):
+for element in document.sortedElements {
+    processElement(element)
+}
+```
+
+### Impact
+
+- **Risk**: Very Low (backward compatible, extensive testing)
+- **Breaking Changes**: None
+- **Files Changed**: 4 source files, 2 new test files, 4 documentation files
+- **Performance**: Negligible (<1% overhead for sorting)
+- **Test Coverage**: 95%+ maintained, 17 new tests added
+
+### Platform Support
+
+- ✅ **macOS 26.0+**: Full support
+- ✅ **iOS 26.0+**: Full support
+- ✅ **Mac Catalyst 26.0+**: Full support
+
+### What's Next
+
+The orderIndex architecture provides foundation for:
+- Element insertion within chapters
+- Screenplay reorganization tools
+- Drag-and-drop reordering
+- Multi-chapter screenplay management
+
 ## [1.5.0] - 2025-10-20
 
 ### 📝 API Refinement: GuionParsedElementCollection

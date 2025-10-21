@@ -4,7 +4,7 @@
     <img src="https://img.shields.io/badge/Swift-6.2+-orange.svg" />
     <img src="https://img.shields.io/badge/Platform-macOS%2026.0+%20|%20iOS%2026.0+%20|%20Mac%20Catalyst-lightgrey.svg" />
     <img src="https://img.shields.io/badge/License-MIT-blue.svg" />
-    <img src="https://img.shields.io/badge/Version-1.5.0-green.svg" />
+    <img src="https://img.shields.io/badge/Version-1.6.0-green.svg" />
 </p>
 
 **SwiftCompartido** is a comprehensive Swift package for screenplay management, AI-generated content storage, and document serialization. Built with SwiftData, SwiftUI, and modern Swift concurrency.
@@ -17,6 +17,8 @@
 - **TextPack**: Bundle screenplays with metadata and resources
 - **Complete Element Support**: Scenes, dialogue, action, transitions, and more
 - **Hierarchical Outlines**: Section headings with 6 levels
+- **Chapter-Based Ordering**: Intelligent orderIndex spacing (Chapter 1: 100-199, Chapter 2: 200-299, etc.)
+- **Order Guarantees**: `sortedElements` property ensures screenplay sequence is always maintained
 
 ### 🤖 AI Content Storage
 - **Type-Safe Responses**: `AIResponseData` with typed content (text, audio, image, structured)
@@ -39,10 +41,11 @@
 
 ### 🎨 UI Components
 - **GuionViewer**: Screenplay rendering with proper formatting (simplified in 1.4.3)
-- **GuionElementsList**: Flat, @Query-based element list display (NEW in 1.4.3)
+- **GuionElementsList**: Flat, @Query-based element list display with seamless appearance (updated in 1.6.0)
 - **Source File Tracking**: Automatic detection of external file changes (NEW in 1.4.3)
 - **TextConfigurationView**: AI text generation settings
 - **AudioPlayerManager**: Waveform visualization and playback
+- **No Visible Separators**: Clean flow between screenplay elements (NEW in 1.6.0)
 
 ### 📊 Progress Reporting
 - **Comprehensive Tracking**: Progress for all parsing, conversion, and export operations
@@ -50,7 +53,7 @@
 - **Cancellation Support**: All operations support `Task` cancellation with cleanup
 - **Performance Optimized**: <2% overhead, batched updates, thread-safe
 - **Backward Compatible**: Optional progress parameter - existing code unchanged
-- **314 Tests**: Full test coverage across 22 test suites
+- **363 Tests**: Full test coverage across 25 test suites
 
 ## Quick Start
 

@@ -9,22 +9,26 @@ import SwiftUI
 import SwiftData
 
 /// Simple list displaying GuionElementModels from SwiftData
+///
+/// **Critical**: Elements are always sorted by `orderIndex` to maintain screenplay sequence.
+/// Screenplay elements must appear in the exact order they were written.
 public struct GuionElementsList: View {
     @Query private var elements: [GuionElementModel]
     @Environment(\.screenplayFontSize) var fontSize
 
-    /// Creates a GuionElementsList with all elements
+    /// Creates a GuionElementsList with all elements in order
     public init() {
-        _elements = Query()
+        _elements = Query(sort: [SortDescriptor(\GuionElementModel.orderIndex)])
     }
 
-    /// Creates a GuionElementsList filtered to a specific document
+    /// Creates a GuionElementsList filtered to a specific document, in order
     public init(document: GuionDocumentModel) {
         let documentID = document.persistentModelID
         _elements = Query(
             filter: #Predicate<GuionElementModel> { element in
                 element.document?.persistentModelID == documentID
-            }
+            },
+            sort: [SortDescriptor(\GuionElementModel.orderIndex)]
         )
     }
 
@@ -59,6 +63,8 @@ public struct GuionElementsList: View {
                     PageBreakView()
                 }
             }
+            .listRowSeparator(.hidden)
+            .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
         }
         .listStyle(.plain)
     }

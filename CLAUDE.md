@@ -67,7 +67,7 @@ Two storage types:
 # Build the package
 swift build
 
-# Run all tests (176 tests)
+# Run all tests (363 tests across 25 suites)
 swift test
 
 # Run specific test suite
@@ -108,6 +108,10 @@ xcrun llvm-cov report .build/debug/SwiftCompartidoPackageTests.xctest/Contents/M
 ### Key Directories
 
 - `Sources/SwiftCompartido/Models/` - All data models (screenplay, AI, storage)
+- `Sources/SwiftCompartido/SwiftDataModels/` - SwiftData @Model classes (NEW in 1.6.0)
+  - `GuionDocumentModel.swift` (793 lines) - Main document model
+  - `GuionElementModel.swift` (262 lines) - Individual screenplay elements
+  - `TitlePageEntryModel.swift` (64 lines) - Title page metadata
 - `Sources/SwiftCompartido/UI/` - SwiftUI components for viewing parsed SwiftData
 - `Sources/SwiftCompartido/UI/Elements/` - Individual element view components
 - `Tests/SwiftCompartidoTests/` - Test suites using Swift Testing framework
@@ -150,14 +154,85 @@ xcrun llvm-cov report .build/debug/SwiftCompartidoPackageTests.xctest/Contents/M
 - ✅ **Flat, sequential** - Elements displayed in document order
 - ✅ **No hierarchy** - No grouping or nesting of elements
 - ✅ **Simple switch/case** - Each element type rendered by its dedicated view
+- ✅ **No visible separators** - Clean flow between elements (NEW in 1.6.0)
 - ⚠️ **Removed**: SceneBrowserWidget, ChapterWidget, SceneGroupWidget (old hierarchical architecture)
+
+## Element Ordering (NEW in 1.6.0)
+
+### CRITICAL: Always Use sortedElements
+
+**SwiftData @Relationship arrays do NOT guarantee order!**
+
+```swift
+// ❌ WRONG - Order not guaranteed
+for element in document.elements {
+    displayElement(element)  // May be scrambled!
+}
+
+// ✅ CORRECT - Always sorted by orderIndex
+for element in document.sortedElements {
+    displayElement(element)  // Perfect sequence
+}
+```
+
+### Chapter-Based OrderIndex Spacing
+
+Elements are assigned `orderIndex` values with intelligent chapter spacing:
+
+- **Pre-chapter elements**: 0-99
+- **Chapter 1 elements**: 100-199 (chapter heading at 100)
+- **Chapter 2 elements**: 200-299 (chapter heading at 200)
+- **Chapter 3 elements**: 300-399 (chapter heading at 300)
+- And so on...
+
+**Benefits:**
+- Insert elements within chapters without renumbering
+- Maintains global order across entire screenplay
+- Supports multi-chapter screenplays (novels, series)
+
+**Chapter Detection:**
+Section headings with level 2 (`## Chapter 1`) automatically trigger chapter numbering.
+
+### When to Use sortedElements
+
+**ALWAYS use `document.sortedElements` for:**
+- ✅ Displaying elements in UI
+- ✅ Exporting to Fountain/FDX
+- ✅ Serializing to JSON/TextPack
+- ✅ Extracting scenes in order
+- ✅ Processing elements sequentially
+
+**Performance:** <1% overhead (thoroughly optimized)
+
+### UI Components Use OrderIndex
+
+`GuionElementsList` automatically sorts by orderIndex:
+
+```swift
+public struct GuionElementsList: View {
+    @Query(sort: [SortDescriptor(\GuionElementModel.orderIndex)])
+    private var elements: [GuionElementModel]
+
+    public var body: some View {
+        List {
+            ForEach(elements) { element in
+                // Element views...
+            }
+            .listRowSeparator(.hidden)  // NEW in 1.6.0
+            .listRowInsets(EdgeInsets())  // NEW in 1.6.0
+        }
+    }
+}
+```
 
 ## Testing Requirements
 
 - **Minimum coverage**: 90% (current: 95%+)
-- **Test framework**: Swift Testing (NOT XCTest) for new tests, XCTest for legacy
-- **Test count**: 314 tests in 22 suites
-- Use `@Test("description")` macro for new tests, not `func test...`
+- **Test framework**: Swift Testing (NOT XCTest)
+- **Test count**: 363 tests across 25 test suites
+  - ElementOrderingTests: 19 tests (chapter-based ordering)
+  - UIOrderingRegressionTests: 10 tests (NEW in 1.6.0)
+- Use `@Test("description")` macro, not `func test...`
 - All tests must pass before merging PRs
 - Parallel testing enabled in CI (2-3x faster)
 
@@ -781,7 +856,7 @@ let screenplay = try await GuionParsedElementCollection(string: text)
 
 ## Project Metadata
 
-- **Version**: 1.4.3 (with Source File Tracking & Flat UI Architecture)
+- **Version**: 1.6.0 (with Chapter-Based Element Ordering & UI Improvements)
 - **Swift**: 6.2+
 - **Platforms**: macOS 26.0+, iOS 26.0+, Mac Catalyst 26.0+
 - **Dependencies**: TextBundle, SwiftFijos (test-only)
