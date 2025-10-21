@@ -124,7 +124,7 @@ public protocol GuionElementProtocol {
 ///
 /// ## Overview
 ///
-/// `GuionElement` is the primary type used by ``GuionParsedScreenplay`` for parsing and
+/// `GuionElement` is the primary type used by ``GuionParsedElementCollection`` for parsing and
 /// storing screenplay elements. It can be easily converted to ``GuionElementModel``
 /// for persistent storage via SwiftData.
 ///

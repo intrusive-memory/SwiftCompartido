@@ -5,6 +5,254 @@ All notable changes to SwiftCompartido will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.0] - 2025-10-20
+
+### 📝 API Refinement: GuionParsedElementCollection
+
+Minor release improving API naming consistency and adding async progress support to the main screenplay parsing entry point.
+
+### Changed
+
+#### Naming Consistency
+- **GuionParsedScreenplay → GuionParsedElementCollection**
+  - More accurate name reflecting that it's a collection of screenplay elements
+  - `GuionParsedScreenplay` retained as deprecated typealias for backward compatibility
+  - All documentation updated to emphasize `GuionParsedElementCollection`
+  - Zero breaking changes - existing code continues to work with deprecation warnings
+
+#### Enhanced Progress Support
+- Added async convenience initializers to `GuionParsedElementCollection`:
+  - `init(file:parser:progress:)` - Parse from file with optional progress tracking
+  - `init(string:parser:progress:)` - Parse from string with optional progress tracking
+  - Progress propagates to underlying `FountainParser` for seamless tracking
+- All initializers include comprehensive documentation with DO/DON'T examples
+- Emphasizes `GuionParsedElementCollection` as the recommended entry point over direct parser usage
+
+### Documentation
+
+- **README.md**: All examples updated to use `GuionParsedElementCollection`
+  - Progress reporting examples enhanced
+  - ✅ DO / ❌ DON'T patterns added
+- **AI-REFERENCE.md**: Complete rewrite of parser guidance
+  - Emphasizes `GuionParsedElementCollection` as primary API
+  - Discourages direct `FountainParser`/`FDXParser` usage
+  - Added comprehensive "Why GuionParsedElementCollection?" section
+- **CLAUDE.md**: Architecture guide updated
+  - Model categories updated with new name
+  - All code examples use `GuionParsedElementCollection`
+  - Pattern guidance reinforced
+
+### Testing
+
+- **All 314 tests updated and passing** across 22 test suites
+- Fixed async initialization calls across all test files
+- No test coverage regression
+- 95%+ coverage maintained
+
+### Migration Guide
+
+**No migration required** - `GuionParsedScreenplay` is a deprecated typealias that continues to work:
+
+```swift
+// Old API (deprecated, but still works):
+let screenplay = try GuionParsedScreenplay(file: path)
+
+// New API (recommended):
+let screenplay = try await GuionParsedElementCollection(file: path)
+
+// With progress tracking:
+let progress = OperationProgress(totalUnits: nil) { update in
+    print(update.description)
+}
+let screenplay = try await GuionParsedElementCollection(
+    string: fountainText,
+    progress: progress
+)
+```
+
+### Deprecated
+
+- **GuionParsedScreenplay**: Deprecated in favor of `GuionParsedElementCollection`
+  - Compiler will show deprecation warning with migration message
+  - Full backward compatibility maintained via typealias
+
+### Impact
+
+- **Risk**: Very Low (typealias ensures 100% backward compatibility)
+- **Breaking Changes**: None (typealias preserves old name)
+- **Files Changed**: 1 core file, 6 extensions, 11 source files, 3 documentation files, all test files
+- **Performance**: No change (naming only)
+
+### Platform Support
+
+- ✅ **macOS 26.0+**: Full support
+- ✅ **iOS 26.0+**: Full support
+- ✅ **Mac Catalyst 26.0+**: Full support
+
+## [1.4.3] - 2025-10-20
+
+### 🎨 UI Architecture Simplification & Source File Tracking
+
+Major release simplifying UI architecture to a flat, list-based display pattern and adding comprehensive source file tracking for screenplay documents.
+
+### Added
+
+#### Source File Tracking (NEW)
+- **Security-Scoped Bookmarks**: Track original screenplay source files across app launches
+- **Automatic Change Detection**: Detect when imported files are modified externally
+- **Three New Properties** on `GuionDocumentModel`:
+  - `sourceFileBookmark: Data?` - Security-scoped bookmark to source file
+  - `lastImportDate: Date?` - When document was last imported
+  - `sourceFileModificationDate: Date?` - Mod date of source at import time
+- **Four New Methods** on `GuionDocumentModel`:
+  - `setSourceFile(_ url: URL) -> Bool` - Create bookmark and record dates
+  - `resolveSourceFileURL() -> URL?` - Resolve bookmark to URL
+  - `isSourceFileModified() -> Bool` - Quick check for changes
+  - `sourceFileStatus() -> SourceFileStatus` - Detailed status information
+- **SourceFileStatus Enum**: `.noSourceFile`, `.fileNotAccessible`, `.fileNotFound`, `.modified`, `.upToDate`
+- **Documentation**: Comprehensive SOURCE_FILE_TRACKING.md guide (430 lines)
+- **Platform Support**: Works seamlessly with macOS sandboxing and file permissions
+
+#### New UI Component
+- **GuionElementsList**: Flat, @Query-based SwiftData list component (NEW - 73 lines)
+  - Replaces hierarchical SceneBrowserWidget architecture
+  - Simple switch/case for each element type
+  - Displays elements sequentially in document order
+  - Optional document filtering via `init(document:)` or all elements via `init()`
+  - Direct SwiftData @Query - no intermediate models
+
+### Changed
+
+#### UI Architecture Simplification
+- **GuionViewer**: Simplified from **479 lines to 52 lines** (89% reduction)
+  - Removed complex file loading, error handling, browser data
+  - Now just a thin wrapper around GuionElementsList
+  - Takes `document: GuionDocumentModel` instead of screenplay
+  - API change: `GuionViewer(document: model)` replaces `GuionViewer(screenplay: parsed)`
+- **Display Pattern**: Changed from hierarchical to flat
+  - Elements displayed sequentially in document order
+  - No grouping or nesting
+  - Simple, predictable layout
+  - Better performance with large documents
+
+### Fixed
+
+#### Text Truncation Bug
+- **ActionView.swift**: Fixed multi-line action truncation with "..."
+  - Removed GeometryReader causing height collapse in VStack
+  - Now uses simple padding-based layout (10% margins)
+  - Full multi-line paragraphs display correctly
+- **DialogueTextView.swift**: Fixed dialogue truncation
+  - Removed GeometryReader causing height collapse
+  - Now uses HStack with spacers (25% left/right margins)
+  - Multi-line dialogue displays without truncation
+
+### Removed
+
+#### Deprecated Components
+- **SceneBrowserWidget**: Replaced by GuionElementsList
+  - Was complex hierarchical display with 400+ lines
+  - Grouped elements by scene and chapter
+  - Required intermediate BrowserData model
+- **ChapterWidget**: No longer needed
+  - Part of hierarchical architecture
+  - Grouped scenes into chapters
+- **SceneGroupWidget**: No longer needed
+  - Grouped dialogue blocks within scenes
+  - Added complexity without clear benefit
+- **DialogueBlockView**: No longer needed
+  - Grouped character+dialogue+parenthetical
+  - Now individual elements displayed sequentially
+
+### Testing
+
+- **Test Count**: 314 tests across 22 suites (up from 275/20)
+  - Added comprehensive source file tracking tests
+  - All existing tests pass with new flat architecture
+- **Coverage**: 95%+ overall coverage maintained
+- **Parallel Testing**: CI now uses 80% of available CPUs
+  - FAST_TESTING.md guide added
+  - 2-3x faster test execution
+
+### Documentation
+
+- **SOURCE_FILE_TRACKING.md** (NEW - 430 lines): Comprehensive guide
+  - Complete API documentation
+  - Usage patterns (on launch, periodic, user-initiated)
+  - SwiftUI integration examples
+  - Security considerations for sandboxed apps
+  - Example re-import flow
+- **FAST_TESTING.md** (NEW): Parallel testing guide
+  - Performance comparisons
+  - Configuration examples
+  - CI integration
+- **CLAUDE.md**: Updated with flat architecture and source tracking
+- **AI-REFERENCE.md**: Updated with new APIs and deprecated components
+- **README.md**: Updated examples and test counts
+
+### Migration Guide
+
+#### UI Components (BREAKING CHANGE)
+
+**Old API (deprecated):**
+```swift
+let screenplay = parser.parse(text)
+GuionViewer(screenplay: screenplay)
+```
+
+**New API (1.4.3):**
+```swift
+// Parse and convert to SwiftData
+let screenplay = parser.parse(text)
+let document = await GuionDocumentParserSwiftData.parse(
+    script: screenplay,
+    in: modelContext
+)
+
+// Display using document model
+GuionViewer(document: document)
+```
+
+**Flat vs Hierarchical:**
+- Elements now display in document order (no grouping)
+- To customize display, create your own view using GuionElementsList as example
+- For hierarchical navigation, implement custom filtering on @Query
+
+#### Source File Tracking (OPTIONAL - Non-Breaking)
+
+**To enable tracking on import:**
+```swift
+let document = await GuionDocumentParserSwiftData.parse(
+    script: screenplay,
+    in: modelContext
+)
+
+// Set source file
+let success = document.setSourceFile(sourceURL)
+try modelContext.save()
+
+// Later: check for updates
+if document.isSourceFileModified() {
+    showUpdatePrompt()
+}
+```
+
+**No code changes required** if you don't need source file tracking.
+
+### Impact
+
+- **Risk**: Medium (UI API change)
+- **Breaking Changes**: GuionViewer API change (screenplay → document parameter)
+- **Backward Compatibility**: Source file tracking is fully backward compatible
+- **Files Changed**: 5 source files, 4 documentation files
+- **Performance**: Improved (simpler code path, fewer intermediate objects)
+
+### Platform Support
+
+- ✅ **macOS 26.0+**: Full support including security-scoped bookmarks
+- ✅ **iOS 26.0+**: Full support including security-scoped bookmarks
+- ✅ **Mac Catalyst 26.0+**: Full support
+
 ## [1.3.2] - 2025-10-19
 
 ### 🔧 Mac Catalyst Compatibility
@@ -575,4 +823,4 @@ We follow [Semantic Versioning](https://semver.org/):
 
 **Note**: This changelog follows the principles from [Keep a Changelog](https://keepachangelog.com/en/1.0.0/). All notable changes to this project are documented here.
 
-**Last Updated**: 2025-10-18
+**Last Updated**: 2025-10-20

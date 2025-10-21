@@ -28,7 +28,7 @@ import Foundation
 
 public class FountainWriter {
 
-    public static func document(from script: GuionParsedScreenplay) -> String {
+    public static func document(from script: GuionParsedElementCollection) -> String {
         let documentContent = body(from: script)
         let titlePageContent = titlePage(from: script)
 
@@ -45,7 +45,7 @@ public class FountainWriter {
         return document.trimmingCharacters(in: .newlines)
     }
 
-    public static func body(from script: GuionParsedScreenplay) -> String {
+    public static func body(from script: GuionParsedElementCollection) -> String {
         var fountainContent = ""
         var dualDialogueCount = 0
 
@@ -126,7 +126,7 @@ public class FountainWriter {
         return fountainContent
     }
 
-    public static func titlePage(from script: GuionParsedScreenplay) -> String {
+    public static func titlePage(from script: GuionParsedElementCollection) -> String {
         var titlePageContent = ""
 
         for dict in script.titlePage {

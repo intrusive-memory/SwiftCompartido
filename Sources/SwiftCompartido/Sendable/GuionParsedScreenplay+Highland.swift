@@ -26,9 +26,9 @@
 import Foundation
 import ZIPFoundation
 
-extension GuionParsedScreenplay {
+extension GuionParsedElementCollection {
 
-    /// Initialize GuionParsedScreenplay from a Highland file (.highland)
+    /// Initialize GuionParsedElementCollection from a Highland file (.highland)
     /// Highland files are ZIP archives containing a TextBundle
     /// - Parameters:
     ///   - highland: URL to the .highland file
@@ -70,13 +70,13 @@ extension GuionParsedScreenplay {
         }
 
         // Use the shared getContentURL logic to find .fountain or .md files
-        let contentURL = try GuionParsedScreenplay.getContentURL(from: textBundleURL)
+        let contentURL = try GuionParsedElementCollection.getContentURL(from: textBundleURL)
 
         // Parse the content
         try self.init(file: contentURL.path, parser: parser)
     }
 
-    /// Write the current GuionParsedScreenplay to a Highland file (.highland)
+    /// Write the current GuionParsedElementCollection to a Highland file (.highland)
     /// Highland files are ZIP archives containing a TextBundle with resources
     /// - Parameters:
     ///   - destinationURL: The directory where the Highland file should be created

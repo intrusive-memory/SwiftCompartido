@@ -15,7 +15,7 @@ struct CharacterInfoTests {
     @Test("Extract characters and write to JSON file")
     func testWriteCharactersJSON() throws {
         // Create a simple script with characters
-        let script = GuionParsedScreenplay(
+        let script = GuionParsedElementCollection(
             elements: [
                 GuionElement(elementType: .sceneHeading, elementText: "INT. COFFEE SHOP - DAY"),
                 GuionElement(elementType: .character, elementText: "ALICE"),
@@ -50,7 +50,7 @@ struct CharacterInfoTests {
 
     @Test("Write characters JSON with special character names")
     func testWriteCharactersJSONWithSpecialNames() throws {
-        let script = GuionParsedScreenplay(
+        let script = GuionParsedElementCollection(
             elements: [
                 GuionElement(elementType: .character, elementText: "JOHN (V.O.)"),
                 GuionElement(elementType: .dialogue, elementText: "This is a voiceover."),
@@ -72,7 +72,7 @@ struct CharacterInfoTests {
 
     @Test("Write empty characters to JSON")
     func testWriteEmptyCharactersJSON() throws {
-        let script = GuionParsedScreenplay(
+        let script = GuionParsedElementCollection(
             elements: [
                 GuionElement(elementType: .sceneHeading, elementText: "INT. ROOM - DAY"),
                 GuionElement(elementType: .action, elementText: "The room is empty."),

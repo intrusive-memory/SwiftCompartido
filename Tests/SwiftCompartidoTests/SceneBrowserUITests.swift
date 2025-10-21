@@ -16,7 +16,7 @@ final class SceneBrowserUITests: XCTestCase {
     func testSceneBrowserDataFromTestFixture() throws {
         // Load test.fountain and extract browser data
         let fountainPath = try Fijos.getFixture("test", extension: "fountain").path
-        let script = try GuionParsedScreenplay(file: fountainPath)
+        let script = try GuionParsedElementCollection(file: fountainPath)
         let browserData = script.extractSceneBrowserData()
 
         // Verify title exists
@@ -44,7 +44,7 @@ final class SceneBrowserUITests: XCTestCase {
 
     func testHierarchyIntegrityWithRealData() throws {
         let fountainPath = try Fijos.getFixture("test", extension: "fountain").path
-        let script = try GuionParsedScreenplay(file: fountainPath)
+        let script = try GuionParsedElementCollection(file: fountainPath)
         let browserData = script.extractSceneBrowserData()
 
         // Verify all chapters have valid IDs
@@ -69,7 +69,7 @@ final class SceneBrowserUITests: XCTestCase {
 
     func testSceneContentExtraction() throws {
         let fountainPath = try Fijos.getFixture("test", extension: "fountain").path
-        let script = try GuionParsedScreenplay(file: fountainPath)
+        let script = try GuionParsedElementCollection(file: fountainPath)
         let browserData = script.extractSceneBrowserData()
 
         // Find first scene with content
@@ -104,7 +104,7 @@ final class SceneBrowserUITests: XCTestCase {
 
     func testPreSceneContentAttachment() throws {
         let fountainPath = try Fijos.getFixture("test", extension: "fountain").path
-        let script = try GuionParsedScreenplay(file: fountainPath)
+        let script = try GuionParsedElementCollection(file: fountainPath)
         let browserData = script.extractSceneBrowserData()
 
         // test.fountain has OVER BLACK content that should be attached to scenes
@@ -140,7 +140,7 @@ final class SceneBrowserUITests: XCTestCase {
 
     func testSceneLocationParsing() throws {
         let fountainPath = try Fijos.getFixture("test", extension: "fountain").path
-        let script = try GuionParsedScreenplay(file: fountainPath)
+        let script = try GuionParsedElementCollection(file: fountainPath)
         let browserData = script.extractSceneBrowserData()
 
         // Find scenes with locations
@@ -168,7 +168,7 @@ final class SceneBrowserUITests: XCTestCase {
 
     func testSceneDirectiveMetadata() throws {
         let fountainPath = try Fijos.getFixture("test", extension: "fountain").path
-        let script = try GuionParsedScreenplay(file: fountainPath)
+        let script = try GuionParsedElementCollection(file: fountainPath)
         let browserData = script.extractSceneBrowserData()
 
         // Look for scene groups with directives (like "### PROLOGUE S#{{SERIES: 1001}}")
@@ -276,7 +276,7 @@ final class SceneBrowserUITests: XCTestCase {
 
     func testMultipleChapters() throws {
         let fountainPath = try Fijos.getFixture("test", extension: "fountain").path
-        let script = try GuionParsedScreenplay(file: fountainPath)
+        let script = try GuionParsedElementCollection(file: fountainPath)
         let browserData = script.extractSceneBrowserData()
 
         // test.fountain should have at least one chapter
@@ -456,7 +456,7 @@ final class SceneBrowserUITests: XCTestCase {
     func testLargeScriptPerformance() throws {
         // Test with BigFish which is a large script
         let fountainPath = try Fijos.getFixture("bigfish", extension: "fountain").path
-        let script = try GuionParsedScreenplay(file: fountainPath)
+        let script = try GuionParsedElementCollection(file: fountainPath)
 
         // Measure extraction time
         let startTime = Date()
@@ -475,7 +475,7 @@ final class SceneBrowserUITests: XCTestCase {
 
     func testDataIntegrityWithRealScript() throws {
         let fountainPath = try Fijos.getFixture("test", extension: "fountain").path
-        let script = try GuionParsedScreenplay(file: fountainPath)
+        let script = try GuionParsedElementCollection(file: fountainPath)
         let browserData = script.extractSceneBrowserData()
 
         // Verify no empty IDs
@@ -495,7 +495,7 @@ final class SceneBrowserUITests: XCTestCase {
 
     func testSceneIdUniqueness() throws {
         let fountainPath = try Fijos.getFixture("test", extension: "fountain").path
-        let script = try GuionParsedScreenplay(file: fountainPath)
+        let script = try GuionParsedElementCollection(file: fountainPath)
         let browserData = script.extractSceneBrowserData()
 
         // Collect all scene IDs
@@ -538,7 +538,7 @@ Dialogue.
             try? FileManager.default.removeItem(at: tempURL)
         }
 
-        let script = try GuionParsedScreenplay(file: tempURL.path)
+        let script = try GuionParsedElementCollection(file: tempURL.path)
         let browserData = script.extractSceneBrowserData()
 
         // Should create a synthetic chapter
@@ -569,7 +569,7 @@ More action.
             try? FileManager.default.removeItem(at: tempURL)
         }
 
-        let script = try GuionParsedScreenplay(file: tempURL.path)
+        let script = try GuionParsedElementCollection(file: tempURL.path)
         let outline = script.extractOutline()
 
         print("📋 Outline elements:")
@@ -654,7 +654,7 @@ More action.
     func testDialogueInRealScript() throws {
         // Load test.fountain and verify it contains dialogue
         let fountainPath = try Fijos.getFixture("test", extension: "fountain").path
-        let script = try GuionParsedScreenplay(file: fountainPath)
+        let script = try GuionParsedElementCollection(file: fountainPath)
         let browserData = script.extractSceneBrowserData()
 
         // Find a scene with dialogue

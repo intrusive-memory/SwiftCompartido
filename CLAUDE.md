@@ -108,16 +108,19 @@ xcrun llvm-cov report .build/debug/SwiftCompartidoPackageTests.xctest/Contents/M
 ### Key Directories
 
 - `Sources/SwiftCompartido/Models/` - All data models (screenplay, AI, storage)
-- `Sources/SwiftCompartido/UI/` - SwiftUI components
+- `Sources/SwiftCompartido/UI/` - SwiftUI components for viewing parsed SwiftData
+- `Sources/SwiftCompartido/UI/Elements/` - Individual element view components
 - `Tests/SwiftCompartidoTests/` - Test suites using Swift Testing framework
 
 ### Model Categories
 
 **Screenplay Models:**
+- `GuionParsedElementCollection` - **Main screenplay container (recommended entry point)**
 - `GuionElement`, `ElementType` - Screenplay element tree
-- `FountainParser`, `FDXParser` - Format parsing
+- `FountainParser`, `FDXParser` - Format parsers (use via GuionParsedElementCollection)
 - `FountainWriter`, `FDXDocumentWriter` - Format export
-- `GuionParsedScreenplay` - Main screenplay container
+
+**✅ ALWAYS use `GuionParsedElementCollection` for parsing** - avoid calling parsers directly.
 
 **AI Response Models:**
 - `AIResponseData` - Primary response type with typed content
@@ -134,13 +137,29 @@ xcrun llvm-cov report .build/debug/SwiftCompartidoPackageTests.xctest/Contents/M
 - `TypedDataFileReference` - Lightweight file references
 - `SerializableTypedData` - Serialization wrapper
 
+**SwiftUI Components (Flat Architecture):**
+- `GuionViewer` - Thin wrapper around GuionElementsList for document viewing
+- `GuionElementsList` - SwiftData @Query-based list view displaying elements in sequential order
+- Element Views (in `UI/Elements/`) - Dedicated views for each element type:
+  - `ActionView`, `DialogueTextView`, `DialogueCharacterView`, `DialogueParentheticalView`, `DialogueLyricsView`
+  - `SceneHeadingView`, `TransitionView`, `SectionHeadingView`
+  - `SynopsisView`, `CommentView`, `BoneyardView`, `PageBreakView`
+- `AudioPlayerManager` - Audio playback manager for generated audio
+
+**Display Architecture:**
+- ✅ **Flat, sequential** - Elements displayed in document order
+- ✅ **No hierarchy** - No grouping or nesting of elements
+- ✅ **Simple switch/case** - Each element type rendered by its dedicated view
+- ⚠️ **Removed**: SceneBrowserWidget, ChapterWidget, SceneGroupWidget (old hierarchical architecture)
+
 ## Testing Requirements
 
 - **Minimum coverage**: 90% (current: 95%+)
-- **Test framework**: Swift Testing (NOT XCTest)
-- **Test count**: 275 tests across 20 suites
-- Use `@Test("description")` macro, not `func test...`
+- **Test framework**: Swift Testing (NOT XCTest) for new tests, XCTest for legacy
+- **Test count**: 314 tests in 22 suites
+- Use `@Test("description")` macro for new tests, not `func test...`
 - All tests must pass before merging PRs
+- Parallel testing enabled in CI (2-3x faster)
 
 ### Test Structure
 
@@ -207,11 +226,17 @@ The manager automatically detects file references vs in-memory data.
 - Direct pushes blocked (PRs only)
 - No PR review required
 - GitHub Actions must pass:
-  - Test job: Run all 176 tests with coverage
-  - Lint job: Check for TODOs, large files, print statements
+  - Test job: Run all 314 tests with coverage (parallel execution enabled)
+  - Mac Catalyst Build Check: Verify platform compatibility
+  - Code Quality: Check for TODOs, large files, print statements
 - Enforced for all users including admins
 
-**Workflow:** Create PR → Tests run automatically → Merge when green
+**Workflow:** Create PR → Tests run automatically in parallel (2-3x faster) → Merge when green
+
+**Parallel Testing:**
+- CI uses 80% of available CPUs for test workers
+- Local development: `swift test --parallel --num-workers 10 -j 12`
+- See `FAST_TESTING.md` for full guide
 
 ## Common Patterns
 
@@ -247,22 +272,201 @@ modelContext.insert(record)
 try modelContext.save()
 ```
 
-### Parsing Screenplays
+### Parsing and Viewing Screenplays
+
+The library provides a complete workflow for parsing screenplay files into SwiftData and displaying them:
 
 ```swift
-let parser = FountainParser()
-let screenplay = parser.parse(fountainText)
+// 1. Parse Fountain file
+// ✅ Use GuionParsedElementCollection (recommended)
+let screenplay = try await GuionParsedElementCollection(string: fountainText)
 
-// Access structured data
-for element in screenplay.elements {
-    switch element.elementType {
-    case .sceneHeading: // Handle scene
-    case .dialogue: // Handle dialogue
-    case .character: // Handle character
-    default: break
+// 2. Convert to SwiftData
+let document = await GuionDocumentParserSwiftData.parse(
+    script: screenplay,
+    in: modelContext,
+    generateSummaries: false
+)
+
+// 3. Display in SwiftUI
+struct ContentView: View {
+    let document: GuionDocumentModel
+
+    var body: some View {
+        GuionViewer(document: document)
     }
 }
 ```
+
+### UI Component Architecture
+
+SwiftCompartido uses a simplified, list-based UI architecture:
+
+**GuionViewer** - Top-level viewer component:
+```swift
+public struct GuionViewer: View {
+    private let document: GuionDocumentModel
+
+    public init(document: GuionDocumentModel) {
+        self.document = document
+    }
+
+    public var body: some View {
+        GuionElementsList(document: document)
+    }
+}
+```
+
+**GuionElementsList** - SwiftData @Query-based list:
+```swift
+public struct GuionElementsList: View {
+    @Query private var elements: [GuionElementModel]
+    @Environment(\.screenplayFontSize) var fontSize
+
+    // Filtered to specific document
+    public init(document: GuionDocumentModel) {
+        let documentID = document.persistentModelID
+        _elements = Query(
+            filter: #Predicate<GuionElementModel> { element in
+                element.document?.persistentModelID == documentID
+            }
+        )
+    }
+
+    public var body: some View {
+        List {
+            ForEach(elements) { element in
+                // Switch on element type to display appropriate view
+                switch element.elementType {
+                case .action: ActionView(element: element)
+                case .dialogue: DialogueTextView(element: element)
+                case .sceneHeading: SceneHeadingView(element: element)
+                // ... other element types
+                }
+            }
+        }
+    }
+}
+```
+
+**Element Views** - Individual element rendering:
+- `ActionView` - Action lines with 10% margins
+- `DialogueTextView` - Dialogue with 25% margins
+- `DialogueCharacterView` - Character names
+- `SceneHeadingView` - Scene headings
+- `TransitionView` - Scene transitions
+- Plus 7 more element types
+
+All elements use Courier New font and proper screenplay formatting.
+
+## Source File Tracking
+
+GuionDocumentModel now tracks the original source file and can detect when it has been modified, allowing applications to prompt users to re-import updated versions.
+
+### New Properties
+
+```swift
+/// Security-scoped bookmark to the original source file
+public var sourceFileBookmark: Data?
+
+/// Date when this document was last imported from source
+public var lastImportDate: Date?
+
+/// Modification date of source file at time of import
+public var sourceFileModificationDate: Date?
+```
+
+### Setting Source File on Import
+
+```swift
+// When importing a screenplay
+// ✅ Use GuionParsedElementCollection (recommended)
+let screenplay = try await GuionParsedElementCollection(
+    file: sourceURL.path,
+    progress: nil
+)
+let document = await GuionDocumentModel.from(screenplay, in: modelContext)
+
+// Set source file (creates security-scoped bookmark)
+document.setSourceFile(sourceURL)
+try modelContext.save()
+```
+
+### Checking for Updates
+
+```swift
+// Quick check
+if document.isSourceFileModified() {
+    // Prompt user to re-import
+    showUpdatePrompt()
+}
+
+// Detailed status
+let status = document.sourceFileStatus()
+switch status {
+case .modified:
+    // Source file has changed - prompt user
+    showUpdateAlert()
+case .upToDate:
+    // All good
+    break
+case .noSourceFile:
+    // Document wasn't imported from a file
+    break
+case .fileNotAccessible:
+    // Permissions issue
+    showPermissionsError()
+case .fileNotFound:
+    // File was moved or deleted
+    showFileNotFoundError()
+}
+```
+
+### Re-importing from Source
+
+```swift
+if let sourceURL = document.resolveSourceFileURL() {
+    // Start security-scoped access
+    let accessing = sourceURL.startAccessingSecurityScopedResource()
+    defer {
+        if accessing {
+            sourceURL.stopAccessingSecurityScopedResource()
+        }
+    }
+
+    // Re-import the updated file
+    // ✅ Use GuionParsedElementCollection (recommended)
+    let screenplay = try await GuionParsedElementCollection(
+        file: sourceURL.path,
+        progress: nil
+    )
+
+    // Update document elements...
+    document.setSourceFile(sourceURL)  // Update timestamps
+    try modelContext.save()
+}
+```
+
+### Source File Status Enum
+
+```swift
+public enum SourceFileStatus: Sendable {
+    case noSourceFile          // No source file set
+    case fileNotAccessible     // Cannot resolve bookmark
+    case fileNotFound          // File moved/deleted
+    case modified              // File has been updated
+    case upToDate              // File is current
+
+    var shouldPromptForUpdate: Bool  // True for .modified
+}
+```
+
+**See `SOURCE_FILE_TRACKING.md` for complete documentation including:**
+- SwiftUI integration examples
+- Security considerations for sandboxed apps
+- Migration guide for existing documents
+- Periodic checking patterns
+- Testing strategies
 
 ## CloudKit Sync Patterns
 
@@ -435,7 +639,11 @@ let progress = OperationProgress(totalUnits: nil) { update in
     }
 }
 
-let parser = try await FountainParser(string: fountainText, progress: progress)
+// ✅ Use GuionParsedElementCollection (recommended)
+let screenplay = try await GuionParsedElementCollection(
+    string: fountainText,
+    progress: progress
+)
 ```
 
 **FDX Parsing:**
@@ -480,7 +688,7 @@ class DocumentViewModel: ObservableObject {
     @Published var progressMessage = ""
     @Published var progressFraction = 0.0
 
-    func parseScreenplay() async {
+    func parseScreenplay(_ text: String) async throws -> GuionParsedElementCollection {
         let progress = OperationProgress(totalUnits: nil) { update in
             Task { @MainActor in
                 self.progressMessage = update.description
@@ -488,8 +696,8 @@ class DocumentViewModel: ObservableObject {
             }
         }
 
-        let parser = try await FountainParser(string: text, progress: progress)
-        // ...
+        // ✅ Use GuionParsedElementCollection (recommended)
+        return try await GuionParsedElementCollection(string: text, progress: progress)
     }
 }
 
@@ -506,14 +714,15 @@ All progress-enabled operations support cancellation via `Task.checkCancellation
 ```swift
 let parseTask = Task {
     let progress = OperationProgress(totalUnits: nil)
-    return try await FountainParser(string: largeScript, progress: progress)
+    // ✅ Use GuionParsedElementCollection (recommended)
+    return try await GuionParsedElementCollection(string: largeScript, progress: progress)
 }
 
 // Cancel from UI
 parseTask.cancel()
 
 do {
-    let result = try await parseTask.value
+    let screenplay = try await parseTask.value
 } catch is CancellationError {
     print("Operation cancelled by user")
 }
@@ -540,36 +749,46 @@ The implementation follows a 7-phase architecture:
 7. **Phase 6**: File I/O progress (7 features)
 8. **Phase 7**: Integration tests (8 tests)
 
-**Total**: 275 tests across 20 test suites with 95%+ coverage.
+**Total**: 314 tests across 22 test suites with 95%+ coverage.
 
 ### Backward Compatibility
 
 All progress parameters default to `nil` - existing code continues to work without modifications:
 
 ```swift
-// Old code - still works
-let parser = try GuionParsedScreenplay(file: path)
+// Synchronous - still works (backward compatible)
+let screenplay = try GuionParsedElementCollection(file: path)
 
-// New code - with progress
+// Async with optional progress - recommended
 let progress = OperationProgress(totalUnits: nil)
-let parser = try await FountainParser(string: text, progress: progress)
+let screenplay = try await GuionParsedElementCollection(string: text, progress: progress)
+
+// Async without progress - also works
+let screenplay = try await GuionParsedElementCollection(string: text)
 ```
 
 ## Documentation Resources
 
 - `README.md` - User-facing overview
-- `USAGE-SUMMARY.md` - Quick reference (14KB, 500 lines)
-- `AI-REFERENCE.md` - Comprehensive AI guide (45KB, 1,800 lines)
-- `CONTRIBUTING.md` - Contribution guidelines
+- `CLAUDE.md` - This file - architecture guide for Claude Code
+- `AI-REFERENCE.md` - Comprehensive API reference
+- `SOURCE_FILE_TRACKING.md` - Complete guide to source file tracking feature
+- `FAST_TESTING.md` - Parallel testing guide for faster development
+- `TRUNCATION_DEBUG.md` - Debugging guide for UI text truncation issues
+- `QUICK_FIX.md` - Quick reference for common fixes
 - `CHANGELOG.md` - Version history
+- `CONTRIBUTING.md` - Contribution guidelines
 
 ## Project Metadata
 
-- **Version**: 1.3.2 (with Mac Catalyst Compatibility)
+- **Version**: 1.4.3 (with Source File Tracking & Flat UI Architecture)
 - **Swift**: 6.2+
 - **Platforms**: macOS 26.0+, iOS 26.0+, Mac Catalyst 26.0+
 - **Dependencies**: TextBundle, SwiftFijos (test-only)
 - **CI/CD**: GitHub Actions on macOS-latest with Xcode 16.0+
+  - Parallel test execution (80% of CPUs, 2-3x faster)
   - Automated Mac Catalyst build checks
   - Platform API compatibility validation
+  - Code quality checks
 - **License**: MIT
+- **Test Coverage**: 95%+ across 314 tests in 22 suites

@@ -17,24 +17,24 @@ public enum GuionDocumentParserError: Error {
 
 public class GuionDocumentParserSwiftData {
 
-    /// Parse a GuionParsedScreenplay into SwiftData models
+    /// Parse a GuionParsedElementCollection into SwiftData models
     /// - Parameters:
-    ///   - script: The GuionParsedScreenplay to parse
+    ///   - script: The GuionParsedElementCollection to parse
     ///   - modelContext: The ModelContext to use
     ///   - generateSummaries: Whether to generate AI summaries for scene headings (default: false)
     /// - Returns: The created GuionDocumentModel
     @MainActor
-    public static func parse(script: GuionParsedScreenplay, in modelContext: ModelContext, generateSummaries: Bool = false) async -> GuionDocumentModel {
+    public static func parse(script: GuionParsedElementCollection, in modelContext: ModelContext, generateSummaries: Bool = false) async -> GuionDocumentModel {
         return await parse(script: script, in: modelContext, generateSummaries: generateSummaries, progress: nil)
     }
 
-    /// Parse a GuionParsedScreenplay into SwiftData models with progress reporting
+    /// Parse a GuionParsedElementCollection into SwiftData models with progress reporting
     ///
     /// This method provides progress updates during element conversion and optional
     /// AI summary generation for scene headings.
     ///
     /// - Parameters:
-    ///   - script: The GuionParsedScreenplay to parse
+    ///   - script: The GuionParsedElementCollection to parse
     ///   - modelContext: The ModelContext to use
     ///   - generateSummaries: Whether to generate AI summaries for scene headings (default: false)
     ///   - progress: Optional progress tracker for monitoring conversion progress
@@ -57,7 +57,7 @@ public class GuionDocumentParserSwiftData {
     /// ```
     @MainActor
     public static func parse(
-        script: GuionParsedScreenplay,
+        script: GuionParsedElementCollection,
         in modelContext: ModelContext,
         generateSummaries: Bool = false,
         progress: OperationProgress?
@@ -97,13 +97,13 @@ public class GuionDocumentParserSwiftData {
 
         switch pathExtension {
         case "highland":
-            let script = try GuionParsedScreenplay(highland: url)
+            let script = try GuionParsedElementCollection(highland: url)
             return await parse(script: script, in: modelContext, generateSummaries: generateSummaries, progress: progress)
         case "textbundle":
-            let script = try GuionParsedScreenplay(textBundle: url)
+            let script = try GuionParsedElementCollection(textBundle: url)
             return await parse(script: script, in: modelContext, generateSummaries: generateSummaries, progress: progress)
         case "fountain":
-            let script = try GuionParsedScreenplay(file: url.path)
+            let script = try await GuionParsedElementCollection(file: url.path, progress: progress)
             return await parse(script: script, in: modelContext, generateSummaries: generateSummaries, progress: progress)
         case "fdx":
             let data = try Data(contentsOf: url)
@@ -111,7 +111,7 @@ public class GuionDocumentParserSwiftData {
             do {
                 let parsed = try parser.parse(data: data, filename: url.lastPathComponent)
 
-                // Convert FDX parsed document to GuionParsedScreenplay
+                // Convert FDX parsed document to GuionParsedElementCollection
                 let elements = parsed.elements.map { GuionElement(from: $0) }
 
                 // Convert title page entries to the expected format
@@ -121,7 +121,7 @@ public class GuionDocumentParserSwiftData {
                 }
                 let titlePage = titlePageDict.isEmpty ? [] : [titlePageDict]
 
-                let screenplay = GuionParsedScreenplay(
+                let screenplay = GuionParsedElementCollection(
                     filename: parsed.filename,
                     elements: elements,
                     titlePage: titlePage,
@@ -138,12 +138,12 @@ public class GuionDocumentParserSwiftData {
         }
     }
 
-    /// Convert a SwiftData model back to a GuionParsedScreenplay
+    /// Convert a SwiftData model back to a GuionParsedElementCollection
     /// - Parameter model: The GuionDocumentModel to convert
-    /// - Returns: A GuionParsedScreenplay instance
-    public static func toFountainScript(from model: GuionDocumentModel) -> GuionParsedScreenplay {
+    /// - Returns: A GuionParsedElementCollection instance
+    public static func toFountainScript(from model: GuionDocumentModel) -> GuionParsedElementCollection {
         // Use the new conversion method from GuionDocumentModel
-        return model.toGuionParsedScreenplay()
+        return model.toGuionParsedElementCollection()
     }
 
     /// Convert a SwiftData model into FDX data

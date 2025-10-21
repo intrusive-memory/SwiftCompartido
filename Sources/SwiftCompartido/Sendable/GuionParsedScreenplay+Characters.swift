@@ -25,7 +25,7 @@
 
 import Foundation
 
-extension GuionParsedScreenplay {
+extension GuionParsedElementCollection {
 
     /// Extract character information from the script
     /// - Returns: A dictionary mapping character names to their information

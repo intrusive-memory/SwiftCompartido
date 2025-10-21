@@ -32,7 +32,63 @@ public enum ParserType {
     case regex
 }
 
-public final class GuionParsedScreenplay {
+/// Main screenplay element collection that handles parsing from multiple formats with progress tracking.
+///
+/// ## Overview
+///
+/// **GuionParsedElementCollection** is the recommended entry point for screenplay parsing.
+/// It provides a unified interface for parsing Fountain format files and strings,
+/// with comprehensive progress reporting support.
+///
+/// ## Why Use GuionParsedElementCollection Instead of Direct Parsers?
+///
+/// ✅ **Unified API**: Single type handles all parsing operations
+/// ✅ **Progress Support**: Built-in progress reporting for all parsing methods
+/// ✅ **Format Flexibility**: Supports multiple screenplay formats
+/// ✅ **Future-Proof**: New format support added here first
+///
+/// ## Recommended Usage
+///
+/// ### ✅ DO: Use GuionParsedElementCollection
+///
+/// ```swift
+/// // Parse with progress reporting
+/// let progress = OperationProgress(totalUnits: nil) { update in
+///     print(update.description)
+/// }
+/// let screenplay = try await GuionParsedElementCollection(
+///     file: "/path/to/script.fountain",
+///     progress: progress
+/// )
+/// ```
+///
+/// ### ❌ DON'T: Use parsers directly
+///
+/// ```swift
+/// // Avoid this - use GuionParsedElementCollection instead
+/// let parser = try await FountainParser(file: path, progress: progress)
+/// // Then manually extract elements...
+/// ```
+///
+/// ## Topics
+///
+/// ### Creating from Files
+/// - ``init(file:parser:progress:)`` - Async with progress (recommended)
+/// - ``init(file:parser:)`` - Synchronous (backward compatible)
+///
+/// ### Creating from Strings
+/// - ``init(string:parser:progress:)`` - Async with progress (recommended)
+/// - ``init(string:parser:)`` - Synchronous (backward compatible)
+///
+/// ### Creating from Parsed Data
+/// - ``init(filename:elements:titlePage:suppressSceneNumbers:)``
+///
+/// ### Exporting
+/// - ``write(toFile:)``
+/// - ``write(to:)``
+/// - ``stringFromDocument()``
+///
+public final class GuionParsedElementCollection {
     public let filename: String?
     public let elements: [GuionElement]
     public let titlePage: [[String: [String]]]
@@ -89,6 +145,160 @@ public final class GuionParsedScreenplay {
             )
         }
     }
+
+    // MARK: - Async Convenience Initializers with Progress Support
+
+    /// Async convenience initializer that parses from a file with optional progress reporting
+    ///
+    /// **This is the recommended way to parse screenplay files.**
+    ///
+    /// - Parameters:
+    ///   - path: File path to parse
+    ///   - parser: Parser type to use (default: .fast)
+    ///   - progress: Optional progress tracker for monitoring parsing progress
+    ///
+    /// ## Example
+    ///
+    /// ```swift
+    /// // With progress
+    /// let progress = OperationProgress(totalUnits: nil) { update in
+    ///     print("\(update.description): \(Int((update.fractionCompleted ?? 0) * 100))%")
+    /// }
+    ///
+    /// let screenplay = try await GuionParsedElementCollection(
+    ///     file: "/path/to/script.fountain",
+    ///     progress: progress
+    /// )
+    ///
+    /// // Without progress (backward compatible)
+    /// let screenplay = try await GuionParsedElementCollection(
+    ///     file: "/path/to/script.fountain"
+    /// )
+    /// ```
+    ///
+    /// ## Progress Stages
+    ///
+    /// The progress handler receives updates for:
+    /// - Preparing to parse
+    /// - Parsing title page
+    /// - Processing elements (batched every 10 elements)
+    /// - Finalizing screenplay
+    ///
+    /// - Note: When `progress` is `nil`, parsing runs without progress updates
+    ///
+    /// - SeeAlso: ``init(string:parser:progress:)``
+    public convenience init(
+        file path: String,
+        parser: ParserType = .fast,
+        progress: OperationProgress? = nil
+    ) async throws {
+        let filename = URL(fileURLWithPath: path).lastPathComponent
+
+        switch parser {
+        case .fast, .regex:
+            // Read file contents
+            let contents = try String(contentsOfFile: path, encoding: .utf8)
+
+            // Parse with progress
+            let fountainParser = try await FountainParser(string: contents, progress: progress)
+            self.init(
+                filename: filename,
+                elements: fountainParser.elements,
+                titlePage: fountainParser.titlePage
+            )
+        }
+    }
+
+    /// Async convenience initializer that parses from a string with optional progress reporting
+    ///
+    /// **This is the recommended way to parse screenplay strings.**
+    ///
+    /// - Parameters:
+    ///   - string: Fountain screenplay text
+    ///   - parser: Parser type to use (default: .fast)
+    ///   - progress: Optional progress tracker for monitoring parsing progress
+    ///
+    /// ## Example
+    ///
+    /// ```swift
+    /// let fountainText = """
+    /// Title: My Script
+    /// Author: Jane Doe
+    ///
+    /// INT. OFFICE - DAY
+    ///
+    /// JOHN types at his computer.
+    /// """
+    ///
+    /// // With progress
+    /// let progress = OperationProgress(totalUnits: nil) { update in
+    ///     Task { @MainActor in
+    ///         self.statusLabel.text = update.description
+    ///         self.progressBar.doubleValue = update.fractionCompleted ?? 0.0
+    ///     }
+    /// }
+    ///
+    /// let screenplay = try await GuionParsedElementCollection(
+    ///     string: fountainText,
+    ///     progress: progress
+    /// )
+    ///
+    /// // Without progress (backward compatible)
+    /// let screenplay = try await GuionParsedElementCollection(string: fountainText)
+    /// ```
+    ///
+    /// ## Progress Stages
+    ///
+    /// The progress handler receives updates for:
+    /// - Preparing to parse
+    /// - Parsing title page
+    /// - Processing elements (batched every 10 elements)
+    /// - Finalizing screenplay
+    ///
+    /// ## SwiftUI Integration
+    ///
+    /// ```swift
+    /// @MainActor
+    /// class ParserViewModel: ObservableObject {
+    ///     @Published var progressMessage = ""
+    ///     @Published var progressFraction = 0.0
+    ///
+    ///     func parse(_ text: String) async throws -> GuionParsedElementCollection {
+    ///         let progress = OperationProgress(totalUnits: nil) { update in
+    ///             Task { @MainActor in
+    ///                 self.progressMessage = update.description
+    ///                 self.progressFraction = update.fractionCompleted ?? 0.0
+    ///             }
+    ///         }
+    ///
+    ///         return try await GuionParsedElementCollection(
+    ///             string: text,
+    ///             progress: progress
+    ///         )
+    ///     }
+    /// }
+    /// ```
+    ///
+    /// - Note: When `progress` is `nil`, parsing runs without progress updates
+    ///
+    /// - SeeAlso: ``init(file:parser:progress:)``
+    public convenience init(
+        string: String,
+        parser: ParserType = .fast,
+        progress: OperationProgress? = nil
+    ) async throws {
+        switch parser {
+        case .fast, .regex:
+            let fountainParser = try await FountainParser(string: string, progress: progress)
+            self.init(
+                filename: nil,
+                elements: fountainParser.elements,
+                titlePage: fountainParser.titlePage
+            )
+        }
+    }
+
+    // MARK: - Export Methods
 
     public func stringFromDocument() -> String {
         return FountainWriter.document(from: self)
@@ -272,13 +482,32 @@ public final class GuionParsedScreenplay {
     }
 }
 
-extension GuionParsedScreenplay: Sendable {}
+extension GuionParsedElementCollection: Sendable {}
 
-extension GuionParsedScreenplay: CustomStringConvertible {
+extension GuionParsedElementCollection: CustomStringConvertible {
     public var description: String {
         return FountainWriter.document(from: self)
     }
 }
+
+// MARK: - Deprecated Type Alias
+
+/// Deprecated: Use `GuionParsedElementCollection` instead.
+///
+/// This type alias provides backward compatibility for code using the old name.
+/// New code should use `GuionParsedElementCollection` directly.
+///
+/// ## Migration
+///
+/// ```swift
+/// // Old (deprecated):
+/// let screenplay: GuionParsedScreenplay = try await GuionParsedScreenplay(string: text)
+///
+/// // New (recommended):
+/// let screenplay: GuionParsedElementCollection = try await GuionParsedElementCollection(string: text)
+/// ```
+@available(*, deprecated, renamed: "GuionParsedElementCollection", message: "Use GuionParsedElementCollection instead. GuionParsedScreenplay is deprecated.")
+public typealias GuionParsedScreenplay = GuionParsedElementCollection
 
 // MARK: - Error Types
 

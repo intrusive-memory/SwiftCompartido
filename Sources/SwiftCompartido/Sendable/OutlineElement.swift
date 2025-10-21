@@ -200,14 +200,14 @@ public struct OutlineElement: Codable {
     /// elements that belong to this scene.
     ///
     /// - Parameters:
-    ///   - script: The GuionParsedScreenplay containing the elements
+    ///   - script: The GuionParsedElementCollection containing the elements
     ///   - outline: The complete outline list (optional, will be generated if not provided)
     /// - Returns: The complete text of the scene including the scene heading and all content.
     ///            For non-scene elements, returns the element's string property.
     ///
     /// - Example:
     /// ```swift
-    /// let script = try GuionParsedScreenplay(string: fountainText)
+    /// let script = try GuionParsedElementCollection(string: fountainText)
     /// let outline = script.extractOutline()
     ///
     /// // Find a scene
@@ -227,7 +227,7 @@ public struct OutlineElement: Codable {
     ///     // Oh, hi John!
     /// }
     /// ```
-    public func sceneText(from script: GuionParsedScreenplay, outline: OutlineList? = nil) -> String {
+    public func sceneText(from script: GuionParsedElementCollection, outline: OutlineList? = nil) -> String {
         // Only works for scene headers
         guard type == "sceneHeader" else { return string }
 
@@ -238,7 +238,7 @@ public struct OutlineElement: Codable {
         sceneElements.append(string)
 
         // Now we need to get the actual guión elements between this scene and the next
-        // We'll need to iterate through the GuionParsedScreenplay elements and find those that
+        // We'll need to iterate through the GuionParsedElementCollection elements and find those that
         // correspond to this scene
 
         // Use sceneId for matching if available (preferred method for duplicate headings)

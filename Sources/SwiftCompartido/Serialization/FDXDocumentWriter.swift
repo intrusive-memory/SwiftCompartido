@@ -25,10 +25,10 @@ public enum FDXDocumentWriter {
         return Data(xml.utf8)
     }
 
-    /// Write a GuionParsedScreenplay to FDX format
+    /// Write a GuionParsedElementCollection to FDX format
     /// - Parameter screenplay: The screenplay to export
     /// - Returns: FDX XML data
-    public static func write(_ screenplay: GuionParsedScreenplay) -> Data {
+    public static func write(_ screenplay: GuionParsedElementCollection) -> Data {
         var xml = header
         xml += "<FinalDraft DocumentType=\"Script\" Template=\"No\" Version=\"4\">\n"
         xml += "  <Content>\n"
@@ -92,7 +92,7 @@ public enum FDXDocumentWriter {
         return xml
     }
 
-    private static func titlePageXML(from screenplay: GuionParsedScreenplay) -> String {
+    private static func titlePageXML(from screenplay: GuionParsedElementCollection) -> String {
         guard !screenplay.titlePage.isEmpty else {
             return "  <TitlePage>\n    <Content/>\n  </TitlePage>\n"
         }

@@ -10,7 +10,7 @@
 //  Example usage:
 //  ```swift
 //  // Parse a script and generate summaries
-//  let script = try GuionParsedScreenplay(string: fountainText)
+//  let script = try GuionParsedElementCollection(string: fountainText)
 //  let outline = script.extractOutline()
 //
 //  for scene in outline.filter({ $0.type == "sceneHeader" }) {
@@ -165,11 +165,11 @@ public class SceneSummarizer {
     /// Generate a summary for a scene using the outline element
     /// - Parameters:
     ///   - scene: The outline element representing the scene
-    ///   - script: The GuionParsedScreenplay containing the scene
+    ///   - script: The GuionParsedElementCollection containing the scene
     ///   - outline: The complete outline (optional)
     /// - Returns: A summary of the scene
     @MainActor
-    public static func summarizeScene(_ scene: OutlineElement, from script: GuionParsedScreenplay, outline: OutlineList? = nil) async -> String? {
+    public static func summarizeScene(_ scene: OutlineElement, from script: GuionParsedElementCollection, outline: OutlineList? = nil) async -> String? {
         guard scene.type == "sceneHeader" else { return nil }
 
         let sceneText = scene.sceneText(from: script, outline: outline)

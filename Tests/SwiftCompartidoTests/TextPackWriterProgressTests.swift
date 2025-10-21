@@ -16,12 +16,12 @@ struct TextPackWriterProgressTests {
 
     // MARK: - Helper Methods
 
-    private func loadFixtureScreenplay(_ name: String) throws -> GuionParsedScreenplay {
+    private func loadFixtureScreenplay(_ name: String) throws -> GuionParsedElementCollection {
         let url = try Fijos.getFixture(name, extension: "fountain")
-        return try GuionParsedScreenplay(file: url.path)
+        return try GuionParsedElementCollection(file: url.path)
     }
 
-    private func createSimpleScreenplay() throws -> GuionParsedScreenplay {
+    private func createSimpleScreenplay() throws -> GuionParsedElementCollection {
         let screenplay = """
         Title: Test Screenplay
         Author: Test Author
@@ -34,7 +34,7 @@ struct TextPackWriterProgressTests {
         Dialogue.
         """
 
-        return try GuionParsedScreenplay(string: screenplay)
+        return try GuionParsedElementCollection(string: screenplay)
     }
 
     // MARK: - Multi-Stage Export Tests
@@ -252,7 +252,7 @@ struct TextPackWriterProgressTests {
     @Test("Cancellation during export stops operation")
     func testCancellationDuringExport() async throws {
         actor ExportActor {
-            func performExport(_ screenplay: GuionParsedScreenplay) async throws {
+            func performExport(_ screenplay: GuionParsedElementCollection) async throws {
                 let progress = OperationProgress(totalUnits: 5)
                 _ = try await TextPackWriter.createTextPack(from: screenplay, progress: progress)
             }
@@ -281,7 +281,7 @@ struct TextPackWriterProgressTests {
     @Test("Cancellation during character extraction")
     func testCancellationDuringCharacterExtraction() async throws {
         actor ExportActor {
-            func performExport(_ screenplay: GuionParsedScreenplay) async throws {
+            func performExport(_ screenplay: GuionParsedElementCollection) async throws {
                 let progress = OperationProgress(totalUnits: 5)
                 _ = try await TextPackWriter.createTextPack(from: screenplay, progress: progress)
             }
@@ -332,7 +332,7 @@ struct TextPackWriterProgressTests {
         }
 
         // Create minimal screenplay
-        let screenplay = try GuionParsedScreenplay(string: "")
+        let screenplay = try await GuionParsedElementCollection(string: "")
 
         let bundle = try await TextPackWriter.createTextPack(from: screenplay, progress: progress)
 
@@ -479,7 +479,7 @@ struct TextPackWriterProgressTests {
 
         let progress = OperationProgress(totalUnits: 5)
 
-        // Test the GuionParsedScreenplay path
+        // Test the GuionParsedElementCollection path
         let bundle = try await TextPackWriter.createTextPack(from: screenplay, progress: progress)
 
         #expect(bundle.isDirectory, "Should create bundle")

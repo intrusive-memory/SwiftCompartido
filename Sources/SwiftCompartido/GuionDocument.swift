@@ -213,7 +213,7 @@ extension GuionDocumentModel {
     /// Extract character information from the document
     /// - Returns: A dictionary mapping character names to their information
     func extractCharacters() -> CharacterList {
-        // Convert to GuionParsedScreenplay and use its character extraction
+        // Convert to GuionParsedElementCollection and use its character extraction
         let script = GuionDocumentParserSwiftData.toFountainScript(from: self)
         return script.extractCharacters()
     }

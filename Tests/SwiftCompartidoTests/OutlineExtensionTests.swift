@@ -17,7 +17,7 @@ struct OutlineExtensionTests {
     @Test("Outline with no level 1 header should generate script title")
     func testOutlineWithNoLevelOneHeader() async throws {
         let fountainURL = try Fijos.getFixture("bigfish", extension: "fountain")
-        let script = try GuionParsedScreenplay(file: fountainURL.path)
+        let script = try await GuionParsedElementCollection(file: fountainURL.path)
         let outline = script.extractOutline()
 
         // Should have outline elements
@@ -30,7 +30,7 @@ struct OutlineExtensionTests {
     @Test("Outline with level 1 header should respect existing title")
     func testOutlineWithLevelOneHeader() async throws {
         let fountainURL = try Fijos.getFixture("bigfish", extension: "fountain")
-        let script = try GuionParsedScreenplay(file: fountainURL.path)
+        let script = try await GuionParsedElementCollection(file: fountainURL.path)
         let outline = script.extractOutline()
 
         // Should have outline elements
@@ -42,7 +42,7 @@ struct OutlineExtensionTests {
     @Test("Scene directive parsing")
     func testSceneDirectiveParsing() async throws {
         let fountainURL = try Fijos.getFixture("bigfish", extension: "fountain")
-        let script = try GuionParsedScreenplay(file: fountainURL.path)
+        let script = try await GuionParsedElementCollection(file: fountainURL.path)
         let outline = script.extractOutline()
 
         // Find scene directive elements (if any exist in bigfish)
@@ -58,7 +58,7 @@ struct OutlineExtensionTests {
     @Test("Multiple level 1 headers are allowed")
     func testMultipleLevelOneHeaders() async throws {
         let fountainURL = try Fijos.getFixture("bigfish", extension: "fountain")
-        let script = try GuionParsedScreenplay(file: fountainURL.path)
+        let script = try await GuionParsedElementCollection(file: fountainURL.path)
         let outline = script.extractOutline()
 
         let level1Elements = outline.filter { $0.level == 1 }
@@ -70,7 +70,7 @@ struct OutlineExtensionTests {
     @Test("Chapter level headers identification")
     func testChapterLevelHeaders() async throws {
         let fountainURL = try Fijos.getFixture("bigfish", extension: "fountain")
-        let script = try GuionParsedScreenplay(file: fountainURL.path)
+        let script = try await GuionParsedElementCollection(file: fountainURL.path)
         let outline = script.extractOutline()
 
         let sectionHeaders = outline.filter { $0.type == "sectionHeader" }
@@ -80,7 +80,7 @@ struct OutlineExtensionTests {
     @Test("ElementType property returns 'outline' for API compatibility")
     func testElementTypePropertyReturnsOutline() async throws {
         let fountainURL = try Fijos.getFixture("bigfish", extension: "fountain")
-        let script = try GuionParsedScreenplay(file: fountainURL.path)
+        let script = try await GuionParsedElementCollection(file: fountainURL.path)
         let outline = script.extractOutline()
 
         // Test that all outline elements have elementType "outline"
@@ -107,7 +107,7 @@ struct OutlineExtensionTests {
     @Test("Parent-child relationships and tree structure")
     func testParentChildRelationships() async throws {
         let fountainURL = try Fijos.getFixture("bigfish", extension: "fountain")
-        let script = try GuionParsedScreenplay(file: fountainURL.path)
+        let script = try await GuionParsedElementCollection(file: fountainURL.path)
         let outline = script.extractOutline()
 
         // Verify parent-child relationships exist
@@ -129,7 +129,7 @@ struct OutlineExtensionTests {
     @Test("Tree structure functionality")
     func testTreeStructure() async throws {
         let fountainURL = try Fijos.getFixture("bigfish", extension: "fountain")
-        let script = try GuionParsedScreenplay(file: fountainURL.path)
+        let script = try await GuionParsedElementCollection(file: fountainURL.path)
         let outline = script.extractOutline()
         let tree = outline.tree()
 
@@ -154,7 +154,7 @@ struct OutlineExtensionTests {
     @Test("END marker detection")
     func testEndMarkerDetection() async throws {
         let fountainURL = try Fijos.getFixture("bigfish", extension: "fountain")
-        let script = try GuionParsedScreenplay(file: fountainURL.path)
+        let script = try await GuionParsedElementCollection(file: fountainURL.path)
         let outline = script.extractOutline()
 
         let endMarkers = outline.filter { $0.isEndMarker }
@@ -169,7 +169,7 @@ struct OutlineExtensionTests {
     @Test("Convenience tree extraction method")
     func testConvenienceTreeExtraction() async throws {
         let fountainURL = try Fijos.getFixture("bigfish", extension: "fountain")
-        let script = try GuionParsedScreenplay(file: fountainURL.path)
+        let script = try await GuionParsedElementCollection(file: fountainURL.path)
 
         // Test convenience method
         let tree = script.extractOutlineTree()
@@ -186,7 +186,7 @@ struct OutlineExtensionTests {
     @Test("Scene text extraction returns complete scene content")
     func testSceneTextExtraction() async throws {
         let fountainURL = try Fijos.getFixture("bigfish", extension: "fountain")
-        let script = try GuionParsedScreenplay(file: fountainURL.path)
+        let script = try await GuionParsedElementCollection(file: fountainURL.path)
         let outline = script.extractOutline()
 
         // Find the first INT scene
@@ -205,7 +205,7 @@ struct OutlineExtensionTests {
     @Test("Scene text extraction for non-scene elements returns string")
     func testSceneTextExtractionForNonScenes() async throws {
         let fountainURL = try Fijos.getFixture("bigfish", extension: "fountain")
-        let script = try GuionParsedScreenplay(file: fountainURL.path)
+        let script = try await GuionParsedElementCollection(file: fountainURL.path)
         let outline = script.extractOutline()
 
         // Get a non-scene element (title or section header)

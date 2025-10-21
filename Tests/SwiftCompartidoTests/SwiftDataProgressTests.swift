@@ -21,12 +21,12 @@ struct SwiftDataProgressTests {
 
     // MARK: - Helper Methods
 
-    private func loadFixtureScreenplay(_ name: String) throws -> GuionParsedScreenplay {
+    private func loadFixtureScreenplay(_ name: String) throws -> GuionParsedElementCollection {
         let url = try Fijos.getFixture(name, extension: "fountain")
-        return try GuionParsedScreenplay(file: url.path)
+        return try GuionParsedElementCollection(file: url.path)
     }
 
-    private func createSimpleScreenplay() throws -> GuionParsedScreenplay {
+    private func createSimpleScreenplay() throws -> GuionParsedElementCollection {
         let screenplay = """
         Title: Test Screenplay
         Author: Test Author
@@ -39,7 +39,7 @@ struct SwiftDataProgressTests {
         Dialogue.
         """
 
-        return try GuionParsedScreenplay(string: screenplay)
+        return try GuionParsedElementCollection(string: screenplay)
     }
 
     private func createInMemoryModelContext() throws -> ModelContext {
@@ -541,7 +541,7 @@ struct SwiftDataProgressTests {
             }
         }
 
-        let screenplay = try GuionParsedScreenplay(string: "")
+        let screenplay = try await GuionParsedElementCollection(string: "")
         let context = try createInMemoryModelContext()
 
         let document = await GuionDocumentParserSwiftData.parse(

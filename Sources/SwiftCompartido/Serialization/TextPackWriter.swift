@@ -11,10 +11,10 @@ import Foundation
 /// Writer for creating .guion TextPack bundles
 public struct TextPackWriter {
 
-    /// Create a TextPack bundle from a GuionParsedScreenplay
+    /// Create a TextPack bundle from a GuionParsedElementCollection
     /// - Parameter screenplay: The screenplay to export
     /// - Returns: FileWrapper representing the TextPack bundle
-    public static func createTextPack(from screenplay: GuionParsedScreenplay) throws -> FileWrapper {
+    public static func createTextPack(from screenplay: GuionParsedElementCollection) throws -> FileWrapper {
         let fileWrappers: [String: FileWrapper] = [:]
         let bundle = FileWrapper(directoryWithFileWrappers: fileWrappers)
 
@@ -50,12 +50,12 @@ public struct TextPackWriter {
     /// - Parameter document: The document model to export
     /// - Returns: FileWrapper representing the TextPack bundle
     public static func createTextPack(from document: GuionDocumentModel) throws -> FileWrapper {
-        // Convert to GuionParsedScreenplay first
-        let screenplay = document.toGuionParsedScreenplay()
+        // Convert to GuionParsedElementCollection first
+        let screenplay = document.toGuionParsedElementCollection()
         return try createTextPack(from: screenplay)
     }
 
-    /// Create a TextPack bundle from a GuionParsedScreenplay with progress reporting
+    /// Create a TextPack bundle from a GuionParsedElementCollection with progress reporting
     ///
     /// This async version provides progress updates through five stages:
     /// 1. Creating info.json (10%)
@@ -85,7 +85,7 @@ public struct TextPackWriter {
     /// )
     /// ```
     public static func createTextPack(
-        from screenplay: GuionParsedScreenplay,
+        from screenplay: GuionParsedElementCollection,
         progress: OperationProgress?
     ) async throws -> FileWrapper {
         // Set total stages
@@ -153,14 +153,14 @@ public struct TextPackWriter {
         from document: GuionDocumentModel,
         progress: OperationProgress?
     ) async throws -> FileWrapper {
-        // Convert to GuionParsedScreenplay first
-        let screenplay = document.toGuionParsedScreenplay()
+        // Convert to GuionParsedElementCollection first
+        let screenplay = document.toGuionParsedElementCollection()
         return try await createTextPack(from: screenplay, progress: progress)
     }
 
     // MARK: - Private Helpers
 
-    private static func createResourcesDirectory(from screenplay: GuionParsedScreenplay) throws -> FileWrapper {
+    private static func createResourcesDirectory(from screenplay: GuionParsedElementCollection) throws -> FileWrapper {
         let resourceWrappers: [String: FileWrapper] = [:]
         let resourcesDir = FileWrapper(directoryWithFileWrappers: resourceWrappers)
 
@@ -189,7 +189,7 @@ public struct TextPackWriter {
 
     /// Async version of createResourcesDirectory with progress reporting
     private static func createResourcesDirectory(
-        from screenplay: GuionParsedScreenplay,
+        from screenplay: GuionParsedElementCollection,
         progress: OperationProgress?
     ) async throws -> FileWrapper {
         let resourceWrappers: [String: FileWrapper] = [:]
@@ -232,7 +232,7 @@ public struct TextPackWriter {
         return resourcesDir
     }
 
-    private static func extractCharacterData(from screenplay: GuionParsedScreenplay) -> TextPackCharacterList {
+    private static func extractCharacterData(from screenplay: GuionParsedElementCollection) -> TextPackCharacterList {
         // Use existing character extraction
         let characterInfo = screenplay.extractCharacters()
 
@@ -259,7 +259,7 @@ public struct TextPackWriter {
         return TextPackCharacterList(characters: characterDataList)
     }
 
-    private static func extractLocationData(from screenplay: GuionParsedScreenplay) -> LocationList {
+    private static func extractLocationData(from screenplay: GuionParsedElementCollection) -> LocationList {
         // Extract unique locations from scene headings
         var locationMap: [String: LocationData] = [:]
 

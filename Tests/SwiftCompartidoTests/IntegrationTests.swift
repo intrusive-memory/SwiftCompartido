@@ -21,9 +21,9 @@ struct IntegrationTests {
 
     // MARK: - Helper Methods
 
-    private func loadFixtureScreenplay(_ name: String) throws -> GuionParsedScreenplay {
+    private func loadFixtureScreenplay(_ name: String) throws -> GuionParsedElementCollection {
         let url = try Fijos.getFixture(name, extension: "fountain")
-        return try GuionParsedScreenplay(file: url.path)
+        return try GuionParsedElementCollection(file: url.path)
     }
 
     private func createInMemoryModelContext() throws -> ModelContext {
@@ -153,8 +153,8 @@ struct IntegrationTests {
 
         #expect(parser2.elements.count == parser.elements.count, "Nil progress should work")
 
-        // Example 3: Multi-stage progress with GuionParsedScreenplay
-        let screenplay2 = try GuionParsedScreenplay(string: screenplay)
+        // Example 3: Multi-stage progress with GuionParsedElementCollection
+        let screenplay2 = try await GuionParsedElementCollection(string: screenplay)
         let exportProgress = OperationProgress(totalUnits: 5)
         let bundle = try await TextPackWriter.createTextPack(from: screenplay2, progress: exportProgress)
 
