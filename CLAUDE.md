@@ -107,14 +107,11 @@ xcrun llvm-cov report .build/debug/SwiftCompartidoPackageTests.xctest/Contents/M
 
 ### Key Directories
 
-- `Sources/SwiftCompartido/Models/` - All data models (screenplay, AI, storage)
-- `Sources/SwiftCompartido/SwiftDataModels/` - SwiftData @Model classes (NEW in 1.6.0)
-  - `GuionDocumentModel.swift` (793 lines) - Main document model
-  - `GuionElementModel.swift` (262 lines) - Individual screenplay elements
-  - `TitlePageEntryModel.swift` (64 lines) - Title page metadata
-- `Sources/SwiftCompartido/UI/` - SwiftUI components for viewing parsed SwiftData
-- `Sources/SwiftCompartido/UI/Elements/` - Individual element view components
-- `Tests/SwiftCompartidoTests/` - Test suites using Swift Testing framework
+  - `Sources/SwiftCompartido/Models/` - All data models (screenplay, AI, storage)
+  - `Sources/SwiftCompartido/UI/` - SwiftUI components for viewing parsed SwiftData
+  - `Sources/SwiftCompartido/UI/Elements/` - Individual element view components
+  - `Sources/SwiftCompartido/SwiftDataModels/` - SwiftData @Model classes (NEW in 1.6.0)
+  - `Tests/SwiftCompartidoTests/` - Test suites using Swift Testing framework
 
 ### Model Categories
 
@@ -233,6 +230,14 @@ public struct GuionElementsList: View {
   - ElementOrderingTests: 19 tests (chapter-based ordering)
   - UIOrderingRegressionTests: 10 tests (NEW in 1.6.0)
 - Use `@Test("description")` macro, not `func test...`
+- ⚠️ **Removed**: SceneBrowserWidget, ChapterWidget, SceneGroupWidget (old hierarchical architecture)
+
+## Testing Requirements
+
+- **Minimum coverage**: 90% (current: 95%+)
+- **Test framework**: Swift Testing (NOT XCTest) for new tests, XCTest for legacy
+- **Test count**: 314 tests in 22 suites
+- Use `@Test("description")` macro for new tests, not `func test...`
 - All tests must pass before merging PRs
 - Parallel testing enabled in CI (2-3x faster)
 
@@ -421,6 +426,144 @@ public struct GuionElementsList: View {
             }
         }
     }
+}
+```
+
+**Element Views** - Individual element rendering:
+- `ActionView` - Action lines with 10% margins
+- `DialogueTextView` - Dialogue with 25% margins
+- `DialogueCharacterView` - Character names
+- `SceneHeadingView` - Scene headings
+- `TransitionView` - Scene transitions
+- Plus 7 more element types
+
+All elements use Courier New font and proper screenplay formatting.
+
+## Source File Tracking
+
+GuionDocumentModel now tracks the original source file and can detect when it has been modified, allowing applications to prompt users to re-import updated versions.
+
+### New Properties
+
+```swift
+/// Security-scoped bookmark to the original source file
+public var sourceFileBookmark: Data?
+
+/// Date when this document was last imported from source
+public var lastImportDate: Date?
+
+/// Modification date of source file at time of import
+public var sourceFileModificationDate: Date?
+```
+
+### Setting Source File on Import
+
+```swift
+// When importing a screenplay
+// ✅ Use GuionParsedElementCollection (recommended)
+let screenplay = try await GuionParsedElementCollection(
+    file: sourceURL.path,
+    progress: nil
+)
+let document = await GuionDocumentModel.from(screenplay, in: modelContext)
+
+// Set source file (creates security-scoped bookmark)
+document.setSourceFile(sourceURL)
+try modelContext.save()
+```
+
+### Checking for Updates
+
+**GuionElementsList** - SwiftData @Query-based list:
+```swift
+// Quick check
+if document.isSourceFileModified() {
+    // Prompt user to re-import
+    showUpdatePrompt()
+}
+
+// Detailed status
+let status = document.sourceFileStatus()
+switch status {
+case .modified:
+    // Source file has changed - prompt user
+    showUpdateAlert()
+case .upToDate:
+    // All good
+    break
+case .noSourceFile:
+    // Document wasn't imported from a file
+    break
+case .fileNotAccessible:
+    // Permissions issue
+    showPermissionsError()
+case .fileNotFound:
+    // File was moved or deleted
+    showFileNotFoundError()
+}
+```
+
+### Re-importing from Source
+
+```swift
+if let sourceURL = document.resolveSourceFileURL() {
+    // Start security-scoped access
+    let accessing = sourceURL.startAccessingSecurityScopedResource()
+    defer {
+        if accessing {
+            sourceURL.stopAccessingSecurityScopedResource()
+public struct GuionElementsList: View {
+    @Query private var elements: [GuionElementModel]
+    @Environment(\.screenplayFontSize) var fontSize
+
+    // Filtered to specific document
+    public init(document: GuionDocumentModel) {
+        let documentID = document.persistentModelID
+        _elements = Query(
+            filter: #Predicate<GuionElementModel> { element in
+                element.document?.persistentModelID == documentID
+            }
+        )
+    }
+
+    public var body: some View {
+        List {
+            ForEach(elements) { element in
+                // Switch on element type to display appropriate view
+                switch element.elementType {
+                case .action: ActionView(element: element)
+                case .dialogue: DialogueTextView(element: element)
+                case .sceneHeading: SceneHeadingView(element: element)
+                // ... other element types
+                }
+            }
+        }
+    }
+
+    // Re-import the updated file
+    // ✅ Use GuionParsedElementCollection (recommended)
+    let screenplay = try await GuionParsedElementCollection(
+        file: sourceURL.path,
+        progress: nil
+    )
+
+    // Update document elements...
+    document.setSourceFile(sourceURL)  // Update timestamps
+    try modelContext.save()
+}
+```
+
+### Source File Status Enum
+
+```swift
+public enum SourceFileStatus: Sendable {
+    case noSourceFile          // No source file set
+    case fileNotAccessible     // Cannot resolve bookmark
+    case fileNotFound          // File moved/deleted
+    case modified              // File has been updated
+    case upToDate              // File is current
+
+    var shouldPromptForUpdate: Bool  // True for .modified
 }
 ```
 

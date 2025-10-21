@@ -41,7 +41,7 @@
 
 ### 🎨 UI Components
 - **GuionViewer**: Screenplay rendering with proper formatting (simplified in 1.4.3)
-- **GuionElementsList**: Flat, @Query-based element list display with seamless appearance (updated in 1.6.0)
+- **GuionElementsList**: Flat, @Query-based element list display (NEW in 1.4.3)
 - **Source File Tracking**: Automatic detection of external file changes (NEW in 1.4.3)
 - **TextConfigurationView**: AI text generation settings
 - **AudioPlayerManager**: Waveform visualization and playback
@@ -53,7 +53,7 @@
 - **Cancellation Support**: All operations support `Task` cancellation with cleanup
 - **Performance Optimized**: <2% overhead, batched updates, thread-safe
 - **Backward Compatible**: Optional progress parameter - existing code unchanged
-- **363 Tests**: Full test coverage across 25 test suites
+- **314 Tests**: Full test coverage across 22 test suites
 
 ## Quick Start
 

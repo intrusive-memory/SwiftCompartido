@@ -9,9 +9,6 @@ import SwiftUI
 import SwiftData
 
 /// Simple list displaying GuionElementModels from SwiftData
-///
-/// **Critical**: Elements are always sorted by `orderIndex` to maintain screenplay sequence.
-/// Screenplay elements must appear in the exact order they were written.
 public struct GuionElementsList: View {
     @Query private var elements: [GuionElementModel]
     @Environment(\.screenplayFontSize) var fontSize

@@ -175,6 +175,7 @@ The orderIndex architecture provides foundation for:
 - Drag-and-drop reordering
 - Multi-chapter screenplay management
 
+
 ## [1.5.0] - 2025-10-20
 
 ### 📝 API Refinement: GuionParsedElementCollection
