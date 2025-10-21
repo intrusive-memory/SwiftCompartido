@@ -149,7 +149,7 @@ public final class GuionDocumentModel {
     /// Created by calling `setSourceFile(_:)` when importing a screenplay.
     ///
     /// - Note: For sandboxed macOS apps, the user must select the file via an open panel to create
-    ///   a valid security-scoped bookmark.
+    ///   a valid bookmark.
     ///
     /// - SeeAlso: `setSourceFile(_:)`, `resolveSourceFileURL()`
     public var sourceFileBookmark: Data?
@@ -200,7 +200,7 @@ public final class GuionDocumentModel {
 
     /// Resolve the source file bookmark to a URL
     ///
-    /// This method converts the stored security-scoped bookmark into a URL that can be used to
+    /// This method converts the stored bookmark into a URL that can be used to
     /// access the original source file. The bookmark is automatically refreshed if it becomes stale.
     ///
     /// - Returns: URL if bookmark can be resolved and file is accessible, nil otherwise
@@ -209,7 +209,6 @@ public final class GuionDocumentModel {
     ///
     /// ```swift
     /// if let sourceURL = document.resolveSourceFileURL() {
-    ///     // Start security-scoped access
     ///     let accessing = sourceURL.startAccessingSecurityScopedResource()
     ///     defer {
     ///         if accessing {
@@ -233,7 +232,7 @@ public final class GuionDocumentModel {
         do {
             let url = try URL(
                 resolvingBookmarkData: bookmarkData,
-                options: .withSecurityScope,
+                options: [],
                 relativeTo: nil,
                 bookmarkDataIsStale: &isStale
             )
@@ -241,7 +240,7 @@ public final class GuionDocumentModel {
             if isStale {
                 // Bookmark is stale, try to recreate it
                 if let newBookmark = try? url.bookmarkData(
-                    options: .withSecurityScope,
+                    options: [],
                     includingResourceValuesForKeys: nil,
                     relativeTo: nil
                 ) {
@@ -255,9 +254,9 @@ public final class GuionDocumentModel {
         }
     }
 
-    /// Set the source file from a URL, creating a security-scoped bookmark
+    /// Set the source file from a URL, creating a bookmark
     ///
-    /// This method creates a security-scoped bookmark to the source file and records the current
+    /// This method creates a bookmark to the source file and records the current
     /// modification date and import timestamp. Call this immediately after importing a screenplay
     /// to enable source file tracking.
     ///
@@ -280,27 +279,27 @@ public final class GuionDocumentModel {
     ///     try modelContext.save()
     /// } else {
     ///     // Handle bookmark creation failure
-    ///     print("Failed to create security-scoped bookmark")
+    ///     print("Failed to create bookmark")
     /// }
     /// ```
     ///
     /// ## Properties Updated
     ///
     /// This method automatically updates:
-    /// - `sourceFileBookmark` - Security-scoped bookmark data
+    /// - `sourceFileBookmark` - Bookmark data
     /// - `lastImportDate` - Set to current date/time
     /// - `sourceFileModificationDate` - Set to file's modification date
     ///
     /// - Note: For sandboxed macOS apps, the URL must come from a user file selection
-    ///   (NSOpenPanel) to create a valid security-scoped bookmark.
+    ///   (NSOpenPanel) to create a valid bookmark.
     ///
     /// - SeeAlso: `resolveSourceFileURL()`, `isSourceFileModified()`, `sourceFileStatus()`
     @discardableResult
     public func setSourceFile(_ url: URL) -> Bool {
         do {
-            // Create security-scoped bookmark
+            // Create bookmark
             let bookmarkData = try url.bookmarkData(
-                options: .withSecurityScope,
+                options: [],
                 includingResourceValuesForKeys: nil,
                 relativeTo: nil
             )
