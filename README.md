@@ -4,7 +4,7 @@
     <img src="https://img.shields.io/badge/Swift-6.2+-orange.svg" />
     <img src="https://img.shields.io/badge/Platform-macOS%2026.0+%20|%20iOS%2026.0+%20|%20Mac%20Catalyst-lightgrey.svg" />
     <img src="https://img.shields.io/badge/License-MIT-blue.svg" />
-    <img src="https://img.shields.io/badge/Version-1.6.0-green.svg" />
+    <img src="https://img.shields.io/badge/Version-2.0.0-blue.svg" />
 </p>
 
 **SwiftCompartido** is a comprehensive Swift package for screenplay management, AI-generated content storage, and document serialization. Built with SwiftData, SwiftUI, and modern Swift concurrency.
@@ -45,7 +45,8 @@
 - **Source File Tracking**: Automatic detection of external file changes (NEW in 1.4.3)
 - **TextConfigurationView**: AI text generation settings
 - **AudioPlayerManager**: Waveform visualization and playback
-- **No Visible Separators**: Clean flow between screenplay elements (NEW in 1.6.0)
+- **No Visible Separators**: Clean flow between screenplay elements (NEW in 2.0.0)
+- **Mac Catalyst Support**: Full compatibility across macOS, iOS, and Mac Catalyst (NEW in 2.0.0)
 
 ### 📊 Progress Reporting
 - **Comprehensive Tracking**: Progress for all parsing, conversion, and export operations
@@ -53,7 +54,7 @@
 - **Cancellation Support**: All operations support `Task` cancellation with cleanup
 - **Performance Optimized**: <2% overhead, batched updates, thread-safe
 - **Backward Compatible**: Optional progress parameter - existing code unchanged
-- **314 Tests**: Full test coverage across 22 test suites
+- **363 Tests**: Full test coverage across 25 test suites
 
 ## Quick Start
 

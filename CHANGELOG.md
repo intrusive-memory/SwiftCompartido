@@ -5,11 +5,11 @@ All notable changes to SwiftCompartido will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.6.0] - 2025-10-20
+## [2.0.0] - 2025-10-20
 
-### 🎯 Element Ordering Architecture & Critical Bug Fixes
+### 🎯 Element Ordering Architecture, Mac Catalyst Support & Critical Bug Fixes
 
-Major release improving screenplay element ordering with chapter-based spacing, fixing critical ordering bugs, and reorganizing SwiftData models for better maintainability.
+Major release improving screenplay element ordering with chapter-based spacing, adding full Mac Catalyst compatibility, fixing critical ordering bugs, and reorganizing SwiftData models for better maintainability.
 
 ### Added
 
@@ -68,6 +68,30 @@ for element in document.elements {  // Wrong - may be out of order
   - Large dataset tests (500+ elements)
   - Mixed content tests (dialogue/action/scenes)
 
+#### Mac Catalyst Compatibility
+- **Removed all macOS-specific conditional compilation**
+  - `FDXParser.swift`: Removed `#if canImport(FoundationXML)` conditionals
+  - `TextConfigurationView.swift`: Removed `#if os(macOS)` conditionals
+  - `GuionDocumentModel.swift`: Replaced `.withSecurityScope` with `[]` for bookmarks
+  - Library now builds seamlessly on Mac Catalyst without platform-specific code
+  - All UI components work across macOS, iOS, and Mac Catalyst
+
+```swift
+// Before: Platform-specific conditionals
+#if os(macOS) || targetEnvironment(macCatalyst)
+.formStyle(.grouped)
+#endif
+
+// After: Works on all platforms
+.formStyle(.grouped)
+
+// Before: Security-scoped bookmarks (macOS-only)
+let bookmark = try url.bookmarkData(options: .withSecurityScope, ...)
+
+// After: Standard bookmarks (cross-platform)
+let bookmark = try url.bookmarkData(options: [], ...)
+```
+
 ### Fixed
 
 #### Critical Ordering Bugs
@@ -95,10 +119,19 @@ for element in document.elements {  // Wrong - may be out of order
   - No divider lines between screenplay elements
   - Traditional screenplay appearance maintained
 
+- **Enhanced character name spacing in DialogueCharacterView**
+  - Increased top padding (`fontSize * 1.5`) for more separation from previous element
+  - Decreased bottom padding (`fontSize * 0.2`) to bring character name closer to dialogue
+  - Follows traditional screenplay formatting conventions
+
 ```swift
 // Applied to all element types in the list
 .listRowSeparator(.hidden)
 .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+
+// Character name spacing
+.padding(.top, fontSize * 1.5)    // More space above
+.padding(.bottom, fontSize * 0.2)  // Closer to dialogue
 ```
 
 #### API Improvements
@@ -109,10 +142,10 @@ for element in document.elements {  // Wrong - may be out of order
 
 ### Documentation
 
-- **CHANGELOG.md**: This comprehensive v1.6.0 release notes
-- **README.md**: Updated with chapter-based ordering examples
-- **AI-REFERENCE.md**: Added orderIndex patterns and anti-patterns
-- **CLAUDE.md**: Updated architecture guidance with ordering requirements
+- **CHANGELOG.md**: This comprehensive v2.0.0 release notes
+- **README.md**: Updated version badge to 2.0.0, chapter-based ordering examples, Mac Catalyst support
+- **AI-REFERENCE.md**: Added orderIndex patterns, anti-patterns, and Catalyst guidance
+- **CLAUDE.md**: Updated architecture guidance with ordering requirements and platform compatibility
 
 ### Testing
 
@@ -157,9 +190,13 @@ for element in document.sortedElements {
 
 - **Risk**: Very Low (backward compatible, extensive testing)
 - **Breaking Changes**: None
-- **Files Changed**: 4 source files, 2 new test files, 4 documentation files
+- **Files Changed**: 14 files total
+  - 8 source files (3 new, 5 modified)
+  - 2 new test files
+  - 4 documentation files updated
 - **Performance**: Negligible (<1% overhead for sorting)
 - **Test Coverage**: 95%+ maintained, 17 new tests added
+- **Platform Expansion**: Now supports Mac Catalyst in addition to macOS and iOS
 
 ### Platform Support
 
@@ -169,11 +206,13 @@ for element in document.sortedElements {
 
 ### What's Next
 
-The orderIndex architecture provides foundation for:
+The orderIndex architecture and Catalyst support provide foundation for:
 - Element insertion within chapters
 - Screenplay reorganization tools
 - Drag-and-drop reordering
 - Multi-chapter screenplay management
+- Cross-platform screenplay editing (macOS, iOS, Mac Catalyst)
+- Universal SwiftUI apps with shared codebase
 
 
 ## [1.5.0] - 2025-10-20

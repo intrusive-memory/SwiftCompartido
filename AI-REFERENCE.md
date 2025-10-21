@@ -2,7 +2,7 @@
 
 > **For AI Assistants**: This document provides comprehensive guidance for understanding, using, and building upon the SwiftCompartido library.
 
-**Version**: 1.6.0
+**Version**: 2.0.0
 **Swift Version**: 6.2+
 **Platforms**: macOS 26.0+, iOS 26.0+, Mac Catalyst 26.0+
 **Last Updated**: 2025-10-20
@@ -13,7 +13,7 @@
 
 1. [Library Overview](#library-overview)
 2. [Architecture & Design Patterns](#architecture--design-patterns)
-3. [Element Ordering Architecture](#element-ordering-architecture) ⭐ NEW in 1.6.0
+3. [Element Ordering Architecture](#element-ordering-architecture) ⭐ NEW in 2.0.0
 4. [Core Models Reference](#core-models-reference)
 5. [Progress Reporting](#progress-reporting)
 6. [Common Usage Patterns](#common-usage-patterns)

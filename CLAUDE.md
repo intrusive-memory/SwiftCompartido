@@ -999,7 +999,7 @@ let screenplay = try await GuionParsedElementCollection(string: text)
 
 ## Project Metadata
 
-- **Version**: 1.6.0 (with Chapter-Based Element Ordering & UI Improvements)
+- **Version**: 2.0.0 (with Chapter-Based Element Ordering, Mac Catalyst Support & UI Improvements)
 - **Swift**: 6.2+
 - **Platforms**: macOS 26.0+, iOS 26.0+, Mac Catalyst 26.0+
 - **Dependencies**: TextBundle, SwiftFijos (test-only)
@@ -1009,4 +1009,4 @@ let screenplay = try await GuionParsedElementCollection(string: text)
   - Platform API compatibility validation
   - Code quality checks
 - **License**: MIT
-- **Test Coverage**: 95%+ across 314 tests in 22 suites
+- **Test Coverage**: 95%+ across 363 tests in 25 suites
