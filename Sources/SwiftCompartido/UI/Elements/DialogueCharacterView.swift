@@ -35,5 +35,7 @@ public struct DialogueCharacterView: View {
             .frame(width: geometry.size.width, alignment: .leading)
         }
         .fixedSize(horizontal: false, vertical: false)
+        .padding(.top, fontSize * 1.5)    // More space above character name (separation from previous element)
+        .padding(.bottom, fontSize * 0.2)  // Less space below character name (closer to dialogue)
     }
 }

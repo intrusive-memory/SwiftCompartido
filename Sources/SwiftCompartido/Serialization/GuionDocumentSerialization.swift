@@ -132,7 +132,7 @@ struct GuionDocumentSnapshot: Codable {
         self.filename = model.filename
         self.rawContent = model.rawContent
         self.suppressSceneNumbers = model.suppressSceneNumbers
-        self.elements = model.elements.map { GuionElementSnapshot(from: $0) }
+        self.elements = model.sortedElements.map { GuionElementSnapshot(from: $0) }
         self.titlePage = model.titlePage.map { TitlePageEntrySnapshot(from: $0) }
     }
 

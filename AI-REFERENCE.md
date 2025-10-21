@@ -2,7 +2,7 @@
 
 > **For AI Assistants**: This document provides comprehensive guidance for understanding, using, and building upon the SwiftCompartido library.
 
-**Version**: 1.4.3
+**Version**: 2.0.0
 **Swift Version**: 6.2+
 **Platforms**: macOS 26.0+, iOS 26.0+, Mac Catalyst 26.0+
 **Last Updated**: 2025-10-20
@@ -13,14 +13,15 @@
 
 1. [Library Overview](#library-overview)
 2. [Architecture & Design Patterns](#architecture--design-patterns)
-3. [Core Models Reference](#core-models-reference)
-4. [Progress Reporting](#progress-reporting)
-5. [Common Usage Patterns](#common-usage-patterns)
-6. [Best Practices](#best-practices)
-7. [Integration Examples](#integration-examples)
-8. [Error Handling](#error-handling)
-9. [Testing Guidance](#testing-guidance)
-10. [Performance Considerations](#performance-considerations)
+3. [Element Ordering Architecture](#element-ordering-architecture) ⭐ NEW in 2.0.0
+4. [Core Models Reference](#core-models-reference)
+5. [Progress Reporting](#progress-reporting)
+6. [Common Usage Patterns](#common-usage-patterns)
+7. [Best Practices](#best-practices)
+8. [Integration Examples](#integration-examples)
+9. [Error Handling](#error-handling)
+10. [Testing Guidance](#testing-guidance)
+11. [Performance Considerations](#performance-considerations)
 
 ---
 
@@ -123,6 +124,209 @@ await Task {
     await processResponse(response) // ✅ Works
 }.value
 ```
+
+---
+
+## Element Ordering Architecture
+
+### Critical: Screenplay Sequence Must Be Preserved
+
+**NEW in 1.6.0**: SwiftCompartido provides robust element ordering to ensure screenplay elements always appear in their original sequence.
+
+### The OrderIndex System
+
+Every `GuionElementModel` has an `orderIndex: Int` field that determines its position in the screenplay:
+
+```swift
+@Model
+public final class GuionElementModel {
+    public var orderIndex: Int  // CRITICAL for sequence
+    public var elementText: String
+    // ...
+}
+```
+
+### Chapter-Based Spacing
+
+Elements are assigned composite key ordering using (chapterIndex, orderIndex):
+
+| Position | chapterIndex | orderIndex | Example |
+|----------|-------------|-----------|---------|
+| Pre-chapter elements | 0 | 1, 2, 3... | Title page, opening action |
+| Chapter 1 heading | 1 | 1 | First element in Chapter 1 |
+| Chapter 1 elements | 1 | 2, 3, 4... | Elements following Chapter 1 heading |
+| Chapter 2 heading | 2 | 1 | First element in Chapter 2 |
+| Chapter 2 elements | 2 | 2, 3, 4... | Elements following Chapter 2 heading |
+
+**Benefits**:
+- **No element limit per chapter** - orderIndex is sequential within each chapter
+- Insert elements within chapters without affecting other chapters
+- Maintains global order with simple composite key sort
+- Supports multi-chapter screenplays (novels, series)
+- Clear semantic meaning: (chapter=1, pos=5) is intuitive
+
+**How It Works**:
+```swift
+// Chapter detection: Section heading level 2
+let chapterHeading = GuionElement(
+    elementType: .sectionHeading(level: 2),
+    elementText: "# Chapter 1"
+)
+// Automatically gets chapterIndex=1, orderIndex=1
+
+// Following elements get chapterIndex=1, orderIndex=2, 3, 4...
+```
+
+### ⚠️ CRITICAL: Always Use sortedElements
+
+**SwiftData @Relationship arrays do NOT guarantee order!**
+
+```swift
+// ❌ WRONG - Order not guaranteed
+for element in document.elements {
+    displayElement(element)  // May be scrambled!
+}
+
+// ✅ CORRECT - Always sorted by orderIndex
+for element in document.sortedElements {
+    displayElement(element)  // Perfect sequence
+}
+```
+
+### GuionDocumentModel.sortedElements
+
+**Always use this computed property for element access**:
+
+```swift
+public var sortedElements: [GuionElementModel] {
+    elements.sorted { $0.orderIndex < $1.orderIndex }
+}
+```
+
+**When to Use**:
+- ✅ Displaying elements in UI
+- ✅ Exporting to Fountain/FDX
+- ✅ Serializing to JSON/TextPack
+- ✅ Extracting scenes in order
+- ✅ Processing elements sequentially
+- ✅ ANY operation where order matters
+
+**Performance**: <1% overhead for sorting (thoroughly optimized)
+
+### Common Anti-Patterns (DON'T DO THESE!)
+
+```swift
+// ❌ ANTI-PATTERN 1: Direct elements access
+let screenplay = document.toGuionParsedElementCollection()
+// BUG: Uses elements instead of sortedElements
+let elements = document.elements.map { GuionElement(from: $0) }
+
+// ✅ CORRECT
+let elements = document.sortedElements.map { GuionElement(from: $0) }
+
+// ❌ ANTI-PATTERN 2: Scene extraction without order
+let scenes = document.elements.filter { $0.elementType == .sceneHeading }
+// BUG: Scenes may be out of order
+
+// ✅ CORRECT
+let scenes = document.sortedElements.filter { $0.elementType == .sceneHeading }
+
+// ❌ ANTI-PATTERN 3: Snapshot creation without order
+let snapshot = document.elements.map { ElementSnapshot(from: $0) }
+// BUG: Serialization corrupts order
+
+// ✅ CORRECT
+let snapshot = document.sortedElements.map { ElementSnapshot(from: $0) }
+```
+
+### UI Components & Ordering
+
+**GuionElementsList** uses `@Query` with `SortDescriptor`:
+
+```swift
+public struct GuionElementsList: View {
+    @Query(sort: [SortDescriptor(\GuionElementModel.orderIndex)])
+    private var elements: [GuionElementModel]
+
+    public var body: some View {
+        List {
+            ForEach(elements) { element in
+                // Element views...
+            }
+            .listRowSeparator(.hidden)  // NEW in 1.6.0: Seamless appearance
+        }
+    }
+}
+```
+
+**Key Features (1.6.0)**:
+- Automatic sorting via `SortDescriptor(\GuionElementModel.orderIndex)`
+- No visible separators between elements (clean flow)
+- Zero insets for traditional screenplay appearance
+
+### Testing OrderIndex Correctness
+
+**363 tests** ensure ordering works correctly, including:
+
+```swift
+// Test 1: Composite key ordering
+#expect(elements[0].chapterIndex == 0)    // Pre-chapter
+#expect(elements[0].orderIndex == 1)      // First element
+#expect(elements[1].chapterIndex == 1)    // Chapter 1 heading
+#expect(elements[1].orderIndex == 1)      // First in chapter
+#expect(elements[2].chapterIndex == 1)    // Chapter 1 element
+#expect(elements[2].orderIndex == 2)      // Second in chapter
+#expect(elements[3].chapterIndex == 2)    // Chapter 2 heading
+#expect(elements[3].orderIndex == 1)      // First in chapter
+
+// Test 2: sortedElements vs elements
+document.elements.shuffle()  // Deliberately scramble
+let sorted = document.sortedElements
+#expect(sorted[0].elementText == "Element 0")  // Still in order!
+
+// Test 3: Round-trip preservation
+let converted = document.toGuionParsedElementCollection()
+#expect(converted.elements.count == originalElements.count)
+for (index, element) in converted.elements.enumerated() {
+    #expect(element.elementText == originalTexts[index])  // Order preserved
+}
+```
+
+### Migration from Pre-1.6.0 Code
+
+**No breaking changes** - but recommended updates:
+
+```swift
+// Before (may have bugs):
+func processScreenplay(_ document: GuionDocumentModel) {
+    for element in document.elements {  // ⚠️ Risky
+        process(element)
+    }
+}
+
+// After (safe):
+func processScreenplay(_ document: GuionDocumentModel) {
+    for element in document.sortedElements {  // ✅ Guaranteed order
+        process(element)
+    }
+}
+```
+
+### File Organization (NEW in 1.6.0)
+
+SwiftData models extracted to separate files:
+
+```
+Sources/SwiftCompartido/SwiftDataModels/
+├── GuionDocumentModel.swift     (793 lines)
+├── GuionElementModel.swift      (262 lines)
+└── TitlePageEntryModel.swift    (64 lines)
+```
+
+**Benefits**:
+- Better code navigation
+- Clearer model boundaries
+- Easier maintenance
 
 ---
 

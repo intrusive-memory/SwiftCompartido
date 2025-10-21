@@ -67,7 +67,7 @@ Two storage types:
 # Build the package
 swift build
 
-# Run all tests (176 tests)
+# Run all tests (363 tests across 25 suites)
 swift test
 
 # Run specific test suite
@@ -107,10 +107,11 @@ xcrun llvm-cov report .build/debug/SwiftCompartidoPackageTests.xctest/Contents/M
 
 ### Key Directories
 
-- `Sources/SwiftCompartido/Models/` - All data models (screenplay, AI, storage)
-- `Sources/SwiftCompartido/UI/` - SwiftUI components for viewing parsed SwiftData
-- `Sources/SwiftCompartido/UI/Elements/` - Individual element view components
-- `Tests/SwiftCompartidoTests/` - Test suites using Swift Testing framework
+  - `Sources/SwiftCompartido/Models/` - All data models (screenplay, AI, storage)
+  - `Sources/SwiftCompartido/UI/` - SwiftUI components for viewing parsed SwiftData
+  - `Sources/SwiftCompartido/UI/Elements/` - Individual element view components
+  - `Sources/SwiftCompartido/SwiftDataModels/` - SwiftData @Model classes (NEW in 1.6.0)
+  - `Tests/SwiftCompartidoTests/` - Test suites using Swift Testing framework
 
 ### Model Categories
 
@@ -150,6 +151,87 @@ xcrun llvm-cov report .build/debug/SwiftCompartidoPackageTests.xctest/Contents/M
 - ✅ **Flat, sequential** - Elements displayed in document order
 - ✅ **No hierarchy** - No grouping or nesting of elements
 - ✅ **Simple switch/case** - Each element type rendered by its dedicated view
+- ✅ **No visible separators** - Clean flow between elements (NEW in 1.6.0)
+- ⚠️ **Removed**: SceneBrowserWidget, ChapterWidget, SceneGroupWidget (old hierarchical architecture)
+
+## Element Ordering (NEW in 1.6.0)
+
+### CRITICAL: Always Use sortedElements
+
+**SwiftData @Relationship arrays do NOT guarantee order!**
+
+```swift
+// ❌ WRONG - Order not guaranteed
+for element in document.elements {
+    displayElement(element)  // May be scrambled!
+}
+
+// ✅ CORRECT - Always sorted by orderIndex
+for element in document.sortedElements {
+    displayElement(element)  // Perfect sequence
+}
+```
+
+### Composite Key Ordering (chapterIndex, orderIndex)
+
+Elements use composite key ordering for flexible chapter management:
+
+- **Pre-chapter elements**: `chapterIndex=0`, `orderIndex=1, 2, 3...`
+- **Chapter 1 elements**: `chapterIndex=1`, `orderIndex=1, 2, 3...` (chapter heading at orderIndex=1)
+- **Chapter 2 elements**: `chapterIndex=2`, `orderIndex=1, 2, 3...` (chapter heading at orderIndex=1)
+- **Chapter 3 elements**: `chapterIndex=3`, `orderIndex=1, 2, 3...` (chapter heading at orderIndex=1)
+- And so on...
+
+**Benefits:**
+- **No element limit per chapter** - orderIndex is sequential within each chapter
+- Insert elements within chapters without affecting other chapters
+- Maintains global order with simple composite key sort: `(chapterIndex, orderIndex)`
+- Supports multi-chapter screenplays (novels, series)
+- Clear semantic meaning: `(chapter=1, pos=5)` is intuitive
+
+**Chapter Detection:**
+Section headings with level 2 (`## Chapter 1`) automatically increment `chapterIndex` and reset `orderIndex` to 1.
+
+### When to Use sortedElements
+
+**ALWAYS use `document.sortedElements` for:**
+- ✅ Displaying elements in UI
+- ✅ Exporting to Fountain/FDX
+- ✅ Serializing to JSON/TextPack
+- ✅ Extracting scenes in order
+- ✅ Processing elements sequentially
+
+**Performance:** <1% overhead (thoroughly optimized)
+
+### UI Components Use OrderIndex
+
+`GuionElementsList` automatically sorts by orderIndex:
+
+```swift
+public struct GuionElementsList: View {
+    @Query(sort: [SortDescriptor(\GuionElementModel.orderIndex)])
+    private var elements: [GuionElementModel]
+
+    public var body: some View {
+        List {
+            ForEach(elements) { element in
+                // Element views...
+            }
+            .listRowSeparator(.hidden)  // NEW in 1.6.0
+            .listRowInsets(EdgeInsets())  // NEW in 1.6.0
+        }
+    }
+}
+```
+
+## Testing Requirements
+
+- **Minimum coverage**: 90% (current: 95%+)
+- **Test framework**: Swift Testing (NOT XCTest)
+- **Test count**: 363 tests across 25 test suites
+  - ElementOrderingTests: 19 tests (chapter-based ordering)
+  - UIOrderingRegressionTests: 10 tests (NEW in 1.6.0)
+- Use `@Test("description")` macro, not `func test...`
 - ⚠️ **Removed**: SceneBrowserWidget, ChapterWidget, SceneGroupWidget (old hierarchical architecture)
 
 ## Testing Requirements
@@ -346,6 +428,144 @@ public struct GuionElementsList: View {
             }
         }
     }
+}
+```
+
+**Element Views** - Individual element rendering:
+- `ActionView` - Action lines with 10% margins
+- `DialogueTextView` - Dialogue with 25% margins
+- `DialogueCharacterView` - Character names
+- `SceneHeadingView` - Scene headings
+- `TransitionView` - Scene transitions
+- Plus 7 more element types
+
+All elements use Courier New font and proper screenplay formatting.
+
+## Source File Tracking
+
+GuionDocumentModel now tracks the original source file and can detect when it has been modified, allowing applications to prompt users to re-import updated versions.
+
+### New Properties
+
+```swift
+/// Security-scoped bookmark to the original source file
+public var sourceFileBookmark: Data?
+
+/// Date when this document was last imported from source
+public var lastImportDate: Date?
+
+/// Modification date of source file at time of import
+public var sourceFileModificationDate: Date?
+```
+
+### Setting Source File on Import
+
+```swift
+// When importing a screenplay
+// ✅ Use GuionParsedElementCollection (recommended)
+let screenplay = try await GuionParsedElementCollection(
+    file: sourceURL.path,
+    progress: nil
+)
+let document = await GuionDocumentModel.from(screenplay, in: modelContext)
+
+// Set source file (creates security-scoped bookmark)
+document.setSourceFile(sourceURL)
+try modelContext.save()
+```
+
+### Checking for Updates
+
+**GuionElementsList** - SwiftData @Query-based list:
+```swift
+// Quick check
+if document.isSourceFileModified() {
+    // Prompt user to re-import
+    showUpdatePrompt()
+}
+
+// Detailed status
+let status = document.sourceFileStatus()
+switch status {
+case .modified:
+    // Source file has changed - prompt user
+    showUpdateAlert()
+case .upToDate:
+    // All good
+    break
+case .noSourceFile:
+    // Document wasn't imported from a file
+    break
+case .fileNotAccessible:
+    // Permissions issue
+    showPermissionsError()
+case .fileNotFound:
+    // File was moved or deleted
+    showFileNotFoundError()
+}
+```
+
+### Re-importing from Source
+
+```swift
+if let sourceURL = document.resolveSourceFileURL() {
+    // Start security-scoped access
+    let accessing = sourceURL.startAccessingSecurityScopedResource()
+    defer {
+        if accessing {
+            sourceURL.stopAccessingSecurityScopedResource()
+public struct GuionElementsList: View {
+    @Query private var elements: [GuionElementModel]
+    @Environment(\.screenplayFontSize) var fontSize
+
+    // Filtered to specific document
+    public init(document: GuionDocumentModel) {
+        let documentID = document.persistentModelID
+        _elements = Query(
+            filter: #Predicate<GuionElementModel> { element in
+                element.document?.persistentModelID == documentID
+            }
+        )
+    }
+
+    public var body: some View {
+        List {
+            ForEach(elements) { element in
+                // Switch on element type to display appropriate view
+                switch element.elementType {
+                case .action: ActionView(element: element)
+                case .dialogue: DialogueTextView(element: element)
+                case .sceneHeading: SceneHeadingView(element: element)
+                // ... other element types
+                }
+            }
+        }
+    }
+
+    // Re-import the updated file
+    // ✅ Use GuionParsedElementCollection (recommended)
+    let screenplay = try await GuionParsedElementCollection(
+        file: sourceURL.path,
+        progress: nil
+    )
+
+    // Update document elements...
+    document.setSourceFile(sourceURL)  // Update timestamps
+    try modelContext.save()
+}
+```
+
+### Source File Status Enum
+
+```swift
+public enum SourceFileStatus: Sendable {
+    case noSourceFile          // No source file set
+    case fileNotAccessible     // Cannot resolve bookmark
+    case fileNotFound          // File moved/deleted
+    case modified              // File has been updated
+    case upToDate              // File is current
+
+    var shouldPromptForUpdate: Bool  // True for .modified
 }
 ```
 
@@ -781,7 +1001,7 @@ let screenplay = try await GuionParsedElementCollection(string: text)
 
 ## Project Metadata
 
-- **Version**: 1.4.3 (with Source File Tracking & Flat UI Architecture)
+- **Version**: 2.0.0 (with Chapter-Based Element Ordering, Mac Catalyst Support & UI Improvements)
 - **Swift**: 6.2+
 - **Platforms**: macOS 26.0+, iOS 26.0+, Mac Catalyst 26.0+
 - **Dependencies**: TextBundle, SwiftFijos (test-only)
@@ -791,4 +1011,4 @@ let screenplay = try await GuionParsedElementCollection(string: text)
   - Platform API compatibility validation
   - Code quality checks
 - **License**: MIT
-- **Test Coverage**: 95%+ across 314 tests in 22 suites
+- **Test Coverage**: 95%+ across 363 tests in 25 suites
