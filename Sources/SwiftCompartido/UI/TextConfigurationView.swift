@@ -141,9 +141,7 @@ public struct TextConfigurationView: View {
                     ))
                     .frame(minHeight: 60)
                     .font(.body)
-                    #if os(macOS) || targetEnvironment(macCatalyst)
                     .border(Color.secondary.opacity(0.2))
-                    #endif
                     Text("Sets the behavior and context for the AI assistant")
                         .font(.caption)
                         .foregroundStyle(.secondary)
@@ -162,9 +160,7 @@ public struct TextConfigurationView: View {
                     ))
                     .frame(minHeight: 60)
                     .font(.body.monospaced())
-                    #if os(macOS) || targetEnvironment(macCatalyst)
                     .border(Color.secondary.opacity(0.2))
-                    #endif
                     Text("One sequence per line. Generation stops when encountered.")
                         .font(.caption)
                         .foregroundStyle(.secondary)
@@ -180,9 +176,7 @@ public struct TextConfigurationView: View {
                 .frame(maxWidth: .infinity, alignment: .center)
             }
         }
-        #if os(macOS) || targetEnvironment(macCatalyst)
         .formStyle(.grouped)
-        #endif
     }
 }
 
