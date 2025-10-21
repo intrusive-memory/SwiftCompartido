@@ -164,6 +164,14 @@ public final class GuionElementModel: GuionElementProtocol {
     public var summary: String?
     public var document: GuionDocumentModel?
 
+    /// Generated AI content associated with this element
+    ///
+    /// Examples:
+    /// - Generated audio for dialogue (text-to-speech)
+    /// - Generated images for scene descriptions
+    /// - Generated embeddings for semantic search
+    public var generatedContent: [TypedDataStorage]?
+
     // Cached parsed location data
     public var locationLighting: String?      // Raw value of SceneLighting enum
     public var locationScene: String?         // Primary location name

@@ -146,6 +146,14 @@ public final class GuionDocumentModel {
     @Relationship(deleteRule: .cascade, inverse: \TitlePageEntryModel.document)
     public var titlePage: [TitlePageEntryModel]
 
+    /// Generated AI content associated with this document
+    ///
+    /// Examples:
+    /// - Document-level embeddings for semantic search
+    /// - Auto-generated summaries
+    /// - Generated cover images
+    public var generatedContent: [TypedDataStorage]?
+
     // MARK: - Source File Tracking (NEW in 1.4.3)
 
     /// Security-scoped bookmark to the original source file

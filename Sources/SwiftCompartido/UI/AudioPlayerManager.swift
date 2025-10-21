@@ -216,18 +216,19 @@ public final class AudioPlayerManager: NSObject, ObservableObject {
         // Prefer file-based storage (Phase 6 architecture)
         if let fileRef = record.fileReference, let storage = storageArea {
             let fileURL = fileRef.fileURL(in: storage)
-            try play(from: fileURL, format: record.format, duration: record.durationSeconds)
+            let format = record.audioFormat ?? "mp3"  // Default to mp3 if not specified
+            try play(from: fileURL, format: format, duration: record.durationSeconds)
             return
         }
 
         // Fallback to in-memory data
-        if let audioData = record.audioData {
+        if let audioData = record.binaryValue {
             let audioFile = AudioFile(
                 text: record.prompt,
                 voiceId: record.voiceID ?? "",
                 providerId: record.providerId,
                 audioData: audioData,
-                audioFormat: record.format,
+                audioFormat: record.audioFormat ?? "mp3",
                 duration: record.durationSeconds,
                 sampleRate: record.sampleRate,
                 bitRate: record.bitRate,

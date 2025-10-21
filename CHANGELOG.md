@@ -5,6 +5,214 @@ All notable changes to SwiftCompartido will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.1] - 2025-10-21
+
+### 🔄 TypedDataStorage Migration & Enhanced CloudKit Support
+
+This release completes the migration to a unified `TypedDataStorage` model for all AI-generated content, replacing four separate record types while maintaining complete backward compatibility. Enhanced CloudKit support with automatic asset management and comprehensive progress reporting for file I/O operations.
+
+### Changed
+
+#### Unified Storage Architecture
+- **TypedDataStorage replaces 4 separate models** (zero breaking changes)
+  - `GeneratedTextRecord`, `GeneratedAudioRecord`, `GeneratedImageRecord`, `GeneratedEmbeddingRecord` are now type aliases to `TypedDataStorage`
+  - All existing code continues to work without modifications
+  - Type aliases will be removed in v3.0.0 - migrate to `TypedDataStorage` for future-proofing
+  - MIME-type routing: Automatically handles `text/*`, `image/*`, `audio/*`, `application/x-embedding`
+
+```swift
+// Backward compatible (still works)
+let record = GeneratedAudioRecord(/* ... */)
+
+// Recommended for new code
+let record = TypedDataStorage(
+    providerId: "elevenlabs",
+    requestorID: "tts.rachel",
+    mimeType: "audio/mpeg",
+    binaryValue: audioData,
+    prompt: "Generate speech",
+    audioFormat: "mp3"
+)
+
+// Convenience initializer from DTO
+let audioDTO = GeneratedAudioData(/* ... */)
+let record = TypedDataStorage(
+    providerId: "elevenlabs",
+    requestorID: "tts.rachel",
+    data: audioDTO,
+    prompt: "Generate speech"
+)
+```
+
+#### Smart Storage Optimization
+- **Automatic storage routing based on content size**
+  - Text < 10KB: Stored in-memory (`textValue` property)
+  - Text ≥ 10KB: File-based storage with `TypedDataFileReference`
+  - Audio/Images: Always file-based storage (Phase 6 architecture)
+  - Embeddings: Flexible in-memory or file-based
+
+```swift
+// Small text - stored in memory automatically
+try record.saveText("Short text", mode: .local)  // No storage area needed
+
+// Large text - saved to file automatically
+try record.saveText(largeText, to: storage, fileName: "text.txt", mode: .local)
+```
+
+### Added
+
+#### Enhanced CloudKit Integration
+- **Automatic asset management for CloudKit sync**
+  - Automatically populates `cloudKitAsset` field for `.cloudKit` and `.hybrid` storage modes
+  - Auto-updates `syncStatus` from `.localOnly` to `.pending` when CloudKit is enabled
+  - Seamless integration with SwiftData sync infrastructure
+  - No manual asset management required
+
+```swift
+// CloudKit asset automatically populated
+let record = TypedDataStorage(/* ... */)
+try record.saveBinary(audioData, to: storage, fileName: "audio.mp3", mode: .cloudKit)
+
+// cloudKitAsset is now populated
+// syncStatus automatically set to .pending
+// Ready for CloudKit sync
+```
+
+#### Chunked File I/O with Progress Reporting
+- **Large file operations with byte-level progress tracking**
+  - Chunk size: 1MB (1,048,576 bytes)
+  - Progress updates during write operations
+  - Progress updates during read operations
+  - Works with files > 1MB
+  - Force-flush final progress update for reliability
+
+```swift
+// Save with progress tracking
+let progress = OperationProgress(totalUnits: Int64(audioData.count)) { update in
+    print("\(update.description) - \(Int((update.fractionCompleted ?? 0) * 100))%")
+}
+
+try record.saveBinary(audioData, to: storage, fileName: "audio.mp3", mode: .local, progress: progress)
+
+// Load with progress tracking
+let loadProgress = OperationProgress(totalUnits: nil)
+let loaded = try record.getBinary(from: storage, progress: loadProgress)
+```
+
+#### Content Retrieval Enhancements
+- **Intelligent content loading with fallback chain**
+  - Priority 1: CloudKit asset (if available)
+  - Priority 2: In-memory content (`textValue` or `binaryValue`)
+  - Priority 3: File-based storage (via `fileReference`)
+  - Progress reporting supported for all sources
+  - Transparent to caller - automatically selects best source
+
+```swift
+// Automatically tries CloudKit first, then in-memory, then file
+let data = try record.getBinary(from: storage, progress: progress)
+```
+
+#### Convenience Initializers
+- **Direct creation from DTO types**
+  - `TypedDataStorage.init(data: GeneratedTextData, ...)`
+  - `TypedDataStorage.init(data: GeneratedAudioData, ...)`
+  - `TypedDataStorage.init(data: GeneratedImageData, ...)`
+  - `TypedDataStorage.init(data: GeneratedEmbeddingData, ...)`
+  - Automatically extracts all metadata from DTO
+  - Simplifies record creation
+
+#### Save Methods with Enhanced CloudKit Support
+- **`saveBinary(_:to:fileName:mode:progress:)`** - Save binary content with optional CloudKit sync
+- **`saveText(_:to:fileName:mode:progress:)`** - Save text with smart storage routing
+- **`saveEmbedding(_:to:fileName:mode:progress:)`** - Save embedding vectors
+- All methods support `.local`, `.cloudKit`, and `.hybrid` storage modes
+- Automatic `cloudKitAsset` population for sync-enabled modes
+- Progress reporting optional (nil-safe for backward compatibility)
+
+### Fixed
+
+#### File I/O and Progress Reporting
+- **Test suite alignment with new APIs**
+  - Updated 3 load progress tests to pass `progress` parameter to `getBinary()`
+  - Fixed 2 filename tests to use `fileReference.fileURL(in:)` instead of default file paths
+  - All 13 FileIOProgressTests now passing
+  - All 17 CloudKitSupportTests now passing
+
+#### CloudKit Asset Management
+- **Automatic asset population for all sync modes**
+  - `.cloudKit` mode: Populates `cloudKitAsset`, sets `syncStatus = .pending`
+  - `.hybrid` mode: Saves both local file AND `cloudKitAsset`
+  - `.local` mode: No CloudKit asset (unchanged behavior)
+
+### Documentation
+
+#### Updated Documentation Files
+- **CLAUDE.md**: Added TypedDataStorage migration section with usage patterns
+- **README.md**: Updated all examples to use TypedDataStorage
+- **AI-REFERENCE.md**: Will be updated with TypedDataStorage API documentation (in progress)
+- All code examples modernized to v2.0.1 patterns
+
+### Testing
+
+- **390 tests across 26 suites** (95%+ coverage)
+  - Added FileIOProgressTests: 13 tests for chunked I/O with progress
+  - CloudKitSupportTests: 17 tests for CloudKit sync patterns
+  - All tests passing with new TypedDataStorage architecture
+- **Comprehensive migration validation**
+  - Type aliases work identically to TypedDataStorage
+  - No SwiftData migration needed
+  - Full backward compatibility verified
+
+### Migration Guide
+
+**No action required** - all existing code continues to work unchanged. However, for future-proofing:
+
+#### Recommended Migration Steps
+
+1. **Update direct usages (optional, recommended)**
+   ```swift
+   // Before (still works)
+   let record = GeneratedAudioRecord(/* ... */)
+
+   // After (recommended)
+   let record = TypedDataStorage(
+       providerId: "provider",
+       requestorID: "requestor",
+       mimeType: "audio/mpeg",
+       binaryValue: audioData,
+       prompt: "Generate",
+       audioFormat: "mp3"
+   )
+   ```
+
+2. **Use convenience initializers from DTOs**
+   ```swift
+   let audioDTO = GeneratedAudioData(/* ... */)
+   let record = TypedDataStorage(
+       providerId: "provider",
+       requestorID: "requestor",
+       data: audioDTO,
+       prompt: "Generate"
+   )
+   ```
+
+3. **Update save/load methods**
+   ```swift
+   // New unified API
+   try record.saveBinary(audioData, to: storage, fileName: "audio.mp3", mode: .hybrid)
+   let loaded = try record.getBinary(from: storage, progress: progress)
+   ```
+
+4. **Optional: Add progress reporting**
+   ```swift
+   let progress = OperationProgress(totalUnits: nil) { update in
+       print(update.description)
+   }
+   try record.saveBinary(audioData, to: storage, fileName: "audio.mp3", progress: progress)
+   ```
+
+**Timeline**: Type aliases (`GeneratedTextRecord`, etc.) will be removed in v3.0.0. Migrate before then to avoid breaking changes.
+
 ## [2.0.0] - 2025-10-20
 
 ### 🎯 Element Ordering Architecture, Mac Catalyst Support & Critical Bug Fixes

@@ -121,12 +121,13 @@ struct AudioPlayerManagerTests {
         let record = GeneratedAudioRecord(
             providerId: "test",
             requestorID: "test.tts",
-            audioData: audioData,
-            format: "mp3",
+            mimeType: "audio/mpeg",
+            binaryValue: audioData,
+            prompt: "Test prompt",
+            audioFormat: "mp3",
             durationSeconds: 2.5,
             voiceID: "voice-1",
-            voiceName: "Test Voice",
-            prompt: "Test prompt"
+            voiceName: "Test Voice"
         )
 
         do {
@@ -173,13 +174,14 @@ struct AudioPlayerManagerTests {
         let record = GeneratedAudioRecord(
             providerId: "test",
             requestorID: "test.tts",
-            audioData: nil,
-            format: "mp3",
+            mimeType: "audio/mpeg",
+            binaryValue: nil,
+            prompt: "Test prompt",
+            fileReference: fileRef,
+            audioFormat: "mp3",
             durationSeconds: 3.0,
             voiceID: "voice-1",
-            voiceName: "Test Voice",
-            prompt: "Test prompt",
-            fileReference: fileRef
+            voiceName: "Test Voice"
         )
 
         do {
@@ -227,13 +229,14 @@ struct AudioPlayerManagerTests {
         let record = GeneratedAudioRecord(
             providerId: "test",
             requestorID: "test.tts",
-            audioData: audioData, // Has in-memory data
-            format: "mp3",
+            mimeType: "audio/mpeg",
+            binaryValue: audioData, // Has in-memory data
+            prompt: "Test prompt",
+            fileReference: fileRef, // Also has file reference
+            audioFormat: "mp3",
             durationSeconds: 3.0,
             voiceID: "voice-1",
-            voiceName: "Test Voice",
-            prompt: "Test prompt",
-            fileReference: fileRef // Also has file reference
+            voiceName: "Test Voice"
         )
 
         do {
@@ -256,13 +259,14 @@ struct AudioPlayerManagerTests {
         let record = GeneratedAudioRecord(
             providerId: "test",
             requestorID: "test.tts",
-            audioData: nil,
-            format: "mp3",
+            mimeType: "audio/mpeg",
+            binaryValue: nil,
+            prompt: "Test prompt",
+            fileReference: nil,
+            audioFormat: "mp3",
             durationSeconds: 3.0,
             voiceID: "voice-1",
-            voiceName: "Test Voice",
-            prompt: "Test prompt",
-            fileReference: nil
+            voiceName: "Test Voice"
         )
 
         #expect(throws: AudioPlayerError.self) {
@@ -391,16 +395,17 @@ struct AudioPlayerManagerTests {
         let record = GeneratedAudioRecord(
             providerId: "elevenlabs",
             requestorID: "elevenlabs.tts.rachel",
-            audioData: nil,
-            format: "mp3",
+            mimeType: "audio/mpeg",
+            binaryValue: nil,
+            prompt: "Hello, world!",
+            fileReference: fileRef,
+            audioFormat: "mp3",
             durationSeconds: 5.5,
             sampleRate: 44100,
             bitRate: 128000,
             channels: 2,
             voiceID: "voice-rachel",
-            voiceName: "Rachel",
-            prompt: "Hello, world!",
-            fileReference: fileRef
+            voiceName: "Rachel"
         )
 
         do {

@@ -85,10 +85,14 @@ public struct SwiftCompartidoSchema {
     /// All SwiftData models in SwiftCompartido
     public static var models: [any PersistentModel.Type] {
         [
-            GeneratedTextRecord.self,
-            GeneratedAudioRecord.self,
-            GeneratedImageRecord.self,
-            GeneratedEmbeddingRecord.self
+            // Unified storage model for AI-generated content
+            // Note: GeneratedTextRecord, GeneratedAudioRecord, GeneratedImageRecord,
+            // and GeneratedEmbeddingRecord are now deprecated type aliases to TypedDataStorage
+            TypedDataStorage.self,
+            // Screenplay models
+            GuionDocumentModel.self,
+            GuionElementModel.self,
+            TitlePageEntryModel.self
         ]
     }
 
