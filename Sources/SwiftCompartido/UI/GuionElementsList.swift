@@ -15,7 +15,10 @@ public struct GuionElementsList: View {
 
     /// Creates a GuionElementsList with all elements in order
     public init() {
-        _elements = Query(sort: [SortDescriptor(\GuionElementModel.orderIndex)])
+        _elements = Query(sort: [
+            SortDescriptor(\GuionElementModel.chapterIndex),
+            SortDescriptor(\GuionElementModel.orderIndex)
+        ])
     }
 
     /// Creates a GuionElementsList filtered to a specific document, in order
@@ -25,7 +28,10 @@ public struct GuionElementsList: View {
             filter: #Predicate<GuionElementModel> { element in
                 element.document?.persistentModelID == documentID
             },
-            sort: [SortDescriptor(\GuionElementModel.orderIndex)]
+            sort: [
+                SortDescriptor(\GuionElementModel.chapterIndex),
+                SortDescriptor(\GuionElementModel.orderIndex)
+            ]
         )
     }
 

@@ -172,23 +172,25 @@ for element in document.sortedElements {
 }
 ```
 
-### Chapter-Based OrderIndex Spacing
+### Composite Key Ordering (chapterIndex, orderIndex)
 
-Elements are assigned `orderIndex` values with intelligent chapter spacing:
+Elements use composite key ordering for flexible chapter management:
 
-- **Pre-chapter elements**: 0-99
-- **Chapter 1 elements**: 100-199 (chapter heading at 100)
-- **Chapter 2 elements**: 200-299 (chapter heading at 200)
-- **Chapter 3 elements**: 300-399 (chapter heading at 300)
+- **Pre-chapter elements**: `chapterIndex=0`, `orderIndex=1, 2, 3...`
+- **Chapter 1 elements**: `chapterIndex=1`, `orderIndex=1, 2, 3...` (chapter heading at orderIndex=1)
+- **Chapter 2 elements**: `chapterIndex=2`, `orderIndex=1, 2, 3...` (chapter heading at orderIndex=1)
+- **Chapter 3 elements**: `chapterIndex=3`, `orderIndex=1, 2, 3...` (chapter heading at orderIndex=1)
 - And so on...
 
 **Benefits:**
-- Insert elements within chapters without renumbering
-- Maintains global order across entire screenplay
+- **No element limit per chapter** - orderIndex is sequential within each chapter
+- Insert elements within chapters without affecting other chapters
+- Maintains global order with simple composite key sort: `(chapterIndex, orderIndex)`
 - Supports multi-chapter screenplays (novels, series)
+- Clear semantic meaning: `(chapter=1, pos=5)` is intuitive
 
 **Chapter Detection:**
-Section headings with level 2 (`## Chapter 1`) automatically trigger chapter numbering.
+Section headings with level 2 (`## Chapter 1`) automatically increment `chapterIndex` and reset `orderIndex` to 1.
 
 ### When to Use sortedElements
 

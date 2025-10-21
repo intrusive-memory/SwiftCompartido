@@ -17,7 +17,7 @@
 - **TextPack**: Bundle screenplays with metadata and resources
 - **Complete Element Support**: Scenes, dialogue, action, transitions, and more
 - **Hierarchical Outlines**: Section headings with 6 levels
-- **Chapter-Based Ordering**: Intelligent orderIndex spacing (Chapter 1: 100-199, Chapter 2: 200-299, etc.)
+- **Chapter-Based Ordering**: Composite key ordering with (chapterIndex, orderIndex) - no element limit per chapter
 - **Order Guarantees**: `sortedElements` property ensures screenplay sequence is always maintained
 
 ### 🤖 AI Content Storage

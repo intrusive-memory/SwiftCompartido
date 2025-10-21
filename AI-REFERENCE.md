@@ -148,20 +148,22 @@ public final class GuionElementModel {
 
 ### Chapter-Based Spacing
 
-Elements are assigned orderIndex values with intelligent chapter spacing:
+Elements are assigned composite key ordering using (chapterIndex, orderIndex):
 
-| Position | orderIndex Range | Example |
-|----------|-----------------|---------|
-| Pre-chapter elements | 0-99 | Title page, opening action |
-| Chapter 1 elements | 100-199 | Chapter heading at 100, elements 101-199 |
-| Chapter 2 elements | 200-299 | Chapter heading at 200, elements 201-299 |
-| Chapter 3 elements | 300-399 | Chapter heading at 300, elements 301-399 |
+| Position | chapterIndex | orderIndex | Example |
+|----------|-------------|-----------|---------|
+| Pre-chapter elements | 0 | 1, 2, 3... | Title page, opening action |
+| Chapter 1 heading | 1 | 1 | First element in Chapter 1 |
+| Chapter 1 elements | 1 | 2, 3, 4... | Elements following Chapter 1 heading |
+| Chapter 2 heading | 2 | 1 | First element in Chapter 2 |
+| Chapter 2 elements | 2 | 2, 3, 4... | Elements following Chapter 2 heading |
 
 **Benefits**:
-- Insert elements within chapters without renumbering
-- Maintains global order across entire screenplay
+- **No element limit per chapter** - orderIndex is sequential within each chapter
+- Insert elements within chapters without affecting other chapters
+- Maintains global order with simple composite key sort
 - Supports multi-chapter screenplays (novels, series)
-- Allows chapter reorganization without element conflicts
+- Clear semantic meaning: (chapter=1, pos=5) is intuitive
 
 **How It Works**:
 ```swift
@@ -170,9 +172,9 @@ let chapterHeading = GuionElement(
     elementType: .sectionHeading(level: 2),
     elementText: "# Chapter 1"
 )
-// Automatically gets orderIndex 100
+// Automatically gets chapterIndex=1, orderIndex=1
 
-// Following elements get 101, 102, 103...
+// Following elements get chapterIndex=1, orderIndex=2, 3, 4...
 ```
 
 ### ⚠️ CRITICAL: Always Use sortedElements
@@ -267,11 +269,15 @@ public struct GuionElementsList: View {
 **363 tests** ensure ordering works correctly, including:
 
 ```swift
-// Test 1: Chapter-based spacing
-#expect(elements[0].orderIndex == 0)      // Pre-chapter
-#expect(elements[1].orderIndex == 100)    // Chapter 1 heading
-#expect(elements[2].orderIndex == 101)    // Chapter 1 element
-#expect(elements[3].orderIndex == 200)    // Chapter 2 heading
+// Test 1: Composite key ordering
+#expect(elements[0].chapterIndex == 0)    // Pre-chapter
+#expect(elements[0].orderIndex == 1)      // First element
+#expect(elements[1].chapterIndex == 1)    // Chapter 1 heading
+#expect(elements[1].orderIndex == 1)      // First in chapter
+#expect(elements[2].chapterIndex == 1)    // Chapter 1 element
+#expect(elements[2].orderIndex == 2)      // Second in chapter
+#expect(elements[3].chapterIndex == 2)    // Chapter 2 heading
+#expect(elements[3].orderIndex == 1)      // First in chapter
 
 // Test 2: sortedElements vs elements
 document.elements.shuffle()  // Deliberately scramble

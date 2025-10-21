@@ -13,26 +13,34 @@ Major release improving screenplay element ordering with chapter-based spacing, 
 
 ### Added
 
-#### Chapter-Based OrderIndex Spacing
-- **Intelligent chapter detection and spacing**
-  - Chapter 1 elements: `orderIndex` 100-199
-  - Chapter 2 elements: `orderIndex` 200-299
-  - Chapter 3 elements: `orderIndex` 300-399 (and so on)
-  - Pre-chapter elements: `orderIndex` 0-99
+#### Chapter-Based Composite Ordering (chapterIndex, orderIndex)
+- **Intelligent chapter detection with composite key ordering**
+  - Pre-chapter elements: `chapterIndex=0`, `orderIndex=1,2,3...`
+  - Chapter 1 elements: `chapterIndex=1`, `orderIndex=1,2,3...`
+  - Chapter 2 elements: `chapterIndex=2`, `orderIndex=1,2,3...`
+  - And so on...
   - Automatic chapter detection via section heading level 2
+  - **No element limit per chapter** - orderIndex is sequential within each chapter
+  - Elements sorted by `(chapterIndex, orderIndex)` composite key
   - Allows inserting elements within chapters while maintaining global order
 
 ```swift
-// Chapter spacing automatically applied during conversion
+// Chapter ordering automatically applied during conversion
 let document = await GuionDocumentParserSwiftData.parse(
     script: screenplay,
     in: context
 )
 
-// Chapter 1 heading has orderIndex 100
-// Elements in Chapter 1 have orderIndex 101, 102, 103...
-// Chapter 2 heading has orderIndex 200
-// Elements in Chapter 2 have orderIndex 201, 202, 203...
+// Pre-chapter elements: chapter Index=0, orderIndex=1, 2, 3...
+// Chapter 1 heading: chapterIndex=1, orderIndex=1
+// Chapter 1 elements: chapterIndex=1, orderIndex=2, 3, 4...
+// Chapter 2 heading: chapterIndex=2, orderIndex=1
+// Chapter 2 elements: chapterIndex=2, orderIndex=2, 3, 4...
+
+// Elements are always sorted by (chapterIndex, orderIndex)
+for element in document.sortedElements {
+    print("Chapter \(element.chapterIndex), Position \(element.orderIndex): \(element.elementText)")
+}
 ```
 
 #### SwiftData Model Organization

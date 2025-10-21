@@ -78,32 +78,40 @@ struct UIOrderingRegressionTests {
 
         #expect(sortedElements.count == 8, "Should have 8 elements")
 
-        // Pre-chapter elements (0-99)
+        // Pre-chapter elements (chapterIndex=0)
         #expect(sortedElements[0].elementText == "Element 0", "First element")
-        #expect(sortedElements[0].orderIndex == 0, "orderIndex 0")
+        #expect(sortedElements[0].chapterIndex == 0, "Pre-chapter")
+        #expect(sortedElements[0].orderIndex == 1, "Position 1")
 
         #expect(sortedElements[1].elementText == "Element 1", "Second element")
-        #expect(sortedElements[1].orderIndex == 1, "orderIndex 1")
+        #expect(sortedElements[1].chapterIndex == 0, "Pre-chapter")
+        #expect(sortedElements[1].orderIndex == 2, "Position 2")
 
         #expect(sortedElements[2].elementText == "Element 2", "Third element")
-        #expect(sortedElements[2].orderIndex == 2, "orderIndex 2")
+        #expect(sortedElements[2].chapterIndex == 0, "Pre-chapter")
+        #expect(sortedElements[2].orderIndex == 3, "Position 3")
 
-        // Chapter 1 (100-199)
+        // Chapter 1 (chapterIndex=1)
         #expect(sortedElements[3].elementText == "# Chapter 1", "Chapter 1 heading")
-        #expect(sortedElements[3].orderIndex == 100, "orderIndex 100")
+        #expect(sortedElements[3].chapterIndex == 1, "Chapter 1")
+        #expect(sortedElements[3].orderIndex == 1, "Position 1")
 
         #expect(sortedElements[4].elementText == "Element 3 - In Chapter 1", "Chapter 1 element 1")
-        #expect(sortedElements[4].orderIndex == 101, "orderIndex 101")
+        #expect(sortedElements[4].chapterIndex == 1, "Chapter 1")
+        #expect(sortedElements[4].orderIndex == 2, "Position 2")
 
         #expect(sortedElements[5].elementText == "Element 4 - In Chapter 1", "Chapter 1 element 2")
-        #expect(sortedElements[5].orderIndex == 102, "orderIndex 102")
+        #expect(sortedElements[5].chapterIndex == 1, "Chapter 1")
+        #expect(sortedElements[5].orderIndex == 3, "Position 3")
 
-        // Chapter 2 (200-299)
+        // Chapter 2 (chapterIndex=2)
         #expect(sortedElements[6].elementText == "# Chapter 2", "Chapter 2 heading")
-        #expect(sortedElements[6].orderIndex == 200, "orderIndex 200")
+        #expect(sortedElements[6].chapterIndex == 2, "Chapter 2")
+        #expect(sortedElements[6].orderIndex == 1, "Position 1")
 
         #expect(sortedElements[7].elementText == "Element 5 - In Chapter 2", "Chapter 2 element 1")
-        #expect(sortedElements[7].orderIndex == 201, "orderIndex 201")
+        #expect(sortedElements[7].chapterIndex == 2, "Chapter 2")
+        #expect(sortedElements[7].orderIndex == 2, "Position 2")
     }
 
     @Test("GuionDocumentModel.sortedElements works even if elements array is shuffled")
@@ -345,14 +353,19 @@ struct UIOrderingRegressionTests {
             in: context
         )
 
-        // Verify orderIndex gaps
+        // Verify composite key ordering
         let sorted = document.sortedElements
 
-        #expect(sorted[0].orderIndex == 0, "Pre-chapter element")
-        #expect(sorted[1].orderIndex == 100, "Chapter 1 starts at 100")
-        #expect(sorted[2].orderIndex == 101, "Chapter 1 element")
-        #expect(sorted[3].orderIndex == 200, "Chapter 2 starts at 200")
-        #expect(sorted[4].orderIndex == 201, "Chapter 2 element")
+        #expect(sorted[0].chapterIndex == 0, "Pre-chapter element")
+        #expect(sorted[0].orderIndex == 1, "Pre-chapter is position 1")
+        #expect(sorted[1].chapterIndex == 1, "Chapter 1 heading")
+        #expect(sorted[1].orderIndex == 1, "Chapter 1 heading is position 1")
+        #expect(sorted[2].chapterIndex == 1, "Chapter 1 element")
+        #expect(sorted[2].orderIndex == 2, "Chapter 1 element is position 2")
+        #expect(sorted[3].chapterIndex == 2, "Chapter 2 heading")
+        #expect(sorted[3].orderIndex == 1, "Chapter 2 heading is position 1")
+        #expect(sorted[4].chapterIndex == 2, "Chapter 2 element")
+        #expect(sorted[4].orderIndex == 2, "Chapter 2 element is position 2")
 
         // Convert and verify gaps are preserved
         let converted = document.toGuionParsedElementCollection()

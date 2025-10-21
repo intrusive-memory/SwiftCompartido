@@ -91,13 +91,14 @@ struct ElementOrderingTests {
 
         #expect(document.elements.count == 100, "Should have 100 elements")
 
-        // Verify each element has the correct orderIndex
+        // Verify each element has the correct composite key
         for (index, element) in document.elements.enumerated() {
-            #expect(element.orderIndex == index, "Element at position \(index) should have orderIndex \(index)")
+            #expect(element.chapterIndex == 0, "All elements should be in chapter 0")
+            #expect(element.orderIndex == index + 1, "Element at position \(index) should have orderIndex \(index + 1) (1-based)")
         }
     }
 
-    @Test("OrderIndex starts at 0")
+    @Test("OrderIndex starts at 1 with chapterIndex 0")
     @MainActor
     func testOrderIndexStartsAtZero() async throws {
         let context = try createInMemoryModelContext()
@@ -108,10 +109,11 @@ struct ElementOrderingTests {
             in: context
         )
 
-        #expect(document.elements.first?.orderIndex == 0, "First element should have orderIndex 0")
+        #expect(document.elements.first?.chapterIndex == 0, "First element should have chapterIndex 0")
+        #expect(document.elements.first?.orderIndex == 1, "First element should have orderIndex 1 (1-based)")
     }
 
-    @Test("OrderIndex is continuous with no gaps")
+    @Test("OrderIndex is continuous with no gaps within chapter")
     @MainActor
     func testOrderIndexIsContinuous() async throws {
         let context = try createInMemoryModelContext()
@@ -122,10 +124,11 @@ struct ElementOrderingTests {
             in: context
         )
 
-        // Check for continuous sequence
+        // Check for continuous sequence (chapterIndex=0, orderIndex 1-based)
         for i in 0..<200 {
             let element = document.elements[i]
-            #expect(element.orderIndex == i, "OrderIndex should be continuous without gaps")
+            #expect(element.chapterIndex == 0, "All elements should be in chapter 0")
+            #expect(element.orderIndex == i + 1, "OrderIndex should be continuous without gaps (1-based)")
         }
     }
 
@@ -175,18 +178,20 @@ struct ElementOrderingTests {
 
         #expect(document.elements.count == 500, "Should have 500 elements")
 
-        // Verify every element is in correct position
+        // Verify every element is in correct position with composite key
         for (index, element) in document.elements.enumerated() {
             #expect(element.elementText == originalTexts[index],
                     "Element \(index) should maintain original position")
-            #expect(element.orderIndex == index,
-                    "Element \(index) should have orderIndex \(index)")
+            #expect(element.chapterIndex == 0,
+                    "Element should be in chapter 0")
+            #expect(element.orderIndex == index + 1,
+                    "Element \(index) should have orderIndex \(index + 1) (1-based)")
         }
     }
 
     // MARK: - Query Sorting Tests
 
-    @Test("Fetched elements are sorted by orderIndex")
+    @Test("Fetched elements are sorted by composite key (chapterIndex, orderIndex)")
     @MainActor
     func testQueriedElementsSortedByOrderIndex() async throws {
         let context = try createInMemoryModelContext()
@@ -199,18 +204,23 @@ struct ElementOrderingTests {
 
         try context.save()
 
-        // Fetch with explicit sort (simulating @Query behavior)
+        // Fetch with explicit composite key sort (simulating @Query behavior)
         let descriptor = FetchDescriptor<GuionElementModel>(
-            sortBy: [SortDescriptor(\.orderIndex)]
+            sortBy: [
+                SortDescriptor(\.chapterIndex),
+                SortDescriptor(\.orderIndex)
+            ]
         )
         let fetchedElements = try context.fetch(descriptor)
 
         #expect(fetchedElements.count == 100, "Should fetch 100 elements")
 
-        // Verify fetched elements are in order
+        // Verify fetched elements are in order (chapterIndex=0, orderIndex 1-based)
         for (index, element) in fetchedElements.enumerated() {
-            #expect(element.orderIndex == index,
-                    "Fetched element at position \(index) should have orderIndex \(index)")
+            #expect(element.chapterIndex == 0,
+                    "Elements without chapters should have chapterIndex=0")
+            #expect(element.orderIndex == index + 1,
+                    "Fetched element at position \(index) should have orderIndex \(index + 1)")
         }
     }
 
@@ -243,17 +253,22 @@ struct ElementOrderingTests {
 
         let descriptor = FetchDescriptor<GuionElementModel>(
             predicate: predicate,
-            sortBy: [SortDescriptor(\.orderIndex)]
+            sortBy: [
+                SortDescriptor(\.chapterIndex),
+                SortDescriptor(\.orderIndex)
+            ]
         )
 
         let doc1Elements = try context.fetch(descriptor)
 
         #expect(doc1Elements.count == 50, "Should fetch only doc1's 50 elements")
 
-        // Verify order
+        // Verify composite key order
         for (index, element) in doc1Elements.enumerated() {
-            #expect(element.orderIndex == index,
-                    "Element should have correct orderIndex")
+            #expect(element.chapterIndex == 0,
+                    "Elements without chapters should have chapterIndex=0")
+            #expect(element.orderIndex == index + 1,
+                    "Element should have correct orderIndex (1-based)")
             #expect(element.document === doc1,
                     "Element should belong to doc1")
         }
@@ -291,7 +306,7 @@ struct ElementOrderingTests {
 
     // MARK: - Edge Cases
 
-    @Test("Single element has orderIndex 0")
+    @Test("Single element has chapterIndex=0, orderIndex=1")
     @MainActor
     func testSingleElementOrder() async throws {
         let context = try createInMemoryModelContext()
@@ -306,7 +321,8 @@ struct ElementOrderingTests {
         )
 
         #expect(document.elements.count == 1, "Should have one element")
-        #expect(document.elements.first?.orderIndex == 0, "Single element should have orderIndex 0")
+        #expect(document.elements.first?.chapterIndex == 0, "Single element should have chapterIndex 0")
+        #expect(document.elements.first?.orderIndex == 1, "Single element should have orderIndex 1 (1-based)")
     }
 
     @Test("Empty screenplay has no ordering issues")
@@ -347,12 +363,14 @@ struct ElementOrderingTests {
             in: context
         )
 
-        // Verify order is exactly as written
+        // Verify order is exactly as written with composite key
         for (index, element) in document.elements.enumerated() {
             #expect(element.elementText == elements[index].elementText,
                     "Element type should not affect ordering")
-            #expect(element.orderIndex == index,
-                    "Each element should have correct orderIndex")
+            #expect(element.chapterIndex == 0,
+                    "All elements should be in chapter 0")
+            #expect(element.orderIndex == index + 1,
+                    "Each element should have correct orderIndex (1-based)")
         }
     }
 
@@ -376,16 +394,18 @@ struct ElementOrderingTests {
         #expect(document.elements.count == 1000, "Should have 1000 elements")
         #expect(elapsed < 2.0, "Should complete in under 2 seconds")
 
-        // Verify all have correct orderIndex
+        // Verify all have correct composite key (chapterIndex=0, orderIndex=1-based)
         for (index, element) in document.elements.enumerated() {
-            #expect(element.orderIndex == index,
-                    "Large screenplay should maintain correct orderIndex")
+            #expect(element.chapterIndex == 0,
+                    "Large screenplay without chapters should have chapterIndex=0")
+            #expect(element.orderIndex == index + 1,
+                    "Large screenplay should maintain correct orderIndex (1-based)")
         }
     }
 
     // MARK: - Chapter-Based Ordering Tests
 
-    @Test("Screenplay with no chapters uses 0-99 range")
+    @Test("Screenplay with no chapters: all elements have chapterIndex=0 with sequential orderIndex")
     @MainActor
     func testNoChaptersOrdering() async throws {
         let context = try createInMemoryModelContext()
@@ -404,16 +424,16 @@ struct ElementOrderingTests {
             in: context
         )
 
-        // All elements should be in 0-99 range
+        // All elements should have chapterIndex=0 with sequential orderIndex
         for (index, element) in document.elements.enumerated() {
-            #expect(element.orderIndex == index,
-                    "Without chapters, orderIndex should be sequential from 0")
-            #expect(element.orderIndex < 100,
-                    "Without chapters, all orderIndex values should be < 100")
+            #expect(element.chapterIndex == 0,
+                    "Without chapters, all elements should have chapterIndex=0")
+            #expect(element.orderIndex == index + 1,
+                    "Without chapters, orderIndex should be sequential from 1")
         }
     }
 
-    @Test("First element in Chapter 1 is exactly 100")
+    @Test("First element in Chapter 1 has chapterIndex=1, orderIndex=1")
     @MainActor
     func testFirstChapterStartsAt100() async throws {
         let context = try createInMemoryModelContext()
@@ -431,13 +451,17 @@ struct ElementOrderingTests {
             in: context
         )
 
-        #expect(document.elements[0].orderIndex == 0, "Pre-chapter element should be 0")
-        #expect(document.elements[1].orderIndex == 100, "Chapter 1 heading should be 100")
-        #expect(document.elements[2].orderIndex == 101, "First scene in Chapter 1 should be 101")
-        #expect(document.elements[3].orderIndex == 102, "Second element in Chapter 1 should be 102")
+        #expect(document.elements[0].chapterIndex == 0, "Pre-chapter element")
+        #expect(document.elements[0].orderIndex == 1, "Pre-chapter element is position 1")
+        #expect(document.elements[1].chapterIndex == 1, "Chapter 1 heading")
+        #expect(document.elements[1].orderIndex == 1, "Chapter 1 heading is position 1")
+        #expect(document.elements[2].chapterIndex == 1, "First scene in Chapter 1")
+        #expect(document.elements[2].orderIndex == 2, "First scene is position 2")
+        #expect(document.elements[3].chapterIndex == 1, "Second element in Chapter 1")
+        #expect(document.elements[3].orderIndex == 3, "Second element is position 3")
     }
 
-    @Test("Two chapters use 100-199 and 200-299 ranges")
+    @Test("Two chapters use composite key (chapterIndex, orderIndex)")
     @MainActor
     func testTwoChaptersOrdering() async throws {
         let context = try createInMemoryModelContext()
@@ -459,18 +483,25 @@ struct ElementOrderingTests {
         )
 
         // Chapter 1 elements
-        #expect(document.elements[0].orderIndex == 100, "Chapter 1 heading should be 100")
-        #expect(document.elements[1].orderIndex == 101, "Chapter 1 element 1")
-        #expect(document.elements[2].orderIndex == 102, "Chapter 1 element 2")
-        #expect(document.elements[3].orderIndex == 103, "Chapter 1 element 3")
+        #expect(document.elements[0].chapterIndex == 1, "Chapter 1 heading")
+        #expect(document.elements[0].orderIndex == 1, "Chapter 1 heading is position 1")
+        #expect(document.elements[1].chapterIndex == 1, "Chapter 1 element 1")
+        #expect(document.elements[1].orderIndex == 2, "Chapter 1 element 1 is position 2")
+        #expect(document.elements[2].chapterIndex == 1, "Chapter 1 element 2")
+        #expect(document.elements[2].orderIndex == 3, "Chapter 1 element 2 is position 3")
+        #expect(document.elements[3].chapterIndex == 1, "Chapter 1 element 3")
+        #expect(document.elements[3].orderIndex == 4, "Chapter 1 element 3 is position 4")
 
         // Chapter 2 elements
-        #expect(document.elements[4].orderIndex == 200, "Chapter 2 heading should be 200")
-        #expect(document.elements[5].orderIndex == 201, "Chapter 2 element 1")
-        #expect(document.elements[6].orderIndex == 202, "Chapter 2 element 2")
+        #expect(document.elements[4].chapterIndex == 2, "Chapter 2 heading")
+        #expect(document.elements[4].orderIndex == 1, "Chapter 2 heading is position 1")
+        #expect(document.elements[5].chapterIndex == 2, "Chapter 2 element 1")
+        #expect(document.elements[5].orderIndex == 2, "Chapter 2 element 1 is position 2")
+        #expect(document.elements[6].chapterIndex == 2, "Chapter 2 element 2")
+        #expect(document.elements[6].orderIndex == 3, "Chapter 2 element 2 is position 3")
     }
 
-    @Test("Five chapters maintain correct orderIndex ranges")
+    @Test("Five chapters maintain correct composite key ordering")
     @MainActor
     func testFiveChaptersOrdering() async throws {
         let context = try createInMemoryModelContext()
@@ -497,26 +528,28 @@ struct ElementOrderingTests {
             in: context
         )
 
-        // Verify each chapter's range
+        // Verify each chapter's composite key (chapterIndex, orderIndex)
         for chapterNum in 1...5 {
             let baseIndex = (chapterNum - 1) * 4 // 4 elements per chapter
-            let expectedOrderBase = chapterNum * 100
 
             // Chapter heading
-            #expect(document.elements[baseIndex].orderIndex == expectedOrderBase,
-                    "Chapter \(chapterNum) heading should be \(expectedOrderBase)")
+            #expect(document.elements[baseIndex].chapterIndex == chapterNum,
+                    "Chapter \(chapterNum) heading has chapterIndex=\(chapterNum)")
+            #expect(document.elements[baseIndex].orderIndex == 1,
+                    "Chapter \(chapterNum) heading is position 1")
 
             // Chapter elements
             for i in 1...3 {
                 let elemIndex = baseIndex + i
-                let expectedOrder = expectedOrderBase + i
-                #expect(document.elements[elemIndex].orderIndex == expectedOrder,
-                        "Chapter \(chapterNum) element \(i) should be \(expectedOrder)")
+                #expect(document.elements[elemIndex].chapterIndex == chapterNum,
+                        "Chapter \(chapterNum) element \(i) has chapterIndex=\(chapterNum)")
+                #expect(document.elements[elemIndex].orderIndex == i + 1,
+                        "Chapter \(chapterNum) element \(i) is position \(i + 1)")
             }
         }
     }
 
-    @Test("Elements before first chapter use 0-99 range")
+    @Test("Elements before first chapter have chapterIndex=0")
     @MainActor
     func testElementsBeforeFirstChapter() async throws {
         let context = try createInMemoryModelContext()
@@ -535,17 +568,22 @@ struct ElementOrderingTests {
             in: context
         )
 
-        // Pre-chapter elements
-        #expect(document.elements[0].orderIndex == 0, "Pre-chapter element 1 should be 0")
-        #expect(document.elements[1].orderIndex == 1, "Pre-chapter element 2 should be 1")
-        #expect(document.elements[2].orderIndex == 2, "Pre-chapter element 3 should be 2")
+        // Pre-chapter elements (chapterIndex=0)
+        #expect(document.elements[0].chapterIndex == 0, "Pre-chapter element 1")
+        #expect(document.elements[0].orderIndex == 1, "Pre-chapter element 1 is position 1")
+        #expect(document.elements[1].chapterIndex == 0, "Pre-chapter element 2")
+        #expect(document.elements[1].orderIndex == 2, "Pre-chapter element 2 is position 2")
+        #expect(document.elements[2].chapterIndex == 0, "Pre-chapter element 3")
+        #expect(document.elements[2].orderIndex == 3, "Pre-chapter element 3 is position 3")
 
-        // Chapter 1 elements
-        #expect(document.elements[3].orderIndex == 100, "Chapter 1 heading should be 100")
-        #expect(document.elements[4].orderIndex == 101, "Chapter 1 element should be 101")
+        // Chapter 1 elements (chapterIndex=1)
+        #expect(document.elements[3].chapterIndex == 1, "Chapter 1 heading")
+        #expect(document.elements[3].orderIndex == 1, "Chapter 1 heading is position 1")
+        #expect(document.elements[4].chapterIndex == 1, "Chapter 1 element")
+        #expect(document.elements[4].orderIndex == 2, "Chapter 1 element is position 2")
     }
 
-    @Test("Only section heading level 2 triggers chapter numbering")
+    @Test("Only section heading level 2 triggers new chapterIndex")
     @MainActor
     func testOnlyLevel2TriggersChapter() async throws {
         let context = try createInMemoryModelContext()
@@ -565,18 +603,24 @@ struct ElementOrderingTests {
             in: context
         )
 
-        // Non-chapter section headings should not trigger chapter numbering
-        #expect(document.elements[0].orderIndex == 0, "Level 1 section should be 0")
-        #expect(document.elements[1].orderIndex == 1, "Action after level 1 should be 1")
-        #expect(document.elements[2].orderIndex == 2, "Level 3 section should be 2")
-        #expect(document.elements[3].orderIndex == 3, "Action after level 3 should be 3")
+        // Non-chapter section headings remain in chapterIndex=0
+        #expect(document.elements[0].chapterIndex == 0, "Level 1 section in pre-chapter")
+        #expect(document.elements[0].orderIndex == 1, "Level 1 section is position 1")
+        #expect(document.elements[1].chapterIndex == 0, "Action after level 1")
+        #expect(document.elements[1].orderIndex == 2, "Action is position 2")
+        #expect(document.elements[2].chapterIndex == 0, "Level 3 section")
+        #expect(document.elements[2].orderIndex == 3, "Level 3 section is position 3")
+        #expect(document.elements[3].chapterIndex == 0, "Action after level 3")
+        #expect(document.elements[3].orderIndex == 4, "Action is position 4")
 
-        // Only level 2 triggers chapter numbering
-        #expect(document.elements[4].orderIndex == 100, "Level 2 section (Chapter 1) should be 100")
-        #expect(document.elements[5].orderIndex == 101, "Action in Chapter 1 should be 101")
+        // Only level 2 triggers chapterIndex increment
+        #expect(document.elements[4].chapterIndex == 1, "Level 2 section starts Chapter 1")
+        #expect(document.elements[4].orderIndex == 1, "Chapter 1 heading is position 1")
+        #expect(document.elements[5].chapterIndex == 1, "Action in Chapter 1")
+        #expect(document.elements[5].orderIndex == 2, "Action is position 2")
     }
 
-    @Test("Large screenplay with chapters maintains gaps")
+    @Test("Large screenplay with chapters maintains composite key ordering")
     @MainActor
     func testLargeScreenplayWithChapters() async throws {
         let context = try createInMemoryModelContext()
@@ -604,14 +648,20 @@ struct ElementOrderingTests {
             in: context
         )
 
-        // Verify chapter gaps are maintained
-        #expect(document.elements[0].orderIndex == 100, "Chapter 1 starts at 100")
-        #expect(document.elements[31].orderIndex == 200, "Chapter 2 starts at 200")
-        #expect(document.elements[62].orderIndex == 300, "Chapter 3 starts at 300")
+        // Verify chapter headings
+        #expect(document.elements[0].chapterIndex == 1, "Chapter 1 heading")
+        #expect(document.elements[0].orderIndex == 1, "Chapter 1 heading is position 1")
+        #expect(document.elements[31].chapterIndex == 2, "Chapter 2 heading")
+        #expect(document.elements[31].orderIndex == 1, "Chapter 2 heading is position 1")
+        #expect(document.elements[62].chapterIndex == 3, "Chapter 3 heading")
+        #expect(document.elements[62].orderIndex == 1, "Chapter 3 heading is position 1")
 
-        // Verify spacing within chapters
-        #expect(document.elements[30].orderIndex == 130, "Last element of Chapter 1")
-        #expect(document.elements[61].orderIndex == 230, "Last element of Chapter 2")
-        #expect(document.elements[92].orderIndex == 330, "Last element of Chapter 3")
+        // Verify last elements in each chapter
+        #expect(document.elements[30].chapterIndex == 1, "Last element of Chapter 1")
+        #expect(document.elements[30].orderIndex == 31, "Last element is position 31")
+        #expect(document.elements[61].chapterIndex == 2, "Last element of Chapter 2")
+        #expect(document.elements[61].orderIndex == 31, "Last element is position 31")
+        #expect(document.elements[92].chapterIndex == 3, "Last element of Chapter 3")
+        #expect(document.elements[92].orderIndex == 31, "Last element is position 31")
     }
 }

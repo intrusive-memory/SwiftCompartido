@@ -133,9 +133,14 @@ public final class GuionDocumentModel {
     /// }
     /// ```
     ///
-    /// - SeeAlso: `GuionElementModel.orderIndex`
+    /// - SeeAlso: `GuionElementModel.chapterIndex`, `GuionElementModel.orderIndex`
     public var sortedElements: [GuionElementModel] {
-        elements.sorted { $0.orderIndex < $1.orderIndex }
+        elements.sorted {
+            if $0.chapterIndex != $1.chapterIndex {
+                return $0.chapterIndex < $1.chapterIndex
+            }
+            return $0.orderIndex < $1.orderIndex
+        }
     }
 
     @Relationship(deleteRule: .cascade, inverse: \TitlePageEntryModel.document)
@@ -451,42 +456,39 @@ public final class GuionDocumentModel {
 
     // MARK: - Conversion Methods
 
-    /// Calculate chapter-aware orderIndex for an element
+    /// Calculate chapter-aware ordering for an element
     ///
-    /// Chapter-based orderIndex spacing:
-    /// - Elements before first chapter: 0-99
-    /// - Chapter 1 elements: 100-199
-    /// - Chapter 2 elements: 200-299
-    /// - Chapter 3 elements: 300-399
+    /// Chapter-based ordering uses a composite key (chapterIndex, orderIndex):
+    /// - chapterIndex 0: Elements before first chapter (title page, opening scenes)
+    /// - chapterIndex 1: Elements in Chapter 1
+    /// - chapterIndex 2: Elements in Chapter 2
     /// - etc.
     ///
-    /// This creates gaps for inserting content within chapters while maintaining overall order.
+    /// Within each chapter, orderIndex starts at 1 and increments sequentially.
+    /// Chapters are detected via section heading level 2.
     ///
     /// - Parameters:
-    ///   - element: The element to calculate orderIndex for
+    ///   - element: The element to calculate ordering for
     ///   - currentChapter: Current chapter number (0 = before first chapter, 1 = chapter 1, etc.)
-    ///   - positionInChapter: Position within the current chapter
+    ///   - positionInChapter: Position within the current chapter (starts at 1)
     ///
-    /// - Returns: The calculated orderIndex value
+    /// - Returns: Tuple of (chapterIndex, orderIndex)
     private static func calculateOrderIndex(
         for element: GuionElement,
         currentChapter: inout Int,
         positionInChapter: inout Int
-    ) -> Int {
+    ) -> (chapterIndex: Int, orderIndex: Int) {
         // Check if this is a chapter heading (section heading level 2)
         if case .sectionHeading(let level) = element.elementType, level == 2 {
             // New chapter found
             currentChapter += 1
-            positionInChapter = 0
-            let orderIndex = currentChapter * 100
-            positionInChapter += 1
-            return orderIndex
+            positionInChapter = 1  // Chapter heading gets position 1
+            return (chapterIndex: currentChapter, orderIndex: positionInChapter)
         }
 
-        // Regular element - use current chapter and position
-        let orderIndex = (currentChapter * 100) + positionInChapter
+        // Regular element - use current chapter and increment position
         positionInChapter += 1
-        return orderIndex
+        return (chapterIndex: currentChapter, orderIndex: positionInChapter)
     }
 
     /// Create a GuionDocumentModel from a GuionParsedElementCollection
@@ -638,13 +640,13 @@ public final class GuionDocumentModel {
                     try? Task.checkCancellation()
                 }
 
-                let orderIndex = Self.calculateOrderIndex(
+                let (chapterIndex, orderIndex) = Self.calculateOrderIndex(
                     for: element,
                     currentChapter: &currentChapter,
                     positionInChapter: &positionInChapter
                 )
 
-                let elementModel = GuionElementModel(from: element, orderIndex: orderIndex)
+                let elementModel = GuionElementModel(from: element, chapterIndex: chapterIndex, orderIndex: orderIndex)
                 elementModel.document = document
                 document.elements.append(elementModel)
             }
@@ -661,13 +663,13 @@ public final class GuionDocumentModel {
                     try? Task.checkCancellation()
                 }
 
-                let orderIndex = Self.calculateOrderIndex(
+                let (chapterIndex, orderIndex) = Self.calculateOrderIndex(
                     for: element,
                     currentChapter: &currentChapter,
                     positionInChapter: &positionInChapter
                 )
 
-                let elementModel = GuionElementModel(from: element, orderIndex: orderIndex)
+                let elementModel = GuionElementModel(from: element, chapterIndex: chapterIndex, orderIndex: orderIndex)
                 elementModel.document = document
                 document.elements.append(elementModel)
 

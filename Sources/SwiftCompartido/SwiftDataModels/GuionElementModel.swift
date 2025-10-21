@@ -67,24 +67,36 @@ import SwiftData
 /// - ``updateType(_:)``
 @Model
 public final class GuionElementModel: GuionElementProtocol {
-    /// Order index for maintaining element sequence
+    /// Chapter index for multi-chapter screenplays
     ///
-    /// This field ensures elements are always displayed in their original screenplay order.
-    /// Set automatically during conversion from GuionParsedElementCollection.
-    /// Lower values appear first in the screenplay.
-    ///
-    /// **Chapter-Based Spacing:**
-    /// - Chapter 1 elements: 100-199
-    /// - Chapter 2 elements: 200-299
-    /// - Chapter 3 elements: 300-399
+    /// - 0: Elements before the first chapter (title page, opening scenes)
+    /// - 1: Elements in Chapter 1
+    /// - 2: Elements in Chapter 2
     /// - etc.
     ///
-    /// This allows inserting elements within chapters while maintaining overall order.
+    /// Chapters are detected via section heading level 2. If no chapters are used,
+    /// all elements have chapterIndex = 0.
     ///
-    /// **Critical**: Always sort queries by this field to maintain screenplay sequence:
+    /// **Critical**: Always sort by (chapterIndex, orderIndex) to maintain screenplay sequence:
     /// ```swift
-    /// @Query(sort: [SortDescriptor(\GuionElementModel.orderIndex)]) var elements: [GuionElementModel]
+    /// @Query(sort: [
+    ///     SortDescriptor(\GuionElementModel.chapterIndex),
+    ///     SortDescriptor(\GuionElementModel.orderIndex)
+    /// ]) var elements: [GuionElementModel]
     /// ```
+    public var chapterIndex: Int
+
+    /// Order index within the current chapter
+    ///
+    /// Sequential position starting from 1 within each chapter. Combined with `chapterIndex`,
+    /// this provides the complete ordering key for screenplay elements.
+    ///
+    /// - Chapter heading: receives orderIndex 1
+    /// - First element after heading: orderIndex 2
+    /// - Second element: orderIndex 3
+    /// - etc.
+    ///
+    /// Elements are always sorted by (chapterIndex, orderIndex) to maintain screenplay sequence.
     public var orderIndex: Int
 
     public var elementText: String
@@ -159,7 +171,8 @@ public final class GuionElementModel: GuionElementProtocol {
     public var locationTimeOfDay: String?     // Time of day
     public var locationModifiers: [String]?   // Additional modifiers
 
-    public init(elementText: String, elementType: ElementType, isCentered: Bool = false, isDualDialogue: Bool = false, sceneNumber: String? = nil, sectionDepth: Int = 0, summary: String? = nil, sceneId: String? = nil, orderIndex: Int = 0) {
+    public init(elementText: String, elementType: ElementType, isCentered: Bool = false, isDualDialogue: Bool = false, sceneNumber: String? = nil, sectionDepth: Int = 0, summary: String? = nil, sceneId: String? = nil, chapterIndex: Int = 0, orderIndex: Int = 0) {
+        self.chapterIndex = chapterIndex
         self.orderIndex = orderIndex
         self.elementText = elementText
         self._elementTypeString = elementType.description
@@ -178,7 +191,7 @@ public final class GuionElementModel: GuionElementProtocol {
     }
 
     /// Initialize from any GuionElementProtocol conforming type
-    public convenience init<T: GuionElementProtocol>(from element: T, summary: String? = nil, orderIndex: Int = 0) {
+    public convenience init<T: GuionElementProtocol>(from element: T, summary: String? = nil, chapterIndex: Int = 0, orderIndex: Int = 0) {
         self.init(
             elementText: element.elementText,
             elementType: element.elementType,
@@ -188,6 +201,7 @@ public final class GuionElementModel: GuionElementProtocol {
             sectionDepth: element.elementType.level,
             summary: summary,
             sceneId: element.sceneId,
+            chapterIndex: chapterIndex,
             orderIndex: orderIndex
         )
     }
