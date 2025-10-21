@@ -26,10 +26,10 @@
 import Foundation
 import TextBundle
 
-extension GuionParsedScreenplay {
+extension GuionParsedElementCollection {
 
 
-    /// Initialize GuionParsedScreenplay from a TextBundle file URL
+    /// Initialize GuionParsedElementCollection from a TextBundle file URL
     /// - Parameters:
     ///   - textBundle: URL to the .textbundle or .textpack file
     ///   - parser: The parser type to use (default: .fast)
@@ -70,7 +70,7 @@ extension GuionParsedScreenplay {
         throw FountainTextBundleError.noContentFileFound
     }
 
-    /// Write the current GuionParsedScreenplay to a TextBundle
+    /// Write the current GuionParsedElementCollection to a TextBundle
     /// - Parameters:
     ///   - destinationURL: The URL where the TextBundle should be created
     ///   - fountainFilename: Optional custom filename for the .fountain file (default: uses script's filename or "script.fountain")
@@ -106,7 +106,7 @@ extension GuionParsedScreenplay {
         return finalURL
     }
 
-    /// Write the current GuionParsedScreenplay to a TextBundle with resources (characters.json, outline.json)
+    /// Write the current GuionParsedElementCollection to a TextBundle with resources (characters.json, outline.json)
     /// - Parameters:
     ///   - destinationURL: The URL where the TextBundle should be created
     ///   - name: The base name for the TextBundle (without extension)

@@ -4,12 +4,12 @@
 //
 //  Copyright (c) 2025
 //
-//  Extension to extract hierarchical scene browser data from GuionParsedScreenplay
+//  Extension to extract hierarchical scene browser data from GuionParsedElementCollection
 //
 
 import Foundation
 
-extension GuionParsedScreenplay {
+extension GuionParsedElementCollection {
     /// Extract hierarchical scene browser data
     ///
     /// This method builds a hierarchical structure from the outline:

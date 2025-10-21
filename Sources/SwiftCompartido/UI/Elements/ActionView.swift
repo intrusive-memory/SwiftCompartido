@@ -17,28 +17,12 @@ public struct ActionView: View {
     }
 
     public var body: some View {
-        GeometryReader { geometry in
-            HStack(alignment: .top, spacing: 0) {
-                // 10% left margin for action
-                Spacer()
-                    .frame(width: geometry.size.width * 0.10)
-
-                Text(element.elementText)
-                    .font(.custom("Courier New", size: fontSize))
-                    .foregroundStyle(.primary)
-                    .textSelection(.enabled)
-                    .frame(
-                        maxWidth: geometry.size.width * 0.80, // 100% - 10% - 10% = 80%
-                        alignment: .leading
-                    )
-
-                // 10% right margin
-                Spacer()
-                    .frame(width: geometry.size.width * 0.10)
-            }
-            .frame(width: geometry.size.width, alignment: .leading)
-        }
-        .fixedSize(horizontal: false, vertical: true)
-        .padding(.vertical, fontSize * 0.35)
+        Text(element.elementText)
+            .font(.custom("Courier New", size: fontSize))
+            .foregroundStyle(.primary)
+            .textSelection(.enabled)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, 40) // 10% left + 10% right margin approximation
+            .padding(.vertical, fontSize * 0.35)
     }
 }

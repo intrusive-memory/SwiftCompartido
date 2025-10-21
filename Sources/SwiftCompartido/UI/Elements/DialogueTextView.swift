@@ -17,27 +17,19 @@ public struct DialogueTextView: View {
     }
 
     public var body: some View {
-        GeometryReader { geometry in
-            HStack(alignment: .top, spacing: 0) {
-                // 25% left margin for dialogue
-                Spacer()
-                    .frame(width: geometry.size.width * 0.25)
+        HStack {
+            Spacer()
+                .frame(minWidth: 100) // 25% left margin
 
-                Text(element.elementText)
-                    .font(.custom("Courier New", size: fontSize))
-                    .foregroundStyle(.primary)
-                    .textSelection(.enabled)
-                    .frame(
-                        maxWidth: geometry.size.width * 0.50, // 100% - 25% - 25% = 50%
-                        alignment: .leading
-                    )
+            Text(element.elementText)
+                .font(.custom("Courier New", size: fontSize))
+                .foregroundStyle(.primary)
+                .textSelection(.enabled)
+                .frame(maxWidth: .infinity, alignment: .leading)
 
-                // 25% right margin
-                Spacer()
-                    .frame(width: geometry.size.width * 0.25)
-            }
-            .frame(width: geometry.size.width, alignment: .leading)
+            Spacer()
+                .frame(minWidth: 100) // 25% right margin
         }
-        .fixedSize(horizontal: false, vertical: true)
+        .padding(.horizontal, 20)
     }
 }

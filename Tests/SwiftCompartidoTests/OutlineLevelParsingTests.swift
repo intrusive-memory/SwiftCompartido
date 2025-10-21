@@ -22,7 +22,7 @@ final class OutlineLevelParsingTests: XCTestCase {
         Action.
         """
 
-        let script = try GuionParsedScreenplay(string: content)
+        let script = try GuionParsedElementCollection(string: content)
         let outline = script.extractOutline()
 
         let level1Elements = outline.filter { $0.level == 1 }
@@ -41,7 +41,7 @@ final class OutlineLevelParsingTests: XCTestCase {
         More action.
         """
 
-        let script = try GuionParsedScreenplay(string: content)
+        let script = try GuionParsedElementCollection(string: content)
         let outline = script.extractOutline()
 
         let level1Elements = outline.filter { $0.level == 1 }
@@ -60,7 +60,7 @@ final class OutlineLevelParsingTests: XCTestCase {
         Action.
         """
 
-        let script = try GuionParsedScreenplay(string: content)
+        let script = try GuionParsedElementCollection(string: content)
         let outline = script.extractOutline()
 
         let level1Elements = outline.filter { $0.level == 1 }
@@ -87,7 +87,7 @@ final class OutlineLevelParsingTests: XCTestCase {
         More action.
         """
 
-        let script = try GuionParsedScreenplay(string: content)
+        let script = try GuionParsedElementCollection(string: content)
         let outline = script.extractOutline()
 
         let chapters = outline.filter { $0.isChapter }
@@ -113,7 +113,7 @@ final class OutlineLevelParsingTests: XCTestCase {
         ## END CHAPTER 2
         """
 
-        let script = try GuionParsedScreenplay(string: content)
+        let script = try GuionParsedElementCollection(string: content)
         let outline = script.extractOutline()
 
         let chapters = outline.filter { $0.isChapter }
@@ -137,7 +137,7 @@ final class OutlineLevelParsingTests: XCTestCase {
         The door opens.
         """
 
-        let script = try GuionParsedScreenplay(string: content)
+        let script = try GuionParsedElementCollection(string: content)
         let outline = script.extractOutline()
 
         let chapters = outline.filter { $0.isChapter }
@@ -167,7 +167,7 @@ final class OutlineLevelParsingTests: XCTestCase {
         More action.
         """
 
-        let script = try GuionParsedScreenplay(string: content)
+        let script = try GuionParsedElementCollection(string: content)
         let outline = script.extractOutline()
 
         let sceneGroups = outline.filter { $0.level == 3 && $0.type == "sectionHeader" }
@@ -193,7 +193,7 @@ final class OutlineLevelParsingTests: XCTestCase {
         More action.
         """
 
-        let script = try GuionParsedScreenplay(string: content)
+        let script = try GuionParsedElementCollection(string: content)
         let outline = script.extractOutline()
 
         let sceneGroups = outline.filter { $0.level == 3 && $0.type == "sectionHeader" }
@@ -236,7 +236,7 @@ final class OutlineLevelParsingTests: XCTestCase {
         Even more action.
         """
 
-        let script = try GuionParsedScreenplay(string: content)
+        let script = try GuionParsedElementCollection(string: content)
         let outline = script.extractOutline()
 
         let chapters = outline.filter { $0.isChapter }
@@ -268,7 +268,7 @@ final class OutlineLevelParsingTests: XCTestCase {
         Action two.
         """
 
-        let script = try GuionParsedScreenplay(string: content)
+        let script = try GuionParsedElementCollection(string: content)
         let outline = script.extractOutline()
 
         let sceneGroup = outline.first { $0.level == 3 && $0.type == "sectionHeader" }
@@ -283,7 +283,7 @@ final class OutlineLevelParsingTests: XCTestCase {
     // MARK: - Edge Cases
 
     func testEmptyScript() {
-        let script = GuionParsedScreenplay()
+        let script = GuionParsedElementCollection()
         let outline = script.extractOutline()
 
         // Empty script creates a synthetic title + blank element
@@ -303,7 +303,7 @@ final class OutlineLevelParsingTests: XCTestCase {
         More action.
         """
 
-        let script = try GuionParsedScreenplay(string: content)
+        let script = try GuionParsedElementCollection(string: content)
         let outline = script.extractOutline()
 
         // Should create synthetic title
@@ -333,7 +333,7 @@ final class OutlineLevelParsingTests: XCTestCase {
         Direct scene without scene group.
         """
 
-        let script = try GuionParsedScreenplay(string: content)
+        let script = try GuionParsedElementCollection(string: content)
         let outline = script.extractOutline()
 
         let level1 = outline.filter { $0.level == 1 }
@@ -380,7 +380,7 @@ final class OutlineLevelParsingTests: XCTestCase {
         More action.
         """
 
-        let script = try GuionParsedScreenplay(string: content)
+        let script = try GuionParsedElementCollection(string: content)
         let outline = script.extractOutline()
 
         // Should have 2 level 1 elements
@@ -444,7 +444,7 @@ final class OutlineLevelParsingTests: XCTestCase {
         Action in section B.
         """
 
-        let script = try GuionParsedScreenplay(string: content)
+        let script = try GuionParsedElementCollection(string: content)
         let outline = script.extractOutline()
 
         let level1Elements = outline.filter { $0.level == 1 }
@@ -503,7 +503,7 @@ final class OutlineLevelParsingTests: XCTestCase {
         More action.
         """
 
-        let script = try GuionParsedScreenplay(string: content)
+        let script = try GuionParsedElementCollection(string: content)
         let outline = script.extractOutline()
 
         // Should have multiple level 1 sections
@@ -553,7 +553,7 @@ final class OutlineLevelParsingTests: XCTestCase {
         Action.
         """
 
-        let script = try GuionParsedScreenplay(string: content)
+        let script = try GuionParsedElementCollection(string: content)
         let outline = script.extractOutline()
 
         // Should have chapter (level 2), synthetic level 3, and scene (level 4)
@@ -586,7 +586,7 @@ final class OutlineLevelParsingTests: XCTestCase {
         Action.
         """
 
-        let script = try GuionParsedScreenplay(string: content)
+        let script = try GuionParsedElementCollection(string: content)
         let outline = script.extractOutline()
 
         // Should have title (level 1), synthetic level 2, synthetic level 3, and scene (level 4)
@@ -627,7 +627,7 @@ final class OutlineLevelParsingTests: XCTestCase {
         Action 2.
         """
 
-        let script = try GuionParsedScreenplay(string: content)
+        let script = try GuionParsedElementCollection(string: content)
         let outline = script.extractOutline()
 
         // Should create only ONE synthetic level 3 for both scenes
@@ -652,7 +652,7 @@ final class OutlineLevelParsingTests: XCTestCase {
         Action.
         """
 
-        let script = try GuionParsedScreenplay(string: content)
+        let script = try GuionParsedElementCollection(string: content)
         let outline = script.extractOutline()
 
         // Encode and decode
@@ -685,7 +685,7 @@ final class OutlineLevelParsingTests: XCTestCase {
         Action 2.
         """
 
-        let script = try GuionParsedScreenplay(string: content)
+        let script = try GuionParsedElementCollection(string: content)
         let outline = script.extractOutline()
 
         // When level 3 exists explicitly, scenes under it should not create synthetic elements
@@ -723,7 +723,7 @@ final class OutlineLevelParsingTests: XCTestCase {
         More action.
         """
 
-        let script = try GuionParsedScreenplay(string: content)
+        let script = try GuionParsedElementCollection(string: content)
         let browserData = script.extractSceneBrowserData()
 
         XCTAssertEqual(browserData.chapters.count, 2, "Should extract 2 chapters")

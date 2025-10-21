@@ -97,9 +97,9 @@ extension GuionElement {
     }
 }
 
-// MARK: - GuionParsedScreenplay Extension
+// MARK: - GuionParsedElementCollection Extension
 
-extension GuionParsedScreenplay {
+extension GuionParsedElementCollection {
     /// Extract all scene locations from the script
     /// - Returns: Array of scenes with their parsed locations
     public func extractSceneLocations() -> [SceneWithLocation] {

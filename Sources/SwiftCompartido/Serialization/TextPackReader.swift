@@ -14,11 +14,11 @@ import SwiftData
 /// Reader for loading .guion TextPack bundles
 public struct TextPackReader {
 
-    /// Read a TextPack bundle and create a GuionParsedScreenplay
+    /// Read a TextPack bundle and create a GuionParsedElementCollection
     /// - Parameter fileWrapper: The FileWrapper representing the TextPack bundle
-    /// - Returns: GuionParsedScreenplay loaded from the bundle
+    /// - Returns: GuionParsedElementCollection loaded from the bundle
     /// - Throws: Errors if the bundle is invalid or files cannot be read
-    public static func readTextPack(from fileWrapper: FileWrapper) throws -> GuionParsedScreenplay {
+    public static func readTextPack(from fileWrapper: FileWrapper) throws -> GuionParsedElementCollection {
         guard fileWrapper.isDirectory,
               let fileWrappers = fileWrapper.fileWrappers else {
             throw TextPackError.notADirectory
@@ -39,11 +39,11 @@ public struct TextPackReader {
         }
 
         // 3. Parse the Fountain content
-        let screenplay = try GuionParsedScreenplay(string: screenplayContent)
+        let screenplay = try GuionParsedElementCollection(string: screenplayContent)
 
         // Create new screenplay with metadata from info.json if available
         if let info = info {
-            return GuionParsedScreenplay(
+            return GuionParsedElementCollection(
                 filename: info.filename,
                 elements: screenplay.elements,
                 titlePage: screenplay.titlePage,
@@ -68,7 +68,7 @@ public struct TextPackReader {
         in context: ModelContext,
         generateSummaries: Bool = false
     ) async throws -> GuionDocumentModel {
-        // First read as GuionParsedScreenplay
+        // First read as GuionParsedElementCollection
         let screenplay = try readTextPack(from: fileWrapper)
 
         // Then convert to GuionDocumentModel

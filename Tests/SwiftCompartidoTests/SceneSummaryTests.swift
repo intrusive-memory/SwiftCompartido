@@ -19,7 +19,7 @@ struct SceneSummaryTests {
     @Test("SceneSummarizer extracts basic scene information")
     func testSceneSummarizerBasicExtraction() async throws {
         let fountainURL = try Fijos.getFixture("bigfish", extension: "fountain")
-        let script = try GuionParsedScreenplay(file: fountainURL.path)
+        let script = try await GuionParsedElementCollection(file: fountainURL.path)
         let outline = script.extractOutline()
 
         // Get first INT scene from Big Fish
@@ -50,7 +50,7 @@ struct SceneSummaryTests {
     @Test("SceneSummarizer handles scene with minimal dialogue")
     func testSceneSummarizerMinimalDialogue() async throws {
         let fountainURL = try Fijos.getFixture("bigfish", extension: "fountain")
-        let script = try GuionParsedScreenplay(file: fountainURL.path)
+        let script = try await GuionParsedElementCollection(file: fountainURL.path)
         let outline = script.extractOutline()
 
         // Get an EXT scene from Big Fish
@@ -67,7 +67,7 @@ struct SceneSummaryTests {
     @MainActor
     func testSceneTextWithSummarization() async throws {
         let fountainURL = try Fijos.getFixture("bigfish", extension: "fountain")
-        let script = try GuionParsedScreenplay(file: fountainURL.path)
+        let script = try await GuionParsedElementCollection(file: fountainURL.path)
         let outline = script.extractOutline()
 
         // Find the first scene
@@ -141,7 +141,7 @@ It's just me!
 
 """
 
-        let script = try GuionParsedScreenplay(string: fountainText)
+        let script = try await GuionParsedElementCollection(string: fountainText)
         let outline = script.extractOutline()
 
         // Find all scenes with duplicate headings

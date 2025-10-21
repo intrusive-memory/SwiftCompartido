@@ -4,7 +4,7 @@
     <img src="https://img.shields.io/badge/Swift-6.2+-orange.svg" />
     <img src="https://img.shields.io/badge/Platform-macOS%2026.0+%20|%20iOS%2026.0+%20|%20Mac%20Catalyst-lightgrey.svg" />
     <img src="https://img.shields.io/badge/License-MIT-blue.svg" />
-    <img src="https://img.shields.io/badge/Version-1.3.2-green.svg" />
+    <img src="https://img.shields.io/badge/Version-1.5.0-green.svg" />
 </p>
 
 **SwiftCompartido** is a comprehensive Swift package for screenplay management, AI-generated content storage, and document serialization. Built with SwiftData, SwiftUI, and modern Swift concurrency.
@@ -38,8 +38,9 @@
 - **Zero Breaking Changes**: Fully backward compatible with existing local-only code
 
 ### 🎨 UI Components
-- **GuionViewer**: Screenplay rendering with proper formatting
-- **SceneBrowser**: Hierarchical scene navigation
+- **GuionViewer**: Screenplay rendering with proper formatting (simplified in 1.4.3)
+- **GuionElementsList**: Flat, @Query-based element list display (NEW in 1.4.3)
+- **Source File Tracking**: Automatic detection of external file changes (NEW in 1.4.3)
 - **TextConfigurationView**: AI text generation settings
 - **AudioPlayerManager**: Waveform visualization and playback
 
@@ -49,7 +50,7 @@
 - **Cancellation Support**: All operations support `Task` cancellation with cleanup
 - **Performance Optimized**: <2% overhead, batched updates, thread-safe
 - **Backward Compatible**: Optional progress parameter - existing code unchanged
-- **275 Tests**: Full test coverage across 7 implementation phases
+- **314 Tests**: Full test coverage across 22 test suites
 
 ## Quick Start
 
@@ -91,8 +92,8 @@ SARAH
 What a beautiful day.
 """
 
-let parser = FountainParser()
-let screenplay = parser.parse(fountainText)
+// ✅ Recommended: Use GuionParsedElementCollection
+let screenplay = try await GuionParsedElementCollection(string: fountainText)
 
 // Access elements
 for element in screenplay.elements {
@@ -100,7 +101,7 @@ for element in screenplay.elements {
 }
 
 // Get scenes only
-let scenes = screenplay.scenes // Returns only scene headings
+let scenes = screenplay.elements.filter { $0.elementType == .sceneHeading }
 ```
 
 #### Store AI-Generated Text
@@ -181,12 +182,21 @@ func generateAndPlayAudio(text: String) async throws {
 ```swift
 import SwiftCompartido
 import SwiftUI
+import SwiftData
 
 struct ScreenplayView: View {
-    let screenplay: GuionParsedScreenplay
+    let document: GuionDocumentModel
 
     var body: some View {
-        GuionViewer(screenplay: screenplay)
+        GuionViewer(document: document)
+            .environment(\.screenplayFontSize, 12)
+    }
+}
+
+// Or display all elements from all documents
+struct AllElementsView: View {
+    var body: some View {
+        GuionElementsList() // No document filter
     }
 }
 ```
@@ -203,7 +213,7 @@ class ParserViewModel: ObservableObject {
     @Published var progressFraction = 0.0
     @Published var isProcessing = false
 
-    func parseScreenplay(_ text: String) async throws {
+    func parseScreenplay(_ text: String) async throws -> GuionParsedElementCollection {
         isProcessing = true
         defer { isProcessing = false }
 
@@ -215,9 +225,8 @@ class ParserViewModel: ObservableObject {
             }
         }
 
-        // Parse with progress
-        let parser = try await FountainParser(string: text, progress: progress)
-        // Use parser.elements...
+        // ✅ Recommended: Use GuionParsedElementCollection with progress
+        return try await GuionParsedElementCollection(string: text, progress: progress)
     }
 }
 
@@ -234,7 +243,7 @@ struct ProgressParsingView: View {
             }
             Button("Parse") {
                 Task {
-                    try await viewModel.parseScreenplay(largeScript)
+                    _ = try await viewModel.parseScreenplay(largeScript)
                 }
             }
         }
@@ -354,12 +363,16 @@ Task {
 
 ## Testing
 
-SwiftCompartido has **95%+ test coverage** with **176 passing tests** across 12 test suites.
+SwiftCompartido has **95%+ test coverage** with **314 passing tests** across 22 test suites.
 
 Run tests:
 
 ```bash
+# Run all tests
 swift test
+
+# Run tests in parallel (faster)
+swift test --parallel --num-workers 10
 ```
 
 ## Contributing

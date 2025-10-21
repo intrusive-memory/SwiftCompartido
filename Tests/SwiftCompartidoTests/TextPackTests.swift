@@ -17,7 +17,7 @@ struct TextPackTests {
 
     @Test func testCreateTextPackFromScreenplay() async throws {
         // Create a simple screenplay
-        let screenplay = try GuionParsedScreenplay(string: """
+        let screenplay = try await GuionParsedElementCollection(string: """
         Title: Test Script
         Author: Test Author
 
@@ -43,7 +43,7 @@ struct TextPackTests {
     }
 
     @Test func testTextPackContainsInfoJSON() async throws {
-        let screenplay = try GuionParsedScreenplay(string: """
+        let screenplay = try await GuionParsedElementCollection(string: """
         Title: My Script
 
         INT. ROOM - DAY
@@ -77,7 +77,7 @@ struct TextPackTests {
         JANE sits at her desk.
         """
 
-        let screenplay = try GuionParsedScreenplay(string: originalScript)
+        let screenplay = try await GuionParsedElementCollection(string: originalScript)
         let textPack = try TextPackWriter.createTextPack(from: screenplay)
 
         // Read screenplay.fountain
@@ -93,7 +93,7 @@ struct TextPackTests {
     }
 
     @Test func testTextPackContainsResourcesDirectory() async throws {
-        let screenplay = try GuionParsedScreenplay(string: """
+        let screenplay = try await GuionParsedElementCollection(string: """
         INT. BAR - NIGHT
 
         MIKE
@@ -123,7 +123,7 @@ struct TextPackTests {
 
     @Test func testReadTextPackRoundTrip() async throws {
         // Create original screenplay
-        let original = try GuionParsedScreenplay(string: """
+        let original = try await GuionParsedElementCollection(string: """
         Title: Round Trip Test
 
         INT. APARTMENT - DAY
@@ -146,7 +146,7 @@ struct TextPackTests {
     }
 
     @Test func testReadCharactersJSON() async throws {
-        let screenplay = try GuionParsedScreenplay(string: """
+        let screenplay = try await GuionParsedElementCollection(string: """
         INT. OFFICE - DAY
 
         ALICE
@@ -178,7 +178,7 @@ struct TextPackTests {
     }
 
     @Test func testReadLocationsJSON() async throws {
-        let screenplay = try GuionParsedScreenplay(string: """
+        let screenplay = try await GuionParsedElementCollection(string: """
         INT. COFFEE SHOP - DAY
 
         Action here.
@@ -215,7 +215,7 @@ struct TextPackTests {
     }
 
     @Test func testReadElementsJSON() async throws {
-        let screenplay = try GuionParsedScreenplay(string: """
+        let screenplay = try await GuionParsedElementCollection(string: """
         INT. ROOM - DAY
 
         Action line.
@@ -243,7 +243,7 @@ struct TextPackTests {
     }
 
     @Test func testReadTitlePageJSON() async throws {
-        let screenplay = try GuionParsedScreenplay(string: """
+        let screenplay = try await GuionParsedElementCollection(string: """
         Title: My Great Script
         Author: Jane Doe
         Draft: First Draft
@@ -297,7 +297,7 @@ struct TextPackTests {
     // MARK: - Character Extraction Tests
 
     @Test func testCharacterExtractionWithSceneMapping() async throws {
-        let screenplay = try GuionParsedScreenplay(string: """
+        let screenplay = try await GuionParsedElementCollection(string: """
         INT. OFFICE - DAY #1#
 
         JOHN
@@ -330,7 +330,7 @@ struct TextPackTests {
     @Test func testTextPackWithBigFishFixture() async throws {
         // Load Big Fish screenplay
         let bigfishURL = try Fijos.getFixture("bigfish", extension: "fountain")
-        let screenplay = try GuionParsedScreenplay(file: bigfishURL.path)
+        let screenplay = try await GuionParsedElementCollection(file: bigfishURL.path)
 
         // Create TextPack
         let textPack = try TextPackWriter.createTextPack(from: screenplay)

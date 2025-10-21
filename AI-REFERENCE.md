@@ -2,10 +2,10 @@
 
 > **For AI Assistants**: This document provides comprehensive guidance for understanding, using, and building upon the SwiftCompartido library.
 
-**Version**: 1.3.0
+**Version**: 1.4.3
 **Swift Version**: 6.2+
-**Platforms**: macOS 26.0+, iOS 26.0+
-**Last Updated**: 2025-10-19
+**Platforms**: macOS 26.0+, iOS 26.0+, Mac Catalyst 26.0+
+**Last Updated**: 2025-10-20
 
 ---
 
@@ -30,20 +30,39 @@
 
 SwiftCompartido is a Swift package that provides:
 
-1. **Screenplay Management**: Parse, manipulate, and export screenplays (Fountain & FDX formats)
-2. **AI Content Storage**: File-based storage for AI-generated text, audio, images, and embeddings
-3. **SwiftData Integration**: Persistent models with Phase 6 architecture
-4. **UI Components**: Ready-to-use SwiftUI views for screenplay rendering and audio playback
+1. **Screenplay Parsing**: Parse Fountain & FDX screenplay files into structured data
+2. **SwiftData Conversion**: Convert parsed screenplays into SwiftData models for persistence
+3. **UI Components**: SwiftUI views for displaying SwiftData screenplay documents
+4. **AI Content Storage**: File-based storage for AI-generated text, audio, images, and embeddings
 5. **Progress Reporting**: Comprehensive progress tracking for all long-running operations
+
+**Core Purpose**: Parse screenplay files → Convert to SwiftData → Display with SwiftUI components
 
 ### Key Capabilities
 
 ```swift
-// Parse screenplays with progress reporting
+// 1. Parse screenplays with progress reporting
 let progress = OperationProgress(totalUnits: nil) { update in
     print("\(update.description): \(update.fractionCompleted ?? 0.0)")
 }
 let parser = try await FountainParser(string: fountainText, progress: progress)
+
+// 2. Convert to SwiftData
+let document = await GuionDocumentParserSwiftData.parse(
+    script: parser.screenplay,
+    in: modelContext,
+    generateSummaries: false
+)
+
+// 3. Display in SwiftUI with automatic data binding
+struct ContentView: View {
+    let document: GuionDocumentModel
+
+    var body: some View {
+        GuionViewer(document: document)
+        // GuionViewer uses @Query to display GuionElementModels from SwiftData
+    }
+}
 
 // Store AI-generated audio with file-based storage
 let record = GeneratedAudioRecord(
@@ -54,17 +73,6 @@ let record = GeneratedAudioRecord(
 
 // Track AI request lifecycle
 let status = RequestStatus.executing(progress: 0.5)
-
-// Render screenplays in SwiftUI
-GuionViewer(screenplay: screenplay)
-
-// SwiftUI integration with progress
-@Published var progressFraction = 0.0
-let progress = OperationProgress(totalUnits: nil) { update in
-    Task { @MainActor in
-        self.progressFraction = update.fractionCompleted ?? 0.0
-    }
-}
 ```
 
 ---
@@ -774,25 +782,31 @@ for url in files {
 
 ### 4. Screenplay Models
 
-#### GuionParsedScreenplay
+#### GuionParsedElementCollection
 
-**Purpose**: In-memory representation of a parsed screenplay.
+**Purpose**: Main screenplay container and **recommended entry point for all screenplay parsing**.
+
+**✅ Recommended Practice**: Always use `GuionParsedElementCollection` instead of calling parsers (FountainParser, FDXParser) directly.
+
+**Why GuionParsedElementCollection?**
+- ✅ Unified API for all formats
+- ✅ Built-in progress reporting
+- ✅ Future-proof (new formats added here first)
+- ✅ Comprehensive error handling
 
 **Structure**:
 ```swift
-public struct GuionParsedScreenplay: Sendable {
+public final class GuionParsedElementCollection: Sendable {
+    public let filename: String?
     public let elements: [GuionElement]
-    public let titlePage: [String: String]
-    public let format: SerializationFormat
+    public let titlePage: [[String: [String]]]
+    public let suppressSceneNumbers: Bool
 
-    // Computed properties
-    public var scenes: [GuionElement] { /* ... */ }
-    public var characters: [CharacterInfo] { /* ... */ }
-    public var locations: [SceneLocation] { /* ... */ }
+    // Multiple init options with progress support
 }
 ```
 
-**Parse Fountain**:
+**✅ Parse Fountain (Recommended)**:
 ```swift
 let fountainText = """
 Title: My Screenplay
@@ -808,16 +822,42 @@ SARAH
 What a beautiful day.
 """
 
-let parser = FountainParser()
-let screenplay = parser.parse(fountainText)
+// ✅ Recommended: Use GuionParsedElementCollection with progress
+let progress = OperationProgress(totalUnits: nil) { update in
+    print("\(update.description): \(Int((update.fractionCompleted ?? 0) * 100))%")
+}
+
+let screenplay = try await GuionParsedElementCollection(
+    string: fountainText,
+    progress: progress
+)
+
+// Without progress (also valid)
+let screenplay = try await GuionParsedElementCollection(string: fountainText)
 
 // Access elements
 for element in screenplay.elements {
-    print("\(element.elementType): \(element.text)")
+    print("\(element.elementType): \(element.elementText)")
 }
 
 // Get scenes only
-let scenes = screenplay.scenes
+let scenes = screenplay.elements.filter { $0.elementType == .sceneHeading }
+```
+
+**❌ Avoid Direct Parser Usage**:
+```swift
+// DON'T do this - use GuionParsedElementCollection instead
+let parser = try await FountainParser(string: text, progress: progress)
+// Then manually work with parser.elements...
+```
+
+**Parse from File**:
+```swift
+// ✅ Recommended approach
+let screenplay = try await GuionParsedElementCollection(
+    file: "/path/to/script.fountain",
+    progress: progress
+)
 ```
 
 **Export FDX**:
@@ -848,23 +888,23 @@ public struct GuionElement: Identifiable, Sendable {
 }
 ```
 
-**ElementType**:
+**ElementType** (12 display types):
 ```swift
 public enum ElementType: Sendable {
-    case sceneHeading
-    case action
-    case character
-    case dialogue
-    case parenthetical
-    case transition
-    case sectionHeading(level: Int) // 1-6
-    case synopsis
-    case comment
-    case boneyard
-    case lyrics
-    case pageBreak
-    case titlePageKey(String)
-    case titlePageValue(String)
+    case sceneHeading      // INT./EXT. scene headings
+    case action            // Action descriptions
+    case character         // Character names in dialogue
+    case dialogue          // Character dialogue text
+    case parenthetical     // (parenthetical) directions
+    case transition        // CUT TO:, FADE OUT, etc.
+    case sectionHeading(level: Int) // # Section markers (1-6)
+    case synopsis          // = Synopsis/summary lines (NEW in 1.4.x)
+    case comment           // /* Comment text */
+    case boneyard          // /*  Commented-out content */
+    case lyrics            // ~ Song lyrics
+    case pageBreak         // === Page break marker
+    case titlePageKey(String)    // Title page metadata
+    case titlePageValue(String)  // Title page values
 }
 ```
 
@@ -1014,7 +1054,7 @@ let progress = OperationProgress(totalUnits: nil) { update in
     print(update.description)
 }
 
-let screenplay = try await GuionParsedScreenplay(
+let screenplay = try await GuionParsedElementCollection(
     file: fdxPath,
     progress: progress
 )
@@ -1036,7 +1076,7 @@ let progress = OperationProgress(totalUnits: 4) { update in
     print("\(update.description) (\(update.fractionCompleted ?? 0.0))")
 }
 
-let screenplay = try await GuionParsedScreenplay.readTextPack(
+let screenplay = try await GuionParsedElementCollection.readTextPack(
     at: bundleURL,
     progress: progress
 )
@@ -1290,11 +1330,11 @@ Progress reporting adds minimal overhead:
 
 ```swift
 // Without progress: 1.23s
-let screenplay = try await GuionParsedScreenplay(file: path, progress: nil)
+let screenplay = try await GuionParsedElementCollection(file: path, progress: nil)
 
 // With progress: 1.25s (~1.6% overhead)
 let progress = OperationProgress(totalUnits: nil)
-let screenplay = try await GuionParsedScreenplay(file: path, progress: progress)
+let screenplay = try await GuionParsedElementCollection(file: path, progress: progress)
 ```
 
 ---
@@ -1305,14 +1345,14 @@ let screenplay = try await GuionParsedScreenplay(file: path, progress: progress)
 
 ```swift
 // Before version 1.3.0 (still works)
-let parser = try GuionParsedScreenplay(file: path)
+let parser = try GuionParsedElementCollection(file: path)
 
 // Version 1.3.0+ with progress (new)
 let progress = OperationProgress(totalUnits: nil)
-let parser = try await GuionParsedScreenplay(file: path, progress: progress)
+let parser = try await GuionParsedElementCollection(file: path, progress: progress)
 
 // Version 1.3.0+ without progress (also works)
-let parser = try await GuionParsedScreenplay(file: path, progress: nil)
+let parser = try await GuionParsedElementCollection(file: path, progress: nil)
 ```
 
 **Migration**:
@@ -1411,6 +1451,380 @@ let progress = OperationProgress { update in
 ---
 
 ## Common Usage Patterns
+
+### UI Architecture Overview
+
+SwiftCompartido uses a **flat, list-based UI architecture** for displaying screenplay documents. This replaces the previous hierarchical widget system.
+
+**Architecture Principles:**
+- ✅ **Flat display** - Elements displayed sequentially in document order
+- ✅ **No hierarchy** - No grouping or nesting of elements
+- ✅ **Simple switch/case** - Each element type rendered by dedicated view
+- ✅ **SwiftData @Query** - Direct database queries, no intermediate models
+
+**Component Hierarchy:**
+```
+GuionViewer (thin wrapper)
+  └── GuionElementsList (@Query-based list)
+       └── Element Views (ActionView, DialogueTextView, etc.)
+```
+
+**Deprecated Components** (removed in 1.4.3):
+- ❌ SceneBrowserWidget - Replaced by GuionElementsList
+- ❌ ChapterWidget - No longer needed
+- ❌ SceneGroupWidget - No longer needed
+- ❌ Hierarchical grouping - Elements now flat
+
+**GuionViewer** - Top-level viewer (simplified from 479 lines to 52 lines):
+```swift
+public struct GuionViewer: View {
+    private let document: GuionDocumentModel
+
+    public init(document: GuionDocumentModel) {
+        self.document = document
+    }
+
+    public var body: some View {
+        GuionElementsList(document: document)
+    }
+}
+```
+
+**GuionElementsList** - SwiftData @Query-based list (NEW in 1.4.3):
+```swift
+public struct GuionElementsList: View {
+    @Query private var elements: [GuionElementModel]
+    @Environment(\.screenplayFontSize) var fontSize
+
+    // Display all elements
+    public init() {
+        _elements = Query()
+    }
+
+    // Filter to specific document
+    public init(document: GuionDocumentModel) {
+        let documentID = document.persistentModelID
+        _elements = Query(
+            filter: #Predicate<GuionElementModel> { element in
+                element.document?.persistentModelID == documentID
+            }
+        )
+    }
+
+    public var body: some View {
+        List {
+            ForEach(elements) { element in
+                switch element.elementType {
+                case .action: ActionView(element: element)
+                case .dialogue: DialogueTextView(element: element)
+                case .sceneHeading: SceneHeadingView(element: element)
+                case .character: DialogueCharacterView(element: element)
+                case .parenthetical: DialogueParentheticalView(element: element)
+                case .transition: TransitionView(element: element)
+                case .sectionHeading: SectionHeadingView(element: element)
+                case .synopsis: SynopsisView(element: element)
+                case .comment: CommentView(element: element)
+                case .boneyard: BoneyardView(element: element)
+                case .lyrics: DialogueLyricsView(element: element)
+                case .pageBreak: PageBreakView()
+                }
+            }
+        }
+        .listStyle(.plain)
+    }
+}
+```
+
+**Element Views** - Individual element components:
+
+All element views follow a consistent pattern and use proper screenplay formatting:
+
+```swift
+// ActionView - 10% left/right margins
+public struct ActionView: View {
+    let element: GuionElementModel
+    @Environment(\.screenplayFontSize) var fontSize
+
+    public var body: some View {
+        Text(element.elementText)
+            .font(.custom("Courier New", size: fontSize))
+            .foregroundStyle(.primary)
+            .textSelection(.enabled)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, 40) // 10% margins
+            .padding(.vertical, fontSize * 0.35)
+    }
+}
+
+// DialogueTextView - 25% left/right margins
+public struct DialogueTextView: View {
+    let element: GuionElementModel
+    @Environment(\.screenplayFontSize) var fontSize
+
+    public var body: some View {
+        HStack {
+            Spacer().frame(minWidth: 100) // 25% left margin
+            Text(element.elementText)
+                .font(.custom("Courier New", size: fontSize))
+                .foregroundStyle(.primary)
+                .textSelection(.enabled)
+                .frame(maxWidth: .infinity, alignment: .leading)
+            Spacer().frame(minWidth: 100) // 25% right margin
+        }
+        .padding(.horizontal, 20)
+    }
+}
+```
+
+**Available Element Views:**
+- `ActionView` - Action descriptions
+- `DialogueTextView` - Character dialogue
+- `DialogueCharacterView` - Character names
+- `DialogueParentheticalView` - (parenthetical) directions
+- `DialogueLyricsView` - Song lyrics
+- `SceneHeadingView` - Scene headings (INT./EXT.)
+- `TransitionView` - Scene transitions (CUT TO:, FADE OUT)
+- `SectionHeadingView` - Section markers
+- `SynopsisView` - Synopsis/summary text
+- `CommentView` - Comment/note text
+- `BoneyardView` - Commented-out content
+- `PageBreakView` - Page break marker
+
+**Screenplay Formatting Environment:**
+
+All views respect the `screenplayFontSize` environment value:
+
+```swift
+struct MyScreenplayView: View {
+    @State private var fontSize: CGFloat = 12
+
+    var body: some View {
+        GuionViewer(document: document)
+            .environment(\.screenplayFontSize, fontSize)
+    }
+}
+```
+
+---
+
+### Source File Tracking (NEW in 1.4.3)
+
+GuionDocumentModel now tracks the original source file and can detect when it has been modified, allowing you to prompt users to re-import the latest version.
+
+**Features:**
+- ✅ **Security-scoped bookmarks** - Maintains access across app launches
+- ✅ **Modification detection** - Detects when source file changes
+- ✅ **Automatic bookmark refresh** - Updates stale bookmarks automatically
+- ✅ **Status reporting** - Clear status enum for UI display
+
+**New Properties:**
+```swift
+@Model
+public final class GuionDocumentModel {
+    // Source file tracking (NEW in 1.4.3)
+    public var sourceFileBookmark: Data?
+    public var lastImportDate: Date?
+    public var sourceFileModificationDate: Date?
+
+    // ... existing properties
+}
+```
+
+**New Methods:**
+```swift
+// Set source file (creates security-scoped bookmark)
+public func setSourceFile(_ url: URL) -> Bool
+
+// Resolve bookmark to URL
+public func resolveSourceFileURL() -> URL?
+
+// Check if source file has been modified
+public func isSourceFileModified() -> Bool
+
+// Get detailed status
+public func sourceFileStatus() -> SourceFileStatus
+```
+
+**SourceFileStatus Enum:**
+```swift
+public enum SourceFileStatus: Sendable {
+    case noSourceFile          // No source file set
+    case fileNotAccessible     // Cannot resolve bookmark
+    case fileNotFound          // File moved/deleted
+    case modified              // File has been updated
+    case upToDate              // File is current
+
+    public var description: String { /* ... */ }
+    public var shouldPromptForUpdate: Bool {
+        return self == .modified
+    }
+}
+```
+
+**Usage Pattern - Set Source on Import:**
+```swift
+@MainActor
+func importScreenplay(from url: URL) async throws {
+    // 1. Parse the screenplay
+    let fountainText = try String(contentsOf: url)
+    let parser = FountainParser()
+    let screenplay = parser.parse(fountainText)
+
+    // 2. Convert to SwiftData
+    let document = await GuionDocumentParserSwiftData.parse(
+        script: screenplay,
+        in: modelContext,
+        generateSummaries: false
+    )
+
+    // 3. Set source file (creates bookmark and records dates)
+    let success = document.setSourceFile(url)
+    guard success else {
+        throw ImportError.cannotCreateBookmark
+    }
+
+    // 4. Save
+    try modelContext.save()
+}
+```
+
+**Usage Pattern - Check for Updates:**
+```swift
+@MainActor
+func checkForUpdates(document: GuionDocumentModel) async {
+    let status = document.sourceFileStatus()
+
+    switch status {
+    case .modified:
+        // Source file has changed - prompt user to update
+        showUpdateAlert {
+            try await reimportFromSource(document: document)
+        }
+
+    case .upToDate:
+        showMessage("Document is up to date")
+
+    case .noSourceFile:
+        // Document wasn't imported from a file
+        break
+
+    case .fileNotAccessible:
+        showError("Cannot access source file - permissions issue")
+
+    case .fileNotFound:
+        showError("Source file was moved or deleted")
+    }
+}
+```
+
+**Usage Pattern - Re-import from Source:**
+```swift
+@MainActor
+func reimportFromSource(document: GuionDocumentModel) async throws {
+    guard let sourceURL = document.resolveSourceFileURL() else {
+        throw ImportError.sourceFileNotFound
+    }
+
+    // Start security-scoped access
+    let accessing = sourceURL.startAccessingSecurityScopedResource()
+    defer {
+        if accessing {
+            sourceURL.stopAccessingSecurityScopedResource()
+        }
+    }
+
+    // Parse the updated file
+    let fountainText = try String(contentsOf: sourceURL)
+    let parser = FountainParser()
+    let screenplay = parser.parse(fountainText)
+
+    // Clear existing elements
+    for element in document.elements {
+        modelContext.delete(element)
+    }
+    document.elements.removeAll()
+
+    // Import new elements
+    for element in screenplay.elements {
+        let newElement = GuionElementModel(from: element)
+        newElement.document = document
+        document.elements.append(newElement)
+    }
+
+    // Update source file metadata
+    document.setSourceFile(sourceURL)
+
+    try modelContext.save()
+}
+```
+
+**SwiftUI Integration:**
+```swift
+struct DocumentUpdateAlert: View {
+    let document: GuionDocumentModel
+    @State private var showingAlert = false
+
+    var body: some View {
+        GuionViewer(document: document)
+            .onAppear {
+                checkForUpdates()
+            }
+            .alert("Update Available", isPresented: $showingAlert) {
+                Button("Update Now") {
+                    Task {
+                        await reimportFromSource()
+                    }
+                }
+                Button("Dismiss", role: .cancel) {}
+            } message: {
+                Text("The source file has been modified. Would you like to update to the latest version?")
+            }
+    }
+
+    func checkForUpdates() {
+        showingAlert = document.isSourceFileModified()
+    }
+}
+
+// Status badge for document list
+struct DocumentStatusBadge: View {
+    let document: GuionDocumentModel
+
+    var body: some View {
+        let status = document.sourceFileStatus()
+
+        if status.shouldPromptForUpdate {
+            Label("Update Available", systemImage: "arrow.triangle.2.circlepath")
+                .font(.caption)
+                .foregroundStyle(.orange)
+        }
+    }
+}
+```
+
+**Security Considerations:**
+
+For sandboxed macOS apps:
+1. User must select file via open panel
+2. Security-scoped bookmarks required to maintain access
+3. Always use `startAccessingSecurityScopedResource()` / `stopAccessingSecurityScopedResource()`
+
+```swift
+// Security-scoped access pattern
+if let url = document.resolveSourceFileURL() {
+    let accessing = url.startAccessingSecurityScopedResource()
+    defer {
+        if accessing {
+            url.stopAccessingSecurityScopedResource()
+        }
+    }
+
+    // Work with the file
+    let data = try Data(contentsOf: url)
+}
+```
+
+---
 
 ### Pattern 1: Complete AI Text Generation Workflow
 
@@ -1558,19 +1972,26 @@ class TTSViewModel {
 
 ---
 
-### Pattern 3: Screenplay Parsing and Rendering
+### Pattern 3: Screenplay Parsing and Viewing with SwiftData
 
 ```swift
+@MainActor
 struct ScreenplayView: View {
+    @Environment(\.modelContext) private var modelContext
     let fountainURL: URL
-    @State private var screenplay: GuionParsedScreenplay?
+    @State private var document: GuionDocumentModel?
+    @State private var isLoading = false
+    @State private var error: Error?
 
     var body: some View {
         Group {
-            if let screenplay {
-                GuionViewer(screenplay: screenplay)
-            } else {
-                ProgressView("Loading screenplay...")
+            if let document {
+                GuionViewer(document: document)
+            } else if isLoading {
+                ProgressView("Parsing screenplay...")
+            } else if let error {
+                Text("Error: \(error.localizedDescription)")
+                    .foregroundStyle(.red)
             }
         }
         .task {
@@ -1579,13 +2000,66 @@ struct ScreenplayView: View {
     }
 
     func loadScreenplay() async {
+        isLoading = true
+        defer { isLoading = false }
+
         do {
+            // 1. Parse Fountain file
             let fountainText = try String(contentsOf: fountainURL)
             let parser = FountainParser()
-            screenplay = parser.parse(fountainText)
+            let screenplay = parser.parse(fountainText)
+
+            // 2. Convert to SwiftData
+            let doc = await GuionDocumentParserSwiftData.parse(
+                script: screenplay,
+                in: modelContext,
+                generateSummaries: false
+            )
+
+            // 3. Save and display
+            try modelContext.save()
+            document = doc
+
         } catch {
-            print("Error loading screenplay: \(error)")
+            self.error = error
         }
+    }
+}
+```
+
+### Pattern 3b: Viewing Existing SwiftData Documents
+
+```swift
+struct DocumentListView: View {
+    @Query private var documents: [GuionDocumentModel]
+
+    var body: some View {
+        List(documents) { document in
+            NavigationLink(document.title ?? "Untitled") {
+                GuionViewer(document: document)
+            }
+        }
+    }
+}
+```
+
+### Pattern 3c: Custom Element List View
+
+```swift
+struct CustomSceneView: View {
+    let scene: SceneModel
+
+    var body: some View {
+        // GuionElementsList can filter to specific document
+        GuionElementsList(document: scene.document)
+            .navigationTitle(scene.heading)
+    }
+}
+
+// Or display all elements without filtering
+struct AllElementsView: View {
+    var body: some View {
+        GuionElementsList() // Shows all elements from all documents
     }
 }
 ```
@@ -1986,7 +2460,7 @@ class NarrationSystem {
     var audioQueue: [GeneratedAudioRecord] = []
     var currentIndex = 0
 
-    func narrateScreenplay(_ screenplay: GuionParsedScreenplay) async throws {
+    func narrateScreenplay(_ screenplay: GuionParsedElementCollection) async throws {
         // 1. Extract dialogue elements
         let dialogueElements = screenplay.elements.filter {
             $0.elementType == .dialogue
@@ -2340,12 +2814,13 @@ Storing content?
 
 - **Repository**: https://github.com/intrusive-memory/SwiftCompartido
 - **Issues**: https://github.com/intrusive-memory/SwiftCompartido/issues
-- **Version**: 1.3.0
+- **Version**: 1.4.3
+- **Test Coverage**: 314 tests in 22 suites, 95%+ coverage
 - **License**: MIT
 
 ---
 
 **End of AI Reference Guide**
 
-Last updated: 2025-10-19
-Document version: 1.3.0
+Last updated: 2025-10-20
+Document version: 1.4.3

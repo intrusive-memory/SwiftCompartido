@@ -158,7 +158,7 @@ final class SceneBrowserTests: XCTestCase {
         // Load test.fountain fixture
         let fountainPath = try Fijos.getFixture("test", extension: "fountain").path
 
-        let script = try GuionParsedScreenplay(file: fountainPath)
+        let script = try GuionParsedElementCollection(file: fountainPath)
         let browserData = script.extractSceneBrowserData()
 
         // Verify title exists
@@ -178,7 +178,7 @@ final class SceneBrowserTests: XCTestCase {
     func testSceneGroupsInChapter() throws {
         let fountainPath = try Fijos.getFixture("test", extension: "fountain").path
 
-        let script = try GuionParsedScreenplay(file: fountainPath)
+        let script = try GuionParsedElementCollection(file: fountainPath)
         let browserData = script.extractSceneBrowserData()
 
         guard let firstChapter = browserData.chapters.first else {
@@ -199,7 +199,7 @@ final class SceneBrowserTests: XCTestCase {
     func testScenesInSceneGroup() throws {
         let fountainPath = try Fijos.getFixture("test", extension: "fountain").path
 
-        let script = try GuionParsedScreenplay(file: fountainPath)
+        let script = try GuionParsedElementCollection(file: fountainPath)
         let browserData = script.extractSceneBrowserData()
 
         guard let firstChapter = browserData.chapters.first,
@@ -222,7 +222,7 @@ final class SceneBrowserTests: XCTestCase {
     func testOverBlackAttachmentToNextScene() throws {
         let fountainPath = try Fijos.getFixture("test", extension: "fountain").path
 
-        let script = try GuionParsedScreenplay(file: fountainPath)
+        let script = try GuionParsedElementCollection(file: fountainPath)
         let browserData = script.extractSceneBrowserData()
 
         // Find a scene with preScene content
@@ -249,7 +249,7 @@ final class SceneBrowserTests: XCTestCase {
     func testSceneDirectiveMetadata() throws {
         let fountainPath = try Fijos.getFixture("test", extension: "fountain").path
 
-        let script = try GuionParsedScreenplay(file: fountainPath)
+        let script = try GuionParsedElementCollection(file: fountainPath)
         let browserData = script.extractSceneBrowserData()
 
         // Look for scene groups with directives
@@ -276,7 +276,7 @@ final class SceneBrowserTests: XCTestCase {
     // MARK: - Edge Cases
 
     func testEmptyScript() {
-        let script = GuionParsedScreenplay()
+        let script = GuionParsedElementCollection()
         let browserData = script.extractSceneBrowserData()
 
         // Empty script may have a default "Untitled Script" title from outline generation
@@ -286,7 +286,7 @@ final class SceneBrowserTests: XCTestCase {
 
     func testScriptWithOnlyTitle() throws {
         let content = "# Test Title\n"
-        let script = try GuionParsedScreenplay(string: content)
+        let script = try GuionParsedElementCollection(string: content)
         let browserData = script.extractSceneBrowserData()
 
         XCTAssertNotNil(browserData.title)
@@ -297,7 +297,7 @@ final class SceneBrowserTests: XCTestCase {
         let fountainPath = try Fijos.getFixture("test", extension: "fountain").path
         print("\n=== DEBUG: Loading file from: \(fountainPath) ===")
 
-        let script = try GuionParsedScreenplay(file: fountainPath)
+        let script = try GuionParsedElementCollection(file: fountainPath)
         print("Loaded \(script.elements.count) elements")
 
         // Debug: Check for Section Headings
