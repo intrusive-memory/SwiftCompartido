@@ -69,13 +69,15 @@ struct FileIOProgressTests {
         let record = GeneratedAudioRecord(
             providerId: "elevenlabs",
             requestorID: "tts.test",
-            audioData: nil,
-            format: "mp3",
+            mimeType: "audio/mpeg",
+            binaryValue: nil,
+            prompt: "Test",
+            audioFormat: "mp3",
             voiceID: "test-voice",
             voiceName: "Test Voice"
         )
 
-        try await record.saveAudio(audioData, to: storage, mode: .local, progress: progress)
+        try await record.saveBinary(audioData, to: storage, fileName: "audio.mp3", mode: .local, progress: progress)
 
         // Wait for async updates
         try await Task.sleep(for: .milliseconds(100))
@@ -122,13 +124,15 @@ struct FileIOProgressTests {
         let record = GeneratedAudioRecord(
             providerId: "elevenlabs",
             requestorID: "tts.test",
-            audioData: nil,
-            format: "mp3",
+            mimeType: "audio/mpeg",
+            binaryValue: nil,
+            prompt: "Test",
+            audioFormat: "mp3",
             voiceID: "test-voice",
             voiceName: "Test Voice"
         )
 
-        try await record.saveAudio(audioData, to: storage, mode: .local, progress: progress)
+        try await record.saveBinary(audioData, to: storage, fileName: "audio.mp3", mode: .local, progress: progress)
 
         // Wait for async updates to propagate
         try await Task.sleep(for: .milliseconds(500))
@@ -139,7 +143,8 @@ struct FileIOProgressTests {
         #expect(chunkCount > 0, "Should write with progress updates")
 
         // Verify file was written correctly in chunks (file size check)
-        let fileURL = storage.defaultDataFileURL(extension: "mp3")
+        #expect(record.fileReference != nil, "Should create file reference")
+        let fileURL = record.fileReference!.fileURL(in: storage)
         let fileSize = try FileManager.default.attributesOfItem(atPath: fileURL.path)[.size] as? Int64
         #expect(fileSize == Int64(audioData.count), "Should write complete file")
 
@@ -175,13 +180,14 @@ struct FileIOProgressTests {
         let record = GeneratedImageRecord(
             providerId: "openai",
             requestorID: "dalle.test",
-            imageData: nil,
-            format: "png",
+            mimeType: "image/png",
+            binaryValue: nil,
+            prompt: "Test",
             width: 1024,
             height: 1024
         )
 
-        try await record.saveImage(imageData, to: storage, mode: .local, progress: progress)
+        try await record.saveBinary(imageData, to: storage, fileName: "image.png", mode: .local, progress: progress)
 
         // Wait for async updates
         try await Task.sleep(for: .milliseconds(100))
@@ -228,13 +234,14 @@ struct FileIOProgressTests {
         let record = GeneratedImageRecord(
             providerId: "openai",
             requestorID: "dalle.test",
-            imageData: nil,
-            format: "png",
+            mimeType: "image/png",
+            binaryValue: nil,
+            prompt: "Test",
             width: 2048,
             height: 2048
         )
 
-        try await record.saveImage(imageData, to: storage, mode: .local, progress: progress)
+        try await record.saveBinary(imageData, to: storage, fileName: "image.png", mode: .local, progress: progress)
 
         // Wait for async updates to propagate
         try await Task.sleep(for: .milliseconds(500))
@@ -245,7 +252,8 @@ struct FileIOProgressTests {
         #expect(updateCount > 0, "Should write with progress updates")
 
         // Verify file was written correctly
-        let fileURL = storage.defaultDataFileURL(extension: "png")
+        #expect(record.fileReference != nil, "Should create file reference")
+        let fileURL = record.fileReference!.fileURL(in: storage)
         let fileSize = try FileManager.default.attributesOfItem(atPath: fileURL.path)[.size] as? Int64
         #expect(fileSize == Int64(imageData.count), "Should write complete file")
 
@@ -261,15 +269,17 @@ struct FileIOProgressTests {
         let record = GeneratedAudioRecord(
             providerId: "elevenlabs",
             requestorID: "tts.test",
-            audioData: nil,
-            format: "mp3",
+            mimeType: "audio/mpeg",
+            binaryValue: nil,
+            prompt: "Test",
+            audioFormat: "mp3",
             voiceID: "test-voice",
             voiceName: "Test Voice"
         )
 
         let task = Task {
             let progress = OperationProgress(totalUnits: nil)
-            try await record.saveAudio(audioData, to: storage, mode: .local, progress: progress)
+            try await record.saveBinary(audioData, to: storage, fileName: "audio.mp3", mode: .local, progress: progress)
         }
 
         // Cancel quickly
@@ -298,15 +308,16 @@ struct FileIOProgressTests {
         let record = GeneratedImageRecord(
             providerId: "openai",
             requestorID: "dalle.test",
-            imageData: nil,
-            format: "png",
+            mimeType: "image/png",
+            binaryValue: nil,
+            prompt: "Test",
             width: 4096,
             height: 4096
         )
 
         let task = Task {
             let progress = OperationProgress(totalUnits: nil)
-            try await record.saveImage(imageData, to: storage, mode: .local, progress: progress)
+            try await record.saveBinary(imageData, to: storage, fileName: "image.png", mode: .local, progress: progress)
         }
 
         // Cancel quickly
@@ -356,13 +367,15 @@ struct FileIOProgressTests {
         let record = GeneratedAudioRecord(
             providerId: "elevenlabs",
             requestorID: "tts.test",
-            audioData: nil,
-            format: "mp3",
+            mimeType: "audio/mpeg",
+            binaryValue: nil,
+            prompt: "Test",
+            audioFormat: "mp3",
             voiceID: "test-voice",
             voiceName: "Test Voice"
         )
 
-        try await record.saveAudio(audioData, to: storage, mode: .cloudKit, progress: progress)
+        try await record.saveBinary(audioData, to: storage, fileName: "audio.mp3", mode: .cloudKit, progress: progress)
 
         // Wait for async updates to propagate
         try await Task.sleep(for: .milliseconds(500))
@@ -370,7 +383,7 @@ struct FileIOProgressTests {
         let descriptions = await collector.getDescriptions()
 
         // Verify CloudKit asset was set (more reliable than checking descriptions due to async timing)
-        #expect(record.cloudKitAudioAsset != nil, "Should set CloudKit asset")
+        #expect(record.cloudKitAsset != nil, "Should set CloudKit asset")
         #expect(record.syncStatus == .pending, "Should mark as pending sync")
         #expect(record.storageMode == .cloudKit, "Should use CloudKit storage mode")
 
@@ -406,13 +419,14 @@ struct FileIOProgressTests {
         let record = GeneratedImageRecord(
             providerId: "openai",
             requestorID: "dalle.test",
-            imageData: nil,
-            format: "png",
+            mimeType: "image/png",
+            binaryValue: nil,
+            prompt: "Test",
             width: 1024,
             height: 1024
         )
 
-        try await record.saveImage(imageData, to: storage, mode: .hybrid, progress: progress)
+        try await record.saveBinary(imageData, to: storage, fileName: "image.png", mode: .hybrid, progress: progress)
 
         // Wait for async updates
         try await Task.sleep(for: .milliseconds(100))
@@ -421,7 +435,7 @@ struct FileIOProgressTests {
 
         // Verify both local and CloudKit storage
         #expect(record.fileReference != nil, "Should create local file reference")
-        #expect(record.cloudKitImageAsset != nil, "Should set CloudKit asset")
+        #expect(record.cloudKitAsset != nil, "Should set CloudKit asset")
         #expect(record.storageMode == .hybrid, "Should be hybrid mode")
 
         if let final = finalUpdate {
@@ -459,18 +473,20 @@ struct FileIOProgressTests {
         let record = GeneratedAudioRecord(
             providerId: "elevenlabs",
             requestorID: "tts.test",
-            audioData: nil,
-            format: "mp3",
+            mimeType: "audio/mpeg",
+            binaryValue: nil,
+            prompt: "Test",
+            storageMode: .cloudKit,
+            audioFormat: "mp3",
             voiceID: "test-voice",
-            voiceName: "Test Voice",
-            storageMode: .cloudKit
+            voiceName: "Test Voice"
         )
 
         // Simulate CloudKit asset
-        record.cloudKitAudioAsset = audioData
+        record.cloudKitAsset = audioData
         record.cloudKitRecordID = "test-record-id"
 
-        let loaded = try await record.loadAudio(from: nil, progress: progress)
+        let loaded = try record.getBinary(from: nil, progress: progress)
 
         // Wait for async updates
         try await Task.sleep(for: .milliseconds(50))
@@ -509,13 +525,15 @@ struct FileIOProgressTests {
         let record = GeneratedAudioRecord(
             providerId: "elevenlabs",
             requestorID: "tts.test",
-            audioData: nil,
-            format: "mp3",
+            mimeType: "audio/mpeg",
+            binaryValue: nil,
+            prompt: "Test",
+            audioFormat: "mp3",
             voiceID: "test-voice",
             voiceName: "Test Voice"
         )
 
-        try await record.saveAudio(audioData, to: storage, mode: .local, progress: nil)
+        try await record.saveBinary(audioData, to: storage, fileName: "audio.mp3", mode: .local, progress: nil)
 
         // Now load with progress
         let collector = ProgressCollector()
@@ -525,7 +543,7 @@ struct FileIOProgressTests {
             }
         }
 
-        let loaded = try await record.loadAudio(from: storage, progress: loadProgress)
+        let loaded = try record.getBinary(from: storage, progress: loadProgress)
 
         // Wait for async updates
         try await Task.sleep(for: .milliseconds(100))
@@ -563,13 +581,14 @@ struct FileIOProgressTests {
         let record = GeneratedImageRecord(
             providerId: "openai",
             requestorID: "dalle.test",
-            imageData: nil,
-            format: "png",
+            mimeType: "image/png",
+            binaryValue: nil,
+            prompt: "Test",
             width: 2048,
             height: 2048
         )
 
-        try await record.saveImage(imageData, to: storage, mode: .local, progress: nil)
+        try await record.saveBinary(imageData, to: storage, fileName: "image.png", mode: .local, progress: nil)
 
         // Now load with progress
         let collector = ProgressCollector()
@@ -579,7 +598,7 @@ struct FileIOProgressTests {
             }
         }
 
-        let loaded = try await record.loadImage(from: storage, progress: loadProgress)
+        let loaded = try record.getBinary(from: storage, progress: loadProgress)
 
         // Wait for async updates
         try await Task.sleep(for: .milliseconds(100))
@@ -608,19 +627,21 @@ struct FileIOProgressTests {
         let record = GeneratedAudioRecord(
             providerId: "elevenlabs",
             requestorID: "tts.test",
-            audioData: nil,
-            format: "mp3",
+            mimeType: "audio/mpeg",
+            binaryValue: nil,
+            prompt: "Test",
+            audioFormat: "mp3",
             voiceID: "test-voice",
             voiceName: "Test Voice"
         )
 
         // Save with nil progress
-        try await record.saveAudio(audioData, to: storage, mode: .local, progress: nil)
+        try await record.saveBinary(audioData, to: storage, fileName: "audio.mp3", mode: .local, progress: nil)
 
         #expect(record.fileReference != nil, "Should save without progress")
 
         // Load with nil progress
-        let loaded = try await record.loadAudio(from: storage, progress: nil)
+        let loaded = try record.getBinary(from: storage)
 
         #expect(loaded.count == audioData.count, "Should load without progress")
 
@@ -657,13 +678,15 @@ struct FileIOProgressTests {
         let record = GeneratedAudioRecord(
             providerId: "elevenlabs",
             requestorID: "tts.test",
-            audioData: nil,
-            format: "mp3",
+            mimeType: "audio/mpeg",
+            binaryValue: nil,
+            prompt: "Test",
+            audioFormat: "mp3",
             voiceID: "test-voice",
             voiceName: "Test Voice"
         )
 
-        try await record.saveAudio(audioData, to: storage, mode: .local, progress: progress)
+        try await record.saveBinary(audioData, to: storage, fileName: "audio.mp3", mode: .local, progress: progress)
 
         // Wait for async updates
         try await Task.sleep(for: .milliseconds(100))

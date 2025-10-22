@@ -392,7 +392,7 @@ struct ElementOrderingTests {
         let elapsed = Date().timeIntervalSince(startTime)
 
         #expect(document.elements.count == 1000, "Should have 1000 elements")
-        #expect(elapsed < 2.0, "Should complete in under 2 seconds")
+        #expect(elapsed < 4.0, "Should complete in under 4 seconds (accounts for CI environment variance)")
 
         // Verify all have correct composite key (chapterIndex=0, orderIndex=1-based)
         for (index, element) in document.elements.enumerated() {

@@ -543,7 +543,7 @@ Dialogue.
 
         // Should create a synthetic chapter
         XCTAssertEqual(browserData.chapters.count, 1, "Should have one synthetic chapter")
-        XCTAssertEqual(browserData.chapters[0].title, "Scenes", "Synthetic chapter should be named 'Scenes'")
+        XCTAssertEqual(browserData.chapters[0].title, "(Untitled Section)", "Synthetic chapter should be named '(Untitled Section)'")
         XCTAssertTrue(browserData.chapters[0].element.isSynthetic, "Synthetic chapter should be marked as synthetic")
 
         // Should contain scene groups

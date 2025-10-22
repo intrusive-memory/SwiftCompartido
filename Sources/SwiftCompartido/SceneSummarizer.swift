@@ -61,13 +61,8 @@ public class SceneSummarizer {
     /// - Returns: A concise summary of the scene
     public static func summarize(_ sceneText: String) async -> String? {
         #if canImport(FoundationModels)
-        // For iOS 26+ / macOS 26+ with Foundation Models framework
-        if #available(iOS 26.0, macOS 26.0, *) {
-            return await summarizeWithFoundationModels(sceneText)
-        } else {
-            // Fallback for older OS versions
-            return extractiveSummarize(sceneText)
-        }
+        // For macOS 26+ with Foundation Models framework
+        return await summarizeWithFoundationModels(sceneText)
         #else
         // Fallback for platforms without Foundation Models framework
         return extractiveSummarize(sceneText)
@@ -75,7 +70,6 @@ public class SceneSummarizer {
     }
 
     #if canImport(FoundationModels)
-    @available(iOS 26.0, macOS 26.0, *)
     private static func summarizeWithFoundationModels(_ text: String) async -> String? {
         // Use Apple's Foundation Models framework for intelligent summarization
         // The framework provides access to the ~3B parameter on-device language model

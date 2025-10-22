@@ -4,7 +4,7 @@
     <img src="https://img.shields.io/badge/Swift-6.2+-orange.svg" />
     <img src="https://img.shields.io/badge/Platform-macOS%2026.0+%20|%20iOS%2026.0+%20|%20Mac%20Catalyst-lightgrey.svg" />
     <img src="https://img.shields.io/badge/License-MIT-blue.svg" />
-    <img src="https://img.shields.io/badge/Version-2.0.0-blue.svg" />
+    <img src="https://img.shields.io/badge/Version-2.1.0-blue.svg" />
 </p>
 
 **SwiftCompartido** is a comprehensive Swift package for screenplay management, AI-generated content storage, and document serialization. Built with SwiftData, SwiftUI, and modern Swift concurrency.
@@ -27,10 +27,13 @@
 - **Comprehensive Errors**: `AIServiceError` with recovery suggestions
 
 ### 💾 Generated Content Models
+- **Unified TypedDataStorage** (NEW in 2.0.1): Single model for all AI-generated content types
+- **MIME-Type Routing**: Automatically handles text/*, image/*, audio/*, application/x-embedding
 - **File-Based Architecture**: Efficient storage for large audio, images, and embeddings
 - **SwiftData Integration**: Persistent models with Phase 6 architecture
-- **Flexible Storage**: Support both in-memory and file-based approaches
+- **Smart Storage**: In-memory for small content (<10KB), file-based for large content
 - **Complete Metadata**: Track prompts, providers, usage, and timestamps
+- **Backward Compatible**: Legacy type aliases preserved for existing code
 
 ### ☁️ CloudKit Sync Support
 - **Dual Storage**: Seamlessly sync between local `.guion` bundles and CloudKit
@@ -42,9 +45,12 @@
 ### 🎨 UI Components
 - **GuionViewer**: Screenplay rendering with proper formatting (simplified in 1.4.3)
 - **GuionElementsList**: Flat, @Query-based element list display (NEW in 1.4.3)
+- **GeneratedContentListView**: Master-detail browser for AI-generated content with MIME filtering (NEW in 2.1.0)
+- **TypedDataDetailView**: Automatic content viewer with MIME type routing (NEW in 2.1.0)
+- **TypedDataRowView**: Compact list rows with type-specific metadata (NEW in 2.1.0)
 - **Source File Tracking**: Automatic detection of external file changes (NEW in 1.4.3)
 - **TextConfigurationView**: AI text generation settings
-- **AudioPlayerManager**: Waveform visualization and playback
+- **AudioPlayerManager**: Waveform visualization and playback with TypedDataStorage support (enhanced in 2.1.0)
 - **No Visible Separators**: Clean flow between screenplay elements (NEW in 2.0.0)
 - **Mac Catalyst Support**: Full compatibility across macOS, iOS, and Mac Catalyst (NEW in 2.0.0)
 
@@ -54,7 +60,7 @@
 - **Cancellation Support**: All operations support `Task` cancellation with cleanup
 - **Performance Optimized**: <2% overhead, batched updates, thread-safe
 - **Backward Compatible**: Optional progress parameter - existing code unchanged
-- **363 Tests**: Full test coverage across 25 test suites
+- **397 Tests**: Full test coverage across 27 test suites
 
 ## Quick Start
 
@@ -116,13 +122,15 @@ import SwiftData
 
 @MainActor
 func storeGeneratedText(_ text: String, prompt: String, modelContext: ModelContext) throws {
-    let record = GeneratedTextRecord(
+    // NEW in 2.0.1: Use TypedDataStorage directly (or GeneratedTextRecord alias)
+    let record = TypedDataStorage(
         providerId: "openai",
         requestorID: "gpt-4",
-        text: text,
+        mimeType: "text/plain",
+        textValue: text,
+        prompt: prompt,
         wordCount: text.split(separator: " ").count,
-        characterCount: text.count,
-        prompt: prompt
+        characterCount: text.count
     )
 
     modelContext.insert(record)
@@ -159,16 +167,18 @@ func generateAndPlayAudio(text: String) async throws {
         mimeType: "audio/mpeg"
     )
 
-    // 5. Create record
-    let record = GeneratedAudioRecord(
+    // 5. Create record (NEW in 2.0.1: Use TypedDataStorage)
+    let record = TypedDataStorage(
+        id: requestID,
         providerId: "elevenlabs",
         requestorID: "tts.rachel",
-        audioData: nil, // File-based storage
-        format: "mp3",
-        voiceID: "rachel",
-        voiceName: "Rachel",
+        mimeType: "audio/mpeg",
+        binaryValue: nil, // File-based storage
         prompt: text,
-        fileReference: fileRef
+        fileReference: fileRef,
+        audioFormat: "mp3",
+        voiceID: "rachel",
+        voiceName: "Rachel"
     )
 
     // 6. Save to database
@@ -203,6 +213,56 @@ struct AllElementsView: View {
         GuionElementsList() // No document filter
     }
 }
+```
+
+#### Browse and Preview Generated Content
+
+```swift
+import SwiftCompartido
+import SwiftUI
+
+@available(macOS 15.0, iOS 17.0, *)
+struct GeneratedContentView: View {
+    @StateObject private var audioPlayer = AudioPlayerManager()
+    let document: GuionDocumentModel
+    let storageArea: StorageAreaReference?
+
+    var body: some View {
+        GeneratedContentListView(
+            document: document,
+            storageArea: storageArea
+        )
+        .environmentObject(audioPlayer)
+    }
+}
+
+// Features:
+// - MIME type filtering (All, Text, Audio, Image, Video, Embedding)
+// - Preview pane with automatic viewer routing
+// - Automatic audio playback when selecting audio items
+// - Content sorted by screenplay order (chapterIndex, orderIndex)
+// - Compact rows with type-specific metadata
+```
+
+#### Access Generated Content Programmatically
+
+```swift
+import SwiftCompartido
+
+// Get all element-owned generated content in screenplay order
+let allContent = document.sortedElementGeneratedContent
+
+// Filter by MIME type
+let audioContent = document.sortedElementGeneratedContent(mimeTypePrefix: "audio/")
+let imageContent = document.sortedElementGeneratedContent(mimeTypePrefix: "image/")
+let textContent = document.sortedElementGeneratedContent(mimeTypePrefix: "text/")
+
+// Filter by element type
+let dialogueContent = document.sortedElementGeneratedContent(for: .dialogue)
+let sceneContent = document.sortedElementGeneratedContent(for: .sceneHeading)
+
+// All content is returned sorted by (chapterIndex, orderIndex)
+// Performance: <100ms for 100+ elements
 ```
 
 #### Progress Reporting for Long Operations
@@ -264,11 +324,13 @@ import SwiftData
 // Local-only container (no CloudKit)
 let container = try SwiftCompartidoContainer.makeLocalContainer()
 
-// Create record with default local storage
-let record = GeneratedTextRecord(
+// Create record with default local storage (NEW in 2.0.1: Use TypedDataStorage)
+let record = TypedDataStorage(
     providerId: "openai",
     requestorID: "gpt-4",
-    text: "Generated content",
+    mimeType: "text/plain",
+    textValue: "Generated content",
+    prompt: "Generate",
     wordCount: 2,
     characterCount: 17
     // storageMode defaults to .local
@@ -290,14 +352,16 @@ let container = try SwiftCompartidoContainer.makeCloudKitPrivateContainer(
     containerIdentifier: "iCloud.com.yourcompany.YourApp"
 )
 
-// Create record with CloudKit storage
-let record = GeneratedTextRecord(
+// Create record with CloudKit storage (NEW in 2.0.1: Use TypedDataStorage)
+let record = TypedDataStorage(
     providerId: "openai",
     requestorID: "gpt-4",
-    text: "Synced content",
+    mimeType: "text/plain",
+    textValue: "Synced content",
+    prompt: "Generate",
+    storageMode: .cloudKit,  // Enable CloudKit sync
     wordCount: 2,
-    characterCount: 13,
-    storageMode: .cloudKit  // Enable CloudKit sync
+    characterCount: 13
 )
 
 modelContext.insert(record)
@@ -313,25 +377,29 @@ func saveAudioWithCloudKitSync() throws {
     let storage = StorageAreaReference.temporary(requestID: requestID)
     let audioData = Data(/* your audio data */)
 
-    let record = GeneratedAudioRecord(
+    // NEW in 2.0.1: Use TypedDataStorage
+    let record = TypedDataStorage(
         id: requestID,
         providerId: "elevenlabs",
         requestorID: "tts.rachel",
-        audioData: nil,
-        format: "mp3",
+        mimeType: "audio/mpeg",
+        binaryValue: nil,
+        prompt: "Generate speech",
+        audioFormat: "mp3",
         voiceID: "rachel",
         voiceName: "Rachel"
     )
 
     // Saves to BOTH local file AND CloudKit
-    try record.saveAudio(audioData, to: storage, mode: .hybrid)
+    // Automatically populates cloudKitAsset and sets syncStatus to .pending
+    try record.saveBinary(audioData, to: storage, fileName: "audio.mp3", mode: .hybrid)
 
     modelContext.insert(record)
     try modelContext.save()
 }
 
-// Loading automatically tries CloudKit first, then falls back to local
-let audioData = try record.loadAudio(from: storage)
+// Loading automatically tries CloudKit first, then in-memory, then file
+let audioData = try record.getBinary(from: storage)
 ```
 
 #### CloudKit Sync - Check Availability

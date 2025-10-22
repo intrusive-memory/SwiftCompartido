@@ -146,6 +146,14 @@ public final class GuionDocumentModel {
     @Relationship(deleteRule: .cascade, inverse: \TitlePageEntryModel.document)
     public var titlePage: [TitlePageEntryModel]
 
+    /// Generated AI content associated with this document
+    ///
+    /// Examples:
+    /// - Document-level embeddings for semantic search
+    /// - Auto-generated summaries
+    /// - Generated cover images
+    public var generatedContent: [TypedDataStorage]?
+
     // MARK: - Source File Tracking (NEW in 1.4.3)
 
     /// Security-scoped bookmark to the original source file
@@ -199,6 +207,132 @@ public final class GuionDocumentModel {
             guard let location = element.cachedSceneLocation else { return nil }
             return (element, location)
         }
+    }
+
+    // MARK: - Generated Content Access (NEW in 2.0.1)
+
+    /// Get all TypedDataStorage items owned by elements in this document, sorted by element order
+    ///
+    /// This computed property returns all AI-generated content (audio, images, embeddings, etc.)
+    /// that is associated with screenplay elements in this document, maintaining the element's
+    /// dual order index (chapterIndex, orderIndex).
+    ///
+    /// - Returns: Array of TypedDataStorage items sorted by owning element's (chapterIndex, orderIndex)
+    ///
+    /// ## Usage
+    ///
+    /// ```swift
+    /// // Get all generated content for a document in screenplay order
+    /// let generatedContent = document.sortedElementGeneratedContent
+    ///
+    /// // Display content with element context
+    /// for item in generatedContent {
+    ///     if let element = item.owningElement {
+    ///         print("Chapter \(element.chapterIndex), Position \(element.orderIndex):")
+    ///         print("  Content type: \(item.mimeType)")
+    ///         print("  Prompt: \(item.prompt)")
+    ///     }
+    /// }
+    ///
+    /// // Get only audio content
+    /// let audioContent = generatedContent.filter { $0.mimeType.hasPrefix("audio/") }
+    /// ```
+    ///
+    /// - Note: This only includes content owned by elements, not document-level content.
+    ///   For document-level content, use the `generatedContent` property directly.
+    ///
+    /// - SeeAlso: `generatedContent`, `sortedElements`
+    public var sortedElementGeneratedContent: [TypedDataStorage] {
+        // Collect all generated content from all elements
+        var allContent: [(storage: TypedDataStorage, chapterIndex: Int, orderIndex: Int)] = []
+
+        for element in elements {
+            if let content = element.generatedContent {
+                for item in content {
+                    allContent.append((
+                        storage: item,
+                        chapterIndex: element.chapterIndex,
+                        orderIndex: element.orderIndex
+                    ))
+                }
+            }
+        }
+
+        // Sort by composite key (chapterIndex, orderIndex)
+        return allContent.sorted { lhs, rhs in
+            if lhs.chapterIndex != rhs.chapterIndex {
+                return lhs.chapterIndex < rhs.chapterIndex
+            }
+            return lhs.orderIndex < rhs.orderIndex
+        }.map { $0.storage }
+    }
+
+    /// Get TypedDataStorage items for this document filtered by MIME type, sorted by element order
+    ///
+    /// - Parameter mimeTypePrefix: MIME type prefix to filter by (e.g., "audio/", "image/", "text/")
+    /// - Returns: Filtered and sorted TypedDataStorage items
+    ///
+    /// ## Usage
+    ///
+    /// ```swift
+    /// // Get all audio content in screenplay order
+    /// let audioContent = document.sortedElementGeneratedContent(mimeTypePrefix: "audio/")
+    ///
+    /// // Get all images in screenplay order
+    /// let images = document.sortedElementGeneratedContent(mimeTypePrefix: "image/")
+    ///
+    /// // Get all text content in screenplay order
+    /// let textContent = document.sortedElementGeneratedContent(mimeTypePrefix: "text/")
+    /// ```
+    public func sortedElementGeneratedContent(mimeTypePrefix: String) -> [TypedDataStorage] {
+        return sortedElementGeneratedContent.filter { $0.mimeType.hasPrefix(mimeTypePrefix) }
+    }
+
+    /// Get TypedDataStorage items for a specific element type, sorted by element order
+    ///
+    /// - Parameter elementType: The type of screenplay element to filter by
+    /// - Returns: TypedDataStorage items owned by elements of the specified type, sorted by order
+    ///
+    /// ## Usage
+    ///
+    /// ```swift
+    /// // Get all generated content for dialogue elements
+    /// let dialogueContent = document.sortedElementGeneratedContent(for: .dialogue)
+    ///
+    /// // Get all generated content for scene headings
+    /// let sceneContent = document.sortedElementGeneratedContent(for: .sceneHeading)
+    ///
+    /// // Example: Generate audio for all dialogue in order
+    /// for item in dialogueContent {
+    ///     if let element = item.owningElement {
+    ///         print("Dialogue at Chapter \(element.chapterIndex), Position \(element.orderIndex)")
+    ///         if item.mimeType.hasPrefix("audio/") {
+    ///             // Play audio in sequence
+    ///         }
+    ///     }
+    /// }
+    /// ```
+    public func sortedElementGeneratedContent(for elementType: ElementType) -> [TypedDataStorage] {
+        var allContent: [(storage: TypedDataStorage, chapterIndex: Int, orderIndex: Int)] = []
+
+        for element in elements where element.elementType == elementType {
+            if let content = element.generatedContent {
+                for item in content {
+                    allContent.append((
+                        storage: item,
+                        chapterIndex: element.chapterIndex,
+                        orderIndex: element.orderIndex
+                    ))
+                }
+            }
+        }
+
+        return allContent.sorted { lhs, rhs in
+            if lhs.chapterIndex != rhs.chapterIndex {
+                return lhs.chapterIndex < rhs.chapterIndex
+            }
+            return lhs.orderIndex < rhs.orderIndex
+        }.map { $0.storage }
     }
 
     // MARK: - Source File Tracking Methods (NEW in 1.4.3)
