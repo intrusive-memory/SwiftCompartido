@@ -11,11 +11,17 @@ import SwiftData
 /// SwiftUI view for displaying and playing audio content from TypedDataStorage
 ///
 /// Provides playback controls for audio from TypedDataStorage records with MIME type `audio/*`.
-/// Integrates with AudioPlayerManager for audio playback.
+/// Uses AudioPlayerManager from the environment for audio playback.
+///
+/// ## Requirements
+/// - Requires `AudioPlayerManager` to be provided as an environment object
 ///
 /// ## Example
 /// ```swift
+/// @StateObject var audioPlayer = AudioPlayerManager()
+///
 /// TypedDataAudioView(record: audioRecord, storageArea: storage)
+///     .environmentObject(audioPlayer)
 /// ```
 public struct TypedDataAudioView: View {
 
@@ -27,8 +33,8 @@ public struct TypedDataAudioView: View {
     /// Optional storage area for file-based content
     let storageArea: StorageAreaReference?
 
-    /// Audio player manager
-    @StateObject private var playerManager = AudioPlayerManager()
+    /// Audio player manager from environment
+    @EnvironmentObject private var playerManager: AudioPlayerManager
 
     /// Error state
     @State private var error: Error?
@@ -177,6 +183,7 @@ struct TypedDataAudioView_Previews: PreviewProvider {
         )
 
         TypedDataAudioView(record: record)
+            .environmentObject(AudioPlayerManager())
             .frame(width: 400, height: 250)
             .padding()
     }
