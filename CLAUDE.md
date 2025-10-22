@@ -1652,7 +1652,7 @@ let screenplay = try await GuionParsedElementCollection(string: text)
 
 ## Project Metadata
 
-- **Version**: 2.1.0 (with Generated Content UI Components)
+- **Version**: 3.0.0 (Voice provider models removed - moved to separate library)
 - **Swift**: 6.2+
 - **Platforms**: macOS 26.0+, iOS 26.0+, Mac Catalyst 26.0+
 - **Dependencies**: TextBundle, SwiftFijos (test-only)
@@ -1662,7 +1662,7 @@ let screenplay = try await GuionParsedElementCollection(string: text)
   - Platform API compatibility validation
   - Code quality checks
 - **License**: MIT
-- **Test Coverage**: 95%+ across 397 tests in 27 suites
+- **Test Coverage**: 95%+ across 390 tests in 26 suites (AppleTTSProviderTests removed)
   - GeneratedContentListView: Master-detail UI with MIME type filtering
   - TypedDataDetailView: Automatic content viewer with MIME routing
   - TypedDataRowView: Compact list rows with type-specific metadata
@@ -1670,3 +1670,4 @@ let screenplay = try await GuionParsedElementCollection(string: text)
   - TypedDataStorage migration: Complete with zero breaking changes
   - CloudKit support: Automatic asset management and conflict tracking
   - Progress reporting: Chunked I/O with byte-level progress for large files
+  - **Breaking Change**: Voice and VoiceModel removed (use separate voice provider library)

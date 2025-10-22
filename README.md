@@ -4,10 +4,12 @@
     <img src="https://img.shields.io/badge/Swift-6.2+-orange.svg" />
     <img src="https://img.shields.io/badge/Platform-macOS%2026.0+%20|%20iOS%2026.0+%20|%20Mac%20Catalyst-lightgrey.svg" />
     <img src="https://img.shields.io/badge/License-MIT-blue.svg" />
-    <img src="https://img.shields.io/badge/Version-2.1.0-blue.svg" />
+    <img src="https://img.shields.io/badge/Version-3.0.0-blue.svg" />
 </p>
 
 **SwiftCompartido** is a comprehensive Swift package for screenplay management, AI-generated content storage, and document serialization. Built with SwiftData, SwiftUI, and modern Swift concurrency.
+
+> **⚠️ Breaking Change in 3.0.0**: Voice provider models (`Voice`, `VoiceModel`) have been removed and moved to a separate library. Audio metadata fields (`voiceID`, `voiceName`) remain available in `TypedDataStorage`. See [CHANGELOG.md](./CHANGELOG.md) for migration guide.
 
 ## Features
 

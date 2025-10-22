@@ -5,6 +5,58 @@ All notable changes to SwiftCompartido will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.0.0] - 2025-10-21
+
+### 💥 Breaking Changes
+
+This release removes voice provider functionality, which has been moved to a separate library for better separation of concerns.
+
+### Removed
+
+- **Voice Provider Models** - Removed TTS voice models (moved to separate library)
+  - `Voice` struct (Sendable DTO for TTS voice data)
+  - `VoiceModel` class (SwiftData model for caching voice information)
+  - `AppleTTSProvider` tests
+
+### Migration Guide
+
+If your code uses `Voice` or `VoiceModel`, you should:
+
+1. Import the separate voice provider library (to be announced)
+2. Remove direct references to `Voice` and `VoiceModel` from SwiftCompartido imports
+3. Audio metadata fields (`voiceID`, `voiceName`) remain available in `TypedDataStorage` for storing voice information with generated audio
+
+**Note:** No database migration needed - `VoiceModel` was never included in `SwiftCompartidoSchema`.
+
+```swift
+// BEFORE (SwiftCompartido 2.x)
+import SwiftCompartido
+
+let voice = Voice(id: "rachel", name: "Rachel", ...)
+let voiceModel = VoiceModel.from(voice)
+
+// AFTER (SwiftCompartido 3.x)
+import SwiftCompartido
+import VoiceProviderLibrary  // New separate library
+
+let voice = Voice(id: "rachel", name: "Rachel", ...)  // From separate library
+// Store voice metadata with audio
+let audioRecord = TypedDataStorage(
+    providerId: "elevenlabs",
+    requestorID: "tts",
+    mimeType: "audio/mpeg",
+    binaryValue: audioData,
+    voiceID: "rachel",      // Still available
+    voiceName: "Rachel"     // Still available
+)
+```
+
+### Unchanged
+
+- Audio playback via `AudioPlayerManager` remains fully functional
+- Audio metadata fields (`voiceID`, `voiceName`, `audioFormat`, `durationSeconds`) in `TypedDataStorage` and `GeneratedAudioData` remain unchanged
+- All screenplay parsing, UI components, and storage functionality unchanged
+
 ## [2.1.0] - 2025-10-21
 
 ### 🎨 Generated Content UI Components
