@@ -937,7 +937,7 @@ public struct GuionElementsList: View {
 
 All elements use Courier New font and proper screenplay formatting.
 
-### Generated Content UI Components (NEW in 2.0.2)
+### Generated Content UI Components (NEW in 2.1.0)
 
 SwiftCompartido provides comprehensive UI components for browsing, filtering, and previewing AI-generated content.
 
@@ -1146,7 +1146,7 @@ public enum SourceFileStatus: Sendable {
 
 All elements use Courier New font and proper screenplay formatting.
 
-### Generated Content UI Components (NEW in 2.0.2)
+### Generated Content UI Components (NEW in 2.1.0)
 
 SwiftCompartido provides comprehensive UI components for browsing, filtering, and previewing AI-generated content.
 
@@ -1652,7 +1652,7 @@ let screenplay = try await GuionParsedElementCollection(string: text)
 
 ## Project Metadata
 
-- **Version**: 2.0.2 (with Generated Content UI Components)
+- **Version**: 2.1.0 (with Generated Content UI Components)
 - **Swift**: 6.2+
 - **Platforms**: macOS 26.0+, iOS 26.0+, Mac Catalyst 26.0+
 - **Dependencies**: TextBundle, SwiftFijos (test-only)

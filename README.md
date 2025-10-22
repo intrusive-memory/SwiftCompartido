@@ -4,7 +4,7 @@
     <img src="https://img.shields.io/badge/Swift-6.2+-orange.svg" />
     <img src="https://img.shields.io/badge/Platform-macOS%2026.0+%20|%20iOS%2026.0+%20|%20Mac%20Catalyst-lightgrey.svg" />
     <img src="https://img.shields.io/badge/License-MIT-blue.svg" />
-    <img src="https://img.shields.io/badge/Version-2.0.2-blue.svg" />
+    <img src="https://img.shields.io/badge/Version-2.1.0-blue.svg" />
 </p>
 
 **SwiftCompartido** is a comprehensive Swift package for screenplay management, AI-generated content storage, and document serialization. Built with SwiftData, SwiftUI, and modern Swift concurrency.
@@ -45,12 +45,12 @@
 ### 🎨 UI Components
 - **GuionViewer**: Screenplay rendering with proper formatting (simplified in 1.4.3)
 - **GuionElementsList**: Flat, @Query-based element list display (NEW in 1.4.3)
-- **GeneratedContentListView**: Master-detail browser for AI-generated content with MIME filtering (NEW in 2.0.2)
-- **TypedDataDetailView**: Automatic content viewer with MIME type routing (NEW in 2.0.2)
-- **TypedDataRowView**: Compact list rows with type-specific metadata (NEW in 2.0.2)
+- **GeneratedContentListView**: Master-detail browser for AI-generated content with MIME filtering (NEW in 2.1.0)
+- **TypedDataDetailView**: Automatic content viewer with MIME type routing (NEW in 2.1.0)
+- **TypedDataRowView**: Compact list rows with type-specific metadata (NEW in 2.1.0)
 - **Source File Tracking**: Automatic detection of external file changes (NEW in 1.4.3)
 - **TextConfigurationView**: AI text generation settings
-- **AudioPlayerManager**: Waveform visualization and playback with TypedDataStorage support (enhanced in 2.0.2)
+- **AudioPlayerManager**: Waveform visualization and playback with TypedDataStorage support (enhanced in 2.1.0)
 - **No Visible Separators**: Clean flow between screenplay elements (NEW in 2.0.0)
 - **Mac Catalyst Support**: Full compatibility across macOS, iOS, and Mac Catalyst (NEW in 2.0.0)
 

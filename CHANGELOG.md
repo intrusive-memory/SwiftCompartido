@@ -5,7 +5,7 @@ All notable changes to SwiftCompartido will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [2.0.2] - 2025-10-21
+## [2.1.0] - 2025-10-21
 
 ### 🎨 Generated Content UI Components
 
@@ -97,11 +97,24 @@ let dialogueContent = document.sortedElementGeneratedContent(for: .dialogue)
   - Performance testing (100 elements, <100ms)
   - Empty document edge cases
 
+### Fixed
+
+- **TypedDataAudioView AudioPlayerManager integration**
+  - Changed from @StateObject to @EnvironmentObject for audio player
+  - Fixed issue where detail pane controls couldn't control actual playing audio
+  - Fixed issue where multiple audio streams could play simultaneously
+  - Now properly uses shared AudioPlayerManager from environment
+
+- **Test expectation for synthetic chapter name**
+  - Updated SceneBrowserUITests to expect "(Untitled Section)" for synthetic chapters
+  - Aligns test with actual implementation behavior
+
 ### Documentation
 
-- Updated CHANGELOG.md with UI components documentation
-- Updated README.md with generated content UI examples
-- Updated CLAUDE.md with UI architecture patterns
+- Updated CHANGELOG.md with UI components documentation (v2.1.0)
+- Updated README.md with generated content UI examples (v2.1.0)
+- Updated CLAUDE.md with UI architecture patterns (v2.1.0)
+- Added Skills/integrate-generated-content-ui.md integration guide
 
 ## [2.0.1] - 2025-10-21
 
