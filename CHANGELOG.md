@@ -5,6 +5,104 @@ All notable changes to SwiftCompartido will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.2] - 2025-10-21
+
+### 🎨 Generated Content UI Components
+
+This release adds comprehensive SwiftUI components for browsing, filtering, and previewing AI-generated content with automatic MIME type routing and integrated audio playback.
+
+### Added
+
+#### Master-Detail UI Components for Generated Content
+
+- **`GeneratedContentListView`** - Complete master-detail interface with filtering
+  - MIME type filtering via segmented control (All, Text, Audio, Image, Video, Embedding)
+  - Preview pane at top showing selected item with appropriate viewer
+  - Scrollable list at bottom with compact row display
+  - Automatic audio playback when selecting audio items
+  - Content sorted by screenplay order (chapterIndex, orderIndex)
+  - Integrated with `AudioPlayerManager` for audio playback
+
+```swift
+@StateObject private var audioPlayer = AudioPlayerManager()
+let document: GuionDocumentModel
+
+var body: some View {
+    GeneratedContentListView(document: document, storageArea: storage)
+        .environmentObject(audioPlayer)
+}
+```
+
+- **`TypedDataDetailView`** - Automatic content viewer with MIME type routing
+  - Header with metadata (icon, MIME type, provider, element position)
+  - Displays prompt and element position (Ch X, Pos Y)
+  - Automatic routing to specialized viewers:
+    - `text/*` → TypedDataTextView
+    - `audio/*` → TypedDataAudioView
+    - `image/*` → TypedDataImageView
+    - `video/*` → TypedDataVideoView
+    - `application/x-embedding` → Custom embedding metadata view
+  - Unsupported content type handling
+
+- **`TypedDataRowView`** - Compact list row for generated content items
+  - Color-coded icons by content type (blue=text, green=audio, orange=image, red=video, purple=embedding)
+  - Truncated prompt display (2 lines max)
+  - Element position badge (Ch X, Pos Y)
+  - Type-specific metadata:
+    - Audio: Duration (MM:SS)
+    - Image: Dimensions (width×height)
+    - Text: Word count
+    - Embedding: Vector dimensions
+  - Selection indicator with checkmark
+
+#### Document-Level Content Access
+
+- **`GuionDocumentModel.sortedElementGeneratedContent`** - Get all element-owned generated content in screenplay order
+  - Returns `[TypedDataStorage]` sorted by (chapterIndex, orderIndex)
+  - Excludes document-level content (only element-owned)
+  - Performance: <100ms for 100+ elements
+
+- **`GuionDocumentModel.sortedElementGeneratedContent(mimeTypePrefix:)`** - Filter by MIME type
+  - Examples: `"text/"`, `"audio/"`, `"image/"`, `"video/"`
+  - Returns content in screenplay order
+
+- **`GuionDocumentModel.sortedElementGeneratedContent(for:)`** - Filter by element type
+  - Examples: `.dialogue`, `.sceneHeading`, `.action`
+  - Returns content in screenplay order
+
+```swift
+// Get all audio content in screenplay order
+let audioContent = document.sortedElementGeneratedContent(mimeTypePrefix: "audio/")
+
+// Get all dialogue-related content
+let dialogueContent = document.sortedElementGeneratedContent(for: .dialogue)
+```
+
+#### AudioPlayerManager Enhancement
+
+- **`AudioPlayerManager.play(record:storageArea:)`** - Updated to accept `TypedDataStorage`
+  - Removed deprecated `GeneratedAudioRecord` type alias dependency
+  - Automatically handles file-based and in-memory audio storage
+  - Prefers file-based storage (Phase 6 architecture)
+  - Seamless integration with `GeneratedContentListView`
+
+### Tests
+
+- **GeneratedContentSortingTests** - 7 new tests for document-level content access
+  - Sorting by element order (chapterIndex, orderIndex)
+  - MIME type filtering (audio/*, image/*, embeddings)
+  - Element type filtering (dialogue, scene heading, action)
+  - Document-level content exclusion
+  - Multiple items per element handling
+  - Performance testing (100 elements, <100ms)
+  - Empty document edge cases
+
+### Documentation
+
+- Updated CHANGELOG.md with UI components documentation
+- Updated README.md with generated content UI examples
+- Updated CLAUDE.md with UI architecture patterns
+
 ## [2.0.1] - 2025-10-21
 
 ### 🔄 TypedDataStorage Migration & Enhanced CloudKit Support

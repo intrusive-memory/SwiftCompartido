@@ -17,7 +17,6 @@ import SwiftData
 /// ```swift
 /// TypedDataTextView(record: textRecord, storageArea: storage)
 /// ```
-@available(macOS 15.0, iOS 17.0, *)
 public struct TypedDataTextView: View {
 
     // MARK: - Properties
@@ -86,7 +85,6 @@ public struct TypedDataTextView: View {
 }
 
 /// Error view for displaying load errors
-@available(macOS 15.0, iOS 17.0, *)
 private struct ErrorView: View {
     let error: Error
 
@@ -112,7 +110,6 @@ private struct ErrorView: View {
 // MARK: - Preview
 
 #if DEBUG
-@available(macOS 15.0, iOS 17.0, *)
 struct TypedDataTextView_Previews: PreviewProvider {
     static var previews: some View {
         let record = TypedDataStorage(

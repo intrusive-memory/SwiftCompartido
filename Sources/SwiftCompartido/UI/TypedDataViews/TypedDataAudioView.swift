@@ -17,7 +17,6 @@ import SwiftData
 /// ```swift
 /// TypedDataAudioView(record: audioRecord, storageArea: storage)
 /// ```
-@available(macOS 15.0, iOS 17.0, *)
 public struct TypedDataAudioView: View {
 
     // MARK: - Properties
@@ -163,7 +162,6 @@ public struct TypedDataAudioView: View {
 // MARK: - Preview
 
 #if DEBUG
-@available(macOS 15.0, iOS 17.0, *)
 struct TypedDataAudioView_Previews: PreviewProvider {
     static var previews: some View {
         let record = TypedDataStorage(

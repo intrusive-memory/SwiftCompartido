@@ -19,7 +19,6 @@ import AVKit
 /// TypedDataVideoView(record: videoRecord, storageArea: storage)
 ///     .frame(height: 400)
 /// ```
-@available(macOS 15.0, iOS 17.0, *)
 public struct TypedDataVideoView: View {
 
     // MARK: - Properties
@@ -116,7 +115,6 @@ public struct TypedDataVideoView: View {
 // MARK: - macOS VideoPlayer Wrapper
 
 #if os(macOS)
-@available(macOS 15.0, *)
 private struct VideoPlayerView: NSViewRepresentable {
     let player: AVPlayer
 
@@ -134,7 +132,6 @@ private struct VideoPlayerView: NSViewRepresentable {
 #endif
 
 /// Error view for displaying load errors
-@available(macOS 15.0, iOS 17.0, *)
 private struct ErrorView: View {
     let error: Error
 
@@ -160,7 +157,6 @@ private struct ErrorView: View {
 // MARK: - Preview
 
 #if DEBUG
-@available(macOS 15.0, iOS 17.0, *)
 struct TypedDataVideoView_Previews: PreviewProvider {
     static var previews: some View {
         let record = TypedDataStorage(

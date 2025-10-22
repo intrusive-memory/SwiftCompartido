@@ -4,7 +4,7 @@
     <img src="https://img.shields.io/badge/Swift-6.2+-orange.svg" />
     <img src="https://img.shields.io/badge/Platform-macOS%2026.0+%20|%20iOS%2026.0+%20|%20Mac%20Catalyst-lightgrey.svg" />
     <img src="https://img.shields.io/badge/License-MIT-blue.svg" />
-    <img src="https://img.shields.io/badge/Version-2.0.1-blue.svg" />
+    <img src="https://img.shields.io/badge/Version-2.0.2-blue.svg" />
 </p>
 
 **SwiftCompartido** is a comprehensive Swift package for screenplay management, AI-generated content storage, and document serialization. Built with SwiftData, SwiftUI, and modern Swift concurrency.
@@ -45,9 +45,12 @@
 ### 🎨 UI Components
 - **GuionViewer**: Screenplay rendering with proper formatting (simplified in 1.4.3)
 - **GuionElementsList**: Flat, @Query-based element list display (NEW in 1.4.3)
+- **GeneratedContentListView**: Master-detail browser for AI-generated content with MIME filtering (NEW in 2.0.2)
+- **TypedDataDetailView**: Automatic content viewer with MIME type routing (NEW in 2.0.2)
+- **TypedDataRowView**: Compact list rows with type-specific metadata (NEW in 2.0.2)
 - **Source File Tracking**: Automatic detection of external file changes (NEW in 1.4.3)
 - **TextConfigurationView**: AI text generation settings
-- **AudioPlayerManager**: Waveform visualization and playback
+- **AudioPlayerManager**: Waveform visualization and playback with TypedDataStorage support (enhanced in 2.0.2)
 - **No Visible Separators**: Clean flow between screenplay elements (NEW in 2.0.0)
 - **Mac Catalyst Support**: Full compatibility across macOS, iOS, and Mac Catalyst (NEW in 2.0.0)
 
@@ -57,7 +60,7 @@
 - **Cancellation Support**: All operations support `Task` cancellation with cleanup
 - **Performance Optimized**: <2% overhead, batched updates, thread-safe
 - **Backward Compatible**: Optional progress parameter - existing code unchanged
-- **390 Tests**: Full test coverage across 26 test suites
+- **397 Tests**: Full test coverage across 27 test suites
 
 ## Quick Start
 
@@ -210,6 +213,56 @@ struct AllElementsView: View {
         GuionElementsList() // No document filter
     }
 }
+```
+
+#### Browse and Preview Generated Content
+
+```swift
+import SwiftCompartido
+import SwiftUI
+
+@available(macOS 15.0, iOS 17.0, *)
+struct GeneratedContentView: View {
+    @StateObject private var audioPlayer = AudioPlayerManager()
+    let document: GuionDocumentModel
+    let storageArea: StorageAreaReference?
+
+    var body: some View {
+        GeneratedContentListView(
+            document: document,
+            storageArea: storageArea
+        )
+        .environmentObject(audioPlayer)
+    }
+}
+
+// Features:
+// - MIME type filtering (All, Text, Audio, Image, Video, Embedding)
+// - Preview pane with automatic viewer routing
+// - Automatic audio playback when selecting audio items
+// - Content sorted by screenplay order (chapterIndex, orderIndex)
+// - Compact rows with type-specific metadata
+```
+
+#### Access Generated Content Programmatically
+
+```swift
+import SwiftCompartido
+
+// Get all element-owned generated content in screenplay order
+let allContent = document.sortedElementGeneratedContent
+
+// Filter by MIME type
+let audioContent = document.sortedElementGeneratedContent(mimeTypePrefix: "audio/")
+let imageContent = document.sortedElementGeneratedContent(mimeTypePrefix: "image/")
+let textContent = document.sortedElementGeneratedContent(mimeTypePrefix: "text/")
+
+// Filter by element type
+let dialogueContent = document.sortedElementGeneratedContent(for: .dialogue)
+let sceneContent = document.sortedElementGeneratedContent(for: .sceneHeading)
+
+// All content is returned sorted by (chapterIndex, orderIndex)
+// Performance: <100ms for 100+ elements
 ```
 
 #### Progress Reporting for Long Operations

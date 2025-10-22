@@ -937,6 +937,77 @@ public struct GuionElementsList: View {
 
 All elements use Courier New font and proper screenplay formatting.
 
+### Generated Content UI Components (NEW in 2.0.2)
+
+SwiftCompartido provides comprehensive UI components for browsing, filtering, and previewing AI-generated content.
+
+**GeneratedContentListView** - Master-detail interface with filtering:
+```swift
+@available(macOS 15.0, iOS 17.0, *)
+public struct GeneratedContentListView: View {
+    let document: GuionDocumentModel
+    let storageArea: StorageAreaReference?
+
+    // Features:
+    // - MIME type filtering (All, Text, Audio, Image, Video, Embedding)
+    // - Preview pane at top showing selected item
+    // - Scrollable list at bottom with compact rows
+    // - Automatic audio playback when selecting audio items
+    // - Content sorted by screenplay order (chapterIndex, orderIndex)
+}
+```
+
+**TypedDataDetailView** - Automatic content viewer with MIME type routing:
+- Displays header with metadata (icon, MIME type, provider, element position)
+- Shows prompt
+- Routes to appropriate viewer based on MIME type:
+  - `text/*` → TypedDataTextView
+  - `audio/*` → TypedDataAudioView
+  - `image/*` → TypedDataImageView
+  - `video/*` → TypedDataVideoView
+  - `application/x-embedding` → Custom embedding metadata view
+
+**TypedDataRowView** - Compact list row for generated content:
+- Color-coded icon (blue=text, green=audio, orange=image, red=video, purple=embedding)
+- Truncated prompt (2 lines max)
+- Element position badge (Ch X, Pos Y)
+- Type-specific metadata:
+  - Audio: Duration (MM:SS)
+  - Image: Dimensions (width×height)
+  - Text: Word count
+  - Embedding: Vector dimensions
+- Selection indicator with checkmark
+
+**Document-Level Content Access**:
+```swift
+// Get all element-owned generated content in screenplay order
+let allContent = document.sortedElementGeneratedContent
+
+// Filter by MIME type
+let audioContent = document.sortedElementGeneratedContent(mimeTypePrefix: "audio/")
+
+// Filter by element type
+let dialogueContent = document.sortedElementGeneratedContent(for: .dialogue)
+
+// All content is returned sorted by (chapterIndex, orderIndex)
+// Performance: <100ms for 100+ elements
+```
+
+**Usage Example**:
+```swift
+@available(macOS 15.0, iOS 17.0, *)
+struct GeneratedContentView: View {
+    @StateObject private var audioPlayer = AudioPlayerManager()
+    let document: GuionDocumentModel
+    let storageArea: StorageAreaReference?
+
+    var body: some View {
+        GeneratedContentListView(document: document, storageArea: storageArea)
+            .environmentObject(audioPlayer)
+    }
+}
+```
+
 ## Source File Tracking
 
 GuionDocumentModel now tracks the original source file and can detect when it has been modified, allowing applications to prompt users to re-import updated versions.
@@ -1074,6 +1145,77 @@ public enum SourceFileStatus: Sendable {
 - Plus 7 more element types
 
 All elements use Courier New font and proper screenplay formatting.
+
+### Generated Content UI Components (NEW in 2.0.2)
+
+SwiftCompartido provides comprehensive UI components for browsing, filtering, and previewing AI-generated content.
+
+**GeneratedContentListView** - Master-detail interface with filtering:
+```swift
+@available(macOS 15.0, iOS 17.0, *)
+public struct GeneratedContentListView: View {
+    let document: GuionDocumentModel
+    let storageArea: StorageAreaReference?
+
+    // Features:
+    // - MIME type filtering (All, Text, Audio, Image, Video, Embedding)
+    // - Preview pane at top showing selected item
+    // - Scrollable list at bottom with compact rows
+    // - Automatic audio playback when selecting audio items
+    // - Content sorted by screenplay order (chapterIndex, orderIndex)
+}
+```
+
+**TypedDataDetailView** - Automatic content viewer with MIME type routing:
+- Displays header with metadata (icon, MIME type, provider, element position)
+- Shows prompt
+- Routes to appropriate viewer based on MIME type:
+  - `text/*` → TypedDataTextView
+  - `audio/*` → TypedDataAudioView
+  - `image/*` → TypedDataImageView
+  - `video/*` → TypedDataVideoView
+  - `application/x-embedding` → Custom embedding metadata view
+
+**TypedDataRowView** - Compact list row for generated content:
+- Color-coded icon (blue=text, green=audio, orange=image, red=video, purple=embedding)
+- Truncated prompt (2 lines max)
+- Element position badge (Ch X, Pos Y)
+- Type-specific metadata:
+  - Audio: Duration (MM:SS)
+  - Image: Dimensions (width×height)
+  - Text: Word count
+  - Embedding: Vector dimensions
+- Selection indicator with checkmark
+
+**Document-Level Content Access**:
+```swift
+// Get all element-owned generated content in screenplay order
+let allContent = document.sortedElementGeneratedContent
+
+// Filter by MIME type
+let audioContent = document.sortedElementGeneratedContent(mimeTypePrefix: "audio/")
+
+// Filter by element type
+let dialogueContent = document.sortedElementGeneratedContent(for: .dialogue)
+
+// All content is returned sorted by (chapterIndex, orderIndex)
+// Performance: <100ms for 100+ elements
+```
+
+**Usage Example**:
+```swift
+@available(macOS 15.0, iOS 17.0, *)
+struct GeneratedContentView: View {
+    @StateObject private var audioPlayer = AudioPlayerManager()
+    let document: GuionDocumentModel
+    let storageArea: StorageAreaReference?
+
+    var body: some View {
+        GeneratedContentListView(document: document, storageArea: storageArea)
+            .environmentObject(audioPlayer)
+    }
+}
+```
 
 ## Source File Tracking
 
@@ -1510,7 +1652,7 @@ let screenplay = try await GuionParsedElementCollection(string: text)
 
 ## Project Metadata
 
-- **Version**: 2.0.1 (with TypedDataStorage Migration & Enhanced CloudKit Support)
+- **Version**: 2.0.2 (with Generated Content UI Components)
 - **Swift**: 6.2+
 - **Platforms**: macOS 26.0+, iOS 26.0+, Mac Catalyst 26.0+
 - **Dependencies**: TextBundle, SwiftFijos (test-only)
@@ -1520,7 +1662,11 @@ let screenplay = try await GuionParsedElementCollection(string: text)
   - Platform API compatibility validation
   - Code quality checks
 - **License**: MIT
-- **Test Coverage**: 95%+ across 390 tests in 26 suites
+- **Test Coverage**: 95%+ across 397 tests in 27 suites
+  - GeneratedContentListView: Master-detail UI with MIME type filtering
+  - TypedDataDetailView: Automatic content viewer with MIME routing
+  - TypedDataRowView: Compact list rows with type-specific metadata
+  - Document-level content access: Sorted by screenplay order (chapterIndex, orderIndex)
   - TypedDataStorage migration: Complete with zero breaking changes
   - CloudKit support: Automatic asset management and conflict tracking
   - Progress reporting: Chunked I/O with byte-level progress for large files

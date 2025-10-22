@@ -18,7 +18,6 @@ import SwiftData
 /// TypedDataImageView(record: imageRecord, storageArea: storage)
 ///     .frame(width: 400, height: 400)
 /// ```
-@available(macOS 15.0, iOS 17.0, *)
 public struct TypedDataImageView: View {
 
     // MARK: - Properties
@@ -133,7 +132,6 @@ typealias PlatformImage = UIImage
 #endif
 
 /// Error view for displaying load errors
-@available(macOS 15.0, iOS 17.0, *)
 private struct ErrorView: View {
     let error: Error
 
@@ -159,7 +157,6 @@ private struct ErrorView: View {
 // MARK: - Preview
 
 #if DEBUG
-@available(macOS 15.0, iOS 17.0, *)
 struct TypedDataImageView_Previews: PreviewProvider {
     static var previews: some View {
         // Create a simple 100x100 red square as sample image data

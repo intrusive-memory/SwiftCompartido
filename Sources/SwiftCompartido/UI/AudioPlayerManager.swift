@@ -202,17 +202,16 @@ public final class AudioPlayerManager: NSObject, ObservableObject {
         audioLevels = levels
     }
 
-    /// Play audio from a GeneratedAudioRecord
+    /// Play audio from a TypedDataStorage record with audio/* mimeType
     ///
     /// Automatically handles both file-based and in-memory storage.
     /// Prefers file-based storage when available for better performance.
     ///
     /// - Parameters:
-    ///   - record: The audio record to play
+    ///   - record: The audio record to play (TypedDataStorage with audio/* mimeType)
     ///   - storageArea: Storage area reference (required if using file-based storage)
     /// - Throws: Audio player initialization errors or missing data errors
-    @available(macOS 15.0, iOS 17.0, *)
-    public func play(record: GeneratedAudioRecord, storageArea: StorageAreaReference? = nil) throws {
+    public func play(record: TypedDataStorage, storageArea: StorageAreaReference? = nil) throws {
         // Prefer file-based storage (Phase 6 architecture)
         if let fileRef = record.fileReference, let storage = storageArea {
             let fileURL = fileRef.fileURL(in: storage)
