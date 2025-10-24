@@ -107,13 +107,13 @@ public struct GeneratedContentListView: View {
             if let selectedItem = selectedItem {
                 TypedDataDetailView(record: selectedItem, storageArea: storageArea)
                     .frame(maxHeight: .infinity)
-                    .background(Color(.systemBackground))
+                    .background(Color(white: 0.95))
 
                 Divider()
             } else {
                 emptyStateView
                     .frame(maxHeight: .infinity)
-                    .background(Color(.systemBackground))
+                    .background(Color(white: 0.95))
 
                 Divider()
             }
