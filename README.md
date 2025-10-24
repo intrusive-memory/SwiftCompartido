@@ -2,7 +2,7 @@
 
 <p align="center">
     <img src="https://img.shields.io/badge/Swift-6.2+-orange.svg" />
-    <img src="https://img.shields.io/badge/Platform-macOS%2026.0+%20|%20iOS%2026.0+%20|%20Mac%20Catalyst-lightgrey.svg" />
+    <img src="https://img.shields.io/badge/Platform-iOS%2026.0+%20|%20Mac%20Catalyst%2026.0+-lightgrey.svg" />
     <img src="https://img.shields.io/badge/License-MIT-blue.svg" />
     <img src="https://img.shields.io/badge/Version-3.0.0-blue.svg" />
 </p>
@@ -146,7 +146,7 @@ func storeGeneratedText(_ text: String, prompt: String, modelContext: ModelConte
 import SwiftCompartido
 
 @MainActor
-@available(macOS 15.0, iOS 17.0, *)
+@available(iOS 26.0, macCatalyst 26.0, *)
 func generateAndPlayAudio(text: String) async throws {
     let requestID = UUID()
 
@@ -223,7 +223,7 @@ struct AllElementsView: View {
 import SwiftCompartido
 import SwiftUI
 
-@available(macOS 15.0, iOS 17.0, *)
+@available(iOS 26.0, macCatalyst 26.0, *)
 struct GeneratedContentView: View {
     @StateObject private var audioPlayer = AudioPlayerManager()
     let document: GuionDocumentModel
@@ -373,7 +373,7 @@ try modelContext.save() // Automatically syncs to CloudKit
 #### CloudKit Sync - Hybrid Storage (Dual Mode)
 
 ```swift
-@available(macOS 15.0, iOS 17.0, *)
+@available(iOS 26.0, macCatalyst 26.0, *)
 func saveAudioWithCloudKitSync() throws {
     let requestID = UUID()
     let storage = StorageAreaReference.temporary(requestID: requestID)
@@ -430,8 +430,8 @@ Task {
 
 ## Requirements
 
-- **macOS**: 26.0+
 - **iOS**: 26.0+
+- **Mac Catalyst**: 26.0+
 - **Swift**: 6.2+
 - **Xcode**: 16.0+
 

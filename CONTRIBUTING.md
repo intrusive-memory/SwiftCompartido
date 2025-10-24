@@ -41,7 +41,7 @@ We are committed to providing a welcoming and inclusive environment for all cont
 
 ### Prerequisites
 
-- macOS 14.0+ or iOS 17.0+
+- iOS 26.0+ or Mac Catalyst 26.0+
 - Xcode 16.0+
 - Swift 6.2+
 - Git
@@ -235,7 +235,7 @@ All public APIs must be documented:
 ///     storage: storage
 /// )
 /// ```
-@available(macOS 15.0, iOS 17.0, *)
+@available(iOS 26.0, macCatalyst 26.0, *)
 public func generateAudio(
     from text: String,
     using voiceID: String,
@@ -522,10 +522,10 @@ try manager.play(from: url, format: "mp3")
 ```
 
 **Environment**
-- OS: [e.g., macOS 14.0]
-- Swift Version: [e.g., 5.9]
-- SwiftCompartido Version: [e.g., 1.0.0]
-- Xcode Version: [e.g., 15.0]
+- OS: [e.g., iOS 26.0 / Mac Catalyst 26.0]
+- Swift Version: [e.g., 6.2]
+- SwiftCompartido Version: [e.g., 3.0.0]
+- Xcode Version: [e.g., 16.0]
 
 **Additional context**
 Add any other context about the problem here.

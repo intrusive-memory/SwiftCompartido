@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import UIKit
 
 /// SwiftUI view for displaying image content from TypedDataStorage
 ///
@@ -31,8 +32,8 @@ public struct TypedDataImageView: View {
     /// Content mode for the image
     let contentMode: ContentMode
 
-    /// Loaded image
-    @State private var image: PlatformImage?
+    /// Loaded SwiftUI image
+    @State private var image: Image?
 
     /// Error state
     @State private var error: Error?
@@ -67,15 +68,9 @@ public struct TypedDataImageView: View {
             } else if let error = error {
                 ErrorView(error: error)
             } else if let image = image {
-                #if os(macOS)
-                Image(nsImage: image)
+                image
                     .resizable()
                     .aspectRatio(contentMode: contentMode)
-                #else
-                Image(uiImage: image)
-                    .resizable()
-                    .aspectRatio(contentMode: contentMode)
-                #endif
             } else {
                 Text("No image available")
                     .foregroundColor(.secondary)
@@ -93,19 +88,8 @@ public struct TypedDataImageView: View {
         do {
             let imageData = try record.getBinary(from: storageArea)
 
-            #if os(macOS)
-            if let nsImage = NSImage(data: imageData) {
-                image = nsImage
-            } else {
-                throw TypedDataError.typeConversionFailed(
-                    fromType: "Data",
-                    toType: "NSImage",
-                    reason: "Invalid image data"
-                )
-            }
-            #else
             if let uiImage = UIImage(data: imageData) {
-                image = uiImage
+                image = Image(uiImage: uiImage)
             } else {
                 throw TypedDataError.typeConversionFailed(
                     fromType: "Data",
@@ -113,7 +97,6 @@ public struct TypedDataImageView: View {
                     reason: "Invalid image data"
                 )
             }
-            #endif
 
             isLoading = false
         } catch {
@@ -122,14 +105,6 @@ public struct TypedDataImageView: View {
         }
     }
 }
-
-// MARK: - Platform Image Type Alias
-
-#if os(macOS)
-typealias PlatformImage = NSImage
-#else
-typealias PlatformImage = UIImage
-#endif
 
 /// Error view for displaying load errors
 private struct ErrorView: View {
@@ -161,21 +136,12 @@ struct TypedDataImageView_Previews: PreviewProvider {
     static var previews: some View {
         // Create a simple 100x100 red square as sample image data
         let imageData: Data = {
-            #if os(macOS)
-            let image = NSImage(size: NSSize(width: 100, height: 100))
-            image.lockFocus()
-            NSColor.red.setFill()
-            NSRect(x: 0, y: 0, width: 100, height: 100).fill()
-            image.unlockFocus()
-            return image.tiffRepresentation ?? Data()
-            #else
             let renderer = UIGraphicsImageRenderer(size: CGSize(width: 100, height: 100))
             let image = renderer.image { context in
                 UIColor.red.setFill()
                 context.fill(CGRect(x: 0, y: 0, width: 100, height: 100))
             }
             return image.pngData() ?? Data()
-            #endif
         }()
 
         let record = TypedDataStorage(

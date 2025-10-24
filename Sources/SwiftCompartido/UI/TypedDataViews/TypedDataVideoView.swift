@@ -59,11 +59,7 @@ public struct TypedDataVideoView: View {
             } else if let error = error {
                 ErrorView(error: error)
             } else if let player = player {
-                #if os(macOS)
-                VideoPlayerView(player: player)
-                #else
                 VideoPlayer(player: player)
-                #endif
             } else {
                 Text("No video available")
                     .foregroundColor(.secondary)
@@ -111,25 +107,6 @@ public struct TypedDataVideoView: View {
         }
     }
 }
-
-// MARK: - macOS VideoPlayer Wrapper
-
-#if os(macOS)
-private struct VideoPlayerView: NSViewRepresentable {
-    let player: AVPlayer
-
-    func makeNSView(context: Context) -> AVPlayerView {
-        let view = AVPlayerView()
-        view.player = player
-        view.controlsStyle = .inline
-        return view
-    }
-
-    func updateNSView(_ nsView: AVPlayerView, context: Context) {
-        nsView.player = player
-    }
-}
-#endif
 
 /// Error view for displaying load errors
 private struct ErrorView: View {
