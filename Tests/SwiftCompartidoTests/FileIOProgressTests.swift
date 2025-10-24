@@ -392,7 +392,7 @@ struct FileIOProgressTests {
 
     }
 
-    @Test("Hybrid mode saves to both local and CloudKit")
+    @Test("Hybrid mode saves to both local and CloudKit", .disabled("CloudKit not available in CI simulators"))
     func testHybridStorageProgress() async throws {
         actor ProgressCollector {
             var finalUpdate: ProgressUpdate?
