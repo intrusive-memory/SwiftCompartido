@@ -15,7 +15,7 @@ on:
 
 jobs:
   performance:
-    name: Run Performance Tests
+    name: iOS Performance Tests
     runs-on: macos-26
     # Performance tests are informational only - don't block PRs
     continue-on-error: true
@@ -32,23 +32,35 @@ jobs:
       - name: Show Swift version
         run: swift --version
 
-      - name: Build in Release mode
-        run: swift build -c release
+      - name: Build in Release mode for iOS Simulator
+        run: |
+          echo "🔨 Building for iOS Simulator in Release mode"
+          xcodebuild build \
+            -scheme SwiftCompartido \
+            -sdk iphonesimulator \
+            -destination 'platform=iOS Simulator,name=iPhone 16 Pro' \
+            -configuration Release \
+            -quiet \
+            CODE_SIGNING_ALLOWED=NO
 
-      - name: Run performance tests
+      - name: Run performance tests on iOS Simulator
         id: perf_tests
         run: |
           # Run all tests to capture performance metrics
-          echo "Running all tests to capture performance metrics..."
+          echo "Running all tests on iOS Simulator to capture performance metrics..."
 
           # Create output directory
           mkdir -p performance-results
 
           # Run all tests in release mode and capture output
-          # The --filter option doesn't work reliably with Swift Testing framework
-          # so we run all tests and filter the output for performance metrics
           set +e
-          swift test -c release > performance-results/output.txt 2>&1
+          xcodebuild test \
+            -scheme SwiftCompartido \
+            -sdk iphonesimulator \
+            -destination 'platform=iOS Simulator,name=iPhone 16 Pro' \
+            -configuration Release \
+            CODE_SIGNING_ALLOWED=NO \
+            > performance-results/output.txt 2>&1
           PERF_EXIT_CODE=$?
 
           # Show first 100 lines of output for debugging

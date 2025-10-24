@@ -9,7 +9,7 @@ on:
 
 jobs:
   test:
-    name: Run Tests
+    name: iOS Tests
     runs-on: macos-26
 
     steps:
@@ -22,41 +22,39 @@ jobs:
       - name: Show Swift version
         run: swift --version
 
-      - name: Build
+      - name: Build for iOS Simulator
         run: |
-          TOTAL_CPUS=$(sysctl -n hw.ncpu)
-          echo "🔨 Building with $TOTAL_CPUS parallel jobs"
-          swift build -j $TOTAL_CPUS
+          echo "🔨 Building for iOS Simulator (arm64)"
+          xcodebuild build \
+            -scheme SwiftCompartido \
+            -sdk iphonesimulator \
+            -destination 'platform=iOS Simulator,name=iPhone 16 Pro' \
+            -quiet \
+            CODE_SIGNING_ALLOWED=NO
 
-      - name: Run tests
+      - name: Run tests on iOS Simulator
         run: |
           set +e
 
-          # Calculate 80% of available CPUs for parallel testing
           TOTAL_CPUS=$(sysctl -n hw.ncpu)
-          WORKERS=$(( TOTAL_CPUS * 80 / 100 ))
-          # Ensure at least 1 worker
-          if [ $WORKERS -lt 1 ]; then WORKERS=1; fi
-
           echo "🖥️  Total CPUs: $TOTAL_CPUS"
-          echo "⚡ Using $WORKERS parallel workers (80% of available CPUs)"
-          echo "🔨 Build jobs: $TOTAL_CPUS"
+          echo "🧪 Running tests on iOS Simulator"
 
-          # Run all tests with parallel execution
-          # -j: parallel build jobs
-          # --parallel: enable parallel test execution
-          # --num-workers: number of parallel test workers
-          swift test \
-            --enable-code-coverage \
-            --parallel \
-            --num-workers $WORKERS \
-            -j $TOTAL_CPUS \
+          # Run tests with xcodebuild for iOS Simulator
+          xcodebuild test \
+            -scheme SwiftCompartido \
+            -sdk iphonesimulator \
+            -destination 'platform=iOS Simulator,name=iPhone 16 Pro' \
+            -enableCodeCoverage YES \
+            -parallel-testing-enabled YES \
+            -maximum-parallel-testing-workers $TOTAL_CPUS \
+            CODE_SIGNING_ALLOWED=NO \
             > test_output.txt 2>&1
           TEST_EXIT_CODE=$?
           cat test_output.txt
 
-          # Check if tests actually passed by looking for the success message
-          if grep -q "Test run with .* tests in .* suites passed" test_output.txt; then
+          # Check if tests passed
+          if grep -q "Test run with .* tests in .* suites passed\|TEST SUCCEEDED" test_output.txt; then
             echo "✅ All tests passed"
             exit 0
           else
@@ -67,23 +65,32 @@ jobs:
       - name: Generate coverage report
         continue-on-error: true
         run: |
-          # Swift 6.2 on macOS 26 has issues generating profdata
-          # Make this step non-blocking until the issue is resolved
-          if [ -f .build/debug/codecov/default.profdata ]; then
-            xcrun llvm-cov export -format="lcov" \
-              .build/debug/SwiftCompartidoPackageTests.xctest/Contents/MacOS/SwiftCompartidoPackageTests \
-              -instr-profile .build/debug/codecov/default.profdata > coverage.lcov
-          else
-            echo "⚠️  Coverage profdata not generated - skipping coverage report"
+          echo "📊 Generating coverage report from xcodebuild results"
+
+          # Find the most recent .xcresult bundle
+          XCRESULT=$(find ~/Library/Developer/Xcode/DerivedData -name "*.xcresult" -type d -print0 | xargs -0 ls -td | head -n 1)
+
+          if [ -z "$XCRESULT" ]; then
+            echo "⚠️  No .xcresult bundle found - skipping coverage report"
             exit 0
           fi
 
+          echo "Using xcresult: $XCRESULT"
+
+          # Export coverage using xcodebuild
+          xcrun xccov view --report --json "$XCRESULT" > coverage.json 2>/dev/null || {
+            echo "⚠️  Failed to generate coverage report"
+            exit 0
+          }
+
+          echo "✅ Coverage report generated"
+
       - name: Upload coverage to Codecov
-        if: hashFiles('coverage.lcov') != ''
+        if: hashFiles('coverage.json') != ''
         continue-on-error: true
         uses: codecov/codecov-action@v3
         with:
-          files: ./coverage.lcov
+          files: ./coverage.json
           fail_ci_if_error: false
 
   catalyst-build:
