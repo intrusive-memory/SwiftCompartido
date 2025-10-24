@@ -2,9 +2,9 @@
 
 > **For AI Assistants**: This document provides comprehensive guidance for understanding, using, and building upon the SwiftCompartido library.
 
-**Version**: 2.0.0
+**Version**: 3.0.0
 **Swift Version**: 6.2+
-**Platforms**: macOS 26.0+, iOS 26.0+, Mac Catalyst 26.0+
+**Platforms**: iOS 26.0+, Mac Catalyst 26.0+
 **Last Updated**: 2025-10-20
 
 ---
@@ -2790,7 +2790,7 @@ do {
 import Testing
 @testable import SwiftCompartido
 
-@available(macOS 15.0, *)
+@available(iOS 26.0, macCatalyst 26.0, *)
 struct GeneratedTextRecordTests {
 
     @Test("Create and retrieve text record")
@@ -2955,8 +2955,8 @@ let record = GeneratedAudioRecord(audioData: audioData, /* ... */)
 When using features that require specific OS versions:
 
 ```swift
-// File storage features require macOS 15.0+
-@available(macOS 15.0, iOS 17.0, *)
+// File storage features require iOS 26.0+
+@available(iOS 26.0, macCatalyst 26.0, *)
 func useFileStorage() {
     let storage = StorageAreaReference.temporary()
     // ...
@@ -2964,7 +2964,7 @@ func useFileStorage() {
 
 // Fallback for older OS versions
 func compatibleStorage() {
-    if #available(macOS 15.0, iOS 17.0, *) {
+    if #available(iOS 26.0, macCatalyst 26.0, *) {
         let storage = StorageAreaReference.temporary()
         // Use file storage
     } else {

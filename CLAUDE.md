@@ -6,6 +6,32 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 SwiftCompartido is a Swift package for screenplay management, AI-generated content storage, and document serialization. The library uses **Phase 6 Architecture** - a file-based storage pattern that separates in-memory data transfer objects (DTOs) from file-persisted content to prevent main thread blocking.
 
+## ⚠️ Breaking Changes in 3.0.0
+
+### Removed Functionality
+
+The following voice provider models have been **removed** and moved to a separate library:
+
+- ❌ `Voice` struct (Sendable DTO for TTS voice data)
+- ❌ `VoiceModel` class (SwiftData model for caching voice information)
+- ❌ `AppleTTSProvider` and related tests
+
+### What Still Works
+
+- ✅ **Audio playback**: `AudioPlayerManager` remains fully functional
+- ✅ **Audio metadata**: `voiceID`, `voiceName`, `audioFormat`, `durationSeconds` fields in `TypedDataStorage` and `GeneratedAudioData` unchanged
+- ✅ **All screenplay parsing and UI components** unchanged
+- ✅ **Storage and serialization** unchanged
+
+### Migration Path
+
+If your code uses `Voice` or `VoiceModel`:
+1. Import the separate voice provider library (TBD - contact maintainers)
+2. Remove direct references to `Voice` and `VoiceModel` from SwiftCompartido imports
+3. Continue using audio metadata fields (`voiceID`, `voiceName`) in `TypedDataStorage` for storing voice information
+
+**Platform Changes**: macOS standalone support removed. Use iOS or Mac Catalyst targets.
+
 ## Core Architecture Patterns
 
 ### Model Pairs Pattern
@@ -131,7 +157,7 @@ let record = TypedDataStorage(
 # Build the package
 swift build
 
-# Run all tests (390 tests across 26 suites)
+# Run all tests (397 tests across 27 suites)
 swift test
 
 # Run specific test suite
@@ -295,7 +321,7 @@ public struct GuionElementsList: View {
 
 - **Minimum coverage**: 90% (current: 95%+)
 - **Test framework**: Swift Testing (NOT XCTest) for new tests, XCTest for legacy
-- **Test count**: 390 tests across 26 suites
+- **Test count**: 397 tests across 27 suites
   - ElementOrderingTests: 19 tests (chapter-based ordering)
   - UIOrderingRegressionTests: 10 tests (NEW in 1.6.0)
   - FileIOProgressTests: 13 tests (Phase 6 file I/O progress)
@@ -331,7 +357,7 @@ For tests using file storage features:
 
 ```swift
 @Test("Description")
-@available(macOS 15.0, iOS 17.0, *)
+@available(iOS 26.0, macCatalyst 26.0, *)
 func testFileBasedFeature() throws {
     // Only apply @available to individual tests, NOT the struct
 }
@@ -943,7 +969,7 @@ SwiftCompartido provides comprehensive UI components for browsing, filtering, an
 
 **GeneratedContentListView** - Master-detail interface with filtering:
 ```swift
-@available(macOS 15.0, iOS 17.0, *)
+@available(iOS 26.0, macCatalyst 26.0, *)
 public struct GeneratedContentListView: View {
     let document: GuionDocumentModel
     let storageArea: StorageAreaReference?
@@ -995,7 +1021,7 @@ let dialogueContent = document.sortedElementGeneratedContent(for: .dialogue)
 
 **Usage Example**:
 ```swift
-@available(macOS 15.0, iOS 17.0, *)
+@available(iOS 26.0, macCatalyst 26.0, *)
 struct GeneratedContentView: View {
     @StateObject private var audioPlayer = AudioPlayerManager()
     let document: GuionDocumentModel
@@ -1152,7 +1178,7 @@ SwiftCompartido provides comprehensive UI components for browsing, filtering, an
 
 **GeneratedContentListView** - Master-detail interface with filtering:
 ```swift
-@available(macOS 15.0, iOS 17.0, *)
+@available(iOS 26.0, macCatalyst 26.0, *)
 public struct GeneratedContentListView: View {
     let document: GuionDocumentModel
     let storageArea: StorageAreaReference?
@@ -1204,7 +1230,7 @@ let dialogueContent = document.sortedElementGeneratedContent(for: .dialogue)
 
 **Usage Example**:
 ```swift
-@available(macOS 15.0, iOS 17.0, *)
+@available(iOS 26.0, macCatalyst 26.0, *)
 struct GeneratedContentView: View {
     @StateObject private var audioPlayer = AudioPlayerManager()
     let document: GuionDocumentModel
@@ -1654,7 +1680,7 @@ let screenplay = try await GuionParsedElementCollection(string: text)
 
 - **Version**: 3.0.0 (Voice provider models removed - moved to separate library)
 - **Swift**: 6.2+
-- **Platforms**: macOS 26.0+, iOS 26.0+, Mac Catalyst 26.0+
+- **Platforms**: iOS 26.0+, Mac Catalyst 26.0+ (macOS standalone support removed in 3.0.0)
 - **Dependencies**: TextBundle, SwiftFijos (test-only)
 - **CI/CD**: GitHub Actions on macOS-latest with Xcode 16.0+
   - Parallel test execution (80% of CPUs, 2-3x faster)
@@ -1662,7 +1688,7 @@ let screenplay = try await GuionParsedElementCollection(string: text)
   - Platform API compatibility validation
   - Code quality checks
 - **License**: MIT
-- **Test Coverage**: 95%+ across 390 tests in 26 suites (AppleTTSProviderTests removed)
+- **Test Coverage**: 95%+ across 397 tests in 27 suites
   - GeneratedContentListView: Master-detail UI with MIME type filtering
   - TypedDataDetailView: Automatic content viewer with MIME routing
   - TypedDataRowView: Compact list rows with type-specific metadata
@@ -1670,4 +1696,4 @@ let screenplay = try await GuionParsedElementCollection(string: text)
   - TypedDataStorage migration: Complete with zero breaking changes
   - CloudKit support: Automatic asset management and conflict tracking
   - Progress reporting: Chunked I/O with byte-level progress for large files
-  - **Breaking Change**: Voice and VoiceModel removed (use separate voice provider library)
+  - iOS and Mac Catalyst cross-platform support
