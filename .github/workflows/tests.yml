@@ -22,64 +22,28 @@ jobs:
       - name: Show Swift version
         run: swift --version
 
-      - name: Build for iOS Simulator
+      - name: Run tests with Swift Package Manager
+        timeout-minutes: 10
         run: |
-          echo "🔨 Building for iOS Simulator (arm64)"
-          xcodebuild build \
-            -scheme SwiftCompartido \
-            -sdk iphonesimulator \
-            -destination 'platform=iOS Simulator,name=iPhone 17 Pro' \
-            -quiet \
-            CODE_SIGNING_ALLOWED=NO
-
-      - name: Run tests on iOS Simulator
-        timeout-minutes: 15
-        run: |
-          set +e
-
           TOTAL_CPUS=$(sysctl -n hw.ncpu)
           echo "🖥️  Total CPUs: $TOTAL_CPUS"
-          echo "🧪 Running tests on iOS Simulator"
+          echo "🧪 Running tests with swift test"
 
-          # Run tests with xcodebuild for iOS Simulator
-          xcodebuild test \
-            -scheme SwiftCompartido \
-            -sdk iphonesimulator \
-            -destination 'platform=iOS Simulator,name=iPhone 17 Pro' \
-            -enableCodeCoverage YES \
-            -parallel-testing-enabled YES \
-            -maximum-parallel-testing-workers $TOTAL_CPUS \
-            CODE_SIGNING_ALLOWED=NO \
-            > test_output.txt 2>&1
-          TEST_EXIT_CODE=$?
-          cat test_output.txt
-
-          # Check if tests passed
-          if grep -q "Test run with .* tests in .* suites passed\|TEST SUCCEEDED" test_output.txt; then
-            echo "✅ All tests passed"
-            exit 0
-          else
-            echo "❌ Tests failed"
-            exit $TEST_EXIT_CODE
-          fi
+          swift test --parallel --num-workers $TOTAL_CPUS
 
       - name: Generate coverage report
         continue-on-error: true
         run: |
-          echo "📊 Generating coverage report from xcodebuild results"
+          echo "📊 Generating coverage report"
 
-          # Find the most recent .xcresult bundle
-          XCRESULT=$(find ~/Library/Developer/Xcode/DerivedData -name "*.xcresult" -type d -print0 | xargs -0 ls -td | head -n 1)
+          # Run tests with coverage enabled
+          swift test --enable-code-coverage --parallel || true
 
-          if [ -z "$XCRESULT" ]; then
-            echo "⚠️  No .xcresult bundle found - skipping coverage report"
-            exit 0
-          fi
-
-          echo "Using xcresult: $XCRESULT"
-
-          # Export coverage using xcodebuild
-          xcrun xccov view --report --json "$XCRESULT" > coverage.json 2>/dev/null || {
+          # Generate coverage report
+          xcrun llvm-cov export \
+            .build/debug/SwiftCompartidoPackageTests.xctest/Contents/MacOS/SwiftCompartidoPackageTests \
+            -instr-profile .build/debug/codecov/default.profdata \
+            -format="lcov" > coverage.lcov 2>/dev/null || {
             echo "⚠️  Failed to generate coverage report"
             exit 0
           }
