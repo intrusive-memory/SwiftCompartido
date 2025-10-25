@@ -5,8 +5,8 @@
 SwiftCompartido provides comprehensive PDF screenplay reading capabilities using PDFKit and Core Graphics. This document assesses the current state of PDF reading, identifies what's needed for PDF writing, and provides test coverage metrics.
 
 **Last Updated**: 2025-10-25
-**Total Tests**: 412 (all passing ✅)
-**PDF-Specific Tests**: 15 (all passing ✅)
+**Total Tests**: 410 active (2 disabled for CI performance)
+**PDF-Specific Tests**: 13 active (2 disabled - large file tests)
 
 ---
 
@@ -77,17 +77,18 @@ The `PDFScreenplayParser` class provides complete functionality for extracting s
 
 ### Real-World Test Files
 
-The test suite validates against **9 actual screenplay PDFs**:
+The test suite validates against **8 actual screenplay PDFs** (all under 3MB for CI performance):
 
-1. **ATTACK-THE-BLOCK.pdf** (2,147 elements) - Action/sci-fi
-2. **BULLITT.pdf** (2,736 elements) - Classic action
-3. **Eternal Sunshine of the Spotless Mind.pdf** (2,834 elements) - Drama
-4. **Heathers_1x01_-_Pilot.pdf** (870 elements) - TV pilot
-5. **Legion_1x01_-_Chapter_One.pdf** (1,418 elements) - TV pilot
-6. **The Banshees of Inisherin.pdf** (2,413 elements) - Modern drama
-7. **angels-with-dirty-faces-1938.pdf** (3,873 elements) - Classic format
-8. **Anatomy-Of-A-Fall-Read-The-Screenplay.pdf** - Award-winning screenplay
-9. **The_Terror_1x01_-_Go_For_Broke.pdf** - TV drama
+1. **ATTACK-THE-BLOCK.pdf** (2,147 elements, 0.24MB) - Action/sci-fi
+2. **BULLITT.pdf** (2,736 elements, 0.25MB) - Classic action
+3. **Eternal Sunshine of the Spotless Mind.pdf** (2,834 elements, 0.79MB) - Drama
+4. **Heathers_1x01_-_Pilot.pdf** (870 elements, 0.13MB) - TV pilot
+5. **Legion_1x01_-_Chapter_One.pdf** (1,418 elements, 0.17MB) - TV pilot
+6. **The Banshees of Inisherin.pdf** (2,413 elements, 0.75MB) - Modern drama
+7. **Anatomy-Of-A-Fall-Read-The-Screenplay.pdf** (1.98MB) - Award-winning screenplay
+8. **The_Terror_1x01_-_Go_For_Broke.pdf** (0.29MB) - TV drama
+
+**Note:** Large PDFs over 3MB (like `angels-with-dirty-faces-1938.pdf` at 3.3MB) were removed from CI to prevent test timeouts. These can still be tested manually.
 
 ### API Usage
 

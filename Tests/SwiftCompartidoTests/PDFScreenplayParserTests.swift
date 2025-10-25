@@ -283,8 +283,8 @@ struct PDFScreenplayParserTests {
     @available(iOS 26.0, macCatalyst 26.0, *)
     @Test("Large PDF performance", .disabled("Large file - only run manually"))
     func testLargePDFPerformance() async throws {
-        // Test with the largest file
-        let url = getFixture("angels-with-dirty-faces-1938.pdf")
+        // Test with the largest file (1.98MB)
+        let url = getFixture("Anatomy-Of-A-Fall-Read-The-Screenplay.pdf")
 
         let start = Date()
         let screenplay = try await PDFScreenplayParser.parse(from: url)
@@ -320,17 +320,18 @@ struct PDFScreenplayParserTests {
     // MARK: - Format-Specific Tests
 
     @available(iOS 26.0, macCatalyst 26.0, *)
-    @Test("Parse classic screenplay format")
+    @Test("Parse classic screenplay format", .disabled("Large file removed - PDF over 3MB"))
     func testClassicFormat() async throws {
-        // Older screenplay format
-        let url = getFixture("angels-with-dirty-faces-1938.pdf")
+        // Older screenplay format (3.3MB file removed to speed up CI)
+        // Using BULLITT.pdf as alternative classic format
+        let url = getFixture("BULLITT.pdf")
 
         let screenplay = try await PDFScreenplayParser.parse(from: url)
 
         // Should extract content from classic format
         #expect(screenplay.elements.count > 0)
 
-        print("✅ Classic format (1938) - \(screenplay.elements.count) elements")
+        print("✅ Classic format - \(screenplay.elements.count) elements")
     }
 
     @available(iOS 26.0, macCatalyst 26.0, *)

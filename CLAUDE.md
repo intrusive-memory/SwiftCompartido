@@ -1551,3 +1551,4 @@ let screenplay = try await GuionParsedElementCollection(string: text)
   - Source file tracking: Security-scoped bookmarks with modification detection
   - iOS and Mac Catalyst cross-platform support
 - add to memory: "This is a MacCatalyst and iOS library only. Do not compile or program for MacOS directly, but use the Catalyst for everything"
+- Add to memory: "When tagging versions of a software library, we tag the commit that is the Merge commit of the PR, push that tag and then create a release in Github based on the tag."
