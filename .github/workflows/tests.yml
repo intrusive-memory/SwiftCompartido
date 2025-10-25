@@ -8,8 +8,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  test-short:
-    name: iOS Tests (Short)
+  test:
+    name: iOS Tests
     runs-on: macos-26
 
     steps:
@@ -32,14 +32,14 @@ jobs:
             -quiet \
             CODE_SIGNING_ALLOWED=NO
 
-      - name: Run short tests on iOS Simulator
+      - name: Run tests on iOS Simulator
         timeout-minutes: 10
         run: |
           set +e
 
           TOTAL_CPUS=$(sysctl -n hw.ncpu)
           echo "🖥️  Total CPUs: $TOTAL_CPUS"
-          echo "🧪 Running short tests on iOS Simulator"
+          echo "🧪 Running tests on iOS Simulator (long tests run on weekend schedule)"
 
           # Skip long-running test suites
           SKIP_TESTS=(
@@ -73,127 +73,18 @@ jobs:
             -maximum-parallel-testing-workers $TOTAL_CPUS \
             $SKIP_ARGS \
             CODE_SIGNING_ALLOWED=NO \
-            > test_output_short.txt 2>&1
+            > test_output.txt 2>&1
           TEST_EXIT_CODE=$?
-          cat test_output_short.txt
+          cat test_output.txt
 
           # Check if tests passed
-          if grep -q "Test run with .* tests in .* suites passed\|TEST SUCCEEDED" test_output_short.txt; then
-            echo "✅ All short tests passed"
+          if grep -q "Test run with .* tests in .* suites passed\|TEST SUCCEEDED" test_output.txt; then
+            echo "✅ All tests passed"
             exit 0
           else
-            echo "❌ Short tests failed"
+            echo "❌ Tests failed"
             exit $TEST_EXIT_CODE
           fi
-
-  test-long:
-    name: iOS Tests (Long)
-    runs-on: macos-26
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Select Xcode
-        run: sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
-
-      - name: Show Swift version
-        run: swift --version
-
-      - name: Build for iOS Simulator
-        run: |
-          echo "🔨 Building for iOS Simulator (arm64)"
-          xcodebuild build \
-            -scheme SwiftCompartido \
-            -sdk iphonesimulator \
-            -destination 'platform=iOS Simulator,name=iPhone 17 Pro' \
-            -quiet \
-            CODE_SIGNING_ALLOWED=NO
-
-      - name: Run long tests on iOS Simulator
-        timeout-minutes: 15
-        run: |
-          set +e
-
-          TOTAL_CPUS=$(sysctl -n hw.ncpu)
-          echo "🖥️  Total CPUs: $TOTAL_CPUS"
-          echo "🧪 Running long tests on iOS Simulator"
-
-          # Only run long-running test suites
-          LONG_TESTS=(
-            "IntegrationTests"
-            "ElementViewTests"
-            "AudioPlayerManagerTests"
-            "TruncationDebugTests"
-            "GeneratedContentSortingTests"
-            "FountainParserProgressTests"
-            "FDXParserProgressTests"
-            "SwiftDataProgressTests"
-            "PDFScreenplayParserTests"
-            "DocumentImportTests"
-            "DocumentExportTests"
-            "FileIOProgressTests"
-            "TextPackWriterProgressTests"
-          )
-
-          ONLY_ARGS=""
-          for test in "${LONG_TESTS[@]}"; do
-            ONLY_ARGS="$ONLY_ARGS -only-testing:SwiftCompartidoTests/$test"
-          done
-
-          # Run tests with xcodebuild for iOS Simulator
-          xcodebuild test \
-            -scheme SwiftCompartido \
-            -sdk iphonesimulator \
-            -destination 'platform=iOS Simulator,name=iPhone 17 Pro' \
-            -enableCodeCoverage YES \
-            -parallel-testing-enabled YES \
-            -maximum-parallel-testing-workers $TOTAL_CPUS \
-            $ONLY_ARGS \
-            CODE_SIGNING_ALLOWED=NO \
-            > test_output_long.txt 2>&1
-          TEST_EXIT_CODE=$?
-          cat test_output_long.txt
-
-          # Check if tests passed
-          if grep -q "Test run with .* tests in .* suites passed\|TEST SUCCEEDED" test_output_long.txt; then
-            echo "✅ All long tests passed"
-            exit 0
-          else
-            echo "❌ Long tests failed"
-            exit $TEST_EXIT_CODE
-          fi
-
-      - name: Generate coverage report
-        continue-on-error: true
-        run: |
-          echo "📊 Generating coverage report from xcodebuild results"
-
-          # Find the most recent .xcresult bundle
-          XCRESULT=$(find ~/Library/Developer/Xcode/DerivedData -name "*.xcresult" -type d -print0 | xargs -0 ls -td | head -n 1)
-
-          if [ -z "$XCRESULT" ]; then
-            echo "⚠️  No .xcresult bundle found - skipping coverage report"
-            exit 0
-          fi
-
-          echo "Using xcresult: $XCRESULT"
-
-          # Export coverage data
-          xcrun xccov view --report --json "$XCRESULT" > coverage.json 2>/dev/null || {
-            echo "⚠️  Failed to generate coverage report"
-            exit 0
-          }
-
-          echo "✅ Coverage report generated"
-
-      - name: Upload coverage to Codecov
-        if: hashFiles('coverage.json') != ''
-        continue-on-error: true
-        uses: codecov/codecov-action@v3
-        with:
-          files: ./coverage.json
-          fail_ci_if_error: false
 
   catalyst-build:
     name: Mac Catalyst Build Check
