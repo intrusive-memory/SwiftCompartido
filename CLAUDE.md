@@ -51,6 +51,13 @@ xcodebuild test \
   -destination 'platform=iOS Simulator,name=iPhone 17 Pro' \
   -enableCodeCoverage YES \
   CODE_SIGNING_ALLOWED=NO
+
+# Build for Mac Catalyst
+xcodebuild build \
+  -scheme SwiftCompartido \
+  -destination 'generic/platform=macOS,variant=Mac Catalyst' \
+  -arch arm64 \
+  CODE_SIGNING_ALLOWED=NO
 ```
 
 ## Core Architecture Patterns

@@ -81,16 +81,20 @@ case $TARGET in
 
   catalyst-arm64)
     echo -e "${BLUE}🔨 Building for Mac Catalyst (arm64)${NC}"
-    swift build \
-      -Xswiftc "-target" \
-      -Xswiftc "arm64-apple-ios26.0-macabi"
+    xcodebuild build \
+      -scheme SwiftCompartido \
+      -destination 'generic/platform=macOS,variant=Mac Catalyst' \
+      -arch arm64 \
+      CODE_SIGNING_ALLOWED=NO
     ;;
 
   catalyst-x86)
     echo -e "${BLUE}🔨 Building for Mac Catalyst (x86_64)${NC}"
-    swift build \
-      -Xswiftc "-target" \
-      -Xswiftc "x86_64-apple-ios26.0-macabi"
+    xcodebuild build \
+      -scheme SwiftCompartido \
+      -destination 'generic/platform=macOS,variant=Mac Catalyst' \
+      -arch x86_64 \
+      CODE_SIGNING_ALLOWED=NO
     ;;
 
   *)
