@@ -33,6 +33,7 @@ jobs:
             CODE_SIGNING_ALLOWED=NO
 
       - name: Run tests on iOS Simulator
+        timeout-minutes: 10
         run: |
           set +e
 
@@ -77,7 +78,7 @@ jobs:
 
           echo "Using xcresult: $XCRESULT"
 
-          # Export coverage using xcodebuild
+          # Export coverage data
           xcrun xccov view --report --json "$XCRESULT" > coverage.json 2>/dev/null || {
             echo "⚠️  Failed to generate coverage report"
             exit 0
