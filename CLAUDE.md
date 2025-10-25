@@ -120,6 +120,56 @@ Elements use composite key ordering: `(chapterIndex, orderIndex)`
 - Use `@Test("description")` macro, not `func test...`
 - All tests must pass before merging PRs
 
+### Test Execution Strategy
+
+Tests are split into **short** and **long** cycles to optimize CI performance:
+
+**Short Tests (runs on every PR/push):**
+- Timeout: 10 minutes
+- Excludes 13 long-running test suites
+- Expected completion: 2-5 minutes
+- Purpose: Fast feedback for developers
+
+**Long Tests (runs on weekend schedule):**
+- Runs: Saturdays and Sundays at 2 AM UTC
+- Timeout: 15 minutes
+- Only runs these 13 suites:
+  - `IntegrationTests`, `ElementViewTests`, `AudioPlayerManagerTests`
+  - `TruncationDebugTests`, `GeneratedContentSortingTests`
+  - `FountainParserProgressTests`, `FDXParserProgressTests`
+  - `SwiftDataProgressTests`, `PDFScreenplayParserTests`
+  - `DocumentImportTests`, `DocumentExportTests`
+  - `FileIOProgressTests`, `TextPackWriterProgressTests`
+
+### ⚠️ Adding New Tests - IMPORTANT
+
+When adding new tests, you **MUST** evaluate whether they belong in short or long tests:
+
+**Short tests should be:**
+- Fast (< 1 second per test typically)
+- Unit tests for individual functions/methods
+- Model tests (Codable, initialization, validation)
+- Simple integration tests without heavy I/O
+
+**Long tests should be:**
+- Integration tests with file I/O or complex workflows
+- UI rendering tests (SwiftUI views)
+- Progress callback tests with delays
+- Parser tests on large documents
+- End-to-end workflow tests
+
+**Decision criteria:**
+1. Run the test suite locally with timing
+2. If a test suite averages > 5 seconds total, consider it for long tests
+3. If individual tests take > 1 second, they likely belong in long tests
+4. **Default to short tests** unless there's a clear reason for long tests
+
+**To add a test suite to long tests:**
+1. Add the suite name to `SKIP_TESTS` array in `.github/workflows/tests.yml`
+2. Add the suite name to `LONG_TESTS` array in `.github/workflows/long-tests.yml`
+
+**Goal:** Keep short tests completing in under 5 minutes to maintain fast PR feedback
+
 ## Common Patterns
 
 ### Parsing Screenplays
@@ -177,11 +227,16 @@ try modelContext.save()
 - Direct pushes blocked (PRs only)
 - No PR review required
 - GitHub Actions must pass:
-  - iOS Tests: All 412 tests with coverage
+  - iOS Tests (Short): Fast unit tests (~300 tests, 2-5 min)
   - Mac Catalyst Build Check: Platform compatibility
   - Code Quality: TODOs, large files, print statements
 
-**Workflow:** Create PR → Tests run automatically → Merge when green
+**Workflow:** Create PR → Short tests run automatically → Merge when green
+
+**Weekend Testing:**
+- Long tests run Saturday/Sunday at 2 AM UTC (~100 tests, integration/UI)
+- Can be triggered manually via GitHub Actions UI
+- Includes coverage reporting to Codecov
 
 ## Documentation Resources
 
