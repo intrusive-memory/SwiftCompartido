@@ -66,7 +66,7 @@ Large content (audio, images) follows this pattern:
 4. Playback/display: Load from file URL directly
 
 **Storage decision tree:**
-- Text < 10KB: Store in `GeneratedTextRecord.text` property (in-memory)
+- Text < 10KB: Store in `TypedDataStorage.textValue` property (in-memory)
 - Text ≥ 10KB: Write to file, store `TypedDataFileReference`
 - Audio/Images: ALWAYS use file storage with `TypedDataFileReference`
 - Embeddings: Can be in-memory (small vectors) or file-based (large vectors)
@@ -146,8 +146,8 @@ let record = TypedDataStorage(
 **Migration Notes:**
 - No database migration needed - models are identical
 - Existing SwiftData stores work unchanged
-- Type aliases will be removed in v3.0.0
-- Migrate to TypedDataStorage for future-proofing
+- Type aliases are deprecated but maintained for backward compatibility
+- Use TypedDataStorage directly for new code
 
 ## Essential Commands
 
@@ -157,7 +157,7 @@ let record = TypedDataStorage(
 # Build the package
 swift build
 
-# Run all tests (397 tests across 27 suites)
+# Run all tests (412 tests across 28 suites)
 swift test
 
 # Run specific test suite
@@ -208,8 +208,9 @@ xcrun llvm-cov report .build/debug/SwiftCompartidoPackageTests.xctest/Contents/M
 **Screenplay Models:**
 - `GuionParsedElementCollection` - **Main screenplay container (recommended entry point)**
 - `GuionElement`, `ElementType` - Screenplay element tree
-- `FountainParser`, `FDXParser` - Format parsers (use via GuionParsedElementCollection)
+- `FountainParser`, `FDXParser`, `PDFScreenplayParser` - Format parsers (use via GuionParsedElementCollection)
 - `FountainWriter`, `FDXDocumentWriter` - Format export
+- **PDF Reading**: `PDFScreenplayParser` - Production-ready PDF-to-screenplay conversion (iOS 26.0+, Mac Catalyst 26.0+)
 
 **✅ ALWAYS use `GuionParsedElementCollection` for parsing** - avoid calling parsers directly.
 
@@ -321,11 +322,12 @@ public struct GuionElementsList: View {
 
 - **Minimum coverage**: 90% (current: 95%+)
 - **Test framework**: Swift Testing (NOT XCTest) for new tests, XCTest for legacy
-- **Test count**: 397 tests across 27 suites
+- **Test count**: 412 tests across 28 suites
   - ElementOrderingTests: 19 tests (chapter-based ordering)
-  - UIOrderingRegressionTests: 10 tests (NEW in 1.6.0)
+  - UIOrderingRegressionTests: 10 tests
   - FileIOProgressTests: 13 tests (Phase 6 file I/O progress)
   - CloudKitSupportTests: 17 tests (CloudKit sync patterns)
+  - PDFScreenplayParserTests: 15 tests (PDF reading)
 - Use `@Test("description")` macro for new tests, not `func test...`
 - All tests must pass before merging PRs
 - Parallel testing enabled in CI (2-3x faster)
@@ -395,7 +397,7 @@ The manager automatically detects file references vs in-memory data.
 - Direct pushes blocked (PRs only)
 - No PR review required
 - GitHub Actions must pass:
-  - Test job: Run all 314 tests with coverage (parallel execution enabled)
+  - Test job: Run all 412 tests with coverage (parallel execution enabled)
   - Mac Catalyst Build Check: Verify platform compatibility
   - Code Quality: Check for TODOs, large files, print statements
 - Enforced for all users including admins
@@ -1034,214 +1036,64 @@ struct GeneratedContentView: View {
 }
 ```
 
-## Source File Tracking
+### PDF Screenplay Reading
 
-GuionDocumentModel now tracks the original source file and can detect when it has been modified, allowing applications to prompt users to re-import updated versions.
+SwiftCompartido provides complete PDF reading capabilities for screenplay files using PDFKit.
 
-### New Properties
-
+**PDFScreenplayParser** - Production-ready PDF-to-screenplay conversion:
 ```swift
-/// Security-scoped bookmark to the original source file
-public var sourceFileBookmark: Data?
+// Parse PDF with progress tracking
+let progress = OperationProgress(totalUnits: 100) { update in
+    print("\(update.description) - \(Int((update.fractionCompleted ?? 0) * 100))%")
+}
 
-/// Date when this document was last imported from source
-public var lastImportDate: Date?
-
-/// Modification date of source file at time of import
-public var sourceFileModificationDate: Date?
-```
-
-### Setting Source File on Import
-
-```swift
-// When importing a screenplay
-// ✅ Use GuionParsedElementCollection (recommended)
-let screenplay = try await GuionParsedElementCollection(
-    file: sourceURL.path,
-    progress: nil
+let screenplay = try await PDFScreenplayParser.parse(
+    from: pdfURL,
+    progress: progress
 )
+
+// Convert to SwiftData
 let document = await GuionDocumentModel.from(screenplay, in: modelContext)
-
-// Set source file (creates security-scoped bookmark)
-document.setSourceFile(sourceURL)
-try modelContext.save()
 ```
 
-### Checking for Updates
+**Three-Phase Workflow:**
+1. **Text Extraction (20%)**: Uses PDFKit to extract text page-by-page
+2. **Fountain Conversion (60%)**: Heuristic-based format detection for screenplay elements
+3. **Screenplay Parsing (20%)**: Converts Fountain markup to structured GuionParsedElementCollection
 
-**GuionElementsList** - SwiftData @Query-based list:
+**Supported PDF Types:**
+- ✅ Movie scripts (traditional feature film format)
+- ✅ TV pilots (television screenplay format)
+- ✅ Classic screenplays (1930s+ formatting)
+- ✅ Modern PDF formats from various converters
+
+**Error Handling:**
 ```swift
-// Quick check
-if document.isSourceFileModified() {
-    // Prompt user to re-import
-    showUpdatePrompt()
-}
-
-// Detailed status
-let status = document.sourceFileStatus()
-switch status {
-case .modified:
-    // Source file has changed - prompt user
-    showUpdateAlert()
-case .upToDate:
-    // All good
-    break
-case .noSourceFile:
-    // Document wasn't imported from a file
-    break
-case .fileNotAccessible:
-    // Permissions issue
-    showPermissionsError()
-case .fileNotFound:
-    // File was moved or deleted
-    showFileNotFoundError()
+enum PDFScreenplayParserError: Error {
+    case fileNotFound
+    case unableToOpenPDF
+    case textExtractionFailed
+    case conversionFailed(Error)
+    case parsingFailed(Error)
 }
 ```
 
-### Re-importing from Source
+**Known Limitations:**
+- OCR not supported - PDFs must have embedded text
+- Password-protected PDFs not supported
+- Scanned documents require pre-processing with OCR tools
 
-```swift
-if let sourceURL = document.resolveSourceFileURL() {
-    // Start security-scoped access
-    let accessing = sourceURL.startAccessingSecurityScopedResource()
-    defer {
-        if accessing {
-            sourceURL.stopAccessingSecurityScopedResource()
-public struct GuionElementsList: View {
-    @Query private var elements: [GuionElementModel]
-    @Environment(\.screenplayFontSize) var fontSize
+**Test Coverage:** 15 comprehensive tests covering:
+- Basic operations (simple and large PDFs)
+- Text extraction (movie and TV formats)
+- Error handling (missing files, invalid paths)
+- Progress reporting (all 3 phases)
+- Element detection (scene headings, characters)
+- Multi-file processing
+- Performance validation (<30s for typical screenplays)
+- Format compatibility (classic 1938 to modern)
 
-    // Filtered to specific document
-    public init(document: GuionDocumentModel) {
-        let documentID = document.persistentModelID
-        _elements = Query(
-            filter: #Predicate<GuionElementModel> { element in
-                element.document?.persistentModelID == documentID
-            }
-        )
-    }
-
-    public var body: some View {
-        List {
-            ForEach(elements) { element in
-                // Switch on element type to display appropriate view
-                switch element.elementType {
-                case .action: ActionView(element: element)
-                case .dialogue: DialogueTextView(element: element)
-                case .sceneHeading: SceneHeadingView(element: element)
-                // ... other element types
-                }
-            }
-        }
-    }
-
-    // Re-import the updated file
-    // ✅ Use GuionParsedElementCollection (recommended)
-    let screenplay = try await GuionParsedElementCollection(
-        file: sourceURL.path,
-        progress: nil
-    )
-
-    // Update document elements...
-    document.setSourceFile(sourceURL)  // Update timestamps
-    try modelContext.save()
-}
-```
-
-### Source File Status Enum
-
-```swift
-public enum SourceFileStatus: Sendable {
-    case noSourceFile          // No source file set
-    case fileNotAccessible     // Cannot resolve bookmark
-    case fileNotFound          // File moved/deleted
-    case modified              // File has been updated
-    case upToDate              // File is current
-
-    var shouldPromptForUpdate: Bool  // True for .modified
-}
-```
-
-**Element Views** - Individual element rendering:
-- `ActionView` - Action lines with 10% margins
-- `DialogueTextView` - Dialogue with 25% margins
-- `DialogueCharacterView` - Character names
-- `SceneHeadingView` - Scene headings
-- `TransitionView` - Scene transitions
-- Plus 7 more element types
-
-All elements use Courier New font and proper screenplay formatting.
-
-### Generated Content UI Components (NEW in 2.1.0)
-
-SwiftCompartido provides comprehensive UI components for browsing, filtering, and previewing AI-generated content.
-
-**GeneratedContentListView** - Master-detail interface with filtering:
-```swift
-@available(iOS 26.0, macCatalyst 26.0, *)
-public struct GeneratedContentListView: View {
-    let document: GuionDocumentModel
-    let storageArea: StorageAreaReference?
-
-    // Features:
-    // - MIME type filtering (All, Text, Audio, Image, Video, Embedding)
-    // - Preview pane at top showing selected item
-    // - Scrollable list at bottom with compact rows
-    // - Automatic audio playback when selecting audio items
-    // - Content sorted by screenplay order (chapterIndex, orderIndex)
-}
-```
-
-**TypedDataDetailView** - Automatic content viewer with MIME type routing:
-- Displays header with metadata (icon, MIME type, provider, element position)
-- Shows prompt
-- Routes to appropriate viewer based on MIME type:
-  - `text/*` → TypedDataTextView
-  - `audio/*` → TypedDataAudioView
-  - `image/*` → TypedDataImageView
-  - `video/*` → TypedDataVideoView
-  - `application/x-embedding` → Custom embedding metadata view
-
-**TypedDataRowView** - Compact list row for generated content:
-- Color-coded icon (blue=text, green=audio, orange=image, red=video, purple=embedding)
-- Truncated prompt (2 lines max)
-- Element position badge (Ch X, Pos Y)
-- Type-specific metadata:
-  - Audio: Duration (MM:SS)
-  - Image: Dimensions (width×height)
-  - Text: Word count
-  - Embedding: Vector dimensions
-- Selection indicator with checkmark
-
-**Document-Level Content Access**:
-```swift
-// Get all element-owned generated content in screenplay order
-let allContent = document.sortedElementGeneratedContent
-
-// Filter by MIME type
-let audioContent = document.sortedElementGeneratedContent(mimeTypePrefix: "audio/")
-
-// Filter by element type
-let dialogueContent = document.sortedElementGeneratedContent(for: .dialogue)
-
-// All content is returned sorted by (chapterIndex, orderIndex)
-// Performance: <100ms for 100+ elements
-```
-
-**Usage Example**:
-```swift
-@available(iOS 26.0, macCatalyst 26.0, *)
-struct GeneratedContentView: View {
-    @StateObject private var audioPlayer = AudioPlayerManager()
-    let document: GuionDocumentModel
-    let storageArea: StorageAreaReference?
-
-    var body: some View {
-        GeneratedContentListView(document: document, storageArea: storageArea)
-            .environmentObject(audioPlayer)
-    }
-}
-```
+See `Docs/PDF_CAPABILITIES.md` for complete assessment including test details and real-world screenplay files tested.
 
 ## Source File Tracking
 
@@ -1638,15 +1490,15 @@ do {
 The implementation follows a 7-phase architecture:
 
 1. **Phase 0**: Foundation (`OperationProgress`, `ProgressUpdate`)
-2. **Phase 1**: FountainParser progress (9 features)
-3. **Phase 2**: FDXParser progress (8 features)
-4. **Phase 3**: TextPack Reader progress (9 features)
-5. **Phase 4**: TextPack Writer progress (8 features)
-6. **Phase 5**: SwiftData operations progress (7 features)
-7. **Phase 6**: File I/O progress (7 features)
-8. **Phase 7**: Integration tests (8 tests)
+2. **Phase 1**: FountainParser progress
+3. **Phase 2**: FDXParser progress
+4. **Phase 3**: TextPack Reader progress
+5. **Phase 4**: TextPack Writer progress
+6. **Phase 5**: SwiftData operations progress
+7. **Phase 6**: File I/O progress
+8. **Phase 7**: Integration tests
 
-**Total**: 314 tests across 22 test suites with 95%+ coverage.
+Progress reporting is fully integrated throughout the codebase with comprehensive test coverage.
 
 ### Backward Compatibility
 
@@ -1669,6 +1521,7 @@ let screenplay = try await GuionParsedElementCollection(string: text)
 - `README.md` - User-facing overview
 - `CLAUDE.md` - This file - architecture guide for Claude Code
 - `AI-REFERENCE.md` - Comprehensive API reference
+- `Docs/PDF_CAPABILITIES.md` - PDF reading capabilities assessment and test coverage
 - `SOURCE_FILE_TRACKING.md` - Complete guide to source file tracking feature
 - `FAST_TESTING.md` - Parallel testing guide for faster development
 - `TRUNCATION_DEBUG.md` - Debugging guide for UI text truncation issues
@@ -1688,12 +1541,13 @@ let screenplay = try await GuionParsedElementCollection(string: text)
   - Platform API compatibility validation
   - Code quality checks
 - **License**: MIT
-- **Test Coverage**: 95%+ across 397 tests in 27 suites
-  - GeneratedContentListView: Master-detail UI with MIME type filtering
-  - TypedDataDetailView: Automatic content viewer with MIME routing
-  - TypedDataRowView: Compact list rows with type-specific metadata
-  - Document-level content access: Sorted by screenplay order (chapterIndex, orderIndex)
-  - TypedDataStorage migration: Complete with zero breaking changes
+- **Test Coverage**: 95%+ across 412 tests in 28 suites
+  - PDF reading: Complete with PDFScreenplayParser (15 tests)
+  - Generated content UI: Master-detail views with MIME type filtering
+  - TypedDataStorage: Unified storage model with backward-compatible type aliases
   - CloudKit support: Automatic asset management and conflict tracking
-  - Progress reporting: Chunked I/O with byte-level progress for large files
+  - Progress reporting: Comprehensive progress tracking for all async operations
+  - Element ordering: Composite key (chapterIndex, orderIndex) with sortedElements
+  - Source file tracking: Security-scoped bookmarks with modification detection
   - iOS and Mac Catalyst cross-platform support
+- add to memory: "This is a MacCatalyst and iOS library only. Do not compile or program for MacOS directly, but use the Catalyst for everything"
