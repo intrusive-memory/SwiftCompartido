@@ -153,27 +153,58 @@ let record = TypedDataStorage(
 
 ### Building and Testing
 
+⚠️ **IMPORTANT**: This is an iOS and Mac Catalyst library. **DO NOT use `swift build` or `swift test`** directly - they will fail with macOS version errors because SPM tries to build for the host platform (macOS standalone is not supported).
+
+**Use the provided build script instead:**
+
 ```bash
-# Build the package
-swift build
+# Build for iOS Simulator (recommended for local development)
+./build.sh
 
 # Run all tests (412 tests across 28 suites)
-swift test
+./build.sh --action test
 
-# Run specific test suite
-swift test --filter AIResponseDataTests
-swift test --filter AudioPlayerManagerTests
+# Build for Mac Catalyst (arm64)
+./build.sh --target catalyst-arm64
 
-# Run tests with code coverage
-swift test --enable-code-coverage
+# Build for Mac Catalyst (x86_64)
+./build.sh --target catalyst-x86
 
-# Generate coverage report
-xcrun llvm-cov report \
-  .build/debug/SwiftCompartidoPackageTests.xctest/Contents/MacOS/SwiftCompartidoPackageTests \
-  -instr-profile .build/debug/codecov/default.profdata
+# Clean build artifacts
+./build.sh --action clean
 
-# List all available tests
-swift test --list-tests
+# Show help
+./build.sh --help
+```
+
+**Or use xcodebuild directly:**
+
+```bash
+# Build for iOS Simulator
+xcodebuild build \
+  -scheme SwiftCompartido \
+  -sdk iphonesimulator \
+  -destination 'platform=iOS Simulator,name=iPhone 17 Pro' \
+  CODE_SIGNING_ALLOWED=NO
+
+# Run tests on iOS Simulator
+xcodebuild test \
+  -scheme SwiftCompartido \
+  -sdk iphonesimulator \
+  -destination 'platform=iOS Simulator,name=iPhone 17 Pro' \
+  -enableCodeCoverage YES \
+  -parallel-testing-enabled YES \
+  CODE_SIGNING_ALLOWED=NO
+
+# Build for Mac Catalyst (arm64)
+swift build \
+  -Xswiftc "-target" \
+  -Xswiftc "arm64-apple-ios26.0-macabi"
+
+# Build for Mac Catalyst (x86_64)
+swift build \
+  -Xswiftc "-target" \
+  -Xswiftc "x86_64-apple-ios26.0-macabi"
 ```
 
 ### Development Workflow
@@ -186,11 +217,11 @@ gh api repos/intrusive-memory/SwiftCompartido/branches/main/protection | jq
 git checkout -b feature/my-feature
 
 # Run tests before committing
-swift test
+./build.sh --action test
 
-# View test coverage
-xcrun llvm-cov report .build/debug/SwiftCompartidoPackageTests.xctest/Contents/MacOS/SwiftCompartidoPackageTests \
-  -instr-profile .build/debug/codecov/default.profdata
+# View test coverage (after running tests with xcodebuild)
+XCRESULT=$(find ~/Library/Developer/Xcode/DerivedData -name "*.xcresult" -type d -print0 | xargs -0 ls -td | head -n 1)
+xcrun xccov view --report --json "$XCRESULT"
 ```
 
 ## Code Organization
