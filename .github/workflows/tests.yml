@@ -10,7 +10,7 @@ on:
 jobs:
   test:
     name: iOS Tests
-    runs-on: macos-26-xlarge  # 12 CPUs for faster parallel testing
+    runs-on: macos-26  # Using standard runner (xlarge requires billing)
 
     steps:
       - name: Checkout code
@@ -33,7 +33,7 @@ jobs:
             CODE_SIGNING_ALLOWED=NO
 
       - name: Run tests on iOS Simulator
-        timeout-minutes: 10
+        timeout-minutes: 15
         run: |
           set +e
 
