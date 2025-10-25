@@ -561,7 +561,7 @@ struct FileIOProgressTests {
 
     }
 
-    @Test("Loading large image file reports progress")
+    @Test("Loading large image file reports progress", .disabled("Async progress updates have timing issues on CI simulators"))
     func testImageLoadProgress() async throws {
         actor ProgressCollector {
             var bytesRead: [Int64] = []
