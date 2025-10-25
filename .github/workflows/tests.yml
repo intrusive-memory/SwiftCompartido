@@ -10,7 +10,7 @@ on:
 jobs:
   test:
     name: iOS Tests
-    runs-on: macos-26
+    runs-on: macos-26-xlarge  # 12 CPUs for faster parallel testing
 
     steps:
       - name: Checkout code
