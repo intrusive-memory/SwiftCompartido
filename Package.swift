@@ -30,6 +30,9 @@ let package = Package(
             dependencies: [
                 "SwiftCompartido",
                 .product(name: "SwiftFijos", package: "SwiftFijos")
+            ],
+            resources: [
+                .copy("../../Fixtures")
             ]
         ),
     ]

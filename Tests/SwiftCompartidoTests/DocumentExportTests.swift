@@ -31,7 +31,14 @@ final class DocumentExportTests: XCTestCase {
         modelContext = modelContainer.mainContext
 
         // Get fixtures path
-        let bundle = Bundle(for: type(of: self))
+        // Try SPM Bundle.module first, fall back to test bundle
+        let bundle: Bundle
+        #if SWIFT_PACKAGE
+        bundle = Bundle.module
+        #else
+        bundle = Bundle(for: type(of: self))
+        #endif
+
         guard let path = bundle.resourcePath else {
             throw NSError(domain: "Test", code: 1, userInfo: [NSLocalizedDescriptionKey: "Could not find resource path"])
         }

@@ -31,7 +31,13 @@ final class DocumentImportTests: XCTestCase {
         modelContext = modelContainer.mainContext
 
         // Get fixtures path
-        let bundle = Bundle(for: type(of: self))
+        // Try SPM Bundle.module first, fall back to test bundle
+        let bundle: Bundle
+        #if SWIFT_PACKAGE
+        bundle = Bundle.module
+        #else
+        bundle = Bundle(for: type(of: self))
+        #endif
 
         guard let path = bundle.resourcePath else {
             throw NSError(domain: "Test", code: 1, userInfo: [NSLocalizedDescriptionKey: "Could not find resource path"])
@@ -337,6 +343,118 @@ final class DocumentImportTests: XCTestCase {
         let result = transformFilename(input)
 
         XCTAssertEqual(result, "my.script.v2.guion", "Should preserve all dots except the extension")
+    }
+
+    // MARK: - Outline Elements Tests
+
+    func testHighlandFileWithOutlineElements() async throws {
+        // Test parsing of Highland file that contains only outline elements (synopsis)
+        let highlandURL = fixturesPath.appendingPathComponent("a fool in the desert.highland")
+
+        // Verify file exists
+        guard FileManager.default.fileExists(atPath: highlandURL.path) else {
+            XCTFail("Highland test file 'a fool in the desert.highland' not found at \(highlandURL.path)")
+            return
+        }
+
+        // Parse the Highland file
+        let screenplay = try GuionParsedElementCollection(highland: highlandURL)
+
+        // Verify we have elements
+        XCTAssertGreaterThan(screenplay.elements.count, 0, "Should have parsed elements from Highland file")
+
+        // Verify we have section headings (## markers)
+        let sectionHeadings = screenplay.elements.filter { $0.elementType.isSectionHeading }
+        XCTAssertGreaterThan(sectionHeadings.count, 0, "Should have section heading elements")
+
+        // Verify we have synopsis/outline elements (= markers)
+        let synopsisElements = screenplay.elements.filter { $0.elementType == .synopsis }
+        XCTAssertGreaterThan(synopsisElements.count, 0, "Should have synopsis/outline elements")
+
+        print("📝 Highland file parsing results:")
+        print("   Total elements: \(screenplay.elements.count)")
+        print("   Section headings: \(sectionHeadings.count)")
+        print("   Synopsis elements: \(synopsisElements.count)")
+
+        // Verify specific section headings from the "Save the Cat" beat sheet
+        let sectionTitles = sectionHeadings.map { $0.elementText }
+        print("   Section titles found: \(sectionTitles.prefix(10))")
+
+        // Check for specific titles (case-insensitive contains)
+        let hasOpeningImage = sectionTitles.contains(where: { $0.localizedCaseInsensitiveContains("Opening Image") })
+        let hasThemeStated = sectionTitles.contains(where: { $0.localizedCaseInsensitiveContains("Theme Stated") })
+        let hasCatalyst = sectionTitles.contains(where: { $0.localizedCaseInsensitiveContains("Catalyst") })
+
+        XCTAssertTrue(hasOpeningImage, "Should find 'Opening Image' section. Found: \(sectionTitles.prefix(5))")
+        XCTAssertTrue(hasThemeStated, "Should find 'Theme Stated' section")
+        XCTAssertTrue(hasCatalyst, "Should find 'Catalyst' section")
+
+        // Verify at least one synopsis element has content
+        let firstSynopsis = synopsisElements.first
+        XCTAssertNotNil(firstSynopsis, "Should have at least one synopsis element")
+        XCTAssertFalse(firstSynopsis?.elementText.isEmpty ?? true, "Synopsis element should have text content")
+    }
+
+    func testHighlandToSwiftDataConversion() async throws {
+        // Test converting Highland file with outline elements to SwiftData
+        let highlandURL = fixturesPath.appendingPathComponent("a fool in the desert.highland")
+
+        guard FileManager.default.fileExists(atPath: highlandURL.path) else {
+            XCTFail("Highland test file 'a fool in the desert.highland' not found")
+            return
+        }
+
+        // Parse the Highland file
+        let screenplay = try GuionParsedElementCollection(highland: highlandURL)
+
+        // Convert to SwiftData
+        let document = await GuionDocumentParserSwiftData.parse(
+            script: screenplay,
+            in: modelContext,
+            generateSummaries: false
+        )
+
+        // Verify document was created
+        XCTAssertNotNil(document, "Document should be created")
+
+        // Verify elements were converted to SwiftData models
+        let sortedElements = document.sortedElements
+        XCTAssertGreaterThan(sortedElements.count, 0, "Should have converted elements to SwiftData")
+
+        // Count element types in SwiftData
+        let sectionHeadingModels = sortedElements.filter { $0.elementType.isSectionHeading }
+        let synopsisModels = sortedElements.filter { $0.elementType == .synopsis }
+
+        XCTAssertGreaterThan(sectionHeadingModels.count, 0, "Should have section heading models in SwiftData")
+        XCTAssertGreaterThan(synopsisModels.count, 0, "Should have synopsis models in SwiftData")
+
+        print("📊 SwiftData conversion results:")
+        print("   Total element models: \(sortedElements.count)")
+        print("   Section heading models: \(sectionHeadingModels.count)")
+        print("   Synopsis models: \(synopsisModels.count)")
+
+        // Verify elements are properly sorted by (chapterIndex, orderIndex)
+        // Elements should be in ascending order by chapter, then by orderIndex within each chapter
+        var previousChapter = 0
+        var previousOrderInChapter = 0
+
+        for element in sortedElements {
+            if element.chapterIndex > previousChapter {
+                // New chapter - reset order counter
+                previousChapter = element.chapterIndex
+                previousOrderInChapter = element.orderIndex
+            } else if element.chapterIndex == previousChapter {
+                // Same chapter - orderIndex should not decrease
+                XCTAssertGreaterThanOrEqual(element.orderIndex, previousOrderInChapter,
+                    "Elements within chapter \(element.chapterIndex) should be in ascending order")
+                previousOrderInChapter = element.orderIndex
+            }
+        }
+
+        // Verify specific content is preserved
+        let firstSynopsis = synopsisModels.first
+        XCTAssertNotNil(firstSynopsis, "Should have at least one synopsis model")
+        XCTAssertFalse(firstSynopsis?.elementText.isEmpty ?? true, "Synopsis model should preserve text content")
     }
 
     // MARK: - Helper Methods
