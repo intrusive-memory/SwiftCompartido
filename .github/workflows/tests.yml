@@ -8,9 +8,9 @@ on:
   workflow_dispatch:
 
 jobs:
-  test:
-    name: iOS Tests
-    runs-on: macos-26  # Using standard runner (xlarge requires billing)
+  test-short:
+    name: iOS Tests (Short)
+    runs-on: macos-26
 
     steps:
       - name: Checkout code
@@ -32,14 +32,36 @@ jobs:
             -quiet \
             CODE_SIGNING_ALLOWED=NO
 
-      - name: Run tests on iOS Simulator
-        timeout-minutes: 15
+      - name: Run short tests on iOS Simulator
+        timeout-minutes: 10
         run: |
           set +e
 
           TOTAL_CPUS=$(sysctl -n hw.ncpu)
           echo "🖥️  Total CPUs: $TOTAL_CPUS"
-          echo "🧪 Running tests on iOS Simulator"
+          echo "🧪 Running short tests on iOS Simulator"
+
+          # Skip long-running test suites
+          SKIP_TESTS=(
+            "IntegrationTests"
+            "ElementViewTests"
+            "AudioPlayerManagerTests"
+            "TruncationDebugTests"
+            "GeneratedContentSortingTests"
+            "FountainParserProgressTests"
+            "FDXParserProgressTests"
+            "SwiftDataProgressTests"
+            "PDFScreenplayParserTests"
+            "DocumentImportTests"
+            "DocumentExportTests"
+            "FileIOProgressTests"
+            "TextPackWriterProgressTests"
+          )
+
+          SKIP_ARGS=""
+          for test in "${SKIP_TESTS[@]}"; do
+            SKIP_ARGS="$SKIP_ARGS -skip-testing:SwiftCompartidoTests/$test"
+          done
 
           # Run tests with xcodebuild for iOS Simulator
           xcodebuild test \
@@ -49,17 +71,96 @@ jobs:
             -enableCodeCoverage YES \
             -parallel-testing-enabled YES \
             -maximum-parallel-testing-workers $TOTAL_CPUS \
+            $SKIP_ARGS \
             CODE_SIGNING_ALLOWED=NO \
-            > test_output.txt 2>&1
+            > test_output_short.txt 2>&1
           TEST_EXIT_CODE=$?
-          cat test_output.txt
+          cat test_output_short.txt
 
           # Check if tests passed
-          if grep -q "Test run with .* tests in .* suites passed\|TEST SUCCEEDED" test_output.txt; then
-            echo "✅ All tests passed"
+          if grep -q "Test run with .* tests in .* suites passed\|TEST SUCCEEDED" test_output_short.txt; then
+            echo "✅ All short tests passed"
             exit 0
           else
-            echo "❌ Tests failed"
+            echo "❌ Short tests failed"
+            exit $TEST_EXIT_CODE
+          fi
+
+  test-long:
+    name: iOS Tests (Long)
+    runs-on: macos-26
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Select Xcode
+        run: sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
+
+      - name: Show Swift version
+        run: swift --version
+
+      - name: Build for iOS Simulator
+        run: |
+          echo "🔨 Building for iOS Simulator (arm64)"
+          xcodebuild build \
+            -scheme SwiftCompartido \
+            -sdk iphonesimulator \
+            -destination 'platform=iOS Simulator,name=iPhone 17 Pro' \
+            -quiet \
+            CODE_SIGNING_ALLOWED=NO
+
+      - name: Run long tests on iOS Simulator
+        timeout-minutes: 15
+        run: |
+          set +e
+
+          TOTAL_CPUS=$(sysctl -n hw.ncpu)
+          echo "🖥️  Total CPUs: $TOTAL_CPUS"
+          echo "🧪 Running long tests on iOS Simulator"
+
+          # Only run long-running test suites
+          LONG_TESTS=(
+            "IntegrationTests"
+            "ElementViewTests"
+            "AudioPlayerManagerTests"
+            "TruncationDebugTests"
+            "GeneratedContentSortingTests"
+            "FountainParserProgressTests"
+            "FDXParserProgressTests"
+            "SwiftDataProgressTests"
+            "PDFScreenplayParserTests"
+            "DocumentImportTests"
+            "DocumentExportTests"
+            "FileIOProgressTests"
+            "TextPackWriterProgressTests"
+          )
+
+          ONLY_ARGS=""
+          for test in "${LONG_TESTS[@]}"; do
+            ONLY_ARGS="$ONLY_ARGS -only-testing:SwiftCompartidoTests/$test"
+          done
+
+          # Run tests with xcodebuild for iOS Simulator
+          xcodebuild test \
+            -scheme SwiftCompartido \
+            -sdk iphonesimulator \
+            -destination 'platform=iOS Simulator,name=iPhone 17 Pro' \
+            -enableCodeCoverage YES \
+            -parallel-testing-enabled YES \
+            -maximum-parallel-testing-workers $TOTAL_CPUS \
+            $ONLY_ARGS \
+            CODE_SIGNING_ALLOWED=NO \
+            > test_output_long.txt 2>&1
+          TEST_EXIT_CODE=$?
+          cat test_output_long.txt
+
+          # Check if tests passed
+          if grep -q "Test run with .* tests in .* suites passed\|TEST SUCCEEDED" test_output_long.txt; then
+            echo "✅ All long tests passed"
+            exit 0
+          else
+            echo "❌ Long tests failed"
             exit $TEST_EXIT_CODE
           fi
 
