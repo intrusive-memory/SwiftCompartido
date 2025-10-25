@@ -33,6 +33,7 @@ jobs:
             CODE_SIGNING_ALLOWED=NO
 
       - name: Run tests on iOS Simulator
+        timeout-minutes: 15
         run: |
           set +e
 
