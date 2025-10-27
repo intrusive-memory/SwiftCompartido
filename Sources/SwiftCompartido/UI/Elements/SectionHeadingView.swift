@@ -36,19 +36,19 @@ public struct SectionHeadingView: View {
     private var fontForLevel: Font {
         switch level {
         case 1:
-            return .custom("Courier New", size: fontSize * 1.5).weight(.bold) // Title
+            return .custom("Helvetica Neue", size: fontSize * 1.5).weight(.bold) // Title
         case 2:
-            return .custom("Courier New", size: fontSize * 1.3).weight(.bold) // Act
+            return .custom("Helvetica Neue", size: fontSize * 1.3).weight(.bold) // Act
         case 3:
-            return .custom("Courier New", size: fontSize * 1.1).weight(.semibold) // Sequence
+            return .custom("Helvetica Neue", size: fontSize * 1.1).weight(.semibold) // Sequence
         case 4:
-            return .custom("Courier New", size: fontSize * 0.92).weight(.semibold) // Scene group (production directives)
+            return .custom("Helvetica Neue", size: fontSize * 0.92).weight(.semibold) // Scene group (production directives)
         case 5:
-            return .custom("Courier New", size: fontSize).weight(.medium) // Sub-scene
+            return .custom("Helvetica Neue", size: fontSize).weight(.medium) // Sub-scene
         case 6:
-            return .custom("Courier New", size: fontSize * 0.9).weight(.regular) // Beat
+            return .custom("Helvetica Neue", size: fontSize * 0.9).weight(.regular) // Beat
         default:
-            return .custom("Courier New", size: fontSize)
+            return .custom("Helvetica Neue", size: fontSize)
         }
     }
 
