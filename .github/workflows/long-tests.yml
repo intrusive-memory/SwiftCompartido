@@ -56,6 +56,14 @@ jobs:
             "DocumentExportTests"
             "FileIOProgressTests"
             "TextPackWriterProgressTests"
+            "FountainParserTests"
+            "GuionSerializationTests"
+            "GuionParsedElementCollectionParsingTests"
+            "TextPackTests"
+            "TypedDataStorageTests"
+            "CloudKitSupportTests"
+            "UIOrderingRegressionTests"
+            "ElementProgressStateTests"
           )
 
           ONLY_ARGS=""
@@ -145,3 +153,11 @@ jobs:
           echo "- DocumentExportTests" >> $GITHUB_STEP_SUMMARY
           echo "- FileIOProgressTests" >> $GITHUB_STEP_SUMMARY
           echo "- TextPackWriterProgressTests" >> $GITHUB_STEP_SUMMARY
+          echo "- FountainParserTests" >> $GITHUB_STEP_SUMMARY
+          echo "- GuionSerializationTests" >> $GITHUB_STEP_SUMMARY
+          echo "- GuionParsedElementCollectionParsingTests" >> $GITHUB_STEP_SUMMARY
+          echo "- TextPackTests" >> $GITHUB_STEP_SUMMARY
+          echo "- TypedDataStorageTests" >> $GITHUB_STEP_SUMMARY
+          echo "- CloudKitSupportTests" >> $GITHUB_STEP_SUMMARY
+          echo "- UIOrderingRegressionTests" >> $GITHUB_STEP_SUMMARY
+          echo "- ElementProgressStateTests" >> $GITHUB_STEP_SUMMARY
