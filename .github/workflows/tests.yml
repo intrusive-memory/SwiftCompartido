@@ -64,6 +64,7 @@ jobs:
             "CloudKitSupportTests"
             "UIOrderingRegressionTests"
             "ElementProgressStateTests"
+            "ElementOrderingTests"
           )
 
           SKIP_ARGS=""

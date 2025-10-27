@@ -64,6 +64,7 @@ jobs:
             "CloudKitSupportTests"
             "UIOrderingRegressionTests"
             "ElementProgressStateTests"
+            "ElementOrderingTests"
           )
 
           ONLY_ARGS=""
@@ -161,3 +162,4 @@ jobs:
           echo "- CloudKitSupportTests" >> $GITHUB_STEP_SUMMARY
           echo "- UIOrderingRegressionTests" >> $GITHUB_STEP_SUMMARY
           echo "- ElementProgressStateTests" >> $GITHUB_STEP_SUMMARY
+          echo "- ElementOrderingTests" >> $GITHUB_STEP_SUMMARY
