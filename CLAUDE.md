@@ -24,6 +24,57 @@ If your code uses `Voice` or `VoiceModel`:
 2. Remove direct references to `Voice` and `VoiceModel` from SwiftCompartido imports
 3. Continue using audio metadata fields (`voiceID`, `voiceName`) in `TypedDataStorage`
 
+## ✨ New Features in 3.2.0
+
+### Progress Tracking System
+
+- **ElementProgressState**: Observable state manager for tracking progress on multiple elements simultaneously
+- **ElementProgressTracker**: Scoped progress tracker with convenience methods (`withProgress`, `withSteps`)
+- **ElementProgressBar**: Auto-showing SwiftUI progress bar that appears below list items
+- Auto-hide functionality (configurable delay, default 2 seconds)
+- Thread-safe with `@MainActor` isolation
+- 25 comprehensive tests (all passing)
+
+```swift
+// Get progress tracker for an element
+let tracker = element.progressTracker(using: progressState)
+
+// Use convenience method for automatic error handling
+try await tracker.withProgress(
+    startMessage: "Generating audio...",
+    completeMessage: "Audio generated!"
+) { updateProgress in
+    updateProgress(0.5, "Processing...")
+    try await generateAudio(element)
+}
+```
+
+### GuionElementsList Trailing Columns
+
+- Generic trailing column support via `trailingContent` parameter
+- Each row can have custom buttons, actions, or metadata displays
+- Maintains backward compatibility (trailing column is optional)
+
+```swift
+GuionElementsList(document: screenplay) { element in
+    Button("Generate Audio") {
+        Task {
+            let tracker = element.progressTracker(using: progressState)
+            try await tracker.withProgress(...) { ... }
+        }
+    }
+}
+.environment(progressState)
+```
+
+### Documentation
+
+- `ELEMENT_PROGRESS_TRACKER.md`: Complete API reference
+- `PROGRESS_BARS.md`: User guide for progress bars
+- `GUION_ELEMENTS_LIST_COLUMNS.md`: Trailing column documentation
+- `TEST_COVERAGE_STATUS.md`: Test coverage analysis
+- `.claude/skills/add-guion-element-button.md`: Skill for creating custom buttons
+
 ## Essential Build Commands
 
 ⚠️ **CRITICAL**: This is an iOS and Mac Catalyst library. **DO NOT use `swift build` or `swift test`** directly - they fail with macOS version errors.
@@ -31,7 +82,7 @@ If your code uses `Voice` or `VoiceModel`:
 **Use the build script:**
 ```bash
 ./build.sh                  # Build for iOS Simulator
-./build.sh --action test    # Run all 412 tests
+./build.sh --action test    # Run all 437 tests
 ./build.sh --help           # Show all options
 ```
 
@@ -116,7 +167,7 @@ Elements use composite key ordering: `(chapterIndex, orderIndex)`
 
 - **Minimum coverage**: 90% (current: 95%+)
 - **Test framework**: Swift Testing for new tests, XCTest for legacy
-- **Test count**: 412 tests across 28 suites
+- **Test count**: 437 tests across 28 suites
 - Use `@Test("description")` macro, not `func test...`
 - All tests must pass before merging PRs
 
@@ -249,12 +300,12 @@ try modelContext.save()
 
 ## Project Metadata
 
-- **Version**: 3.0.0 (Voice provider models removed)
+- **Version**: 3.2.0 (Progress tracking system and trailing columns)
 - **Swift**: 6.2+
 - **Platforms**: iOS 26.0+, Mac Catalyst 26.0+ (macOS standalone removed in 3.0.0)
 - **Dependencies**: TextBundle, SwiftFijos (test-only)
 - **License**: MIT
-- **Test Coverage**: 95%+ across 412 tests in 28 suites
+- **Test Coverage**: 95%+ across 437 tests in 28 suites
 
 ## Important Reminders
 

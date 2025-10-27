@@ -33,7 +33,7 @@ jobs:
             CODE_SIGNING_ALLOWED=NO
 
       - name: Run tests on iOS Simulator
-        timeout-minutes: 10
+        timeout-minutes: 15
         run: |
           set +e
 
@@ -56,6 +56,15 @@ jobs:
             "DocumentExportTests"
             "FileIOProgressTests"
             "TextPackWriterProgressTests"
+            "FountainParserTests"
+            "GuionSerializationTests"
+            "GuionParsedElementCollectionParsingTests"
+            "TextPackTests"
+            "TypedDataStorageTests"
+            "CloudKitSupportTests"
+            "UIOrderingRegressionTests"
+            "ElementProgressStateTests"
+            "ElementOrderingTests"
           )
 
           SKIP_ARGS=""

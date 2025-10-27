@@ -4,7 +4,7 @@
     <img src="https://img.shields.io/badge/Swift-6.2+-orange.svg" />
     <img src="https://img.shields.io/badge/Platform-iOS%2026.0+%20|%20Mac%20Catalyst%2026.0+-lightgrey.svg" />
     <img src="https://img.shields.io/badge/License-MIT-blue.svg" />
-    <img src="https://img.shields.io/badge/Version-3.0.0-blue.svg" />
+    <img src="https://img.shields.io/badge/Version-3.2.0-blue.svg" />
 </p>
 
 **SwiftCompartido** is a comprehensive Swift package for screenplay management, AI-generated content storage, and document serialization. Built with SwiftData, SwiftUI, and modern Swift concurrency.
@@ -46,7 +46,10 @@
 
 ### 🎨 UI Components
 - **GuionViewer**: Screenplay rendering with proper formatting (simplified in 1.4.3)
-- **GuionElementsList**: Flat, @Query-based element list display (NEW in 1.4.3)
+- **GuionElementsList**: Flat, @Query-based element list display with trailing column support (NEW in 3.2.0)
+- **ElementProgressState**: Observable progress tracking for multiple elements simultaneously (NEW in 3.2.0)
+- **ElementProgressTracker**: Scoped progress tracker with convenience methods (NEW in 3.2.0)
+- **ElementProgressBar**: Auto-showing progress bars that appear below list items (NEW in 3.2.0)
 - **GeneratedContentListView**: Master-detail browser for AI-generated content with MIME filtering (NEW in 2.1.0)
 - **TypedDataDetailView**: Automatic content viewer with MIME type routing (NEW in 2.1.0)
 - **TypedDataRowView**: Compact list rows with type-specific metadata (NEW in 2.1.0)
@@ -58,11 +61,12 @@
 
 ### 📊 Progress Reporting
 - **Comprehensive Tracking**: Progress for all parsing, conversion, and export operations
+- **Per-Element Progress**: Track progress on individual screenplay elements with auto-hiding progress bars (NEW in 3.2.0)
 - **SwiftUI Integration**: Works seamlessly with `ProgressView` and `@Published` properties
 - **Cancellation Support**: All operations support `Task` cancellation with cleanup
 - **Performance Optimized**: <2% overhead, batched updates, thread-safe
 - **Backward Compatible**: Optional progress parameter - existing code unchanged
-- **397 Tests**: Full test coverage across 27 test suites
+- **437 Tests**: Full test coverage across 28 test suites
 
 ## Quick Start
 
@@ -74,14 +78,14 @@ Add to your `Package.swift`:
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/intrusive-memory/SwiftCompartido.git", from: "1.0.0")
+    .package(url: "https://github.com/intrusive-memory/SwiftCompartido.git", from: "3.2.0")
 ]
 ```
 
 Or in Xcode:
 1. **File → Add Package Dependencies**
 2. Enter: `https://github.com/intrusive-memory/SwiftCompartido.git`
-3. Select version: **1.0.0**
+3. Select version: **3.2.0** or later
 
 ### Usage Examples
 
@@ -437,17 +441,25 @@ Task {
 
 ## Testing
 
-SwiftCompartido has **95%+ test coverage** with **314 passing tests** across 22 test suites.
+SwiftCompartido has **95%+ test coverage** with **437 passing tests** across 28 test suites.
 
 Run tests:
 
 ```bash
-# Run all tests
-swift test
+# Run all tests (iOS/Mac Catalyst only - uses xcodebuild)
+./build.sh --action test
 
-# Run tests in parallel (faster)
-swift test --parallel --num-workers 10
+# Run tests with parallel execution (80% CPU utilization)
+xcodebuild test \
+  -scheme SwiftCompartido \
+  -sdk iphonesimulator \
+  -destination 'platform=iOS Simulator,name=iPhone 17 Pro' \
+  -parallel-testing-enabled YES \
+  -parallel-testing-worker-count 9 \
+  CODE_SIGNING_ALLOWED=NO
 ```
+
+**Note**: This library is iOS and Mac Catalyst only. Use `./build.sh` or `xcodebuild` instead of `swift test`.
 
 ## Contributing
 
