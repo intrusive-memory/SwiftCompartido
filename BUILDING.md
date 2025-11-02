@@ -2,22 +2,16 @@
 
 ## Platform Support
 
-SwiftCompartido is an **iOS and Mac Catalyst library only**. It does **NOT** support macOS standalone.
+SwiftCompartido supports iOS, macOS, and Mac Catalyst.
 
 Supported platforms:
 - ✅ iOS 26.0+
+- ✅ macOS 26.0+
 - ✅ Mac Catalyst 26.0+
-- ❌ macOS standalone (not supported)
 
-## Why `swift build` Doesn't Work
+## Building for macOS
 
-When you run `swift build` or `swift test` without specifying a target, Swift Package Manager tries to build for your host platform (macOS). This causes errors like:
-
-```
-error: the library 'SwiftCompartido' requires macos 10.13, but depends on the product 'TextBundle' which requires macos 10.14
-```
-
-**This is expected behavior** - the library is not designed to build for macOS standalone.
+The library now supports macOS 26.0+. You can use `swift build` and `swift test` directly on macOS, or use the build script for iOS and Mac Catalyst targets.
 
 ## How to Build
 
@@ -85,14 +79,14 @@ swift build \
 When integrating SwiftCompartido into your app:
 
 1. **For iOS apps**: Just add as a normal Swift Package dependency
-2. **For Mac Catalyst apps**: Add as a dependency and ensure your app target includes Mac Catalyst
-3. **For macOS apps**: ❌ Not supported - use the iOS version with Mac Catalyst instead
+2. **For macOS apps**: Just add as a normal Swift Package dependency (requires macOS 26.0+)
+3. **For Mac Catalyst apps**: Add as a dependency and ensure your app target includes Mac Catalyst
 
 ### Xcode Integration
 
 In Xcode:
 1. Add SwiftCompartido as a package dependency
-2. Ensure your app target includes iOS and/or Mac Catalyst (not macOS standalone)
+2. Ensure your app target includes iOS, macOS (26.0+), or Mac Catalyst
 3. Build and run normally - Xcode handles the platform selection
 
 ## CI/CD
@@ -115,9 +109,9 @@ See `.github/workflows/tests.yml` for the complete CI configuration.
 
 ### Error: "requires macos X.X"
 
-**Problem**: You're trying to build with `swift build` directly.
+**Problem**: You may be using an older version of macOS.
 
-**Solution**: Use `./build.sh` or `xcodebuild` with iOS Simulator/Catalyst targets.
+**Solution**: Ensure you're running macOS 26.0 or later, or use `./build.sh` to build for iOS Simulator/Catalyst targets.
 
 ### Error: "No such module 'SwiftCompartido'"
 
@@ -126,13 +120,13 @@ See `.github/workflows/tests.yml` for the complete CI configuration.
 **Solution**:
 1. Clean with `./build.sh --action clean`
 2. Build with `./build.sh`
-3. Make sure your app target includes iOS or Mac Catalyst
+3. Make sure your app target includes iOS, macOS 26.0+, or Mac Catalyst
 
 ### Error: "Unsupported platform"
 
-**Problem**: Trying to use in a macOS standalone app.
+**Problem**: Trying to use on an unsupported platform or OS version.
 
-**Solution**: Convert your app to Mac Catalyst or use it only on iOS.
+**Solution**: Ensure your app target is set to iOS 26.0+, macOS 26.0+, or Mac Catalyst 26.0+.
 
 ## Questions?
 

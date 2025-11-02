@@ -6,6 +6,7 @@ let package = Package(
     name: "SwiftCompartido",
     platforms: [
         .iOS(.v26),
+        .macOS(.v26),
         .macCatalyst(.v26)
     ],
     products: [

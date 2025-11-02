@@ -2,7 +2,7 @@
 
 <p align="center">
     <img src="https://img.shields.io/badge/Swift-6.2+-orange.svg" />
-    <img src="https://img.shields.io/badge/Platform-iOS%2026.0+%20|%20Mac%20Catalyst%2026.0+-lightgrey.svg" />
+    <img src="https://img.shields.io/badge/Platform-iOS%2026.0+%20|%20macOS%2026.0+%20|%20Mac%20Catalyst%2026.0+-lightgrey.svg" />
     <img src="https://img.shields.io/badge/License-MIT-blue.svg" />
     <img src="https://img.shields.io/badge/Version-3.2.0-blue.svg" />
 </p>
@@ -435,6 +435,7 @@ Task {
 ## Requirements
 
 - **iOS**: 26.0+
+- **macOS**: 26.0+
 - **Mac Catalyst**: 26.0+
 - **Swift**: 6.2+
 - **Xcode**: 16.0+
@@ -446,7 +447,7 @@ SwiftCompartido has **95%+ test coverage** with **437 passing tests** across 28 
 Run tests:
 
 ```bash
-# Run all tests (iOS/Mac Catalyst only - uses xcodebuild)
+# Run all tests (uses xcodebuild)
 ./build.sh --action test
 
 # Run tests with parallel execution (80% CPU utilization)
@@ -459,7 +460,7 @@ xcodebuild test \
   CODE_SIGNING_ALLOWED=NO
 ```
 
-**Note**: This library is iOS and Mac Catalyst only. Use `./build.sh` or `xcodebuild` instead of `swift test`.
+**Note**: Use `./build.sh` or `xcodebuild` for reliable builds and testing.
 
 ## Contributing
 

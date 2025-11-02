@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 SwiftCompartido is a Swift package for screenplay management, AI-generated content storage, and document serialization. The library uses **Phase 6 Architecture** - a file-based storage pattern that separates in-memory data transfer objects (DTOs) from file-persisted content to prevent main thread blocking.
 
-**Platforms**: iOS 26.0+, Mac Catalyst 26.0+ only. **No macOS standalone support.**
+**Platforms**: iOS 26.0+, macOS 26.0+, Mac Catalyst 26.0+
 
 ## ⚠️ Breaking Changes in 3.0.0
 
@@ -302,14 +302,14 @@ try modelContext.save()
 
 - **Version**: 3.2.0 (Progress tracking system and trailing columns)
 - **Swift**: 6.2+
-- **Platforms**: iOS 26.0+, Mac Catalyst 26.0+ (macOS standalone removed in 3.0.0)
+- **Platforms**: iOS 26.0+, macOS 26.0+, Mac Catalyst 26.0+
 - **Dependencies**: TextBundle, SwiftFijos (test-only)
 - **License**: MIT
 - **Test Coverage**: 95%+ across 437 tests in 28 suites
 
 ## Important Reminders
 
-- This is an iOS and Mac Catalyst library ONLY. Do not compile for macOS standalone.
+- This library supports iOS, macOS, and Mac Catalyst.
 - When tagging versions, tag the merge commit of the PR, push the tag, then create a GitHub release.
 - ALWAYS use `GuionParsedElementCollection` for parsing - avoid calling parsers directly.
 - ALWAYS use `document.sortedElements` for ordered element access.
