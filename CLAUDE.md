@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 SwiftCompartido is a Swift package for screenplay management, AI-generated content storage, and document serialization. The library uses **Phase 6 Architecture** - a file-based storage pattern that separates in-memory data transfer objects (DTOs) from file-persisted content to prevent main thread blocking.
 
-**Platforms**: iOS 26.0+, Mac Catalyst 26.0+ only. **No macOS standalone support.**
+**Platforms**: iOS 26.0+, macOS 26.0+, Mac Catalyst 26.0+
 
 ## ⚠️ Breaking Changes in 3.0.0
 
@@ -100,6 +100,19 @@ xcodebuild test \
   -scheme SwiftCompartido \
   -sdk iphonesimulator \
   -destination 'platform=iOS Simulator,name=iPhone 17 Pro' \
+  -enableCodeCoverage YES \
+  CODE_SIGNING_ALLOWED=NO
+
+# Build for macOS
+xcodebuild build \
+  -scheme SwiftCompartido \
+  -destination 'platform=macOS' \
+  CODE_SIGNING_ALLOWED=NO
+
+# Test on macOS
+xcodebuild test \
+  -scheme SwiftCompartido \
+  -destination 'platform=macOS' \
   -enableCodeCoverage YES \
   CODE_SIGNING_ALLOWED=NO
 
@@ -279,6 +292,7 @@ try modelContext.save()
 - No PR review required
 - GitHub Actions must pass:
   - iOS Tests (Short): Fast unit tests (~300 tests, 2-5 min)
+  - macOS Tests (Short): Fast unit tests on macOS platform (~300 tests, 2-5 min)
   - Mac Catalyst Build Check: Platform compatibility
   - Code Quality: TODOs, large files, print statements
 
@@ -286,8 +300,9 @@ try modelContext.save()
 
 **Weekend Testing:**
 - Long tests run Saturday/Sunday at 2 AM UTC (~100 tests, integration/UI)
+- Runs on both iOS Simulator and macOS platforms
 - Can be triggered manually via GitHub Actions UI
-- Includes coverage reporting to Codecov
+- Includes coverage reporting to Codecov (separate flags for iOS and macOS)
 
 ## Documentation Resources
 
@@ -300,16 +315,16 @@ try modelContext.save()
 
 ## Project Metadata
 
-- **Version**: 3.2.0 (Progress tracking system and trailing columns)
+- **Version**: 3.3.0 (macOS 26.0+ platform support)
 - **Swift**: 6.2+
-- **Platforms**: iOS 26.0+, Mac Catalyst 26.0+ (macOS standalone removed in 3.0.0)
+- **Platforms**: iOS 26.0+, macOS 26.0+, Mac Catalyst 26.0+
 - **Dependencies**: TextBundle, SwiftFijos (test-only)
 - **License**: MIT
 - **Test Coverage**: 95%+ across 437 tests in 28 suites
 
 ## Important Reminders
 
-- This is an iOS and Mac Catalyst library ONLY. Do not compile for macOS standalone.
+- This library supports iOS, macOS, and Mac Catalyst.
 - When tagging versions, tag the merge commit of the PR, push the tag, then create a GitHub release.
 - ALWAYS use `GuionParsedElementCollection` for parsing - avoid calling parsers directly.
 - ALWAYS use `document.sortedElements` for ordered element access.

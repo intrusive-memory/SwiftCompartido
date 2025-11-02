@@ -4,7 +4,7 @@
 
 **Version**: 3.0.0
 **Swift Version**: 6.2+
-**Platforms**: iOS 26.0+, Mac Catalyst 26.0+
+**Platforms**: iOS 26.0+, macOS 26.0+, Mac Catalyst 26.0+
 **Last Updated**: 2025-10-20
 
 ---
