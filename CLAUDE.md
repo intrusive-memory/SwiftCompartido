@@ -103,6 +103,19 @@ xcodebuild test \
   -enableCodeCoverage YES \
   CODE_SIGNING_ALLOWED=NO
 
+# Build for macOS
+xcodebuild build \
+  -scheme SwiftCompartido \
+  -destination 'platform=macOS' \
+  CODE_SIGNING_ALLOWED=NO
+
+# Test on macOS
+xcodebuild test \
+  -scheme SwiftCompartido \
+  -destination 'platform=macOS' \
+  -enableCodeCoverage YES \
+  CODE_SIGNING_ALLOWED=NO
+
 # Build for Mac Catalyst
 xcodebuild build \
   -scheme SwiftCompartido \
@@ -279,6 +292,7 @@ try modelContext.save()
 - No PR review required
 - GitHub Actions must pass:
   - iOS Tests (Short): Fast unit tests (~300 tests, 2-5 min)
+  - macOS Tests (Short): Fast unit tests on macOS platform (~300 tests, 2-5 min)
   - Mac Catalyst Build Check: Platform compatibility
   - Code Quality: TODOs, large files, print statements
 
@@ -286,8 +300,9 @@ try modelContext.save()
 
 **Weekend Testing:**
 - Long tests run Saturday/Sunday at 2 AM UTC (~100 tests, integration/UI)
+- Runs on both iOS Simulator and macOS platforms
 - Can be triggered manually via GitHub Actions UI
-- Includes coverage reporting to Codecov
+- Includes coverage reporting to Codecov (separate flags for iOS and macOS)
 
 ## Documentation Resources
 
