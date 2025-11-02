@@ -300,7 +300,7 @@ try modelContext.save()
 
 ## Project Metadata
 
-- **Version**: 3.2.0 (Progress tracking system and trailing columns)
+- **Version**: 3.3.0 (macOS 26.0+ platform support)
 - **Swift**: 6.2+
 - **Platforms**: iOS 26.0+, macOS 26.0+, Mac Catalyst 26.0+
 - **Dependencies**: TextBundle, SwiftFijos (test-only)
