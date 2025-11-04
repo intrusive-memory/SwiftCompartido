@@ -12,6 +12,7 @@ import SwiftData
 public struct GuionElementsList<TrailingContent: View>: View {
     @Query private var elements: [GuionElementModel]
     @Environment(\.screenplayFontSize) var fontSize
+    @StateObject private var dismissCoordinator = PopoverDismissCoordinator()
 
     private let trailingContent: ((GuionElementModel) -> TrailingContent)?
 
@@ -70,50 +71,13 @@ public struct GuionElementsList<TrailingContent: View>: View {
     public var body: some View {
         List {
             ForEach(elements) { element in
-                VStack(spacing: 0) {
-                    // Main row with element content and trailing column
-                    HStack(alignment: .top) {
-                        switch element.elementType {
-                        case .action:
-                            ActionView(element: element)
-                        case .sceneHeading:
-                            SceneHeadingView(element: element)
-                        case .character:
-                            DialogueCharacterView(element: element)
-                        case .dialogue:
-                            DialogueTextView(element: element)
-                        case .parenthetical:
-                            DialogueParentheticalView(element: element)
-                        case .lyrics:
-                            DialogueLyricsView(element: element)
-                        case .transition:
-                            TransitionView(element: element)
-                        case .sectionHeading:
-                            SectionHeadingView(element: element)
-                        case .synopsis:
-                            SynopsisView(element: element)
-                        case .comment:
-                            CommentView(element: element)
-                        case .boneyard:
-                            BoneyardView(element: element)
-                        case .pageBreak:
-                            PageBreakView()
-                        }
-
-                        // Add trailing column content if provided
-                        if let trailingContent = trailingContent {
-                            trailingContent(element)
-                        }
-                    }
-
-                    // Progress bar row (auto-shows when progress is active)
-                    ElementProgressBar(element: element)
-                }
+                GuionElementRow(element: element, trailingContent: trailingContent)
             }
             .listRowSeparator(.hidden)
             .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
         }
         .listStyle(.plain)
+        .environmentObject(dismissCoordinator)
     }
 }
 
