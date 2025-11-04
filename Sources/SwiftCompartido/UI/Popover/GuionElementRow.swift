@@ -17,7 +17,7 @@ struct GuionElementRow<TrailingContent: View>: View {
     let trailingContent: ((GuionElementModel) -> TrailingContent)?
 
     @Environment(\.guionElementPopover) private var popoverProvider
-    @EnvironmentObject private var dismissCoordinator: PopoverDismissCoordinator
+    @Environment(\.popoverDismissCoordinator) private var dismissCoordinator
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     // Separate hover states for element and popover (for interactive support)
@@ -91,7 +91,7 @@ struct GuionElementRow<TrailingContent: View>: View {
             // Progress bar row (auto-shows when progress is active)
             ElementProgressBar(element: element)
         }
-        .onChange(of: dismissCoordinator.shouldDismiss) { oldValue, newValue in
+        .onChange(of: dismissCoordinator?.shouldDismiss) { oldValue, newValue in
             if newValue == true && showPopover {
                 dismissPopover()
             }
@@ -99,7 +99,7 @@ struct GuionElementRow<TrailingContent: View>: View {
         .onDisappear {
             // Dismiss popover when row disappears (e.g., during scroll)
             if showPopover {
-                dismissCoordinator.triggerDismiss()
+                dismissCoordinator?.triggerDismiss()
             }
         }
     }
