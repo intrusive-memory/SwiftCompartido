@@ -48,35 +48,44 @@ struct GuionElementRow<TrailingContent: View>: View {
     var body: some View {
         VStack(spacing: 0) {
             // Main row with element content and trailing column
-            HStack(alignment: .top) {
+            HStack(alignment: .top, spacing: 0) {
                 elementView
 
                 // Add trailing column content if provided
                 if let trailingContent = trailingContent {
                     trailingContent(element)
                 }
+
+                Spacer()
+
+                // Hover target area (only shown if popover is available)
+                if popoverProvider != nil {
+                    hoverTarget
+                }
             }
             .background(
                 // Visual feedback during long-press
                 isLongPressing ? Color.primary.opacity(0.05) : Color.clear
             )
-            .onHover { hovering in
-                handleElementHover(hovering)
-            }
+            #if os(macOS)
+            // macOS: Keep long-press as fallback for non-trackpad interactions
             .onLongPressGesture(minimumDuration: longPressDuration, perform: {
                 handleLongPressComplete()
             }, onPressingChanged: { pressing in
                 handleLongPressChanged(pressing)
             })
+            #endif
             .simultaneousGesture(
                 // Tap outside to dismiss when popover is visible
+                // This doesn't conflict with the hover target tap because
+                // the hover target has its own onTapGesture with higher priority
                 TapGesture().onEnded { _ in
                     if showPopover {
                         dismissPopover()
                     }
                 }
             )
-            .overlay(alignment: .top) {
+            .overlay(alignment: .topTrailing) {
                 if showPopover, let provider = popoverProvider {
                     popoverView(content: provider(element))
                         .onHover { hoveringPopover in
@@ -102,6 +111,27 @@ struct GuionElementRow<TrailingContent: View>: View {
                 dismissCoordinator.triggerDismiss()
             }
         }
+    }
+
+    // MARK: - Hover Target
+
+    /// Small hover/tap area that triggers the popover
+    /// - macOS: Hover to show popover
+    /// - iOS: Tap to toggle popover
+    @ViewBuilder
+    private var hoverTarget: some View {
+        Rectangle()
+            .fill(Color.clear)
+            .frame(width: 120, height: 40)
+            .contentShape(Rectangle())
+            .onHover { hovering in
+                handleElementHover(hovering)
+            }
+            #if os(iOS)
+            .onTapGesture {
+                handleTap()
+            }
+            #endif
     }
 
     // MARK: - Element View
@@ -143,12 +173,12 @@ struct GuionElementRow<TrailingContent: View>: View {
     @ViewBuilder
     private func popoverView(content: AnyView) -> some View {
         content
-            .frame(maxWidth: 400, maxHeight: 100)
+            .fixedSize()
             .padding(12)
             .background(.ultraThinMaterial)
             .cornerRadius(12)
-            .shadow(color: .black.opacity(0.2), radius: 8, x: 0, y: 4)
-            .offset(y: -8)
+            .shadow(color: .black.opacity(0.35), radius: 12, x: 0, y: 6)
+            .offset(x: -12, y: -8)
             .transition(reduceMotion ? .identity : .opacity.combined(with: .scale(scale: 0.95)))
             .animation(reduceMotion ? .none : .easeInOut(duration: 0.2), value: showPopover)
             .accessibilityElement(children: .combine)
@@ -249,6 +279,21 @@ struct GuionElementRow<TrailingContent: View>: View {
         #endif
     }
 
+    // MARK: - Tap Handling (iOS Touch Support)
+
+    /// Handles tap gesture on hover target (iOS only)
+    /// Toggles popover visibility with haptic feedback
+    private func handleTap() {
+        #if os(iOS)
+        // Toggle popover
+        showPopover.toggle()
+
+        // Trigger haptic feedback
+        let generator = UIImpactFeedbackGenerator(style: .light)
+        generator.impactOccurred()
+        #endif
+    }
+
     /// Dismisses the popover
     private func dismissPopover() {
         showPopover = false
@@ -339,7 +384,7 @@ struct GuionElementRow<TrailingContent: View>: View {
     .padding()
 }
 
-#Preview("Element Row with Long-Press (Touch)") {
+#Preview("Element Row with Tap (iOS Touch)") {
     @Previewable @State var element = GuionElementModel(
         elementText: "SARAH enters the building.",
         elementType: .action,
@@ -348,14 +393,14 @@ struct GuionElementRow<TrailingContent: View>: View {
     )
 
     return VStack(spacing: 16) {
-        Text("Instructions: Long-press (500ms) to show popover")
+        Text("Instructions: Tap the right side to toggle popover")
             .font(.caption)
             .foregroundStyle(.secondary)
 
         GuionElementRow<EmptyView>(element: element, trailingContent: nil)
             .guionElementPopover { element in
                 VStack(alignment: .leading, spacing: 6) {
-                    Text("Long-Press Activated!")
+                    Text("Tap Activated!")
                         .font(.caption.bold())
                     Button("Generate Audio") {
                         print("Generate tapped")
