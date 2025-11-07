@@ -5,6 +5,34 @@ All notable changes to SwiftCompartido will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.4.1] - 2025-11-07
+
+### 🐛 iOS Tap Gesture & Hover Target Fixes
+
+This patch release adds native tap gesture support for iOS devices, making popover interactions more intuitive on touch-enabled devices, and fixes hover target issues on macOS.
+
+### Added
+
+#### iOS Touch Support
+- **Tap gesture support** for iOS devices on the 120pt hover target area
+  - Toggle popover visibility with a simple tap
+  - Light haptic feedback for better tactile response
+  - All changes properly guarded with `#if os(iOS)` platform checks
+
+#### Improvements
+- **PopoverDismissCoordinator** now uses `@EnvironmentObject` to ensure proper `onChange` firing
+- Removed unintuitive 500ms long-press requirement on iOS (kept on macOS as fallback)
+- macOS hover behavior unchanged (300ms delay preserved)
+
+### Platform Support
+- ✅ **macOS**: Hover to show popover (unchanged)
+- ✅ **iOS with trackpad**: Hover support (unchanged)
+- ✅ **iOS touch**: Tap to toggle popover (new)
+
+### Fixed
+- Fixed `onChange` not firing by switching from `@Environment` to `@EnvironmentObject` for dismiss coordinator
+- Improved hover target detection and popover positioning
+
 ## [3.2.0] - 2025-10-27
 
 ### ✨ Progress Tracking System and Trailing Columns
