@@ -27,8 +27,8 @@ struct GuionElementPopoverModifier<PopoverContent: View>: ViewModifier {
 extension View {
     /// Adds interactive popover support to GuionElementsList
     ///
-    /// Popovers appear when hovering over elements (macOS/trackpad) or long-pressing
-    /// (iOS touch). Popovers support interactive content like buttons and controls.
+    /// Popovers appear when hovering over elements (macOS/trackpad) or tapping
+    /// the right edge (iOS touch). Popovers support interactive content like buttons and controls.
     ///
     /// - Parameters:
     ///   - hoverDelay: Time in seconds before popover appears after hover starts (default: 0.3)
@@ -38,16 +38,13 @@ extension View {
     ///
     /// ## Size Constraints
     ///
-    /// Popovers are constrained to:
-    /// - Maximum width: 400pt
-    /// - Maximum height: 100pt
-    /// - Content scrolls if it exceeds height limit
+    /// Popovers automatically size to fit their content with padding.
     ///
     /// ## Platform Support
     ///
-    /// - **macOS**: Hover with trackpad or mouse (300ms delay)
-    /// - **iOS with trackpad**: Hover support
-    /// - **iOS touch**: Long-press gesture (500ms duration) with haptic feedback
+    /// - **macOS**: Hover over the 120pt tap target on the right edge (300ms delay)
+    /// - **iOS with trackpad**: Hover support on the tap target
+    /// - **iOS touch**: Tap the 120pt tap target on the right edge to toggle popover (with haptic feedback)
     ///
     /// ## Example
     ///
