@@ -117,14 +117,17 @@ struct GuionElementRow<TrailingContent: View>: View {
 
     // MARK: - Hover Target
 
-    /// Small hover/tap area that triggers the popover
+    /// Hover/tap area that triggers the popover
+    /// - Width: 120pt (fixed)
+    /// - Height: Expands to match row height
     /// - macOS: Hover to show popover
     /// - iOS: Tap to toggle popover
     @ViewBuilder
     private var hoverTarget: some View {
         Rectangle()
             .fill(Color.clear)
-            .frame(width: 120, height: 40)
+            .frame(width: 120)
+            .frame(maxHeight: .infinity)
             .contentShape(Rectangle())
             .onHover { hovering in
                 handleElementHover(hovering)
