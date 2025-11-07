@@ -49,14 +49,26 @@ struct GuionElementRow<TrailingContent: View>: View {
         VStack(spacing: 0) {
             // Main row with element content and trailing column
             HStack(alignment: .top, spacing: 0) {
-                elementView
+                // Content area that dismisses popover on tap (iOS only)
+                HStack(alignment: .top, spacing: 0) {
+                    elementView
 
-                // Add trailing column content if provided
-                if let trailingContent = trailingContent {
-                    trailingContent(element)
+                    // Add trailing column content if provided
+                    if let trailingContent = trailingContent {
+                        trailingContent(element)
+                    }
+
+                    Spacer()
                 }
-
-                Spacer()
+                #if os(iOS)
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    // Tap on content area (not hover target) dismisses popover
+                    if showPopover {
+                        dismissPopover()
+                    }
+                }
+                #endif
 
                 // Hover target area (only shown if popover is available)
                 if popoverProvider != nil {
@@ -75,16 +87,6 @@ struct GuionElementRow<TrailingContent: View>: View {
                 handleLongPressChanged(pressing)
             })
             #endif
-            .simultaneousGesture(
-                // Tap outside to dismiss when popover is visible
-                // This doesn't conflict with the hover target tap because
-                // the hover target has its own onTapGesture with higher priority
-                TapGesture().onEnded { _ in
-                    if showPopover {
-                        dismissPopover()
-                    }
-                }
-            )
             .overlay(alignment: .topTrailing) {
                 if showPopover, let provider = popoverProvider {
                     popoverView(content: provider(element))
