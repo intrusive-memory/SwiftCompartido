@@ -17,13 +17,15 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/mcritz/TextBundle.git", from: "1.0.0"),
+        .package(url: "https://github.com/weichsel/ZIPFoundation", from: "0.9.0"),
         .package(url: "https://github.com/intrusive-memory/SwiftFijos.git", from: "1.0.0")
     ],
     targets: [
         .target(
             name: "SwiftCompartido",
             dependencies: [
-                .product(name: "TextBundle", package: "TextBundle")
+                .product(name: "TextBundle", package: "TextBundle"),
+                .product(name: "ZIPFoundation", package: "ZIPFoundation")
             ]
         ),
         .testTarget(
