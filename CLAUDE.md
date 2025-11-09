@@ -307,7 +307,7 @@ try modelContext.save()
 
 ## Project Metadata
 
-- **Version**: 3.4.1 (iOS tap gesture support and hover fixes)
+- **Version**: 3.5.0 (Development version with automated version bump workflow)
 - **Swift**: 6.2+
 - **Platforms**: iOS 26.0+, macOS 26.0+
 - **Dependencies**: TextBundle, SwiftFijos (test-only)

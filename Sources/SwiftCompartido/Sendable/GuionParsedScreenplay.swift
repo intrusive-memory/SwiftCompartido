@@ -113,20 +113,40 @@ public final class GuionParsedElementCollection {
     }
 
     /// Convenience initializer that parses from a file
+    ///
+    /// Automatically detects file format based on extension:
+    /// - `.md` or `.markdown` → CommonMark parser
+    /// - `.fountain` or other → Fountain parser
+    ///
     /// - Parameters:
     ///   - path: File path to parse
     ///   - parser: Parser type to use (default: .fast)
     public convenience init(file path: String, parser: ParserType = .fast) throws {
-        let filename = URL(fileURLWithPath: path).lastPathComponent
+        let url = URL(fileURLWithPath: path)
+        let filename = url.lastPathComponent
+        let ext = url.pathExtension.lowercased()
 
-        switch parser {
-        case .fast, .regex:
-            let fountainParser = try FountainParser(file: path)
+        // Detect markdown files
+        if ext == "md" || ext == "markdown" {
+            let contents = try String(contentsOfFile: path, encoding: .utf8)
+            let elements = try CommonMarkParser.parse(contents)
             self.init(
                 filename: filename,
-                elements: fountainParser.elements,
-                titlePage: fountainParser.titlePage
+                elements: elements,
+                titlePage: [],
+                suppressSceneNumbers: false
             )
+        } else {
+            // Default to Fountain parser
+            switch parser {
+            case .fast, .regex:
+                let fountainParser = try FountainParser(file: path)
+                self.init(
+                    filename: filename,
+                    elements: fountainParser.elements,
+                    titlePage: fountainParser.titlePage
+                )
+            }
         }
     }
 
@@ -192,20 +212,35 @@ public final class GuionParsedElementCollection {
         parser: ParserType = .fast,
         progress: OperationProgress? = nil
     ) async throws {
-        let filename = URL(fileURLWithPath: path).lastPathComponent
+        let url = URL(fileURLWithPath: path)
+        let filename = url.lastPathComponent
+        let ext = url.pathExtension.lowercased()
 
-        switch parser {
-        case .fast, .regex:
-            // Read file contents
+        // Detect markdown files
+        if ext == "md" || ext == "markdown" {
             let contents = try String(contentsOfFile: path, encoding: .utf8)
-
-            // Parse with progress
-            let fountainParser = try await FountainParser(string: contents, progress: progress)
+            let elements = try CommonMarkParser.parse(contents)
             self.init(
                 filename: filename,
-                elements: fountainParser.elements,
-                titlePage: fountainParser.titlePage
+                elements: elements,
+                titlePage: [],
+                suppressSceneNumbers: false
             )
+        } else {
+            // Default to Fountain parser
+            switch parser {
+            case .fast, .regex:
+                // Read file contents
+                let contents = try String(contentsOfFile: path, encoding: .utf8)
+
+                // Parse with progress
+                let fountainParser = try await FountainParser(string: contents, progress: progress)
+                self.init(
+                    filename: filename,
+                    elements: fountainParser.elements,
+                    titlePage: fountainParser.titlePage
+                )
+            }
         }
     }
 
