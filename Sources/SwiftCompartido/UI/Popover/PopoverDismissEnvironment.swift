@@ -32,9 +32,9 @@ public class PopoverDismissCoordinator: ObservableObject {
     public func triggerDismiss() {
         shouldDismiss = true
         // Reset after a short delay to allow for future dismissals
-        Task { @MainActor in
+        Task { @MainActor [weak self] in
             try? await Task.sleep(for: .milliseconds(50))
-            shouldDismiss = false
+            self?.shouldDismiss = false
         }
     }
 }
