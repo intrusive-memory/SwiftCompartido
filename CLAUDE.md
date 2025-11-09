@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 SwiftCompartido is a Swift package for screenplay management, AI-generated content storage, and document serialization. The library uses **Phase 6 Architecture** - a file-based storage pattern that separates in-memory data transfer objects (DTOs) from file-persisted content to prevent main thread blocking.
 
-**Platforms**: iOS 26.0+, macOS 26.0+, Mac Catalyst 26.0+
+**Platforms**: iOS 26.0+, macOS 26.0+
 
 ## ⚠️ Breaking Changes in 3.0.0
 
@@ -77,7 +77,7 @@ GuionElementsList(document: screenplay) { element in
 
 ## Essential Build Commands
 
-⚠️ **CRITICAL**: This is an iOS and Mac Catalyst library. **DO NOT use `swift build` or `swift test`** directly - they fail with macOS version errors.
+⚠️ **CRITICAL**: This is an iOS and macOS library. **DO NOT use `swift build` or `swift test`** directly - they fail with macOS version errors.
 
 **Use the build script:**
 ```bash
@@ -114,13 +114,6 @@ xcodebuild test \
   -scheme SwiftCompartido \
   -destination 'platform=macOS' \
   -enableCodeCoverage YES \
-  CODE_SIGNING_ALLOWED=NO
-
-# Build for Mac Catalyst
-xcodebuild build \
-  -scheme SwiftCompartido \
-  -destination 'generic/platform=macOS,variant=Mac Catalyst' \
-  -arch arm64 \
   CODE_SIGNING_ALLOWED=NO
 ```
 
@@ -293,7 +286,6 @@ try modelContext.save()
 - GitHub Actions must pass:
   - iOS Tests (Short): Fast unit tests (~300 tests, 2-5 min)
   - macOS Tests (Short): Fast unit tests on macOS platform (~300 tests, 2-5 min)
-  - Mac Catalyst Build Check: Platform compatibility
   - Code Quality: TODOs, large files, print statements
 
 **Workflow:** Create PR → Short tests run automatically → Merge when green
@@ -317,14 +309,14 @@ try modelContext.save()
 
 - **Version**: 3.4.1 (iOS tap gesture support and hover fixes)
 - **Swift**: 6.2+
-- **Platforms**: iOS 26.0+, macOS 26.0+, Mac Catalyst 26.0+
+- **Platforms**: iOS 26.0+, macOS 26.0+
 - **Dependencies**: TextBundle, SwiftFijos (test-only)
 - **License**: MIT
 - **Test Coverage**: 95%+ across 437 tests in 28 suites
 
 ## Important Reminders
 
-- This library supports iOS, macOS, and Mac Catalyst.
+- This library supports iOS and macOS on Apple Silicon (arm64).
 - When tagging versions, tag the merge commit of the PR, push the tag, then create a GitHub release.
 - ALWAYS use `GuionParsedElementCollection` for parsing - avoid calling parsers directly.
 - ALWAYS use `document.sortedElements` for ordered element access.

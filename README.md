@@ -2,7 +2,7 @@
 
 <p align="center">
     <img src="https://img.shields.io/badge/Swift-6.2+-orange.svg" />
-    <img src="https://img.shields.io/badge/Platform-iOS%2026.0+%20|%20macOS%2026.0+%20|%20Mac%20Catalyst%2026.0+-lightgrey.svg" />
+    <img src="https://img.shields.io/badge/Platform-iOS%2026.0+%20|%20macOS%2026.0+-lightgrey.svg" />
     <img src="https://img.shields.io/badge/License-MIT-blue.svg" />
     <img src="https://img.shields.io/badge/Version-3.4.1-blue.svg" />
 </p>
@@ -57,7 +57,6 @@
 - **TextConfigurationView**: AI text generation settings
 - **AudioPlayerManager**: Waveform visualization and playback with TypedDataStorage support (enhanced in 2.1.0)
 - **No Visible Separators**: Clean flow between screenplay elements (NEW in 2.0.0)
-- **Mac Catalyst Support**: Full compatibility across macOS, iOS, and Mac Catalyst (NEW in 2.0.0)
 
 ### 📊 Progress Reporting
 - **Comprehensive Tracking**: Progress for all parsing, conversion, and export operations
@@ -150,7 +149,7 @@ func storeGeneratedText(_ text: String, prompt: String, modelContext: ModelConte
 import SwiftCompartido
 
 @MainActor
-@available(iOS 26.0, macCatalyst 26.0, *)
+@available(iOS 26.0, macOS 26.0, *)
 func generateAndPlayAudio(text: String) async throws {
     let requestID = UUID()
 
@@ -227,7 +226,7 @@ struct AllElementsView: View {
 import SwiftCompartido
 import SwiftUI
 
-@available(iOS 26.0, macCatalyst 26.0, *)
+@available(iOS 26.0, macOS 26.0, *)
 struct GeneratedContentView: View {
     @StateObject private var audioPlayer = AudioPlayerManager()
     let document: GuionDocumentModel
@@ -377,7 +376,7 @@ try modelContext.save() // Automatically syncs to CloudKit
 #### CloudKit Sync - Hybrid Storage (Dual Mode)
 
 ```swift
-@available(iOS 26.0, macCatalyst 26.0, *)
+@available(iOS 26.0, macOS 26.0, *)
 func saveAudioWithCloudKitSync() throws {
     let requestID = UUID()
     let storage = StorageAreaReference.temporary(requestID: requestID)
@@ -436,7 +435,6 @@ Task {
 
 - **iOS**: 26.0+
 - **macOS**: 26.0+
-- **Mac Catalyst**: 26.0+
 - **Swift**: 6.2+
 - **Xcode**: 16.0+
 
