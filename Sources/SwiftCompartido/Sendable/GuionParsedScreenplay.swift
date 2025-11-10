@@ -27,11 +27,6 @@
 import Foundation
 import ZIPFoundation
 
-public enum ParserType {
-    case fast
-    case regex
-}
-
 /// Main screenplay element collection that handles parsing from multiple formats with progress tracking.
 ///
 /// ## Overview
@@ -120,8 +115,7 @@ public final class GuionParsedElementCollection {
     ///
     /// - Parameters:
     ///   - path: File path to parse
-    ///   - parser: Parser type to use (default: .fast)
-    public convenience init(file path: String, parser: ParserType = .fast) throws {
+    public convenience init(file path: String) throws {
         let url = URL(fileURLWithPath: path)
         let filename = url.lastPathComponent
         let ext = url.pathExtension.lowercased()
@@ -138,32 +132,25 @@ public final class GuionParsedElementCollection {
             )
         } else {
             // Default to Fountain parser
-            switch parser {
-            case .fast, .regex:
-                let fountainParser = try FountainParser(file: path)
-                self.init(
-                    filename: filename,
-                    elements: fountainParser.elements,
-                    titlePage: fountainParser.titlePage
-                )
-            }
+            let fountainParser = try FountainParser(file: path)
+            self.init(
+                filename: filename,
+                elements: fountainParser.elements,
+                titlePage: fountainParser.titlePage
+            )
         }
     }
 
     /// Convenience initializer that parses from a string
     /// - Parameters:
     ///   - string: Fountain screenplay text
-    ///   - parser: Parser type to use (default: .fast)
-    public convenience init(string: String, parser: ParserType = .fast) throws {
-        switch parser {
-        case .fast, .regex:
-            let fountainParser = FountainParser(string: string)
-            self.init(
-                filename: nil,
-                elements: fountainParser.elements,
-                titlePage: fountainParser.titlePage
-            )
-        }
+    public convenience init(string: String) throws {
+        let fountainParser = FountainParser(string: string)
+        self.init(
+            filename: nil,
+            elements: fountainParser.elements,
+            titlePage: fountainParser.titlePage
+        )
     }
 
     // MARK: - Async Convenience Initializers with Progress Support
@@ -172,9 +159,16 @@ public final class GuionParsedElementCollection {
     ///
     /// **This is the recommended way to parse screenplay files.**
     ///
+    /// Automatically detects file format based on extension:
+    /// - `.md` or `.markdown` → CommonMark parser
+    /// - `.highland` → Highland bundle parser (ZIP containing TextBundle)
+    /// - `.textbundle` → TextBundle parser
+    /// - `.fdx` → Final Draft FDX parser
+    /// - `.pdf` → PDF parser (requires iOS 26.0+)
+    /// - `.fountain` or other → Fountain parser
+    ///
     /// - Parameters:
     ///   - path: File path to parse
-    ///   - parser: Parser type to use (default: .fast)
     ///   - progress: Optional progress tracker for monitoring parsing progress
     ///
     /// ## Example
@@ -206,10 +200,9 @@ public final class GuionParsedElementCollection {
     ///
     /// - Note: When `progress` is `nil`, parsing runs without progress updates
     ///
-    /// - SeeAlso: ``init(string:parser:progress:)``
+    /// - SeeAlso: ``init(string:progress:)``
     public convenience init(
         file path: String,
-        parser: ParserType = .fast,
         progress: OperationProgress? = nil
     ) async throws {
         let url = URL(fileURLWithPath: path)
@@ -231,11 +224,11 @@ public final class GuionParsedElementCollection {
         case "highland":
             // Parse Highland files (ZIP archives containing TextBundle)
             // Use the synchronous convenience init which handles extraction
-            try self.init(highland: url, parser: parser)
+            try self.init(highland: url)
 
         case "textbundle":
             // Parse TextBundle files
-            try self.init(textBundle: url, parser: parser)
+            try self.init(textBundle: url)
 
         case "fdx":
             // Parse Final Draft FDX files
@@ -280,19 +273,16 @@ public final class GuionParsedElementCollection {
 
         default:
             // Default to Fountain parser
-            switch parser {
-            case .fast, .regex:
-                // Read file contents
-                let contents = try String(contentsOfFile: path, encoding: .utf8)
+            // Read file contents
+            let contents = try String(contentsOfFile: path, encoding: .utf8)
 
-                // Parse with progress
-                let fountainParser = try await FountainParser(string: contents, progress: progress)
-                self.init(
-                    filename: filename,
-                    elements: fountainParser.elements,
-                    titlePage: fountainParser.titlePage
-                )
-            }
+            // Parse with progress
+            let fountainParser = try await FountainParser(string: contents, progress: progress)
+            self.init(
+                filename: filename,
+                elements: fountainParser.elements,
+                titlePage: fountainParser.titlePage
+            )
         }
     }
 
@@ -302,7 +292,6 @@ public final class GuionParsedElementCollection {
     ///
     /// - Parameters:
     ///   - string: Fountain screenplay text
-    ///   - parser: Parser type to use (default: .fast)
     ///   - progress: Optional progress tracker for monitoring parsing progress
     ///
     /// ## Example
@@ -368,21 +357,17 @@ public final class GuionParsedElementCollection {
     ///
     /// - Note: When `progress` is `nil`, parsing runs without progress updates
     ///
-    /// - SeeAlso: ``init(file:parser:progress:)``
+    /// - SeeAlso: ``init(file:progress:)``
     public convenience init(
         string: String,
-        parser: ParserType = .fast,
         progress: OperationProgress? = nil
     ) async throws {
-        switch parser {
-        case .fast, .regex:
-            let fountainParser = try await FountainParser(string: string, progress: progress)
-            self.init(
-                filename: nil,
-                elements: fountainParser.elements,
-                titlePage: fountainParser.titlePage
-            )
-        }
+        let fountainParser = try await FountainParser(string: string, progress: progress)
+        self.init(
+            filename: nil,
+            elements: fountainParser.elements,
+            titlePage: fountainParser.titlePage
+        )
     }
 
     // MARK: - Export Methods

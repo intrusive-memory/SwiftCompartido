@@ -391,30 +391,15 @@ struct GuionParsedElementCollectionParsingTests {
         #expect(dialogue?.elementText.contains("¡Hola!") ?? false, "Should preserve Unicode characters")
     }
 
-    // MARK: - Parser Type Selection
+    // MARK: - Parser Type Selection (Removed - Auto-detected by Extension)
 
-    @Test("Parse with fast parser (default)")
-    func testParseFastParser() throws {
-        let fountainText = "Title: Fast Parser Test\n\nINT. ROOM - DAY"
+    @Test("Parse detects format automatically")
+    func testParseAutoDetection() throws {
+        let fountainText = "Title: Auto-Detection Test\n\nINT. ROOM - DAY"
 
-        let screenplay = try GuionParsedElementCollection(
-            string: fountainText,
-            parser: .fast
-        )
+        let screenplay = try GuionParsedElementCollection(string: fountainText)
 
-        #expect(screenplay.elements.count > 0, "Fast parser should work")
-    }
-
-    @Test("Parse with regex parser")
-    func testParseRegexParser() throws {
-        let fountainText = "Title: Regex Parser Test\n\nINT. ROOM - DAY"
-
-        let screenplay = try GuionParsedElementCollection(
-            string: fountainText,
-            parser: .regex
-        )
-
-        #expect(screenplay.elements.count > 0, "Regex parser should work")
+        #expect(screenplay.elements.count > 0, "Auto-detection should work for Fountain text")
     }
 
     // MARK: - Error Cases
