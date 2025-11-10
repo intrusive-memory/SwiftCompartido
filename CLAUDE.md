@@ -8,6 +8,40 @@ SwiftCompartido is a Swift package for screenplay management, AI-generated conte
 
 **Platforms**: iOS 26.0+, macOS 26.0+
 
+## ⚠️ Breaking Changes in 4.0.0
+
+### Removed `parser` Parameter - Automatic Format Detection
+
+The `parser` parameter has been **removed** from all `GuionParsedElementCollection` initializers. Parser selection is now automatic based on file extension:
+
+- **Removed**: `ParserType` enum (`.fast` and `.regex` were redundant)
+- **Changed**: All `GuionParsedElementCollection` initializers no longer accept `parser:` parameter
+- **Auto-detection**: Parser automatically selected by file extension:
+  - `.md` or `.markdown` → CommonMark parser
+  - `.highland` → Highland bundle parser
+  - `.textbundle` → TextBundle parser
+  - `.fdx` → Final Draft FDX parser
+  - `.pdf` → PDF parser (iOS 26.0+)
+  - `.fountain` or default → Fountain parser
+
+**Migration:**
+```swift
+// ❌ OLD (3.x)
+let screenplay = try GuionParsedElementCollection(file: path, parser: .fast)
+let screenplay2 = try await GuionParsedElementCollection(string: text, parser: .fast)
+
+// ✅ NEW (4.0+)
+let screenplay = try GuionParsedElementCollection(file: path)
+let screenplay2 = try await GuionParsedElementCollection(string: text)
+```
+
+### New Features in 4.0.0
+
+- **AppleTTSVoiceProviderPane**: SwiftUI configuration pane for Apple TTS voice provider
+- **openVoiceSettings()**: Helper function to deep link to system voice settings
+  - macOS: Opens System Settings → Accessibility → Spoken Content
+  - iOS/Catalyst: Opens app settings with fallback guidance
+
 ## ⚠️ Breaking Changes in 3.0.0
 
 ### Removed Functionality

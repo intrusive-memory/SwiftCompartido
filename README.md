@@ -9,13 +9,19 @@
 
 **SwiftCompartido** is a comprehensive Swift package for screenplay management, AI-generated content storage, and document serialization. Built with SwiftData, SwiftUI, and modern Swift concurrency.
 
+> **⚠️ Breaking Change in 4.0.0**: The `parser` parameter has been removed from `GuionParsedElementCollection` initializers. Parser selection is now automatic based on file extension. Simply remove the `parser:` argument from your code. See [CHANGELOG.md](./CHANGELOG.md) for migration guide.
+
 > **⚠️ Breaking Change in 3.0.0**: Voice provider models (`Voice`, `VoiceModel`) have been removed and moved to a separate library. Audio metadata fields (`voiceID`, `voiceName`) remain available in `TypedDataStorage`. See [CHANGELOG.md](./CHANGELOG.md) for migration guide.
 
 ## Features
 
 ### 📝 Screenplay Management
+- **Automatic Format Detection**: Parser automatically selected by file extension (NEW in 4.0.0)
+  - Fountain (`.fountain`), Markdown (`.md`), FDX (`.fdx`), PDF (`.pdf`), Highland (`.highland`), TextBundle (`.textbundle`)
 - **Fountain Format**: Full parsing and export support
 - **FDX Format**: Final Draft XML import/export
+- **PDF Format**: AI-powered PDF screenplay parsing with FoundationModels (iOS 26.0+)
+- **CommonMark Support**: Parse and convert markdown to screenplay format
 - **TextPack**: Bundle screenplays with metadata and resources
 - **Complete Element Support**: Scenes, dialogue, action, transitions, and more
 - **Hierarchical Outlines**: Section headings with 6 levels
@@ -50,6 +56,7 @@
 - **ElementProgressState**: Observable progress tracking for multiple elements simultaneously (NEW in 3.2.0)
 - **ElementProgressTracker**: Scoped progress tracker with convenience methods (NEW in 3.2.0)
 - **ElementProgressBar**: Auto-showing progress bars that appear below list items (NEW in 3.2.0)
+- **AppleTTSVoiceProviderPane**: Configuration UI for Apple TTS with system settings deep linking (NEW in 4.0.0)
 - **GeneratedContentListView**: Master-detail browser for AI-generated content with MIME filtering (NEW in 2.1.0)
 - **TypedDataDetailView**: Automatic content viewer with MIME type routing (NEW in 2.1.0)
 - **TypedDataRowView**: Compact list rows with type-specific metadata (NEW in 2.1.0)

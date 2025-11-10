@@ -42,12 +42,9 @@ func importHighland(from url: URL) throws -> GuionParsedElementCollection {
 ```swift
 import SwiftCompartido
 
-func importHighlandWithParser(from url: URL) throws -> GuionParsedElementCollection {
-    // Use specific parser
-    let screenplay = try GuionParsedElementCollection(
-        highland: url,
-        parser: .fast  // or .legacy
-    )
+func importHighland(from url: URL) throws -> GuionParsedElementCollection {
+    // Parser is automatically selected based on file extension
+    let screenplay = try GuionParsedElementCollection(highland: url)
     return screenplay
 }
 ```

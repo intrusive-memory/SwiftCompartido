@@ -389,24 +389,11 @@ GuionParsedElementCollection supports two parser types:
 ### Fast Parser (Default)
 
 ```swift
-// Fast parser - recommended for most use cases
-let screenplay = try GuionParsedElementCollection(
-    file: path,
-    parser: .fast  // Default if omitted
-)
+// Parser is automatically selected (Fountain parser for .fountain files)
+let screenplay = try GuionParsedElementCollection(file: path)
 ```
 
-### Legacy Parser
-
-```swift
-// Legacy parser - for backward compatibility
-let screenplay = try GuionParsedElementCollection(
-    file: path,
-    parser: .legacy
-)
-```
-
-The fast parser is recommended for all new code - it provides better performance and more accurate element detection.
+**Note**: As of version 4.0.0, the `parser` parameter has been removed. Parser selection is now automatic based on file extension.
 
 ## Fountain Format Features
 

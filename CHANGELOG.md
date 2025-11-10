@@ -48,11 +48,28 @@ let screenplay2 = try await GuionParsedElementCollection(string: fountainText, p
 
 Simply remove the `parser:` argument from all initializer calls. The parser will be automatically selected.
 
+### Added
+
+#### Apple TTS Voice Provider Configuration
+- **AppleTTSVoiceProviderPane**: SwiftUI configuration pane for Apple TTS voice provider
+  - Descriptive guidance for voice requirements and setup
+  - Configure button that deep links to system voice settings
+  - Platform-specific handling:
+    - **macOS**: Opens System Settings → Accessibility → Spoken Content
+    - **iOS/Catalyst**: Opens app settings with fallback guidance
+  - User-friendly error messaging when deep linking is not available
+
+- **openVoiceSettings()**: Public helper function for opening system voice settings
+  - Returns `Bool` indicating if system settings were opened successfully
+  - Cross-platform support (macOS, iOS, Catalyst)
+  - Graceful fallback handling
+
 ### Files Modified
 - `GuionParsedScreenplay.swift` - Main implementation
 - `GuionParsedScreenplay+Highland.swift` - Highland extension
 - `GuionParsedScreenplay+TextBundle.swift` - TextBundle extension
 - `GuionParsedElementCollectionParsingTests.swift` - Updated tests
+- `AppleTTSVoiceProviderPane.swift` - **NEW**: Voice provider configuration UI
 
 ## [3.4.1] - 2025-11-07
 
