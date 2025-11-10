@@ -216,8 +216,9 @@ public final class GuionParsedElementCollection {
         let filename = url.lastPathComponent
         let ext = url.pathExtension.lowercased()
 
-        // Detect markdown files
-        if ext == "md" || ext == "markdown" {
+        switch ext {
+        case "md", "markdown":
+            // Parse markdown files
             let contents = try String(contentsOfFile: path, encoding: .utf8)
             let elements = try CommonMarkParser.parse(contents)
             self.init(
@@ -226,7 +227,58 @@ public final class GuionParsedElementCollection {
                 titlePage: [],
                 suppressSceneNumbers: false
             )
-        } else {
+
+        case "highland":
+            // Parse Highland files (ZIP archives containing TextBundle)
+            // Use the synchronous convenience init which handles extraction
+            try self.init(highland: url, parser: parser)
+
+        case "textbundle":
+            // Parse TextBundle files
+            try self.init(textBundle: url, parser: parser)
+
+        case "fdx":
+            // Parse Final Draft FDX files
+            let data = try Data(contentsOf: url)
+            let fdxParser = FDXParser()
+            let parsed = try fdxParser.parse(data: data, filename: filename)
+
+            // Convert FDX parsed document to GuionParsedElementCollection
+            let elements = parsed.elements.map { GuionElement(from: $0) }
+
+            // Convert title page entries to the expected format
+            var titlePageDict: [String: [String]] = [:]
+            for entry in parsed.titlePageEntries {
+                titlePageDict[entry.key] = entry.values
+            }
+            let titlePage = titlePageDict.isEmpty ? [] : [titlePageDict]
+
+            self.init(
+                filename: parsed.filename,
+                elements: elements,
+                titlePage: titlePage,
+                suppressSceneNumbers: parsed.suppressSceneNumbers
+            )
+
+        case "pdf":
+            // Parse PDF files using PDFScreenplayParser
+            #if canImport(FoundationModels)
+            if #available(iOS 26.0, macCatalyst 26.0, macOS 26.0, *) {
+                let screenplay = try await PDFScreenplayParser.parse(from: url, progress: progress)
+                self.init(
+                    filename: filename,
+                    elements: screenplay.elements,
+                    titlePage: screenplay.titlePage,
+                    suppressSceneNumbers: screenplay.suppressSceneNumbers
+                )
+            } else {
+                throw PDFScreenplayParserError.foundationModelsUnavailable
+            }
+            #else
+            throw PDFScreenplayParserError.foundationModelsUnavailable
+            #endif
+
+        default:
             // Default to Fountain parser
             switch parser {
             case .fast, .regex:
