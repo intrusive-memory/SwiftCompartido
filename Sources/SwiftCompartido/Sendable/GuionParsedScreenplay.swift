@@ -208,7 +208,6 @@ public final class GuionParsedElementCollection {
         let url = URL(fileURLWithPath: path)
         let filename = url.lastPathComponent
         let ext = url.pathExtension.lowercased()
-
         switch ext {
         case "md", "markdown":
             // Parse markdown files
