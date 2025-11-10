@@ -32,11 +32,10 @@ extension GuionParsedElementCollection {
     /// Initialize GuionParsedElementCollection from a TextBundle file URL
     /// - Parameters:
     ///   - textBundle: URL to the .textbundle or .textpack file
-    ///   - parser: The parser type to use (default: .fast)
     /// - Throws: FountainTextBundleError or TextBundle errors
-    public convenience init(textBundle url: URL, parser: ParserType = .fast) throws {
+    public convenience init(textBundle url: URL) throws {
         let contentURL = try Self.getContentURL(from: url)
-        try self.init(file: contentURL.path, parser: parser)
+        try self.init(file: contentURL.path)
     }
 
     /// Get the content file URL from a TextBundle

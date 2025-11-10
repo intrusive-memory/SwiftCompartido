@@ -32,9 +32,8 @@ extension GuionParsedElementCollection {
     /// Highland files are ZIP archives containing a TextBundle
     /// - Parameters:
     ///   - highland: URL to the .highland file
-    ///   - parser: The parser type to use (default: .fast)
     /// - Throws: Highland import errors
-    public convenience init(highland url: URL, parser: ParserType = .fast) throws {
+    public convenience init(highland url: URL) throws {
         let fileManager = FileManager.default
 
         // First, check if this is actually a plain Fountain file with .highland extension
@@ -48,7 +47,7 @@ extension GuionParsedElementCollection {
         if !isZipFile {
             // This is a plain text Fountain file with .highland extension
             // Treat it as a regular Fountain file
-            try self.init(file: url.path, parser: parser)
+            try self.init(file: url.path)
             return
         }
 
@@ -73,7 +72,7 @@ extension GuionParsedElementCollection {
         let contentURL = try GuionParsedElementCollection.getContentURL(from: textBundleURL)
 
         // Parse the content
-        try self.init(file: contentURL.path, parser: parser)
+        try self.init(file: contentURL.path)
     }
 
     /// Write the current GuionParsedElementCollection to a Highland file (.highland)
