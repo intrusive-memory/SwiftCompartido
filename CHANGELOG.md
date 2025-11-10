@@ -5,6 +5,55 @@ All notable changes to SwiftCompartido will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.0.0] - 2025-11-10
+
+### 🔧 BREAKING CHANGES - Simplified API
+
+This major release simplifies the `GuionParsedElementCollection` API by removing the redundant `parser` parameter. Parser selection is now automatic based on file extension, making the API more intuitive and easier to use.
+
+### Changed
+
+#### Automatic Parser Detection
+- **BREAKING**: Removed `ParserType` enum (`.fast` and `.regex` were redundant - both used `FountainParser`)
+- **BREAKING**: Removed `parser` parameter from all `GuionParsedElementCollection` initializers:
+  - `init(file:)` - synchronous file parsing
+  - `init(string:)` - synchronous string parsing
+  - `init(file:progress:)` - async file parsing with progress
+  - `init(string:progress:)` - async string parsing with progress
+  - `init(highland:)` - Highland bundle parsing
+  - `init(textBundle:)` - TextBundle parsing
+
+#### Parser Selection by File Extension
+Parser is now automatically selected based on file extension:
+- `.md` or `.markdown` → CommonMark parser
+- `.highland` → Highland bundle parser (ZIP containing TextBundle)
+- `.textbundle` → TextBundle parser
+- `.fdx` → Final Draft FDX parser
+- `.pdf` → PDF parser (requires iOS 26.0+)
+- `.fountain` or default → Fountain parser
+
+### Migration Guide
+
+**Before (3.x):**
+```swift
+let screenplay = try GuionParsedElementCollection(file: "script.fountain", parser: .fast)
+let screenplay2 = try await GuionParsedElementCollection(string: fountainText, parser: .fast, progress: progress)
+```
+
+**After (4.0):**
+```swift
+let screenplay = try GuionParsedElementCollection(file: "script.fountain")
+let screenplay2 = try await GuionParsedElementCollection(string: fountainText, progress: progress)
+```
+
+Simply remove the `parser:` argument from all initializer calls. The parser will be automatically selected.
+
+### Files Modified
+- `GuionParsedScreenplay.swift` - Main implementation
+- `GuionParsedScreenplay+Highland.swift` - Highland extension
+- `GuionParsedScreenplay+TextBundle.swift` - TextBundle extension
+- `GuionParsedElementCollectionParsingTests.swift` - Updated tests
+
 ## [3.4.1] - 2025-11-07
 
 ### 🐛 iOS Tap Gesture & Hover Target Fixes
