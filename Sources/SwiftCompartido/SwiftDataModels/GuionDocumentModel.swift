@@ -110,7 +110,7 @@ public final class GuionDocumentModel {
     public var rawContent: String?
     public var suppressSceneNumbers: Bool
 
-    @Relationship(deleteRule: .cascade, inverse: \GuionElementModel.document)
+    @Relationship(deleteRule: .cascade)
     public var elements: [GuionElementModel]
 
     /// Elements sorted by orderIndex (screenplay sequence order)
@@ -143,7 +143,7 @@ public final class GuionDocumentModel {
         }
     }
 
-    @Relationship(deleteRule: .cascade, inverse: \TitlePageEntryModel.document)
+    @Relationship(deleteRule: .cascade)
     public var titlePage: [TitlePageEntryModel]
 
     /// The title of the screenplay
@@ -173,7 +173,7 @@ public final class GuionDocumentModel {
     ///
     /// **Delete Rule**: `.cascade` - When the document is deleted,
     /// all associated generated content is automatically deleted.
-    @Relationship(deleteRule: .cascade, inverse: \TypedDataStorage.owningDocument)
+    @Relationship(deleteRule: .cascade)
     public var generatedContent: [TypedDataStorage]?
 
     // MARK: - Source File Tracking (NEW in 1.4.3)

@@ -209,7 +209,7 @@ public final class TypedDataStorage {
     ///
     /// **Delete Rule**: `.nullify` - When the TypedDataStorage is deleted,
     /// the owning element is NOT deleted (one-way cascade from element to content).
-    @Relationship(deleteRule: .nullify, inverse: \GuionElementModel.generatedContent)
+    @Relationship(deleteRule: .nullify)
     public var owningElement: GuionElementModel?
 
     /// Optional reference to the owning GuionDocument
@@ -220,7 +220,7 @@ public final class TypedDataStorage {
     ///
     /// **Delete Rule**: `.nullify` - When the TypedDataStorage is deleted,
     /// the owning document is NOT deleted (one-way cascade from document to content).
-    @Relationship(deleteRule: .nullify, inverse: \GuionDocumentModel.generatedContent)
+    @Relationship(deleteRule: .nullify)
     public var owningDocument: GuionDocumentModel?
 
     /// Generic owner identifier for other model types
