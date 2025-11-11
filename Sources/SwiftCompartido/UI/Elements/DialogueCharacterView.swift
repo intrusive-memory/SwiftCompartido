@@ -29,8 +29,6 @@ public struct DialogueCharacterView: View {
                     .foregroundStyle(.primary)
                     .textSelection(.enabled)
                     .frame(maxWidth: geometry.size.width * 0.60, alignment: .leading)
-
-                Spacer()
             }
             .frame(width: geometry.size.width, alignment: .leading)
         }
