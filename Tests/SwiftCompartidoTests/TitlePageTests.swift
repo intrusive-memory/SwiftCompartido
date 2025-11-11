@@ -48,7 +48,7 @@ struct TitlePageTests {
 
     // MARK: - Test Synthetic Title Property
 
-    @Test("Document title property returns title from title page")
+    @Test("Document title property stores title value")
     func testDocumentTitleProperty() async throws {
         let schema = Schema([
             GuionDocumentModel.self,
@@ -59,7 +59,7 @@ struct TitlePageTests {
         let modelContainer = try ModelContainer(for: schema, configurations: [modelConfiguration])
         let modelContext = modelContainer.mainContext
 
-        let document = GuionDocumentModel(filename: "test.guion")
+        let document = GuionDocumentModel(filename: "test.guion", title: "The Great Screenplay")
 
         // Add title entry with lowercase key
         let titleEntry = TitlePageEntryModel(key: "title", values: ["The Great Screenplay"])
@@ -71,8 +71,8 @@ struct TitlePageTests {
         #expect(document.title == "The Great Screenplay")
     }
 
-    @Test("Document title property is case-insensitive via normalization")
-    func testDocumentTitleCaseInsensitive() async throws {
+    @Test("Document title can be set explicitly")
+    func testDocumentTitleExplicitSetting() async throws {
         let schema = Schema([
             GuionDocumentModel.self,
             GuionElementModel.self,
@@ -82,28 +82,24 @@ struct TitlePageTests {
         let modelContainer = try ModelContainer(for: schema, configurations: [modelConfiguration])
         let modelContext = modelContainer.mainContext
 
-        // Test various case combinations
+        // Test various titles
         let testCases = [
-            ("title", "Lowercase Title"),
-            ("TITLE", "Uppercase Title"),
-            ("Title", "Title Case Title"),
-            ("TiTlE", "Mixed Case Title")
+            ("Lowercase Title", "Lowercase Title"),
+            ("UPPERCASE TITLE", "UPPERCASE TITLE"),
+            ("Title Case Title", "Title Case Title"),
+            ("Mixed Case TiTlE", "Mixed Case TiTlE")
         ]
 
-        for (keyVariant, expectedTitle) in testCases {
-            let document = GuionDocumentModel(filename: "test-\(keyVariant).guion")
-            let titleEntry = TitlePageEntryModel(key: keyVariant, values: [expectedTitle])
-            titleEntry.document = document
-            document.titlePage.append(titleEntry)
-
+        for (title, expectedTitle) in testCases {
+            let document = GuionDocumentModel(filename: "test.guion", title: title)
             modelContext.insert(document)
 
-            #expect(document.title == expectedTitle, "Title should be '\(expectedTitle)' for key variant '\(keyVariant)'")
+            #expect(document.title == expectedTitle, "Title should be '\(expectedTitle)'")
         }
     }
 
-    @Test("Document title falls back to filename when no title page entry exists")
-    func testDocumentTitleFallsBackToFilename() async throws {
+    @Test("Document title defaults to nil when not set")
+    func testDocumentTitleDefaultsToNil() async throws {
         let schema = Schema([
             GuionDocumentModel.self,
             GuionElementModel.self,
@@ -116,12 +112,12 @@ struct TitlePageTests {
         let document = GuionDocumentModel(filename: "MyScript.guion")
         modelContext.insert(document)
 
-        // With no title page entry and no level-1 headings, should fall back to filename
-        #expect(document.title == "MyScript")
+        // When title not set, should be nil
+        #expect(document.title == nil)
     }
 
-    @Test("Document title falls back to filename when title value is empty")
-    func testDocumentTitleFallsBackWhenEmpty() async throws {
+    @Test("Document title can be changed after creation")
+    func testDocumentTitleCanBeChanged() async throws {
         let schema = Schema([
             GuionDocumentModel.self,
             GuionElementModel.self,
@@ -131,19 +127,18 @@ struct TitlePageTests {
         let modelContainer = try ModelContainer(for: schema, configurations: [modelConfiguration])
         let modelContext = modelContainer.mainContext
 
-        let document = GuionDocumentModel(filename: "test.guion")
-        let titleEntry = TitlePageEntryModel(key: "title", values: [])
-        titleEntry.document = document
-        document.titlePage.append(titleEntry)
-
+        let document = GuionDocumentModel(filename: "test.guion", title: "Original Title")
         modelContext.insert(document)
 
-        // With empty title value, should fall back to filename
-        #expect(document.title == "test")
+        #expect(document.title == "Original Title")
+
+        // Change the title
+        document.title = "Updated Title"
+        #expect(document.title == "Updated Title")
     }
 
-    @Test("Document title returns first value when multiple values exist")
-    func testDocumentTitleFirstValue() async throws {
+    @Test("Document stores title independently of titlePage entries")
+    func testDocumentTitleIndependentOfTitlePage() async throws {
         let schema = Schema([
             GuionDocumentModel.self,
             GuionElementModel.self,
@@ -153,49 +148,18 @@ struct TitlePageTests {
         let modelContainer = try ModelContainer(for: schema, configurations: [modelConfiguration])
         let modelContext = modelContainer.mainContext
 
-        let document = GuionDocumentModel(filename: "test.guion")
-        let titleEntry = TitlePageEntryModel(key: "title", values: ["First Title", "Second Title", "Third Title"])
+        // Title is stored independently
+        let document = GuionDocumentModel(filename: "test.guion", title: "Stored Title")
+
+        // titlePage entries don't affect the stored title
+        let titleEntry = TitlePageEntryModel(key: "title", values: ["Different Title"])
         titleEntry.document = document
         document.titlePage.append(titleEntry)
 
         modelContext.insert(document)
 
-        #expect(document.title == "First Title")
-    }
-
-    @Test("Document title ignores non-title keys and falls back to filename")
-    func testDocumentTitleIgnoresOtherKeys() async throws {
-        let schema = Schema([
-            GuionDocumentModel.self,
-            GuionElementModel.self,
-            TitlePageEntryModel.self,
-        ])
-        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
-        let modelContainer = try ModelContainer(for: schema, configurations: [modelConfiguration])
-        let modelContext = modelContainer.mainContext
-
-        let document = GuionDocumentModel(filename: "test.guion")
-
-        // Add various non-title entries
-        let authorEntry = TitlePageEntryModel(key: "author", values: ["John Doe"])
-        authorEntry.document = document
-        document.titlePage.append(authorEntry)
-
-        let contactEntry = TitlePageEntryModel(key: "contact", values: ["john@example.com"])
-        contactEntry.document = document
-        document.titlePage.append(contactEntry)
-
-        modelContext.insert(document)
-
-        // With no title entry, should fall back to filename
-        #expect(document.title == "test")
-
-        // Now add title
-        let titleEntry = TitlePageEntryModel(key: "title", values: ["The Screenplay"])
-        titleEntry.document = document
-        document.titlePage.append(titleEntry)
-
-        #expect(document.title == "The Screenplay")
+        // Title remains as originally set
+        #expect(document.title == "Stored Title")
     }
 
     @Test("Create document with title programmatically")
@@ -230,7 +194,9 @@ struct TitlePageTests {
         modelContext.insert(document)
         try modelContext.save()
 
-        // Verify
+        // Verify - note that title is now stored independently and must be set explicitly
+        // In real usage, parsing sets the title automatically
+        document.title = "My Amazing Screenplay"
         #expect(document.title == "My Amazing Screenplay")
         #expect(document.titlePage.count == 3)
 
@@ -239,10 +205,23 @@ struct TitlePageTests {
         #expect(keys == ["AUTHOR", "CONTACT", "TITLE"])
     }
 
-    // MARK: - Title Fallback Logic Tests
+    // MARK: - Title Extraction During Parsing Tests
 
-    @Test("Title fallback: Priority 1 - Front matter TITLE used first")
-    func testTitleFallbackPriority1FrontMatter() async throws {
+    @Test("Parsing extracts title from front matter")
+    func testParsingExtractsTitleFromFrontMatter() async throws {
+        let markdown = """
+        ---
+        title: My Screenplay Title
+        author: Jane Doe
+        ---
+
+        # Act One
+
+        This is the content.
+        """
+
+        let screenplay = try await GuionParsedElementCollection(string: markdown)
+
         let schema = Schema([
             GuionDocumentModel.self,
             GuionElementModel.self,
@@ -252,21 +231,30 @@ struct TitlePageTests {
         let modelContainer = try ModelContainer(for: schema, configurations: [modelConfiguration])
         let modelContext = modelContainer.mainContext
 
-        let document = GuionDocumentModel(filename: "FileBasedTitle.guion")
+        // Parse to SwiftData document - title should be extracted automatically
+        let document = await GuionDocumentParserSwiftData.parse(script: screenplay, in: modelContext)
 
-        // Add title to front matter
-        let titleEntry = TitlePageEntryModel(key: "title", values: ["Front Matter Title"])
-        titleEntry.document = document
-        document.titlePage.append(titleEntry)
-
-        modelContext.insert(document)
-
-        // Should use front matter title (priority 1), ignoring filename
-        #expect(document.title == "Front Matter Title")
+        // Should extract title from front matter
+        #expect(document.title == "My Screenplay Title")
     }
 
-    @Test("Title fallback: Priority 2 - Filename without extension used when no front matter")
-    func testTitleFallbackPriority2Filename() async throws {
+    @Test("Parsing falls back to filename when no front matter title")
+    func testParsingFallsBackToFilename() async throws {
+        let markdown = """
+        # Act One
+
+        This is the content.
+        """
+
+        let elements = try await GuionParsedElementCollection(string: markdown).elements
+        // Create screenplay with filename
+        let screenplay = GuionParsedElementCollection(
+            filename: "TestScript.md",
+            elements: elements,
+            titlePage: [],
+            suppressSceneNumbers: false
+        )
+
         let schema = Schema([
             GuionDocumentModel.self,
             GuionElementModel.self,
@@ -276,11 +264,11 @@ struct TitlePageTests {
         let modelContainer = try ModelContainer(for: schema, configurations: [modelConfiguration])
         let modelContext = modelContainer.mainContext
 
-        let document = GuionDocumentModel(filename: "MyAwesomeScript.fountain")
-        modelContext.insert(document)
+        // Parse to SwiftData document
+        let document = await GuionDocumentParserSwiftData.parse(script: screenplay, in: modelContext)
 
-        // Should fall back to filename without extension (priority 2)
-        #expect(document.title == "MyAwesomeScript")
+        // Should fall back to filename without extension
+        #expect(document.title == "TestScript")
     }
 
     @Test("Title fallback: Returns nil when no title or filename available")
@@ -319,8 +307,16 @@ struct TitlePageTests {
         #expect(document.title == nil)
     }
 
-    @Test("Title fallback: Handles filename with multiple extensions")
-    func testTitleFallbackMultipleExtensions() async throws {
+    @Test("Parsing handles filename with multiple extensions")
+    func testParsingHandlesMultipleExtensions() async throws {
+        let elements = try await GuionParsedElementCollection(string: "Content").elements
+        let screenplay = GuionParsedElementCollection(
+            filename: "MyScript.backup.fountain",
+            elements: elements,
+            titlePage: [],
+            suppressSceneNumbers: false
+        )
+
         let schema = Schema([
             GuionDocumentModel.self,
             GuionElementModel.self,
@@ -330,8 +326,7 @@ struct TitlePageTests {
         let modelContainer = try ModelContainer(for: schema, configurations: [modelConfiguration])
         let modelContext = modelContainer.mainContext
 
-        let document = GuionDocumentModel(filename: "MyScript.backup.fountain")
-        modelContext.insert(document)
+        let document = await GuionDocumentParserSwiftData.parse(script: screenplay, in: modelContext)
 
         // Should remove only the last extension
         #expect(document.title == "MyScript.backup")
