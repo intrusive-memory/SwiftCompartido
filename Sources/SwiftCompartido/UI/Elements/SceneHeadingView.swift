@@ -18,11 +18,14 @@ public struct SceneHeadingView: View {
     }
 
     public var body: some View {
-        Text(element.elementText)
-            .font(.custom("Courier New", size: fontSize * 1.25).weight(.bold))
-            .textCase(.uppercase)
-            .foregroundStyle(.primary)
-            .textSelection(.enabled)
-            .frame(maxWidth: .infinity, alignment: .leading)
+        VStack(spacing: 0) {
+            Spacer(minLength: 20)
+            Text(element.elementText)
+                .font(.custom("Courier New", size: fontSize * 1.25).weight(.bold))
+                .textCase(.uppercase)
+                .foregroundStyle(.primary)
+                .textSelection(.enabled)
+                .frame(maxWidth: .infinity, alignment: .leading)
+        }
     }
 }

@@ -25,11 +25,24 @@ public struct SectionHeadingView: View {
     }
 
     public var body: some View {
-        Text(element.elementText)
-            .font(fontForLevel)
-            .foregroundStyle(colorForLevel)
-            .textSelection(.enabled)
-            .frame(maxWidth: .infinity, alignment: alignmentForLevel)
+        Group {
+            if level <= 3 {
+                VStack(spacing: 0) {
+                    Spacer(minLength: spacingForLevel)
+                    Text(element.elementText)
+                        .font(fontForLevel)
+                        .foregroundStyle(colorForLevel)
+                        .textSelection(.enabled)
+                        .frame(maxWidth: .infinity, alignment: alignmentForLevel)
+                }
+            } else {
+                Text(element.elementText)
+                    .font(fontForLevel)
+                    .foregroundStyle(colorForLevel)
+                    .textSelection(.enabled)
+                    .frame(maxWidth: .infinity, alignment: alignmentForLevel)
+            }
+        }
     }
 
     private var fontForLevel: Font {
@@ -74,6 +87,19 @@ public struct SectionHeadingView: View {
             return .leading // Production directives left-aligned
         default:
             return .leading
+        }
+    }
+
+    private var spacingForLevel: CGFloat {
+        switch level {
+        case 1:
+            return 30 // Title - most spacing
+        case 2:
+            return 25 // Act - significant spacing
+        case 3:
+            return 20 // Sequence - moderate spacing
+        default:
+            return 0
         }
     }
 
