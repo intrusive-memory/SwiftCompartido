@@ -37,7 +37,6 @@ public struct DialogueParentheticalView: View {
                 Spacer()
                     .frame(width: geometry.size.width * 0.30)
             }
-            .frame(width: geometry.size.width, alignment: .leading)
         }
         .fixedSize(horizontal: false, vertical: true)
     }

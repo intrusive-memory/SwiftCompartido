@@ -74,7 +74,8 @@ public struct DialogueBlockView: View {
     }
 
     public var body: some View {
-        VStack(alignment: .leading, spacing: fontSize * 0.08) {
+        VStack(alignment: .leading, spacing: 0) {
+            Spacer(minLength: 20)
             ForEach(block.elements.indices, id: \.self) { index in
                 let element = block.elements[index]
 
