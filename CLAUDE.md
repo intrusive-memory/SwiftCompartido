@@ -255,6 +255,74 @@ for element in document.sortedElements { }
 
 Elements use composite key ordering: `(chapterIndex, orderIndex)`
 
+### SwiftData Relationships and Cascade Delete Strategy
+
+**IMPORTANT**: All `@Relationship` decorators omit the `inverse:` parameter to avoid macro expansion circular reference errors. SwiftData automatically infers inverse relationships.
+
+#### Relationship Graph
+
+```
+GuionDocumentModel (parent)
+    ├─→ elements: [GuionElementModel] (@Relationship deleteRule: .cascade)
+    ├─→ titlePage: [TitlePageEntryModel] (@Relationship deleteRule: .cascade)
+    └─→ generatedContent: [TypedDataStorage] (@Relationship deleteRule: .cascade)
+
+GuionElementModel
+    ├─→ document: GuionDocumentModel? (@Relationship deleteRule: .nullify)
+    └─→ generatedContent: [TypedDataStorage] (@Relationship deleteRule: .cascade)
+
+TypedDataStorage (leaf node)
+    ├─→ owningElement: GuionElementModel? (@Relationship deleteRule: .nullify)
+    └─→ owningDocument: GuionDocumentModel? (@Relationship deleteRule: .nullify)
+
+TitlePageEntryModel (leaf node)
+    └─→ document: GuionDocumentModel? (no @Relationship decorator)
+```
+
+#### Cascade Delete Behavior
+
+**When a document is deleted:**
+- ✅ All elements are automatically deleted (`.cascade`)
+- ✅ All title page entries are automatically deleted (`.cascade`)
+- ✅ All document-level generated content is automatically deleted (`.cascade`)
+- ✅ Element-level generated content is deleted via element cascade
+
+**When an element is deleted:**
+- ✅ All element-level generated content is automatically deleted (`.cascade`)
+- ❌ Parent document is NOT deleted (`.nullify`)
+
+**When generated content is deleted:**
+- ❌ Owning element is NOT deleted (`.nullify`)
+- ❌ Owning document is NOT deleted (`.nullify`)
+
+**Why no `inverse:` parameters?**
+
+The `inverse:` parameter in `@Relationship` macros can cause circular reference errors during macro expansion in Swift 6. By omitting them:
+1. SwiftData still correctly infers bidirectional relationships
+2. All cascade delete rules work as expected
+3. Macro expansion completes without circular reference errors
+4. The relationship graph remains functionally identical
+
+**Example: Proper relationship usage**
+
+```swift
+// ✅ CORRECT - Document owns elements
+@Model
+class GuionDocumentModel {
+    @Relationship(deleteRule: .cascade)  // No inverse: parameter
+    var elements: [GuionElementModel]
+}
+
+// ✅ CORRECT - Element references document
+@Model
+class GuionElementModel {
+    @Relationship(deleteRule: .nullify)  // No inverse: parameter
+    var document: GuionDocumentModel?
+}
+
+// Result: Deleting document cascades to elements, but deleting element doesn't affect document
+```
+
 ## Key Directories
 
 - `Sources/SwiftCompartido/Models/` - All data models
