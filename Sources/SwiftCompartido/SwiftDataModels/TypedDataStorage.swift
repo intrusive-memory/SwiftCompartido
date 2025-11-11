@@ -206,7 +206,10 @@ public final class TypedDataStorage {
     /// When TypedDataStorage is associated with a screenplay element
     /// (e.g., generated audio for dialogue, images for scene descriptions),
     /// this relationship tracks the owner.
-    @Relationship(deleteRule: .nullify, inverse: \GuionElementModel.generatedContent)
+    ///
+    /// **Delete Rule**: `.cascade` - When the owning element is deleted,
+    /// all associated generated content is automatically deleted.
+    @Relationship(deleteRule: .cascade, inverse: \GuionElementModel.generatedContent)
     public var owningElement: GuionElementModel?
 
     /// Optional reference to the owning GuionDocument
@@ -214,7 +217,10 @@ public final class TypedDataStorage {
     /// When TypedDataStorage is associated with an entire document
     /// (e.g., document-level summaries or embeddings),
     /// this relationship tracks the owner.
-    @Relationship(deleteRule: .nullify, inverse: \GuionDocumentModel.generatedContent)
+    ///
+    /// **Delete Rule**: `.cascade` - When the owning document is deleted,
+    /// all associated generated content is automatically deleted.
+    @Relationship(deleteRule: .cascade, inverse: \GuionDocumentModel.generatedContent)
     public var owningDocument: GuionDocumentModel?
 
     /// Generic owner identifier for other model types
