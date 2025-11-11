@@ -42,6 +42,65 @@ let screenplay2 = try await GuionParsedElementCollection(string: text)
   - macOS: Opens System Settings → Accessibility → Spoken Content
   - iOS/Catalyst: Opens app settings with fallback guidance
 
+## ✨ New Features in 4.1.0
+
+### YAML Front Matter Support
+
+- **Markdown Parser**: Full YAML front matter extraction from `.md` and `.markdown` files
+  - Parses YAML metadata blocks enclosed in `---` delimiters
+  - Extracts title, author, draft date, and other metadata
+  - Supports single and multi-value fields (e.g., multiple authors)
+  - Case-insensitive key handling with normalization to lowercase
+  - Compatible with Jekyll/CommonMark conventions
+
+```swift
+let markdown = """
+---
+title: My Screenplay
+author: Jane Doe
+draft: First Draft
+---
+
+# Act One
+...
+"""
+
+let screenplay = try await GuionParsedElementCollection(string: markdown)
+// Title page automatically populated from front matter
+```
+
+### Stored Title Property
+
+- **GuionDocumentModel.title**: Stored property (replaces computed property)
+  - Automatically extracted during parsing from:
+    1. Title page metadata (YAML front matter or Fountain title page)
+    2. Filename without extension (fallback)
+  - Persisted in SwiftData for better performance
+  - Can be manually set or updated after creation
+
+```swift
+let document = await GuionDocumentParserSwiftData.parse(script: screenplay, in: modelContext)
+print(document.title) // "My Screenplay" (from front matter or filename)
+
+// Use in DocumentListView
+struct DocumentListView: View {
+    @Query var documents: [GuionDocumentModel]
+
+    var body: some View {
+        List(documents) { document in
+            Text(document.title ?? "Untitled")
+        }
+    }
+}
+```
+
+### Highland Bundle .md File Handling
+
+- **Highland Format Fix**: `.md` files inside `.highland` bundles are now correctly parsed as Fountain format
+  - Highland app uses `.md` extension for Fountain files
+  - Previously incorrectly parsed as Markdown
+  - Now forces Fountain parser for all files in Highland bundles
+
 ## ⚠️ Breaking Changes in 3.0.0
 
 ### Removed Functionality
