@@ -30,8 +30,6 @@ public struct DialogueCharacterView: View {
                     .textSelection(.enabled)
                     .frame(maxWidth: geometry.size.width * 0.60, alignment: .leading)
             }
-            .frame(width: geometry.size.width, alignment: .leading)
         }
-        .fixedSize(horizontal: false, vertical: false)
     }
 }
