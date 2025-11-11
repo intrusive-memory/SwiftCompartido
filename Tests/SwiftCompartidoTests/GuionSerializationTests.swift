@@ -499,7 +499,7 @@ final class GuionSerializationTests: XCTestCase {
         XCTAssertEqual(loaded.titlePage.count, entries.count, "Should have all title page entries")
 
         for (index, (expectedKey, expectedValues)) in entries.enumerated() {
-            XCTAssertEqual(loaded.titlePage[index].key, expectedKey, "Title page key should match")
+            XCTAssertEqual(loaded.titlePage[index].key, expectedKey.uppercased(), "Title page key should match (normalized to uppercase)")
             XCTAssertEqual(loaded.titlePage[index].values, expectedValues, "Title page values should match")
         }
 

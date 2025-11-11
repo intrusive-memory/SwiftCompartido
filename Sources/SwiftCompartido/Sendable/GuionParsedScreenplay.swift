@@ -110,7 +110,7 @@ public final class GuionParsedElementCollection {
     /// Convenience initializer that parses from a file
     ///
     /// Automatically detects file format based on extension:
-    /// - `.md` or `.markdown` → CommonMark parser
+    /// - `.md` or `.markdown` → Markdown parser (supports YAML front matter)
     /// - `.fountain` or other → Fountain parser
     ///
     /// - Parameters:
@@ -123,11 +123,11 @@ public final class GuionParsedElementCollection {
         // Detect markdown files
         if ext == "md" || ext == "markdown" {
             let contents = try String(contentsOfFile: path, encoding: .utf8)
-            let elements = try CommonMarkParser.parse(contents)
+            let (elements, titlePage) = try MarkdownParser.parse(contents)
             self.init(
                 filename: filename,
                 elements: elements,
-                titlePage: [],
+                titlePage: titlePage,
                 suppressSceneNumbers: false
             )
         } else {
@@ -160,7 +160,7 @@ public final class GuionParsedElementCollection {
     /// **This is the recommended way to parse screenplay files.**
     ///
     /// Automatically detects file format based on extension:
-    /// - `.md` or `.markdown` → CommonMark parser
+    /// - `.md` or `.markdown` → Markdown parser (supports YAML front matter)
     /// - `.highland` → Highland bundle parser (ZIP containing TextBundle)
     /// - `.textbundle` → TextBundle parser
     /// - `.fdx` → Final Draft FDX parser
@@ -212,11 +212,11 @@ public final class GuionParsedElementCollection {
         case "md", "markdown":
             // Parse markdown files
             let contents = try String(contentsOfFile: path, encoding: .utf8)
-            let elements = try CommonMarkParser.parse(contents)
+            let (elements, titlePage) = try MarkdownParser.parse(contents)
             self.init(
                 filename: filename,
                 elements: elements,
-                titlePage: [],
+                titlePage: titlePage,
                 suppressSceneNumbers: false
             )
 

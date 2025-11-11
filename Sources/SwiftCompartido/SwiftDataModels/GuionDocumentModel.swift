@@ -146,6 +146,28 @@ public final class GuionDocumentModel {
     @Relationship(deleteRule: .cascade, inverse: \TitlePageEntryModel.document)
     public var titlePage: [TitlePageEntryModel]
 
+    /// The title of the screenplay from the title page
+    ///
+    /// This computed property retrieves the title from the title page entries.
+    /// It looks for a title page entry with the key "TITLE" (case-insensitive via normalization)
+    /// and returns the first value if found.
+    ///
+    /// - Returns: The screenplay title, or nil if no title is set
+    ///
+    /// ## Example
+    ///
+    /// ```swift
+    /// let document = GuionDocumentModel(filename: "MyScript.guion")
+    /// let titleEntry = TitlePageEntryModel(key: "title", values: ["The Great Screenplay"])
+    /// titleEntry.document = document
+    /// document.titlePage.append(titleEntry)
+    ///
+    /// print(document.title) // "The Great Screenplay"
+    /// ```
+    public var title: String? {
+        titlePage.first(where: { $0.key == "TITLE" })?.values.first
+    }
+
     /// Generated AI content associated with this document
     ///
     /// Examples:

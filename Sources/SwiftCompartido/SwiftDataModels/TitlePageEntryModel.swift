@@ -56,10 +56,10 @@ public final class TitlePageEntryModel {
 
     /// Initialize a new title page entry
     /// - Parameters:
-    ///   - key: The entry key
+    ///   - key: The entry key (will be normalized to uppercase for consistent lookup)
     ///   - values: One or more values for this key
     public init(key: String, values: [String]) {
-        self.key = key
+        self.key = key.uppercased()
         self.values = values
     }
 }

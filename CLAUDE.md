@@ -17,7 +17,7 @@ The `parser` parameter has been **removed** from all `GuionParsedElementCollecti
 - **Removed**: `ParserType` enum (`.fast` and `.regex` were redundant)
 - **Changed**: All `GuionParsedElementCollection` initializers no longer accept `parser:` parameter
 - **Auto-detection**: Parser automatically selected by file extension:
-  - `.md` or `.markdown` → CommonMark parser
+  - `.md` or `.markdown` → Markdown parser (supports YAML front matter)
   - `.highland` → Highland bundle parser
   - `.textbundle` → TextBundle parser
   - `.fdx` → Final Draft FDX parser

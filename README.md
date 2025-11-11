@@ -21,7 +21,7 @@
 - **Fountain Format**: Full parsing and export support
 - **FDX Format**: Final Draft XML import/export
 - **PDF Format**: AI-powered PDF screenplay parsing with FoundationModels (iOS 26.0+)
-- **CommonMark Support**: Parse and convert markdown to screenplay format
+- **Markdown Support**: Parse markdown with YAML front matter and convert to screenplay format
 - **TextPack**: Bundle screenplays with metadata and resources
 - **Complete Element Support**: Scenes, dialogue, action, transitions, and more
 - **Hierarchical Outlines**: Section headings with 6 levels
