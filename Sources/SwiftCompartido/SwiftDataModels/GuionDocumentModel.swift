@@ -148,11 +148,11 @@ public final class GuionDocumentModel {
 
     /// The title of the screenplay from the title page
     ///
-    /// This computed property retrieves the title from the title page entries.
-    /// It looks for a title page entry with the key "TITLE" (case-insensitive via normalization)
-    /// and returns the first value if found.
+    /// This computed property retrieves the title using a simple fallback strategy:
+    /// 1. First checks for a "TITLE" entry in the title page (from front matter/metadata)
+    /// 2. If not found, falls back to the filename without extension
     ///
-    /// - Returns: The screenplay title, or nil if no title is set
+    /// - Returns: The screenplay title, or nil if no title can be determined
     ///
     /// ## Example
     ///
@@ -165,7 +165,20 @@ public final class GuionDocumentModel {
     /// print(document.title) // "The Great Screenplay"
     /// ```
     public var title: String? {
-        titlePage.first(where: { $0.key == "TITLE" })?.values.first
+        // Priority 1: TITLE from front matter/title page
+        if let frontMatterTitle = titlePage.first(where: { $0.key == "TITLE" })?.values.first {
+            return frontMatterTitle
+        }
+
+        // Priority 2: Filename without extension
+        if let filename = filename {
+            let basename = (filename as NSString).deletingPathExtension
+            if !basename.isEmpty {
+                return basename
+            }
+        }
+
+        return nil
     }
 
     /// Generated AI content associated with this document
