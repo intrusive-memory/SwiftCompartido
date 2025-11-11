@@ -668,10 +668,14 @@ public final class GuionDocumentModel {
     /// - Parameter screenplay: The screenplay to extract title from
     /// - Returns: The extracted title, or nil if none can be determined
     private static func extractTitle(from screenplay: GuionParsedElementCollection) -> String? {
-        // Priority 1: TITLE from title page
+        // Priority 1: TITLE from title page (check both cases for safety)
         for dictionary in screenplay.titlePage {
-            if let titleValues = dictionary["TITLE"] ?? dictionary["title"],
-               let title = titleValues.first {
+            // Parsers normalize keys to lowercase, so check "title" first
+            if let titleValues = dictionary["title"], let title = titleValues.first {
+                return title
+            }
+            // Fallback to uppercase in case of Fountain title pages
+            if let titleValues = dictionary["TITLE"], let title = titleValues.first {
                 return title
             }
         }
