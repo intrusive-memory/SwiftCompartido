@@ -30,6 +30,5 @@ public struct DialogueTextView: View {
             Spacer()
                 .frame(minWidth: 100) // 25% right margin
         }
-        .padding(.horizontal, 20)
     }
 }

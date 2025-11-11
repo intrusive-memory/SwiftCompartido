@@ -19,11 +19,10 @@ public struct SceneHeadingView: View {
 
     public var body: some View {
         Text(element.elementText)
-            .font(.custom("Courier New", size: fontSize).weight(.bold))
+            .font(.custom("Courier New", size: fontSize * 1.25).weight(.bold))
             .textCase(.uppercase)
             .foregroundStyle(.primary)
             .textSelection(.enabled)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.vertical, fontSize * 0.67)
     }
 }

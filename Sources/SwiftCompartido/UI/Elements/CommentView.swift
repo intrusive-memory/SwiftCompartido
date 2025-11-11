@@ -24,6 +24,5 @@ public struct CommentView: View {
             .italic()
             .textSelection(.enabled)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.vertical, fontSize * 0.17)
     }
 }

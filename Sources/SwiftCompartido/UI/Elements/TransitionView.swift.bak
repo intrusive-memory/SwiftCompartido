@@ -1,14 +1,15 @@
 //
-//  DialogueCharacterView.swift
+//  TransitionView.swift
 //  SwiftCompartido
 //
-//  Character name view with proper screenplay formatting
+//  Transition view with proper screenplay formatting
 //
 
 import SwiftUI
 
-/// Character name view with proper screenplay formatting (40% left margin)
-public struct DialogueCharacterView: View {
+/// Transition view with proper screenplay formatting (right-aligned)
+/// Examples: CUT TO:, FADE OUT., DISSOLVE TO:
+public struct TransitionView: View {
     let element: GuionElementModel
     @Environment(\.screenplayFontSize) var fontSize
 
@@ -19,21 +20,20 @@ public struct DialogueCharacterView: View {
     public var body: some View {
         GeometryReader { geometry in
             HStack(alignment: .top, spacing: 0) {
-                // 40% left margin for character names
+                // 65% left margin for right-aligned effect
                 Spacer()
-                    .frame(width: geometry.size.width * 0.40)
+                    .frame(width: geometry.size.width * 0.65)
 
                 Text(element.elementText)
-                    .font(.custom("Courier New", size: fontSize * 0.75).weight(.heavy))
-                    .textCase(.uppercase)
+                    .font(.custom("Courier New", size: fontSize))
                     .foregroundStyle(.primary)
                     .textSelection(.enabled)
-                    .frame(maxWidth: geometry.size.width * 0.60, alignment: .leading)
-
-                Spacer()
+                    .multilineTextAlignment(.trailing)
+                    .frame(maxWidth: geometry.size.width * 0.35, alignment: .trailing)
             }
             .frame(width: geometry.size.width, alignment: .leading)
         }
         .fixedSize(horizontal: false, vertical: false)
+        .padding(.vertical, fontSize * 0.67)
     }
 }
