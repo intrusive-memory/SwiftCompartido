@@ -147,28 +147,40 @@ struct GuionElementRow<TrailingContent: View>: View {
         switch element.elementType {
         case .action:
             ActionView(element: element)
+                .debugBorder()
         case .sceneHeading:
             SceneHeadingView(element: element)
+                .debugBorder()
         case .character:
             DialogueCharacterView(element: element)
+                .debugBorder()
         case .dialogue:
             DialogueTextView(element: element)
+                .debugBorder()
         case .parenthetical:
             DialogueParentheticalView(element: element)
+                .debugBorder()
         case .lyrics:
             DialogueLyricsView(element: element)
+                .debugBorder()
         case .transition:
             TransitionView(element: element)
+                .debugBorder()
         case .sectionHeading:
             SectionHeadingView(element: element)
+                .debugBorder()
         case .synopsis:
             SynopsisView(element: element)
+                .debugBorder()
         case .comment:
             CommentView(element: element)
+                .debugBorder()
         case .boneyard:
             BoneyardView(element: element)
+                .debugBorder()
         case .pageBreak:
             PageBreakView()
+                .debugBorder()
         }
     }
 
