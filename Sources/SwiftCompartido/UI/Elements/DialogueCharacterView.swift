@@ -18,7 +18,7 @@ public struct DialogueCharacterView: View {
 
     public var body: some View {
         GeometryReader { geometry in
-            HStack(alignment: .top, spacing: 0) {
+            HStack(alignment: .bottom, spacing: 0) {
                 // 40% left margin for character names
                 Spacer()
                     .frame(width: geometry.size.width * 0.40)
@@ -30,6 +30,7 @@ public struct DialogueCharacterView: View {
                     .textSelection(.enabled)
                     .frame(maxWidth: geometry.size.width * 0.60, alignment: .leading)
             }
+            .frame(maxHeight: .infinity, alignment: .bottom)
         }
     }
 }

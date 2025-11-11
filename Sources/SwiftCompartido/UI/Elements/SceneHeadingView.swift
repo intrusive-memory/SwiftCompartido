@@ -21,7 +21,7 @@ public struct SceneHeadingView: View {
         VStack(spacing: 0) {
             Spacer(minLength: 20)
             Text(element.elementText)
-                .font(.custom("Courier New", size: fontSize * 1.25).weight(.bold))
+                .font(.custom("Courier New", size: fontSize * 1.5).weight(.bold))
                 .textCase(.uppercase)
                 .foregroundStyle(.primary)
                 .textSelection(.enabled)
