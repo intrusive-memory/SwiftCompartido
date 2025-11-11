@@ -18,17 +18,11 @@ public struct DialogueTextView: View {
 
     public var body: some View {
         HStack {
-            Spacer()
-                .frame(minWidth: 100) // 25% left margin
-
             Text(element.elementText)
                 .font(.custom("Courier New", size: fontSize))
                 .foregroundStyle(.primary)
                 .textSelection(.enabled)
                 .frame(maxWidth: .infinity, alignment: .leading)
-
-            Spacer()
-                .frame(minWidth: 100) // 25% right margin
         }
     }
 }
