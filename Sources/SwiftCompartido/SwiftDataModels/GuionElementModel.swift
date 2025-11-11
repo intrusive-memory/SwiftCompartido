@@ -170,6 +170,10 @@ public final class GuionElementModel: GuionElementProtocol {
     /// - Generated audio for dialogue (text-to-speech)
     /// - Generated images for scene descriptions
     /// - Generated embeddings for semantic search
+    ///
+    /// **Delete Rule**: `.cascade` - When the element is deleted,
+    /// all associated generated content is automatically deleted.
+    @Relationship(deleteRule: .cascade, inverse: \TypedDataStorage.owningElement)
     public var generatedContent: [TypedDataStorage]?
 
     // Cached parsed location data

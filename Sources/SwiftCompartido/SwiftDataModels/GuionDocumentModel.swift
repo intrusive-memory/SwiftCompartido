@@ -170,6 +170,10 @@ public final class GuionDocumentModel {
     /// - Document-level embeddings for semantic search
     /// - Auto-generated summaries
     /// - Generated cover images
+    ///
+    /// **Delete Rule**: `.cascade` - When the document is deleted,
+    /// all associated generated content is automatically deleted.
+    @Relationship(deleteRule: .cascade, inverse: \TypedDataStorage.owningDocument)
     public var generatedContent: [TypedDataStorage]?
 
     // MARK: - Source File Tracking (NEW in 1.4.3)
