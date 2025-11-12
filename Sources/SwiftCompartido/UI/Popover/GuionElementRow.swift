@@ -20,6 +20,13 @@ struct GuionElementRow<TrailingContent: View>: View {
     @EnvironmentObject private var dismissCoordinator: PopoverDismissCoordinator
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
+    /// Check if this element's document is a markdown file
+    private var isMarkdownDocument: Bool {
+        guard let filename = element.document?.filename else { return false }
+        let lowercased = filename.lowercased()
+        return lowercased.hasSuffix(".md") || lowercased.hasSuffix(".markdown")
+    }
+
     // Separate hover states for element and popover (for interactive support)
     @State private var isHoveringElement = false
     @State private var isHoveringPopover = false
@@ -144,6 +151,27 @@ struct GuionElementRow<TrailingContent: View>: View {
     /// Returns the appropriate view for the element type
     @ViewBuilder
     private var elementView: some View {
+        // Use GitHub-style markdown views for .md/.markdown files
+        if isMarkdownDocument {
+            switch element.elementType {
+            case .action:
+                MarkdownActionView(element: element)
+                    .debugBorder()
+            case .sectionHeading:
+                MarkdownSectionHeadingView(element: element)
+                    .debugBorder()
+            // For other types in markdown, fall through to standard views
+            default:
+                standardElementView
+            }
+        } else {
+            standardElementView
+        }
+    }
+
+    /// Standard screenplay element views (Fountain format)
+    @ViewBuilder
+    private var standardElementView: some View {
         switch element.elementType {
         case .action:
             ActionView(element: element)
