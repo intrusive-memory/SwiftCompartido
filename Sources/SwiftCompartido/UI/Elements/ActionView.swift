@@ -17,7 +17,10 @@ public struct ActionView: View {
     }
 
     public var body: some View {
-        Text(element.elementText)
+        Text(FountainTextFormatter.format(
+            element.elementText,
+            baseFont: .custom("Courier New", size: fontSize)
+        ))
             .font(.custom("Courier New", size: fontSize))
             .foregroundStyle(.primary)
             .textSelection(.enabled)
