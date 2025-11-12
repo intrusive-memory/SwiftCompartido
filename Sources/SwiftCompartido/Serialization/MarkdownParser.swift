@@ -1,5 +1,5 @@
 //
-//  CommonMarkParser.swift
+//  MarkdownParser.swift
 //  SwiftCompartido
 //
 //  Copyright (c) 2025
@@ -28,8 +28,27 @@ import Markdown
 
 /// Parser that converts Markdown documents into GuionElement screenplay elements.
 ///
-/// This parser uses Apple's swift-markdown library to bridge full CommonMark markdown
-/// support into the screenplay format, converting markdown elements into their screenplay equivalents.
+/// This parser uses Apple's swift-markdown library to parse markdown content,
+/// converting markdown elements into their screenplay equivalents. It also supports
+/// YAML front matter for document metadata (title, author, etc.), similar to how
+/// Fountain handles title pages.
+///
+/// ## YAML Front Matter Support
+///
+/// The parser extracts YAML front matter from markdown files, converting it to the
+/// same format as Fountain title pages. Front matter must be at the start of the file
+/// between `---` delimiters:
+///
+/// ```markdown
+/// ---
+/// title: My Screenplay
+/// author: John Doe
+/// draft: First Draft
+/// ---
+///
+/// # Act One
+/// ...
+/// ```
 ///
 /// ## Supported Mappings
 ///
@@ -45,6 +64,11 @@ import Markdown
 ///
 /// ```swift
 /// let markdown = """
+/// ---
+/// title: Coffee Shop Scene
+/// author: Jane Smith
+/// ---
+///
 /// # Act One
 ///
 /// INT. COFFEE SHOP - DAY
@@ -52,22 +76,152 @@ import Markdown
 /// Sarah enters, looking around nervously.
 /// """
 ///
-/// let elements = try CommonMarkParser.parse(markdown)
-/// // Returns array of GuionElement objects
+/// let (elements, titlePage) = try MarkdownParser.parse(markdown)
+/// // elements: Array of GuionElement objects
+/// // titlePage: [["title": ["Coffee Shop Scene"]], ["author": ["Jane Smith"]]]
 /// ```
 ///
-public enum CommonMarkParser {
+public enum MarkdownParser {
 
-    /// Parse a markdown string into an array of GuionElement objects.
+    /// Parse a markdown string into screenplay elements and optional front matter.
+    ///
+    /// This method parses both YAML front matter (for metadata like title, author)
+    /// and the markdown content body. The front matter is returned in the same
+    /// format as Fountain title pages for consistency across parsers.
     ///
     /// - Parameter markdown: The markdown text to parse
-    /// - Returns: Array of GuionElement objects representing the screenplay
+    /// - Returns: Tuple containing:
+    ///   - elements: Array of GuionElement objects representing the screenplay
+    ///   - titlePage: Array of dictionaries with metadata from YAML front matter
     /// - Throws: Error if the markdown cannot be parsed
-    public static func parse(_ markdown: String) throws -> [GuionElement] {
-        let document = Document(parsing: markdown)
+    ///
+    /// ## Usage
+    ///
+    /// ```swift
+    /// let (elements, titlePage) = try MarkdownParser.parse(markdownString)
+    ///
+    /// // Access title from front matter
+    /// if let titleDict = titlePage.first(where: { $0.keys.contains("title") }),
+    ///    let title = titleDict["title"]?.first {
+    ///     print("Title: \(title)")
+    /// }
+    /// ```
+    public static func parse(_ markdown: String) throws -> (elements: [GuionElement], titlePage: [[String: [String]]]) {
+        // Extract YAML front matter if present
+        let (contentWithoutFrontMatter, titlePage) = extractYAMLFrontMatter(from: markdown)
+
+        // Parse the markdown content (without front matter)
+        let document = Document(parsing: contentWithoutFrontMatter)
         var converter = MarkdownToGuionConverter()
         converter.visit(document)
-        return converter.elements
+
+        return (converter.elements, titlePage)
+    }
+
+    /// Extract YAML front matter from the beginning of a markdown document.
+    ///
+    /// YAML front matter must be at the very start of the file, enclosed between
+    /// `---` delimiters. This follows the CommonMark/Jekyll convention.
+    ///
+    /// - Parameter markdown: The full markdown string
+    /// - Returns: Tuple containing:
+    ///   - content: The markdown content without front matter
+    ///   - titlePage: Extracted metadata in Fountain title page format
+    ///
+    /// ## Supported Formats
+    ///
+    /// ```yaml
+    /// ---
+    /// title: My Document
+    /// author: John Doe
+    /// authors:
+    ///   - Jane Smith
+    ///   - Bob Johnson
+    /// draft: First Draft
+    /// ---
+    /// ```
+    private static func extractYAMLFrontMatter(from markdown: String) -> (content: String, titlePage: [[String: [String]]]) {
+        var titlePage: [[String: [String]]] = []
+
+        // Check if document starts with ---
+        guard markdown.hasPrefix("---\n") || markdown.hasPrefix("---\r\n") else {
+            return (markdown, titlePage)
+        }
+
+        // Find the closing ---
+        let lines = markdown.components(separatedBy: .newlines)
+        guard lines.count > 2 else {
+            return (markdown, titlePage)
+        }
+
+        // Find end of front matter (second --- line)
+        var endIndex = -1
+        for (index, line) in lines.enumerated() {
+            if index == 0 { continue } // Skip first ---
+            if line.trimmingCharacters(in: .whitespaces) == "---" {
+                endIndex = index
+                break
+            }
+        }
+
+        guard endIndex > 0 else {
+            return (markdown, titlePage)
+        }
+
+        // Extract front matter lines (between the two ---)
+        let frontMatterLines = Array(lines[1..<endIndex])
+
+        // Parse YAML-style key: value pairs
+        var currentKey = ""
+        var currentValues: [String] = []
+
+        for line in frontMatterLines {
+            let trimmedLine = line.trimmingCharacters(in: .whitespaces)
+
+            if trimmedLine.isEmpty {
+                continue
+            }
+
+            // Check if this is a key: value line
+            if let colonIndex = trimmedLine.firstIndex(of: ":") {
+                // Save previous key if any
+                if !currentKey.isEmpty {
+                    titlePage.append([currentKey: currentValues])
+                }
+
+                let key = String(trimmedLine[..<colonIndex]).trimmingCharacters(in: .whitespaces).lowercased()
+                let value = String(trimmedLine[trimmedLine.index(after: colonIndex)...]).trimmingCharacters(in: .whitespaces)
+
+                // Normalize "author" to "authors" for consistency with Fountain
+                currentKey = (key == "author") ? "authors" : key
+
+                if !value.isEmpty {
+                    currentValues = [value]
+                } else {
+                    currentValues = []
+                }
+            } else if trimmedLine.hasPrefix("-") {
+                // This is a list item (multi-value field like multiple authors)
+                let value = trimmedLine.dropFirst().trimmingCharacters(in: .whitespaces)
+                if !value.isEmpty {
+                    currentValues.append(value)
+                }
+            } else if !currentKey.isEmpty {
+                // Continuation of previous value (multi-line)
+                currentValues.append(trimmedLine)
+            }
+        }
+
+        // Save last key
+        if !currentKey.isEmpty {
+            titlePage.append([currentKey: currentValues])
+        }
+
+        // Remove front matter from content
+        let remainingLines = Array(lines[(endIndex + 1)...])
+        let contentWithoutFrontMatter = remainingLines.joined(separator: "\n")
+
+        return (contentWithoutFrontMatter, titlePage)
     }
 
 }

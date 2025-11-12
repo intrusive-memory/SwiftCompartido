@@ -21,7 +21,10 @@ public struct DialogueTextView: View {
             Spacer()
                 .frame(minWidth: 100) // 25% left margin
 
-            Text(element.elementText)
+            Text(FountainTextFormatter.format(
+                element.elementText,
+                baseFont: .custom("Courier New", size: fontSize)
+            ))
                 .font(.custom("Courier New", size: fontSize))
                 .foregroundStyle(.primary)
                 .textSelection(.enabled)
@@ -30,6 +33,5 @@ public struct DialogueTextView: View {
             Spacer()
                 .frame(minWidth: 100) // 25% right margin
         }
-        .padding(.horizontal, 20)
     }
 }

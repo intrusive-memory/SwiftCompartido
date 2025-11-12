@@ -110,7 +110,7 @@ public final class GuionDocumentModel {
     public var rawContent: String?
     public var suppressSceneNumbers: Bool
 
-    @Relationship(deleteRule: .cascade, inverse: \GuionElementModel.document)
+    @Relationship(deleteRule: .cascade)
     public var elements: [GuionElementModel]
 
     /// Elements sorted by orderIndex (screenplay sequence order)
@@ -143,8 +143,26 @@ public final class GuionDocumentModel {
         }
     }
 
-    @Relationship(deleteRule: .cascade, inverse: \TitlePageEntryModel.document)
+    @Relationship(deleteRule: .cascade)
     public var titlePage: [TitlePageEntryModel]
+
+    /// The title of the screenplay
+    ///
+    /// This stored property is set during parsing from the screenplay's title page.
+    /// The title is extracted using a simple fallback strategy:
+    /// 1. First checks for a "TITLE" entry in the title page (from front matter/metadata)
+    /// 2. If not found, falls back to the filename without extension
+    ///
+    /// ## Example
+    ///
+    /// ```swift
+    /// let document = GuionDocumentModel(filename: "MyScript.guion")
+    /// print(document.title) // "MyScript" (from filename)
+    ///
+    /// // Or set explicitly:
+    /// document.title = "The Great Screenplay"
+    /// ```
+    public var title: String?
 
     /// Generated AI content associated with this document
     ///
@@ -152,6 +170,10 @@ public final class GuionDocumentModel {
     /// - Document-level embeddings for semantic search
     /// - Auto-generated summaries
     /// - Generated cover images
+    ///
+    /// **Delete Rule**: `.cascade` - When the document is deleted,
+    /// all associated generated content is automatically deleted.
+    @Relationship(deleteRule: .cascade)
     public var generatedContent: [TypedDataStorage]?
 
     // MARK: - Source File Tracking (NEW in 1.4.3)
@@ -183,10 +205,11 @@ public final class GuionDocumentModel {
     /// - SeeAlso: `isSourceFileModified()`, `sourceFileStatus()`
     public var sourceFileModificationDate: Date?
 
-    public init(filename: String? = nil, rawContent: String? = nil, suppressSceneNumbers: Bool = false) {
+    public init(filename: String? = nil, rawContent: String? = nil, suppressSceneNumbers: Bool = false, title: String? = nil) {
         self.filename = filename
         self.rawContent = rawContent
         self.suppressSceneNumbers = suppressSceneNumbers
+        self.title = title
         self.elements = []
         self.titlePage = []
         self.sourceFileBookmark = nil
@@ -640,6 +663,38 @@ public final class GuionDocumentModel {
         return await from(screenplay, in: context, generateSummaries: generateSummaries, progress: nil)
     }
 
+    /// Extract title from a screenplay using fallback strategy
+    ///
+    /// Extracts the title using this priority:
+    /// 1. TITLE from title page metadata
+    /// 2. Filename without extension
+    ///
+    /// - Parameter screenplay: The screenplay to extract title from
+    /// - Returns: The extracted title, or nil if none can be determined
+    private static func extractTitle(from screenplay: GuionParsedElementCollection) -> String? {
+        // Priority 1: TITLE from title page (check both cases for safety)
+        for dictionary in screenplay.titlePage {
+            // Parsers normalize keys to lowercase, so check "title" first
+            if let titleValues = dictionary["title"], let title = titleValues.first {
+                return title
+            }
+            // Fallback to uppercase in case of Fountain title pages
+            if let titleValues = dictionary["TITLE"], let title = titleValues.first {
+                return title
+            }
+        }
+
+        // Priority 2: Filename without extension
+        if let filename = screenplay.filename {
+            let basename = (filename as NSString).deletingPathExtension
+            if !basename.isEmpty {
+                return basename
+            }
+        }
+
+        return nil
+    }
+
     /// Create a GuionDocumentModel from a GuionParsedElementCollection with progress reporting
     ///
     /// This method provides progress updates as elements are converted to SwiftData models.
@@ -681,10 +736,14 @@ public final class GuionDocumentModel {
 
         var completedUnits: Int64 = 0
 
+        // Extract title from screenplay
+        let extractedTitle = Self.extractTitle(from: screenplay)
+
         let document = GuionDocumentModel(
             filename: screenplay.filename,
             rawContent: screenplay.stringFromDocument(),
-            suppressSceneNumbers: screenplay.suppressSceneNumbers
+            suppressSceneNumbers: screenplay.suppressSceneNumbers,
+            title: extractedTitle
         )
 
         // Convert title page entries

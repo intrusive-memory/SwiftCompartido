@@ -37,8 +37,7 @@ public struct DialogueLyricsView: View {
                 Spacer()
                     .frame(width: geometry.size.width * 0.25)
             }
-            .frame(width: geometry.size.width, alignment: .leading)
         }
-        .fixedSize(horizontal: false, vertical: true)
+        .fixedSize(horizontal: false, vertical: false)
     }
 }

@@ -17,9 +17,9 @@ The `parser` parameter has been **removed** from all `GuionParsedElementCollecti
 - **Removed**: `ParserType` enum (`.fast` and `.regex` were redundant)
 - **Changed**: All `GuionParsedElementCollection` initializers no longer accept `parser:` parameter
 - **Auto-detection**: Parser automatically selected by file extension:
-  - `.md` or `.markdown` → CommonMark parser
-  - `.highland` → Highland bundle parser
-  - `.textbundle` → TextBundle parser
+  - `.md` or `.markdown` → Markdown parser (supports YAML front matter)
+  - `.highland` → Highland bundle handler → **Always Fountain parser**
+  - `.textbundle` → TextBundle handler → Recursive format detection
   - `.fdx` → Final Draft FDX parser
   - `.pdf` → PDF parser (iOS 26.0+)
   - `.fountain` or default → Fountain parser
@@ -35,12 +35,119 @@ let screenplay = try GuionParsedElementCollection(file: path)
 let screenplay2 = try await GuionParsedElementCollection(string: text)
 ```
 
+### File Format Parsing Flow
+
+```mermaid
+flowchart TD
+    Start([GuionParsedElementCollection]) --> Detect{File Extension?}
+
+    Detect -->|.md / .markdown| MD[Markdown Parser]
+    Detect -->|.highland| Highland[Highland Handler]
+    Detect -->|.textbundle| TextBundle[TextBundle Handler]
+    Detect -->|.fdx| FDX[FDX Parser]
+    Detect -->|.pdf| PDF[PDF Parser]
+    Detect -->|.fountain / other| Fountain[Fountain Parser]
+
+    MD --> YAMLExtract[Extract YAML Front Matter]
+    YAMLExtract --> ConvertMD[Convert Markdown to Elements]
+    ConvertMD --> Elements[screenplay.elements]
+
+    FDX --> ParseXML[Parse Final Draft XML]
+    ParseXML --> Elements
+
+    PDF --> AIExtract[AI-Powered Extraction]
+    AIExtract --> Elements
+
+    Fountain --> ParseFountain[Parse Fountain Syntax]
+    ParseFountain --> Elements
+
+    Highland --> Extract[Extract ZIP Archive]
+    Extract --> FindTB[Locate TextBundle Directory]
+    FindTB --> FindFile{Find .fountain<br/>or .md file}
+    FindFile -->|.fountain found| ForceFountain1[Use Fountain Parser]
+    FindFile -->|.md found| ForceFountain2[Use Fountain Parser<br/>Highland .md = Fountain]
+    ForceFountain1 --> ParseFountain
+    ForceFountain2 --> ParseFountain
+
+    TextBundle --> Discover[Find Content File]
+    Discover --> RecursiveDetect{File Extension?}
+    RecursiveDetect -->|.fountain| Fountain
+    RecursiveDetect -->|.md| MD
+
+    Elements --> Return([Return GuionParsedElementCollection])
+
+    style Highland fill:#e1f5ff
+    style ForceFountain2 fill:#fff3cd
+    style MD fill:#d4edda
+    style Elements fill:#f8d7da
+```
+
+**Critical Parsing Rules:**
+
+1. **Standalone .md files** → Markdown parser with YAML front matter
+2. **Highland .md files** → **Always Fountain parser** (Highland uses Fountain syntax)
+3. **TextBundle .md files** → Markdown parser (recursive detection)
+4. **TextBundle .fountain files** → Fountain parser (recursive detection)
+
 ### New Features in 4.0.0
 
 - **AppleTTSVoiceProviderPane**: SwiftUI configuration pane for Apple TTS voice provider
 - **openVoiceSettings()**: Helper function to deep link to system voice settings
   - macOS: Opens System Settings → Accessibility → Spoken Content
   - iOS/Catalyst: Opens app settings with fallback guidance
+
+## ✨ New Features in 4.1.0
+
+### YAML Front Matter Support
+
+- **Markdown Parser**: Full YAML front matter extraction from `.md` and `.markdown` files
+  - Parses YAML metadata blocks enclosed in `---` delimiters
+  - Extracts title, author, draft date, and other metadata
+  - Supports single and multi-value fields (e.g., multiple authors)
+  - Case-insensitive key handling with normalization to lowercase
+  - Compatible with Jekyll/CommonMark conventions
+
+```swift
+let markdown = """
+---
+title: My Screenplay
+author: Jane Doe
+draft: First Draft
+---
+
+# Act One
+...
+"""
+
+let screenplay = try await GuionParsedElementCollection(string: markdown)
+// Title page automatically populated from front matter
+```
+
+### Stored Title Property
+
+- **GuionDocumentModel.title**: Stored property (replaces computed property)
+  - Automatically extracted during parsing from:
+    1. Title page metadata (YAML front matter or Fountain title page)
+    2. Filename without extension (fallback)
+  - Persisted in SwiftData for better performance
+  - Can be manually set or updated after creation
+
+```swift
+let document = await GuionDocumentParserSwiftData.parse(script: screenplay, in: modelContext)
+print(document.title) // "My Screenplay" (from front matter or filename)
+
+// Use in DocumentListView
+struct DocumentListView: View {
+    @Query var documents: [GuionDocumentModel]
+
+    var body: some View {
+        List(documents) { document in
+            Text(document.title ?? "Untitled")
+        }
+    }
+}
+```
+
 
 ## ⚠️ Breaking Changes in 3.0.0
 
@@ -196,6 +303,74 @@ for element in document.sortedElements { }
 
 Elements use composite key ordering: `(chapterIndex, orderIndex)`
 
+### SwiftData Relationships and Cascade Delete Strategy
+
+**IMPORTANT**: All `@Relationship` decorators omit the `inverse:` parameter to avoid macro expansion circular reference errors. SwiftData automatically infers inverse relationships.
+
+#### Relationship Graph
+
+```
+GuionDocumentModel (parent)
+    ├─→ elements: [GuionElementModel] (@Relationship deleteRule: .cascade)
+    ├─→ titlePage: [TitlePageEntryModel] (@Relationship deleteRule: .cascade)
+    └─→ generatedContent: [TypedDataStorage] (@Relationship deleteRule: .cascade)
+
+GuionElementModel
+    ├─→ document: GuionDocumentModel? (@Relationship deleteRule: .nullify)
+    └─→ generatedContent: [TypedDataStorage] (@Relationship deleteRule: .cascade)
+
+TypedDataStorage (leaf node)
+    ├─→ owningElement: GuionElementModel? (@Relationship deleteRule: .nullify)
+    └─→ owningDocument: GuionDocumentModel? (@Relationship deleteRule: .nullify)
+
+TitlePageEntryModel (leaf node)
+    └─→ document: GuionDocumentModel? (no @Relationship decorator)
+```
+
+#### Cascade Delete Behavior
+
+**When a document is deleted:**
+- ✅ All elements are automatically deleted (`.cascade`)
+- ✅ All title page entries are automatically deleted (`.cascade`)
+- ✅ All document-level generated content is automatically deleted (`.cascade`)
+- ✅ Element-level generated content is deleted via element cascade
+
+**When an element is deleted:**
+- ✅ All element-level generated content is automatically deleted (`.cascade`)
+- ❌ Parent document is NOT deleted (`.nullify`)
+
+**When generated content is deleted:**
+- ❌ Owning element is NOT deleted (`.nullify`)
+- ❌ Owning document is NOT deleted (`.nullify`)
+
+**Why no `inverse:` parameters?**
+
+The `inverse:` parameter in `@Relationship` macros can cause circular reference errors during macro expansion in Swift 6. By omitting them:
+1. SwiftData still correctly infers bidirectional relationships
+2. All cascade delete rules work as expected
+3. Macro expansion completes without circular reference errors
+4. The relationship graph remains functionally identical
+
+**Example: Proper relationship usage**
+
+```swift
+// ✅ CORRECT - Document owns elements
+@Model
+class GuionDocumentModel {
+    @Relationship(deleteRule: .cascade)  // No inverse: parameter
+    var elements: [GuionElementModel]
+}
+
+// ✅ CORRECT - Element references document
+@Model
+class GuionElementModel {
+    @Relationship(deleteRule: .nullify)  // No inverse: parameter
+    var document: GuionDocumentModel?
+}
+
+// Result: Deleting document cascades to elements, but deleting element doesn't affect document
+```
+
 ## Key Directories
 
 - `Sources/SwiftCompartido/Models/` - All data models
@@ -341,7 +516,7 @@ try modelContext.save()
 
 ## Project Metadata
 
-- **Version**: 4.0.0 (Development version with automated version bump workflow)
+- **Version**: 4.1.0 (Development version with automated version bump workflow)
 - **Swift**: 6.2+
 - **Platforms**: iOS 26.0+, macOS 26.0+
 - **Dependencies**: TextBundle, SwiftFijos (test-only)

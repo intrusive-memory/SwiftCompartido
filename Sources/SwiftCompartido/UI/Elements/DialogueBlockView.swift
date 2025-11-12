@@ -74,7 +74,8 @@ public struct DialogueBlockView: View {
     }
 
     public var body: some View {
-        VStack(alignment: .leading, spacing: fontSize * 0.08) {
+        VStack(alignment: .leading, spacing: 0) {
+            Spacer(minLength: 20)
             ForEach(block.elements.indices, id: \.self) { index in
                 let element = block.elements[index]
 
@@ -89,8 +90,6 @@ public struct DialogueBlockView: View {
                 }
             }
         }
-        .padding(.top, fontSize * 0.57)
-        .padding(.bottom, fontSize * 0.85)
         .background(
             GeometryReader { geometry in
                 // Background positioned to cover only dialogue text area (25% to 75% of width)
@@ -105,8 +104,6 @@ public struct DialogueBlockView: View {
                                 .stroke(Color.secondary.opacity(0.10), lineWidth: 1)
                         )
                         .frame(width: geometry.size.width * 0.56)
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, fontSize * 0.13)
 
                     Spacer()
                 }

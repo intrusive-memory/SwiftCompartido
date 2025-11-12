@@ -24,6 +24,5 @@ public struct BoneyardView: View {
             .strikethrough(true, color: .secondary.opacity(0.5))
             .textSelection(.enabled)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.vertical, fontSize * 0.17)
     }
 }

@@ -25,7 +25,7 @@ This major release simplifies the `GuionParsedElementCollection` API by removing
 
 #### Parser Selection by File Extension
 Parser is now automatically selected based on file extension:
-- `.md` or `.markdown` → CommonMark parser
+- `.md` or `.markdown` → Markdown parser (supports YAML front matter)
 - `.highland` → Highland bundle parser (ZIP containing TextBundle)
 - `.textbundle` → TextBundle parser
 - `.fdx` → Final Draft FDX parser

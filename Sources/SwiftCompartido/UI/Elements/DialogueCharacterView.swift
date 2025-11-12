@@ -18,7 +18,7 @@ public struct DialogueCharacterView: View {
 
     public var body: some View {
         GeometryReader { geometry in
-            HStack(alignment: .top, spacing: 0) {
+            HStack(alignment: .bottom, spacing: 0) {
                 // 40% left margin for character names
                 Spacer()
                     .frame(width: geometry.size.width * 0.40)
@@ -29,13 +29,8 @@ public struct DialogueCharacterView: View {
                     .foregroundStyle(.primary)
                     .textSelection(.enabled)
                     .frame(maxWidth: geometry.size.width * 0.60, alignment: .leading)
-
-                Spacer()
             }
-            .frame(width: geometry.size.width, alignment: .leading)
+            .frame(maxHeight: .infinity, alignment: .bottom)
         }
-        .fixedSize(horizontal: false, vertical: false)
-        .padding(.top, fontSize * 1.5)    // More space above character name (separation from previous element)
-        .padding(.bottom, fontSize * 0.05)  // Minimal space below character name (closer to dialogue)
     }
 }

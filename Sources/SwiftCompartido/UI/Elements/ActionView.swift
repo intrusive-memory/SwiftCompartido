@@ -17,12 +17,13 @@ public struct ActionView: View {
     }
 
     public var body: some View {
-        Text(element.elementText)
+        Text(FountainTextFormatter.format(
+            element.elementText,
+            baseFont: .custom("Courier New", size: fontSize)
+        ))
             .font(.custom("Courier New", size: fontSize))
             .foregroundStyle(.primary)
             .textSelection(.enabled)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.horizontal, 40) // 10% left + 10% right margin approximation
-            .padding(.vertical, fontSize * 0.35)
     }
 }

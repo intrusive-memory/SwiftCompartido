@@ -34,6 +34,5 @@ public struct TransitionView: View {
             .frame(width: geometry.size.width, alignment: .leading)
         }
         .fixedSize(horizontal: false, vertical: false)
-        .padding(.vertical, fontSize * 0.67)
     }
 }

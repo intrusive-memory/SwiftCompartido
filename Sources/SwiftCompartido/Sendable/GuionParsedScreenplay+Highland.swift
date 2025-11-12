@@ -71,8 +71,16 @@ extension GuionParsedElementCollection {
         // Use the shared getContentURL logic to find .fountain or .md files
         let contentURL = try GuionParsedElementCollection.getContentURL(from: textBundleURL)
 
-        // Parse the content
-        try self.init(file: contentURL.path)
+        // Highland bundles always use Fountain format, even if the file has .md extension
+        // Parse as Fountain (Highland's .md files are actually Fountain format)
+        let fountainParser = try FountainParser(file: contentURL.path)
+
+        self.init(
+            filename: url.lastPathComponent,
+            elements: fountainParser.elements,
+            titlePage: fountainParser.titlePage,
+            suppressSceneNumbers: false
+        )
     }
 
     /// Write the current GuionParsedElementCollection to a Highland file (.highland)

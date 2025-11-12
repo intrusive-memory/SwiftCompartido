@@ -162,6 +162,12 @@ public final class GuionElementModel: GuionElementProtocol {
 
     // SwiftData-specific properties
     public var summary: String?
+
+    /// Reference to the parent document
+    ///
+    /// **Delete Rule**: `.nullify` - When an element is deleted, the parent document
+    /// is not affected (only documents delete their elements, not vice versa).
+    @Relationship(deleteRule: .nullify)
     public var document: GuionDocumentModel?
 
     /// Generated AI content associated with this element
@@ -170,6 +176,10 @@ public final class GuionElementModel: GuionElementProtocol {
     /// - Generated audio for dialogue (text-to-speech)
     /// - Generated images for scene descriptions
     /// - Generated embeddings for semantic search
+    ///
+    /// **Delete Rule**: `.cascade` - When the element is deleted,
+    /// all associated generated content is automatically deleted.
+    @Relationship(deleteRule: .cascade)
     public var generatedContent: [TypedDataStorage]?
 
     // Cached parsed location data

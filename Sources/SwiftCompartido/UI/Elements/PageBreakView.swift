@@ -27,6 +27,5 @@ public struct PageBreakView: View {
                 .background(Color.secondary.opacity(0.3))
         }
         .frame(maxWidth: .infinity)
-        .padding(.vertical, fontSize * 0.5)
     }
 }

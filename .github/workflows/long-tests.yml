@@ -65,6 +65,12 @@ jobs:
             "UIOrderingRegressionTests"
             "ElementProgressStateTests"
             "ElementOrderingTests"
+            "LongPressGestureTests"
+            "FountainTextFormatterTests"
+            "TitlePageTests"
+            "OperationProgressTests"
+            "HoverTimingTests"
+            "HoverStateManagementTests"
           )
 
           ONLY_ARGS=""
@@ -163,6 +169,12 @@ jobs:
           echo "- UIOrderingRegressionTests" >> $GITHUB_STEP_SUMMARY
           echo "- ElementProgressStateTests" >> $GITHUB_STEP_SUMMARY
           echo "- ElementOrderingTests" >> $GITHUB_STEP_SUMMARY
+          echo "- LongPressGestureTests" >> $GITHUB_STEP_SUMMARY
+          echo "- FountainTextFormatterTests" >> $GITHUB_STEP_SUMMARY
+          echo "- TitlePageTests" >> $GITHUB_STEP_SUMMARY
+          echo "- OperationProgressTests" >> $GITHUB_STEP_SUMMARY
+          echo "- HoverTimingTests" >> $GITHUB_STEP_SUMMARY
+          echo "- HoverStateManagementTests" >> $GITHUB_STEP_SUMMARY
 
   test-long-macos:
     name: macOS Tests (Long)
@@ -220,6 +232,12 @@ jobs:
             "UIOrderingRegressionTests"
             "ElementProgressStateTests"
             "ElementOrderingTests"
+            "LongPressGestureTests"
+            "FountainTextFormatterTests"
+            "TitlePageTests"
+            "OperationProgressTests"
+            "HoverTimingTests"
+            "HoverStateManagementTests"
           )
 
           ONLY_ARGS=""
@@ -318,3 +336,9 @@ jobs:
           echo "- UIOrderingRegressionTests" >> $GITHUB_STEP_SUMMARY
           echo "- ElementProgressStateTests" >> $GITHUB_STEP_SUMMARY
           echo "- ElementOrderingTests" >> $GITHUB_STEP_SUMMARY
+          echo "- LongPressGestureTests" >> $GITHUB_STEP_SUMMARY
+          echo "- FountainTextFormatterTests" >> $GITHUB_STEP_SUMMARY
+          echo "- TitlePageTests" >> $GITHUB_STEP_SUMMARY
+          echo "- OperationProgressTests" >> $GITHUB_STEP_SUMMARY
+          echo "- HoverTimingTests" >> $GITHUB_STEP_SUMMARY
+          echo "- HoverStateManagementTests" >> $GITHUB_STEP_SUMMARY
