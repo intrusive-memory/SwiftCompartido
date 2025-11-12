@@ -29,20 +29,93 @@ public struct SectionHeadingView: View {
             if level <= 3 {
                 VStack(spacing: 0) {
                     Spacer(minLength: spacingForLevel)
-                    Text(element.elementText)
+                    formattedText
                         .font(fontForLevel)
                         .foregroundStyle(colorForLevel)
                         .textSelection(.enabled)
                         .frame(maxWidth: .infinity, alignment: alignmentForLevel)
                 }
             } else {
-                Text(element.elementText)
+                formattedText
                     .font(fontForLevel)
                     .foregroundStyle(colorForLevel)
                     .textSelection(.enabled)
                     .frame(maxWidth: .infinity, alignment: alignmentForLevel)
+                    .padding(.vertical, paddingForLevel)
             }
         }
+    }
+
+    /// Renders text with bold and italic formatting
+    private var formattedText: Text {
+        parseFormattedText(element.elementText)
+    }
+
+    /// Parses text with **bold** and *italic* markers into formatted Text
+    private func parseFormattedText(_ text: String) -> Text {
+        var result = Text("")
+        var currentText = ""
+        var i = text.startIndex
+
+        while i < text.endIndex {
+            // Check for **bold**
+            if i < text.index(text.endIndex, offsetBy: -1),
+               text[i] == "*",
+               text[text.index(after: i)] == "*" {
+                // Add accumulated text
+                if !currentText.isEmpty {
+                    result = result + Text(currentText)
+                    currentText = ""
+                }
+                // Find closing **
+                i = text.index(i, offsetBy: 2)
+                var boldText = ""
+                while i < text.endIndex {
+                    if i < text.index(text.endIndex, offsetBy: -1),
+                       text[i] == "*",
+                       text[text.index(after: i)] == "*" {
+                        result = result + Text(boldText).bold()
+                        i = text.index(i, offsetBy: 2)
+                        break
+                    }
+                    boldText.append(text[i])
+                    i = text.index(after: i)
+                }
+                continue
+            }
+
+            // Check for *italic*
+            if text[i] == "*" {
+                // Add accumulated text
+                if !currentText.isEmpty {
+                    result = result + Text(currentText)
+                    currentText = ""
+                }
+                // Find closing *
+                i = text.index(after: i)
+                var italicText = ""
+                while i < text.endIndex {
+                    if text[i] == "*" {
+                        result = result + Text(italicText).italic()
+                        i = text.index(after: i)
+                        break
+                    }
+                    italicText.append(text[i])
+                    i = text.index(after: i)
+                }
+                continue
+            }
+
+            currentText.append(text[i])
+            i = text.index(after: i)
+        }
+
+        // Add remaining text
+        if !currentText.isEmpty {
+            result = result + Text(currentText)
+        }
+
+        return result
     }
 
     private var fontForLevel: Font {
@@ -98,6 +171,15 @@ public struct SectionHeadingView: View {
             return 25 // Act - significant spacing
         case 3:
             return 20 // Sequence - moderate spacing
+        default:
+            return 0
+        }
+    }
+
+    private var paddingForLevel: CGFloat {
+        switch level {
+        case 4:
+            return fontSize * 0.5 // Production directives need vertical separation
         default:
             return 0
         }

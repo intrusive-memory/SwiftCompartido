@@ -110,6 +110,9 @@ public struct GuionViewer: View {
     /// The document to display
     private let document: GuionDocumentModel
 
+    /// Font size state
+    @State private var fontSize: CGFloat = 12
+
     /// Create a viewer from a GuionDocumentModel
     /// - Parameter document: The SwiftData document to display
     public init(document: GuionDocumentModel) {
@@ -117,7 +120,59 @@ public struct GuionViewer: View {
     }
 
     public var body: some View {
-        GuionElementsList(document: document)
+        VStack(spacing: 0) {
+            // Title bar with font controls
+            HStack {
+                Text(document.title ?? "Untitled")
+                    .font(.headline)
+                    .foregroundStyle(.primary)
+
+                Spacer()
+
+                // Font size controls
+                HStack(spacing: 12) {
+                    Button {
+                        decreaseFontSize()
+                    } label: {
+                        Image(systemName: "minus.circle")
+                            .font(.title3)
+                    }
+                    .keyboardShortcut("-", modifiers: .command)
+                    .help("Decrease font size (⌘-)")
+
+                    Text("\(Int(fontSize))pt")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .frame(minWidth: 30)
+
+                    Button {
+                        increaseFontSize()
+                    } label: {
+                        Image(systemName: "plus.circle")
+                            .font(.title3)
+                    }
+                    .keyboardShortcut("=", modifiers: .command)
+                    .help("Increase font size (⌘=)")
+                }
+            }
+            .padding(.horizontal)
+            .padding(.vertical, 8)
+            .background(.ultraThinMaterial)
+
+            Divider()
+
+            // Screenplay content
+            GuionElementsList(document: document)
+                .environment(\.screenplayFontSize, fontSize)
+        }
+    }
+
+    private func increaseFontSize() {
+        fontSize = min(24, fontSize + 1)
+    }
+
+    private func decreaseFontSize() {
+        fontSize = max(8, fontSize - 1)
     }
 }
 
