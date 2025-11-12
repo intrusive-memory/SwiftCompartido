@@ -38,6 +38,6 @@ public struct DialogueLyricsView: View {
                     .frame(width: geometry.size.width * 0.25)
             }
         }
-        .fixedSize(horizontal: false, vertical: true)
+        .fixedSize(horizontal: false, vertical: false)
     }
 }

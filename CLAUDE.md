@@ -18,8 +18,8 @@ The `parser` parameter has been **removed** from all `GuionParsedElementCollecti
 - **Changed**: All `GuionParsedElementCollection` initializers no longer accept `parser:` parameter
 - **Auto-detection**: Parser automatically selected by file extension:
   - `.md` or `.markdown` → Markdown parser (supports YAML front matter)
-  - `.highland` → Highland bundle parser
-  - `.textbundle` → TextBundle parser
+  - `.highland` → Highland bundle handler → **Always Fountain parser**
+  - `.textbundle` → TextBundle handler → Recursive format detection
   - `.fdx` → Final Draft FDX parser
   - `.pdf` → PDF parser (iOS 26.0+)
   - `.fountain` or default → Fountain parser
@@ -34,6 +34,60 @@ let screenplay2 = try await GuionParsedElementCollection(string: text, parser: .
 let screenplay = try GuionParsedElementCollection(file: path)
 let screenplay2 = try await GuionParsedElementCollection(string: text)
 ```
+
+### File Format Parsing Flow
+
+```mermaid
+flowchart TD
+    Start([GuionParsedElementCollection]) --> Detect{File Extension?}
+
+    Detect -->|.md / .markdown| MD[Markdown Parser]
+    Detect -->|.highland| Highland[Highland Handler]
+    Detect -->|.textbundle| TextBundle[TextBundle Handler]
+    Detect -->|.fdx| FDX[FDX Parser]
+    Detect -->|.pdf| PDF[PDF Parser]
+    Detect -->|.fountain / other| Fountain[Fountain Parser]
+
+    MD --> YAMLExtract[Extract YAML Front Matter]
+    YAMLExtract --> ConvertMD[Convert Markdown to Elements]
+    ConvertMD --> Elements[screenplay.elements]
+
+    FDX --> ParseXML[Parse Final Draft XML]
+    ParseXML --> Elements
+
+    PDF --> AIExtract[AI-Powered Extraction]
+    AIExtract --> Elements
+
+    Fountain --> ParseFountain[Parse Fountain Syntax]
+    ParseFountain --> Elements
+
+    Highland --> Extract[Extract ZIP Archive]
+    Extract --> FindTB[Locate TextBundle Directory]
+    FindTB --> FindFile{Find .fountain<br/>or .md file}
+    FindFile -->|.fountain found| ForceFountain1[Use Fountain Parser]
+    FindFile -->|.md found| ForceFountain2[Use Fountain Parser<br/>Highland .md = Fountain]
+    ForceFountain1 --> ParseFountain
+    ForceFountain2 --> ParseFountain
+
+    TextBundle --> Discover[Find Content File]
+    Discover --> RecursiveDetect{File Extension?}
+    RecursiveDetect -->|.fountain| Fountain
+    RecursiveDetect -->|.md| MD
+
+    Elements --> Return([Return GuionParsedElementCollection])
+
+    style Highland fill:#e1f5ff
+    style ForceFountain2 fill:#fff3cd
+    style MD fill:#d4edda
+    style Elements fill:#f8d7da
+```
+
+**Critical Parsing Rules:**
+
+1. **Standalone .md files** → Markdown parser with YAML front matter
+2. **Highland .md files** → **Always Fountain parser** (Highland uses Fountain syntax)
+3. **TextBundle .md files** → Markdown parser (recursive detection)
+4. **TextBundle .fountain files** → Fountain parser (recursive detection)
 
 ### New Features in 4.0.0
 
@@ -94,12 +148,6 @@ struct DocumentListView: View {
 }
 ```
 
-### Highland Bundle .md File Handling
-
-- **Highland Format Fix**: `.md` files inside `.highland` bundles are now correctly parsed as Fountain format
-  - Highland app uses `.md` extension for Fountain files
-  - Previously incorrectly parsed as Markdown
-  - Now forces Fountain parser for all files in Highland bundles
 
 ## ⚠️ Breaking Changes in 3.0.0
 

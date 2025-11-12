@@ -46,14 +46,14 @@ public struct SectionHeadingView: View {
         }
     }
 
-    /// Renders text with bold and italic formatting
+    /// Renders text with bold and italic formatting using AttributedString
     private var formattedText: Text {
-        parseFormattedText(element.elementText)
+        Text(parseFormattedText(element.elementText))
     }
 
-    /// Parses text with **bold** and *italic* markers into formatted Text
-    private func parseFormattedText(_ text: String) -> Text {
-        var result = Text("")
+    /// Parses text with **bold** and *italic* markers into AttributedString
+    private func parseFormattedText(_ text: String) -> AttributedString {
+        var attributedString = AttributedString()
         var currentText = ""
         var i = text.startIndex
 
@@ -64,7 +64,7 @@ public struct SectionHeadingView: View {
                text[text.index(after: i)] == "*" {
                 // Add accumulated text
                 if !currentText.isEmpty {
-                    result = result + Text(currentText)
+                    attributedString += AttributedString(currentText)
                     currentText = ""
                 }
                 // Find closing **
@@ -74,7 +74,9 @@ public struct SectionHeadingView: View {
                     if i < text.index(text.endIndex, offsetBy: -1),
                        text[i] == "*",
                        text[text.index(after: i)] == "*" {
-                        result = result + Text(boldText).bold()
+                        var boldAttributedString = AttributedString(boldText)
+                        boldAttributedString.inlinePresentationIntent = .stronglyEmphasized
+                        attributedString += boldAttributedString
                         i = text.index(i, offsetBy: 2)
                         break
                     }
@@ -88,7 +90,7 @@ public struct SectionHeadingView: View {
             if text[i] == "*" {
                 // Add accumulated text
                 if !currentText.isEmpty {
-                    result = result + Text(currentText)
+                    attributedString += AttributedString(currentText)
                     currentText = ""
                 }
                 // Find closing *
@@ -96,7 +98,9 @@ public struct SectionHeadingView: View {
                 var italicText = ""
                 while i < text.endIndex {
                     if text[i] == "*" {
-                        result = result + Text(italicText).italic()
+                        var italicAttributedString = AttributedString(italicText)
+                        italicAttributedString.inlinePresentationIntent = .emphasized
+                        attributedString += italicAttributedString
                         i = text.index(after: i)
                         break
                     }
@@ -112,10 +116,10 @@ public struct SectionHeadingView: View {
 
         // Add remaining text
         if !currentText.isEmpty {
-            result = result + Text(currentText)
+            attributedString += AttributedString(currentText)
         }
 
-        return result
+        return attributedString
     }
 
     private var fontForLevel: Font {
@@ -196,7 +200,7 @@ public struct SectionHeadingView: View {
         case 4:
             return fontSize * 0.5
         default:
-            return fontSize * 0.33
+            return fontSize * 0.25
         }
     }
 }
