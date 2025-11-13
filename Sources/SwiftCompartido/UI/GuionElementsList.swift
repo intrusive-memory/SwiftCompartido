@@ -70,14 +70,53 @@ public struct GuionElementsList<TrailingContent: View>: View {
 
     public var body: some View {
         List {
-            ForEach(elements) { element in
-                GuionElementRow(element: element, trailingContent: trailingContent)
+            ForEach(Array(elements.enumerated()), id: \.element.id) { index, element in
+                VStack(spacing: 0) {
+                    GuionElementRow(element: element, trailingContent: trailingContent)
+
+                    // Add full line spacing after action lines
+                    if element.elementType == .action {
+                        Spacer()
+                            .frame(height: fontSize * ScreenplayPageFormat.lineSpacingMultiplier)
+                    }
+                    // Add full line spacing after dialogue groups (character + dialogue/parenthetical)
+                    else if isEndOfDialogueGroup(at: index) {
+                        Spacer()
+                            .frame(height: fontSize * ScreenplayPageFormat.lineSpacingMultiplier)
+                    }
+                }
             }
             .listRowSeparator(.hidden)
             .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
         }
         .listStyle(.plain)
         .environmentObject(dismissCoordinator)
+    }
+
+    // MARK: - Spacing Helpers
+
+    /// Determines if the element at the given index is the end of a dialogue group
+    /// A dialogue group consists of: character, dialogue, parenthetical (in any combination)
+    /// The group ends when the next element is NOT dialogue or parenthetical
+    private func isEndOfDialogueGroup(at index: Int) -> Bool {
+        let element = elements[index]
+
+        // Only dialogue and parenthetical elements can end a dialogue group
+        guard element.elementType == .dialogue || element.elementType == .parenthetical else {
+            return false
+        }
+
+        // Check if there's a next element
+        guard index + 1 < elements.count else {
+            // Last element in list - it ends the group
+            return true
+        }
+
+        let nextElement = elements[index + 1]
+
+        // Group continues if next element is dialogue or parenthetical
+        // Group ends if next element is anything else
+        return nextElement.elementType != .dialogue && nextElement.elementType != .parenthetical
     }
 }
 
