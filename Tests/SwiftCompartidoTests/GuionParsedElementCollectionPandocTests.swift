@@ -18,6 +18,30 @@ import Foundation
 @Suite("GuionParsedElementCollection - Pandoc Format Integration")
 struct GuionParsedElementCollectionPandocTests {
 
+    // MARK: - Helper Methods
+
+    /// Get the path to a fixture file
+    /// - Parameter filename: Filename relative to Fixtures/pandoc-documents/
+    /// - Returns: Full path to the fixture file
+    static func fixturePath(_ filename: String) -> String {
+        let bundle: Bundle
+        #if SWIFT_PACKAGE
+        bundle = Bundle.module
+        #else
+        bundle = Bundle(for: GuionParsedElementCollectionPandocTests.self as! AnyClass)
+        #endif
+
+        guard let resourcePath = bundle.resourcePath else {
+            fatalError("Could not find resource path")
+        }
+
+        return URL(fileURLWithPath: resourcePath)
+            .appendingPathComponent("Fixtures")
+            .appendingPathComponent("pandoc-documents")
+            .appendingPathComponent(filename)
+            .path
+    }
+
     // MARK: - DOCX Integration Tests
 
     @Test("Load simple DOCX through GuionParsedElementCollection", .tags(.requiresPandoc))
@@ -27,7 +51,7 @@ struct GuionParsedElementCollectionPandocTests {
             return // Skip if Pandoc not available
         }
 
-        let fixturePath = "/Users/stovak/Projects/SwiftCompartido/Fixtures/pandoc-documents/simple.docx"
+        let fixturePath = Self.fixturePath("simple.docx")
         guard FileManager.default.fileExists(atPath: fixturePath) else {
             Issue.record("Test fixture not found: \(fixturePath)")
             return
@@ -55,7 +79,7 @@ struct GuionParsedElementCollectionPandocTests {
             return
         }
 
-        let fixturePath = "/Users/stovak/Projects/SwiftCompartido/Fixtures/pandoc-documents/formatted.docx"
+        let fixturePath = Self.fixturePath("formatted.docx")
         guard FileManager.default.fileExists(atPath: fixturePath) else {
             Issue.record("Test fixture not found: \(fixturePath)")
             return
@@ -84,7 +108,7 @@ struct GuionParsedElementCollectionPandocTests {
             return
         }
 
-        let fixturePath = "/Users/stovak/Projects/SwiftCompartido/Fixtures/pandoc-documents/lists.docx"
+        let fixturePath = Self.fixturePath("lists.docx")
         guard FileManager.default.fileExists(atPath: fixturePath) else {
             Issue.record("Test fixture not found: \(fixturePath)")
             return
@@ -113,7 +137,7 @@ struct GuionParsedElementCollectionPandocTests {
             return
         }
 
-        let fixturePath = "/Users/stovak/Projects/SwiftCompartido/Fixtures/pandoc-documents/metadata-full.docx"
+        let fixturePath = Self.fixturePath("metadata-full.docx")
         guard FileManager.default.fileExists(atPath: fixturePath) else {
             Issue.record("Test fixture not found: \(fixturePath)")
             return
@@ -142,7 +166,7 @@ struct GuionParsedElementCollectionPandocTests {
             return
         }
 
-        let fixturePath = "/Users/stovak/Projects/SwiftCompartido/Fixtures/pandoc-documents/nested-lists.docx"
+        let fixturePath = Self.fixturePath("nested-lists.docx")
         guard FileManager.default.fileExists(atPath: fixturePath) else {
             Issue.record("Test fixture not found: \(fixturePath)")
             return
@@ -171,7 +195,7 @@ struct GuionParsedElementCollectionPandocTests {
             return
         }
 
-        let fixturePath = "/Users/stovak/Projects/SwiftCompartido/Fixtures/pandoc-documents/simple.odt"
+        let fixturePath = Self.fixturePath("simple.odt")
         guard FileManager.default.fileExists(atPath: fixturePath) else {
             Issue.record("Test fixture not found: \(fixturePath)")
             return
@@ -198,7 +222,7 @@ struct GuionParsedElementCollectionPandocTests {
             return
         }
 
-        let fixturePath = "/Users/stovak/Projects/SwiftCompartido/Fixtures/pandoc-documents/simple.rtf"
+        let fixturePath = Self.fixturePath("simple.rtf")
         guard FileManager.default.fileExists(atPath: fixturePath) else {
             Issue.record("Test fixture not found: \(fixturePath)")
             return

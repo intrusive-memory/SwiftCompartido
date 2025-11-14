@@ -19,6 +19,29 @@ import Foundation
 @Suite("Pandoc Integration - Document Conversion")
 struct PandocIntegrationTests {
 
+    // MARK: - Helper Methods
+
+    /// Get the URL to a fixture file
+    /// - Parameter filename: Filename relative to Fixtures/pandoc-documents/
+    /// - Returns: Full URL to the fixture file
+    static func fixtureURL(_ filename: String) -> URL {
+        let bundle: Bundle
+        #if SWIFT_PACKAGE
+        bundle = Bundle.module
+        #else
+        bundle = Bundle(for: PandocIntegrationTests.self as! AnyClass)
+        #endif
+
+        guard let resourcePath = bundle.resourcePath else {
+            fatalError("Could not find resource path")
+        }
+
+        return URL(fileURLWithPath: resourcePath)
+            .appendingPathComponent("Fixtures")
+            .appendingPathComponent("pandoc-documents")
+            .appendingPathComponent(filename)
+    }
+
     // MARK: - DOCX Conversion Tests
 
     @Test("Parse simple DOCX with heading and paragraphs", .tags(.requiresPandoc))
@@ -29,7 +52,7 @@ struct PandocIntegrationTests {
         }
 
         // Get test fixture
-        let fixtureURL = URL(fileURLWithPath: "/Users/stovak/Projects/SwiftCompartido/Fixtures/pandoc-documents/simple.docx")
+        let fixtureURL = Self.fixtureURL("simple.docx")
         guard FileManager.default.fileExists(atPath: fixtureURL.path) else {
             Issue.record("Test fixture not found: \(fixtureURL.path)")
             return
@@ -59,7 +82,7 @@ struct PandocIntegrationTests {
             return
         }
 
-        let fixtureURL = URL(fileURLWithPath: "/Users/stovak/Projects/SwiftCompartido/Fixtures/pandoc-documents/formatted.docx")
+        let fixtureURL = Self.fixtureURL("formatted.docx")
         guard FileManager.default.fileExists(atPath: fixtureURL.path) else {
             Issue.record("Test fixture not found: \(fixtureURL.path)")
             return
@@ -85,7 +108,7 @@ struct PandocIntegrationTests {
             return
         }
 
-        let fixtureURL = URL(fileURLWithPath: "/Users/stovak/Projects/SwiftCompartido/Fixtures/pandoc-documents/lists.docx")
+        let fixtureURL = Self.fixtureURL("lists.docx")
         guard FileManager.default.fileExists(atPath: fixtureURL.path) else {
             Issue.record("Test fixture not found: \(fixtureURL.path)")
             return
@@ -122,7 +145,7 @@ struct PandocIntegrationTests {
             return
         }
 
-        let odtURL = URL(fileURLWithPath: "/Users/stovak/Projects/SwiftCompartido/Fixtures/pandoc-documents/simple.odt")
+        let odtURL = Self.fixtureURL("simple.odt")
         guard FileManager.default.fileExists(atPath: odtURL.path) else {
             Issue.record("Test fixture not found: \(odtURL.path)")
             return
@@ -148,7 +171,7 @@ struct PandocIntegrationTests {
             return
         }
 
-        let rtfURL = URL(fileURLWithPath: "/Users/stovak/Projects/SwiftCompartido/Fixtures/pandoc-documents/simple.rtf")
+        let rtfURL = Self.fixtureURL("simple.rtf")
         guard FileManager.default.fileExists(atPath: rtfURL.path) else {
             Issue.record("Test fixture not found: \(rtfURL.path)")
             return
