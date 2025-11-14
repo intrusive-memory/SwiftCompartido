@@ -44,7 +44,7 @@ struct GuionParsedElementCollectionPandocTests {
         // Verify heading
         let heading = screenplay.elements.first { $0.elementType == .sectionHeading(level: 1) }
         #expect(heading != nil, "Should have H1 heading")
-        #expect(heading?.text.contains("Simple Document") == true)
+        #expect(heading?.elementText.contains("Simple Document") == true)
         #endif
     }
 
@@ -68,12 +68,12 @@ struct GuionParsedElementCollectionPandocTests {
 
         // Find paragraph with formatting
         let formattedParagraph = screenplay.elements.first { element in
-            element.elementType == .action && element.text.contains("**bold")
+            element.elementType == .action && element.elementText.contains("**bold")
         }
 
         #expect(formattedParagraph != nil, "Should have formatted paragraph")
-        #expect(formattedParagraph?.text.contains("**bold text**") == true)
-        #expect(formattedParagraph?.text.contains("*italic text*") == true)
+        #expect(formattedParagraph?.elementText.contains("**bold text**") == true)
+        #expect(formattedParagraph?.elementText.contains("*italic text*") == true)
         #endif
     }
 
@@ -97,8 +97,8 @@ struct GuionParsedElementCollectionPandocTests {
         // Verify list items parsed
         let listItems = screenplay.elements.filter { element in
             element.elementType == .action && (
-                element.text.hasPrefix("-") ||
-                element.text.first?.isNumber == true
+                element.elementText.hasPrefix("-") ||
+                element.elementText.first?.isNumber == true
             )
         }
 
@@ -155,7 +155,7 @@ struct GuionParsedElementCollectionPandocTests {
 
         // Verify nested structure preserved (indentation)
         let nestedItems = screenplay.elements.filter { element in
-            element.elementType == .action && element.text.contains("  -")
+            element.elementType == .action && element.elementText.contains("  -")
         }
 
         #expect(nestedItems.count >= 1, "Should have nested list items with indentation")
@@ -185,7 +185,7 @@ struct GuionParsedElementCollectionPandocTests {
         // Verify same structure as DOCX
         let heading = screenplay.elements.first { $0.elementType == .sectionHeading(level: 1) }
         #expect(heading != nil, "Should have H1 heading")
-        #expect(heading?.text.contains("Simple Document") == true)
+        #expect(heading?.elementText.contains("Simple Document") == true)
         #endif
     }
 
@@ -212,7 +212,7 @@ struct GuionParsedElementCollectionPandocTests {
         // Verify same structure as DOCX
         let heading = screenplay.elements.first { $0.elementType == .sectionHeading(level: 1) }
         #expect(heading != nil, "Should have H1 heading")
-        #expect(heading?.text.contains("Simple Document") == true)
+        #expect(heading?.elementText.contains("Simple Document") == true)
         #endif
     }
 

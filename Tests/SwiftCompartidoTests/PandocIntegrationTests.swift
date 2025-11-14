@@ -44,7 +44,7 @@ struct PandocIntegrationTests {
         // Verify heading
         let heading = elements.first { $0.elementType == .sectionHeading(level: 1) }
         #expect(heading != nil, "Should have H1 heading")
-        #expect(heading?.text.contains("Simple Document") == true, "Heading should contain 'Simple Document'")
+        #expect(heading?.elementText.contains("Simple Document") == true, "Heading should contain 'Simple Document'")
 
         // Verify paragraphs
         let actions = elements.filter { $0.elementType == .action }
@@ -69,12 +69,12 @@ struct PandocIntegrationTests {
 
         // Find paragraph with formatting
         let formattedParagraph = elements.first { element in
-            element.elementType == .action && element.text.contains("**bold")
+            element.elementType == .action && element.elementText.contains("**bold")
         }
 
         #expect(formattedParagraph != nil, "Should have paragraph with formatting markers")
-        #expect(formattedParagraph?.text.contains("**bold text**") == true, "Should preserve bold markers")
-        #expect(formattedParagraph?.text.contains("*italic text*") == true, "Should preserve italic markers")
+        #expect(formattedParagraph?.elementText.contains("**bold text**") == true, "Should preserve bold markers")
+        #expect(formattedParagraph?.elementText.contains("*italic text*") == true, "Should preserve italic markers")
         #endif
     }
 
@@ -96,19 +96,19 @@ struct PandocIntegrationTests {
         // Find list items
         let listItems = elements.filter { element in
             element.elementType == .action && (
-                element.text.hasPrefix("-") ||
-                element.text.first?.isNumber == true
+                element.elementText.hasPrefix("-") ||
+                element.elementText.first?.isNumber == true
             )
         }
 
         #expect(listItems.count >= 3, "Should have at least 3 list items")
 
         // Verify bulleted list
-        let bulletItem = listItems.first { $0.text.hasPrefix("- ") }
+        let bulletItem = listItems.first { $0.elementText.hasPrefix("- ") }
         #expect(bulletItem != nil, "Should have bulleted list item")
 
         // Verify numbered list
-        let numberedItem = listItems.first { $0.text.contains("1. ") }
+        let numberedItem = listItems.first { $0.elementText.contains("1. ") }
         #expect(numberedItem != nil, "Should have numbered list item")
         #endif
     }
@@ -135,7 +135,7 @@ struct PandocIntegrationTests {
 
         let heading = elements.first { $0.elementType == .sectionHeading(level: 1) }
         #expect(heading != nil, "Should have H1 heading")
-        #expect(heading?.text.contains("Simple Document") == true)
+        #expect(heading?.elementText.contains("Simple Document") == true)
         #endif
     }
 
@@ -161,7 +161,7 @@ struct PandocIntegrationTests {
 
         let heading = elements.first { $0.elementType == .sectionHeading(level: 1) }
         #expect(heading != nil, "Should have H1 heading")
-        #expect(heading?.text.contains("Simple Document") == true)
+        #expect(heading?.elementText.contains("Simple Document") == true)
         #endif
     }
 
