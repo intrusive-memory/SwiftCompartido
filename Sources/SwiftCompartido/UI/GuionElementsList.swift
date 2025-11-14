@@ -79,6 +79,11 @@ public struct GuionElementsList<TrailingContent: View>: View {
                         Spacer()
                             .frame(height: fontSize * ScreenplayPageFormat.lineSpacingMultiplier)
                     }
+                    // Add full line spacing after synopsis
+                    else if element.elementType == .synopsis {
+                        Spacer()
+                            .frame(height: fontSize * ScreenplayPageFormat.lineSpacingMultiplier)
+                    }
                     // Add full line spacing after dialogue groups (character + dialogue/parenthetical)
                     else if isEndOfDialogueGroup(at: index) {
                         Spacer()
