@@ -109,8 +109,17 @@ public final class GuionParsedElementCollection {
 
     /// Convenience initializer that parses from a file
     ///
+    /// **Note**: For async formats (PDF) or progress tracking, use `init(file:progress:)` instead.
+    ///
     /// Automatically detects file format based on extension:
     /// - `.md` or `.markdown` → Markdown parser (supports YAML front matter)
+    /// - `.highland` → Highland bundle parser (ZIP containing TextBundle)
+    /// - `.textbundle` → TextBundle parser
+    /// - `.fdx` → Final Draft FDX parser
+    /// - `.docx` → Microsoft Word document (via Pandoc, macOS only)
+    /// - `.odt` → OpenDocument Text (via Pandoc, macOS only)
+    /// - `.rtf` → Rich Text Format (via Pandoc, macOS only)
+    /// - `.pdf` → PDF parser (**requires async initializer**)
     /// - `.fountain` or other → Fountain parser
     ///
     /// - Parameters:
@@ -120,8 +129,9 @@ public final class GuionParsedElementCollection {
         let filename = url.lastPathComponent
         let ext = url.pathExtension.lowercased()
 
-        // Detect markdown files
-        if ext == "md" || ext == "markdown" {
+        switch ext {
+        case "md", "markdown":
+            // Parse markdown files
             let contents = try String(contentsOfFile: path, encoding: .utf8)
             let (elements, titlePage) = try MarkdownParser.parse(contents)
             self.init(
@@ -130,7 +140,56 @@ public final class GuionParsedElementCollection {
                 titlePage: titlePage,
                 suppressSceneNumbers: false
             )
-        } else {
+
+        case "highland":
+            // Parse Highland files (ZIP archives containing TextBundle)
+            try self.init(highland: url)
+
+        case "textbundle":
+            // Parse TextBundle files
+            try self.init(textBundle: url)
+
+        case "fdx":
+            // Parse Final Draft FDX files
+            let data = try Data(contentsOf: url)
+            let fdxParser = FDXParser()
+            let parsed = try fdxParser.parse(data: data, filename: filename)
+
+            // Convert FDX parsed document to GuionParsedElementCollection
+            let elements = parsed.elements.map { GuionElement(from: $0) }
+
+            // Convert title page entries to the expected format
+            var titlePageDict: [String: [String]] = [:]
+            for entry in parsed.titlePageEntries {
+                titlePageDict[entry.key] = entry.values
+            }
+            let titlePage = titlePageDict.isEmpty ? [] : [titlePageDict]
+
+            self.init(
+                filename: parsed.filename,
+                elements: elements,
+                titlePage: titlePage,
+                suppressSceneNumbers: parsed.suppressSceneNumbers
+            )
+
+        case "docx", "odt", "rtf":
+            // Parse document files (DOCX, ODT, RTF) using Pandoc
+            let (elements, titlePage) = try PandocDocumentParser.parse(url: url)
+            self.init(
+                filename: filename,
+                elements: elements,
+                titlePage: titlePage,
+                suppressSceneNumbers: false
+            )
+
+        case "pdf":
+            // PDF parsing requires async - direct users to async initializer
+            throw GuionParserError.requiresAsyncInitializer(
+                format: "PDF",
+                suggestion: "Use 'try await GuionParsedElementCollection(file: path)' instead"
+            )
+
+        default:
             // Default to Fountain parser
             let fountainParser = try FountainParser(file: path)
             self.init(
@@ -594,6 +653,17 @@ extension GuionParsedElementCollection: CustomStringConvertible {
 public typealias GuionParsedScreenplay = GuionParsedElementCollection
 
 // MARK: - Error Types
+
+public enum GuionParserError: LocalizedError {
+    case requiresAsyncInitializer(format: String, suggestion: String)
+
+    public var errorDescription: String? {
+        switch self {
+        case .requiresAsyncInitializer(let format, let suggestion):
+            return "\(format) parsing requires async context. \(suggestion)"
+        }
+    }
+}
 
 public enum FountainScriptError: Error {
     case unsupportedFileType
