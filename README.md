@@ -28,11 +28,14 @@ flowchart TD
     Detect -->|.textbundle| TextBundle[TextBundle Handler]
     Detect -->|.fdx| FDX[FDX Parser]
     Detect -->|.pdf| PDF[PDF Parser]
+    Detect -->|.docx / .odt / .rtf| Pandoc[Pandoc Converter]
     Detect -->|.fountain / other| Fountain[Fountain Parser]
 
     MD --> Elements[GuionParsedElementCollection]
     FDX --> Elements
     PDF --> Elements
+    Pandoc --> PandocMD[Markdown]
+    PandocMD --> MD
     Fountain --> Elements
 
     Highland --> Extract[Extract ZIP Archive]
@@ -51,6 +54,7 @@ flowchart TD
     style Highland fill:#e1f5ff
     style ForceFountain fill:#fff3cd
     style MD fill:#d4edda
+    style Pandoc fill:#ffeaa7
     style Elements fill:#f8d7da
 ```
 
@@ -60,6 +64,9 @@ flowchart TD
 - **.textbundle** → Discovers internal file and recursively detects format
 - **.fdx** → Final Draft XML parser
 - **.pdf** → AI-powered PDF screenplay parser (iOS 26.0+)
+- **.docx** → Microsoft Word document via Pandoc (macOS only)
+- **.odt** → OpenDocument Text via Pandoc (macOS only)
+- **.rtf** → Rich Text Format via Pandoc (macOS only)
 - **.fountain / default** → Fountain parser
 
 **Format Features:**
@@ -67,6 +74,7 @@ flowchart TD
 - **Fountain Format**: Full parsing and export support
 - **FDX Format**: Final Draft XML import/export
 - **PDF Format**: AI-powered PDF screenplay parsing with FoundationModels (iOS 26.0+)
+- **Pandoc Document Import**: DOCX, ODT, RTF support via bundled Pandoc converter (macOS only) (NEW in 4.3.0)
 - **Markdown Support**: Parse markdown with YAML front matter and convert to screenplay format
 - **Highland Support**: Highland 2 archives (.highland) with automatic Fountain parsing
 - **TextBundle Support**: TextBundle containers with format auto-detection

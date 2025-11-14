@@ -165,6 +165,9 @@ public final class GuionParsedElementCollection {
     /// - `.textbundle` → TextBundle parser
     /// - `.fdx` → Final Draft FDX parser
     /// - `.pdf` → PDF parser (requires iOS 26.0+)
+    /// - `.docx` → Microsoft Word document (via Pandoc)
+    /// - `.odt` → OpenDocument Text (via Pandoc)
+    /// - `.rtf` → Rich Text Format (via Pandoc)
     /// - `.fountain` or other → Fountain parser
     ///
     /// - Parameters:
@@ -269,6 +272,16 @@ public final class GuionParsedElementCollection {
             #else
             throw PDFScreenplayParserError.foundationModelsUnavailable
             #endif
+
+        case "docx", "odt", "rtf":
+            // Parse document files (DOCX, ODT, RTF) using Pandoc
+            let (elements, titlePage) = try PandocDocumentParser.parse(url: url)
+            self.init(
+                filename: filename,
+                elements: elements,
+                titlePage: titlePage,
+                suppressSceneNumbers: false
+            )
 
         default:
             // Default to Fountain parser
