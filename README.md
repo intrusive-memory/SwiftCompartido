@@ -35,7 +35,6 @@ flowchart TD
     FDX --> Elements
     PDF --> Elements
     Pandoc --> PandocMD[Markdown]
-    PandocMD --> MD
     Fountain --> Elements
 
     Highland --> Extract[Extract ZIP Archive]
@@ -56,7 +55,6 @@ flowchart TD
     style MD fill:#d4edda
     style Pandoc fill:#ffeaa7
     style Elements fill:#f8d7da
-```
 
 **Key Parsing Behaviors:**
 - **.md / .markdown** → Markdown parser with YAML front matter support
