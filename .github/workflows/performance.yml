@@ -215,7 +215,7 @@ jobs:
 
   performance-report:
     name: Performance Report Summary
-    runs-on: ubuntu-latest
+    runs-on: macos-26
     needs: performance
     if: always()
 

@@ -218,25 +218,31 @@ GuionElementsList(document: screenplay) { element in
 
 ## Essential Build Commands
 
-⚠️ **CRITICAL**: This is an iOS and macOS library. **DO NOT use `swift build` or `swift test`** directly - they fail with macOS version errors.
+⚠️ **CRITICAL**: This is an **Apple Silicon-only** iOS 26 and macOS 26 library.
+
+**Build Requirements:**
+- **Apple Silicon (arm64) Mac** required for development
+- **macOS 26.0+** required
+- **Xcode 17.0+** required
+- **DO NOT use `swift build` or `swift test`** directly - they fail with macOS version errors
 
 **Use the build script:**
 ```bash
-./build.sh                  # Build for iOS Simulator
-./build.sh --action test    # Run all 437 tests
+./build.sh                  # Build for iOS Simulator (arm64)
+./build.sh --action test    # Run all tests
 ./build.sh --help           # Show all options
 ```
 
 **Or use xcodebuild:**
 ```bash
-# Build for iOS Simulator
+# Build for iOS Simulator (Apple Silicon only)
 xcodebuild build \
   -scheme SwiftCompartido \
   -sdk iphonesimulator \
   -destination 'platform=iOS Simulator,name=iPhone 17 Pro' \
   CODE_SIGNING_ALLOWED=NO
 
-# Run tests
+# Run tests on iOS Simulator (arm64)
 xcodebuild test \
   -scheme SwiftCompartido \
   -sdk iphonesimulator \
@@ -244,19 +250,25 @@ xcodebuild test \
   -enableCodeCoverage YES \
   CODE_SIGNING_ALLOWED=NO
 
-# Build for macOS
+# Build for macOS (Apple Silicon only)
 xcodebuild build \
   -scheme SwiftCompartido \
   -destination 'platform=macOS' \
   CODE_SIGNING_ALLOWED=NO
 
-# Test on macOS
+# Test on macOS (arm64)
 xcodebuild test \
   -scheme SwiftCompartido \
   -destination 'platform=macOS' \
   -enableCodeCoverage YES \
   CODE_SIGNING_ALLOWED=NO
 ```
+
+**Architecture Notes:**
+- All builds target **arm64 (Apple Silicon) only**
+- Intel (x86_64) builds are **not supported**
+- CI runs exclusively on **macos-26** (Apple Silicon GitHub runners)
+- iOS Simulator tests use **iPhone 17 Pro** (arm64 simulator)
 
 ## Core Architecture Patterns
 
@@ -516,7 +528,7 @@ try modelContext.save()
 
 ## Project Metadata
 
-- **Version**: 4.1.0 (Development version with automated version bump workflow)
+- **Version**: 4.2.0 (Development version with automated version bump workflow)
 - **Swift**: 6.2+
 - **Platforms**: iOS 26.0+, macOS 26.0+
 - **Dependencies**: TextBundle, SwiftFijos (test-only)

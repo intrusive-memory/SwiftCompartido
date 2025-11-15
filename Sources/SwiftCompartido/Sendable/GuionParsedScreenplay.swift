@@ -111,6 +111,7 @@ public final class GuionParsedElementCollection {
     ///
     /// Automatically detects file format based on extension:
     /// - `.md` or `.markdown` → Markdown parser (supports YAML front matter)
+    /// - `.docx`, `.odt`, `.rtf` → Pandoc parser (macOS only)
     /// - `.fountain` or other → Fountain parser
     ///
     /// - Parameters:
@@ -130,6 +131,23 @@ public final class GuionParsedElementCollection {
                 titlePage: titlePage,
                 suppressSceneNumbers: false
             )
+        } else if ext == "docx" || ext == "odt" || ext == "rtf" {
+            // Parse Pandoc-supported document formats
+            #if os(macOS)
+            let (elements, titlePage) = try PandocDocumentParser.parse(url: url)
+            self.init(
+                filename: filename,
+                elements: elements,
+                titlePage: titlePage,
+                suppressSceneNumbers: false
+            )
+            #else
+            throw NSError(
+                domain: "SwiftCompartido",
+                code: 1,
+                userInfo: [NSLocalizedDescriptionKey: "Pandoc formats (.docx, .odt, .rtf) are only supported on macOS"]
+            )
+            #endif
         } else {
             // Default to Fountain parser
             let fountainParser = try FountainParser(file: path)
@@ -165,6 +183,9 @@ public final class GuionParsedElementCollection {
     /// - `.textbundle` → TextBundle parser
     /// - `.fdx` → Final Draft FDX parser
     /// - `.pdf` → PDF parser (requires iOS 26.0+)
+    /// - `.docx` → Microsoft Word document (via Pandoc)
+    /// - `.odt` → OpenDocument Text (via Pandoc)
+    /// - `.rtf` → Rich Text Format (via Pandoc)
     /// - `.fountain` or other → Fountain parser
     ///
     /// - Parameters:
@@ -269,6 +290,16 @@ public final class GuionParsedElementCollection {
             #else
             throw PDFScreenplayParserError.foundationModelsUnavailable
             #endif
+
+        case "docx", "odt", "rtf":
+            // Parse document files (DOCX, ODT, RTF) using Pandoc
+            let (elements, titlePage) = try PandocDocumentParser.parse(url: url)
+            self.init(
+                filename: filename,
+                elements: elements,
+                titlePage: titlePage,
+                suppressSceneNumbers: false
+            )
 
         default:
             // Default to Fountain parser

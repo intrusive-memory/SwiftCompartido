@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   bump-version:
-    runs-on: macos-latest
+    runs-on: macos-26
 
     steps:
       - name: Checkout development branch

@@ -22,6 +22,9 @@ jobs:
       - name: Show Swift version
         run: swift --version
 
+      - name: Install Pandoc
+        run: brew install pandoc
+
       - name: Build for iOS Simulator
         run: |
           echo "🔨 Building for iOS Simulator (arm64)"
@@ -114,6 +117,9 @@ jobs:
       - name: Show Swift version
         run: swift --version
 
+      - name: Install Pandoc
+        run: brew install pandoc
+
       - name: Build for macOS
         run: |
           echo "🔨 Building for macOS (arm64)"
@@ -192,7 +198,7 @@ jobs:
 
   lint:
     name: Code Quality
-    runs-on: macos-latest
+    runs-on: macos-26
 
     steps:
       - name: Checkout code

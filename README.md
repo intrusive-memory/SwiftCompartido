@@ -4,7 +4,7 @@
     <img src="https://img.shields.io/badge/Swift-6.2+-orange.svg" />
     <img src="https://img.shields.io/badge/Platform-iOS%2026.0+%20|%20macOS%2026.0+-lightgrey.svg" />
     <img src="https://img.shields.io/badge/License-MIT-blue.svg" />
-    <img src="https://img.shields.io/badge/Version-4.1.0-blue.svg" />
+    <img src="https://img.shields.io/badge/Version-4.2.0-blue.svg" />
 </p>
 
 **SwiftCompartido** is a comprehensive Swift package for screenplay management, AI-generated content storage, and document serialization. Built with SwiftData, SwiftUI, and modern Swift concurrency.
@@ -28,11 +28,13 @@ flowchart TD
     Detect -->|.textbundle| TextBundle[TextBundle Handler]
     Detect -->|.fdx| FDX[FDX Parser]
     Detect -->|.pdf| PDF[PDF Parser]
+    Detect -->|.docx / .odt / .rtf| Pandoc[Pandoc Converter]
     Detect -->|.fountain / other| Fountain[Fountain Parser]
 
     MD --> Elements[GuionParsedElementCollection]
     FDX --> Elements
     PDF --> Elements
+    Pandoc --> PandocMD[Markdown]
     Fountain --> Elements
 
     Highland --> Extract[Extract ZIP Archive]
@@ -51,8 +53,8 @@ flowchart TD
     style Highland fill:#e1f5ff
     style ForceFountain fill:#fff3cd
     style MD fill:#d4edda
+    style Pandoc fill:#ffeaa7
     style Elements fill:#f8d7da
-```
 
 **Key Parsing Behaviors:**
 - **.md / .markdown** → Markdown parser with YAML front matter support
@@ -60,6 +62,9 @@ flowchart TD
 - **.textbundle** → Discovers internal file and recursively detects format
 - **.fdx** → Final Draft XML parser
 - **.pdf** → AI-powered PDF screenplay parser (iOS 26.0+)
+- **.docx** → Microsoft Word document via Pandoc (macOS only)
+- **.odt** → OpenDocument Text via Pandoc (macOS only)
+- **.rtf** → Rich Text Format via Pandoc (macOS only)
 - **.fountain / default** → Fountain parser
 
 **Format Features:**
@@ -67,6 +72,7 @@ flowchart TD
 - **Fountain Format**: Full parsing and export support
 - **FDX Format**: Final Draft XML import/export
 - **PDF Format**: AI-powered PDF screenplay parsing with FoundationModels (iOS 26.0+)
+- **Pandoc Document Import**: DOCX, ODT, RTF support via bundled Pandoc converter (macOS only) (NEW in 4.3.0)
 - **Markdown Support**: Parse markdown with YAML front matter and convert to screenplay format
 - **Highland Support**: Highland 2 archives (.highland) with automatic Fountain parsing
 - **TextBundle Support**: TextBundle containers with format auto-detection
@@ -132,14 +138,14 @@ Add to your `Package.swift`:
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/intrusive-memory/SwiftCompartido.git", from: "4.1.0")
+    .package(url: "https://github.com/intrusive-memory/SwiftCompartido.git", from: "4.2.0")
 ]
 ```
 
 Or in Xcode:
 1. **File → Add Package Dependencies**
 2. Enter: `https://github.com/intrusive-memory/SwiftCompartido.git`
-3. Select version: **4.1.0** or later
+3. Select version: **4.2.0** or later
 
 ### Usage Examples
 
