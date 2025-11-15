@@ -121,12 +121,8 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh pr create \
-            --base main \
-            --head development \
-            --title "${{ steps.new-version.outputs.new }} => ${{ steps.current-version.outputs.current }}" \
-            --body "$(cat <<EOF
-          ## Automated Version Bump
+          PR_BODY="## Automated Version Bump
+
           This PR contains an automated version bump following the publication of release **${{ github.event.release.tag_name }}**.
 
           ### Changes
@@ -139,8 +135,8 @@ jobs:
 
           ### Files Updated
 
-          - \`README.md\` - Version badge and installation instructions
-          - \`CLAUDE.md\` - Project metadata version
+          - README.md - Version badge and installation instructions
+          - CLAUDE.md - Project metadata version
 
           ### What's Next
 
@@ -152,6 +148,10 @@ jobs:
           - **Major bumps**: Massive refactors (manual)
           - **Patch bumps**: Bug fixes (manual)
 
-          🤖 Automated by GitHub Actions
-          EOF
-          )" || echo "PR may already exist or no changes to commit"
+          🤖 Automated by GitHub Actions"
+
+          gh pr create \
+            --base main \
+            --head development \
+            --title "${{ steps.new-version.outputs.new }} => ${{ steps.current-version.outputs.current }}" \
+            --body "$PR_BODY" || echo "PR may already exist or no changes to commit"
