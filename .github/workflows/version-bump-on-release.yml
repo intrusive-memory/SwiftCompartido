@@ -13,16 +13,36 @@ jobs:
     runs-on: macos-26
 
     steps:
-      - name: Checkout development branch
+      - name: Checkout main branch
         uses: actions/checkout@v4
         with:
-          ref: development
+          ref: main
           fetch-depth: 0
 
       - name: Configure Git
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Ensure development branch exists
+        run: |
+          # Fetch all branches
+          git fetch origin
+
+          # Check if development branch exists remotely
+          if git ls-remote --heads origin development | grep -q development; then
+            echo "Development branch exists remotely"
+          else
+            echo "Development branch does not exist. Creating from main..."
+            git checkout -b development
+            git push -u origin development
+          fi
+
+      - name: Checkout development branch
+        uses: actions/checkout@v4
+        with:
+          ref: development
+          fetch-depth: 0
 
       - name: Extract current version from README
         id: current-version
