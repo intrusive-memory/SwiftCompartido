@@ -35,6 +35,7 @@ let package = Package(
                 "SwiftCompartido",
                 .product(name: "SwiftFijos", package: "SwiftFijos")
             ],
+            path: "Tests/SwiftCompartidoTests",
             resources: [
                 .copy("../../Fixtures")
             ]
