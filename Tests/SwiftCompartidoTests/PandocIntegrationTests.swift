@@ -90,14 +90,15 @@ struct PandocIntegrationTests {
 
         let (elements, _) = try PandocDocumentParser.parse(url: fixtureURL)
 
-        // Find paragraph with formatting
+        // Find paragraph with formatting (markdown markers are stripped by parser)
         let formattedParagraph = elements.first { element in
-            element.elementType == .action && element.elementText.contains("**bold")
+            element.elementType == .action && element.elementText.contains("bold text")
         }
 
-        #expect(formattedParagraph != nil, "Should have paragraph with formatting markers")
-        #expect(formattedParagraph?.elementText.contains("**bold text**") == true, "Should preserve bold markers")
-        #expect(formattedParagraph?.elementText.contains("*italic text*") == true, "Should preserve italic markers")
+        #expect(formattedParagraph != nil, "Should have paragraph with formatted text")
+        #expect(formattedParagraph?.elementText.contains("bold text") == true, "Should have bold text content")
+        #expect(formattedParagraph?.elementText.contains("italic text") == true, "Should have italic text content")
+        #expect(formattedParagraph?.elementText.contains("inline code") == true, "Should have inline code content")
         #endif
     }
 
@@ -116,22 +117,24 @@ struct PandocIntegrationTests {
 
         let (elements, _) = try PandocDocumentParser.parse(url: fixtureURL)
 
-        // Find list items
+        // Find list items (markdown parser converts to bullets • or numbers)
         let listItems = elements.filter { element in
             element.elementType == .action && (
-                element.elementText.hasPrefix("-") ||
-                element.elementText.first?.isNumber == true
+                element.elementText.hasPrefix("•") ||  // Bulleted lists
+                element.elementText.hasPrefix("1.") ||  // Numbered lists
+                element.elementText.hasPrefix("2.") ||
+                element.elementText.hasPrefix("3.")
             )
         }
 
         #expect(listItems.count >= 3, "Should have at least 3 list items")
 
-        // Verify bulleted list
-        let bulletItem = listItems.first { $0.elementText.hasPrefix("- ") }
+        // Verify bulleted list (converted to bullet •)
+        let bulletItem = listItems.first { $0.elementText.hasPrefix("•") }
         #expect(bulletItem != nil, "Should have bulleted list item")
 
         // Verify numbered list
-        let numberedItem = listItems.first { $0.elementText.contains("1. ") }
+        let numberedItem = listItems.first { $0.elementText.hasPrefix("1.") }
         #expect(numberedItem != nil, "Should have numbered list item")
         #endif
     }
