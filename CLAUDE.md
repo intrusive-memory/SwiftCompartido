@@ -528,7 +528,7 @@ try modelContext.save()
 
 ## Project Metadata
 
-- **Version**: 4.6.0 (Development version with automated version bump workflow)
+- **Version**: 4.7.0 (Development version with automated version bump workflow)
 - **Swift**: 6.2+
 - **Platforms**: iOS 26.0+, macOS 26.0+
 - **Dependencies**: TextBundle, SwiftFijos (test-only)
