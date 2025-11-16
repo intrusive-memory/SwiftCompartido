@@ -12,7 +12,6 @@ import SwiftUI
 public struct SceneHeadingView: View {
     let element: GuionElementModel
     @Environment(\.screenplayFontSize) var fontSize
-    @Environment(\.guionElementContextMenu) private var contextMenuProvider
 
     public init(element: GuionElementModel) {
         self.element = element
@@ -25,13 +24,8 @@ public struct SceneHeadingView: View {
                 .font(.custom("Courier New", size: fontSize * 1.5).weight(.bold))
                 .textCase(.uppercase)
                 .foregroundStyle(.primary)
-                .textSelection(.enabled)
+                .textSelection(.disabled)  // TEMP: Disabled to allow custom context menu
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .contextMenu {
-                    if let provider = contextMenuProvider {
-                        provider.menuBuilder(element)
-                    }
-                }
         }
     }
 }

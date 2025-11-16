@@ -11,7 +11,6 @@ import SwiftUI
 public struct DialogueTextView: View {
     let element: GuionElementModel
     @Environment(\.screenplayFontSize) var fontSize
-    @Environment(\.guionElementContextMenu) private var contextMenuProvider
 
     public init(element: GuionElementModel) {
         self.element = element
@@ -28,13 +27,8 @@ public struct DialogueTextView: View {
             ))
                 .font(.custom("Courier New", size: fontSize))
                 .foregroundStyle(.primary)
-                .textSelection(.enabled)
+                .textSelection(.disabled)  // TEMP: Disabled to allow custom context menu
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .contextMenu {
-                    if let provider = contextMenuProvider {
-                        provider.menuBuilder(element)
-                    }
-                }
 
             Spacer()
                 .frame(minWidth: 100) // 25% right margin

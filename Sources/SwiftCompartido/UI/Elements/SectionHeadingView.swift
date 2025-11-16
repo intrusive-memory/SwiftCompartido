@@ -12,7 +12,6 @@ import SwiftUI
 public struct SectionHeadingView: View {
     let element: GuionElementModel
     @Environment(\.screenplayFontSize) var fontSize
-    @Environment(\.guionElementContextMenu) private var contextMenuProvider
 
     public init(element: GuionElementModel) {
         self.element = element
@@ -33,26 +32,16 @@ public struct SectionHeadingView: View {
                     formattedText
                         .font(fontForLevel)
                         .foregroundStyle(colorForLevel)
-                        .textSelection(.enabled)
+                        .textSelection(.disabled)  // TEMP: Disabled to allow custom context menu
                         .frame(maxWidth: .infinity, alignment: alignmentForLevel)
-                        .contextMenu {
-                            if let provider = contextMenuProvider {
-                                provider.menuBuilder(element)
-                            }
-                        }
                 }
             } else {
                 formattedText
                     .font(fontForLevel)
                     .foregroundStyle(colorForLevel)
-                    .textSelection(.enabled)
+                    .textSelection(.disabled)  // TEMP: Disabled to allow custom context menu
                     .frame(maxWidth: .infinity, alignment: alignmentForLevel)
                     .padding(.vertical, paddingForLevel)
-                    .contextMenu {
-                        if let provider = contextMenuProvider {
-                            provider.menuBuilder(element)
-                        }
-                    }
             }
         }
     }
