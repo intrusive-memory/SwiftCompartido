@@ -12,6 +12,7 @@ import SwiftUI
 public struct SceneHeadingView: View {
     let element: GuionElementModel
     @Environment(\.screenplayFontSize) var fontSize
+    @Environment(\.guionElementContextMenu) private var contextMenuProvider
 
     public init(element: GuionElementModel) {
         self.element = element
@@ -26,6 +27,11 @@ public struct SceneHeadingView: View {
                 .foregroundStyle(.primary)
                 .textSelection(.enabled)
                 .frame(maxWidth: .infinity, alignment: .leading)
+                .contextMenu {
+                    if let provider = contextMenuProvider {
+                        provider.menuBuilder(element)
+                    }
+                }
         }
     }
 }

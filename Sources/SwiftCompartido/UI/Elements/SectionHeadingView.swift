@@ -12,6 +12,7 @@ import SwiftUI
 public struct SectionHeadingView: View {
     let element: GuionElementModel
     @Environment(\.screenplayFontSize) var fontSize
+    @Environment(\.guionElementContextMenu) private var contextMenuProvider
 
     public init(element: GuionElementModel) {
         self.element = element
@@ -34,6 +35,11 @@ public struct SectionHeadingView: View {
                         .foregroundStyle(colorForLevel)
                         .textSelection(.enabled)
                         .frame(maxWidth: .infinity, alignment: alignmentForLevel)
+                        .contextMenu {
+                            if let provider = contextMenuProvider {
+                                provider.menuBuilder(element)
+                            }
+                        }
                 }
             } else {
                 formattedText
@@ -42,6 +48,11 @@ public struct SectionHeadingView: View {
                     .textSelection(.enabled)
                     .frame(maxWidth: .infinity, alignment: alignmentForLevel)
                     .padding(.vertical, paddingForLevel)
+                    .contextMenu {
+                        if let provider = contextMenuProvider {
+                            provider.menuBuilder(element)
+                        }
+                    }
             }
         }
     }

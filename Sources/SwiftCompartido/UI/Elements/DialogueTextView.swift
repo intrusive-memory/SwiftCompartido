@@ -11,6 +11,7 @@ import SwiftUI
 public struct DialogueTextView: View {
     let element: GuionElementModel
     @Environment(\.screenplayFontSize) var fontSize
+    @Environment(\.guionElementContextMenu) private var contextMenuProvider
 
     public init(element: GuionElementModel) {
         self.element = element
@@ -29,6 +30,11 @@ public struct DialogueTextView: View {
                 .foregroundStyle(.primary)
                 .textSelection(.enabled)
                 .frame(maxWidth: .infinity, alignment: .leading)
+                .contextMenu {
+                    if let provider = contextMenuProvider {
+                        provider.menuBuilder(element)
+                    }
+                }
 
             Spacer()
                 .frame(minWidth: 100) // 25% right margin
