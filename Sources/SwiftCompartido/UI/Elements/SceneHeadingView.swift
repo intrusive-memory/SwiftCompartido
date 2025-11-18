@@ -24,7 +24,7 @@ public struct SceneHeadingView: View {
                 .font(.custom("Courier New", size: fontSize * 1.5).weight(.bold))
                 .textCase(.uppercase)
                 .foregroundStyle(.primary)
-                .textSelection(.enabled)
+                .textSelection(.disabled)  // TEMP: Disabled to allow custom context menu
                 .frame(maxWidth: .infinity, alignment: .leading)
         }
     }

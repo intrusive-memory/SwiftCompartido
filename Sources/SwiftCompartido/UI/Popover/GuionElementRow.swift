@@ -17,6 +17,7 @@ struct GuionElementRow<TrailingContent: View>: View {
     let trailingContent: ((GuionElementModel) -> TrailingContent)?
 
     @Environment(\.guionElementPopover) private var popoverProvider
+    @Environment(\.guionElementContextMenu) private var contextMenuProvider
     @EnvironmentObject private var dismissCoordinator: PopoverDismissCoordinator
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
@@ -118,6 +119,13 @@ struct GuionElementRow<TrailingContent: View>: View {
             // Dismiss popover when row disappears (e.g., during scroll)
             if showPopover {
                 dismissCoordinator.triggerDismiss()
+            }
+        }
+        .contextMenu {
+            // Add context menu if provider is available
+            // Works on both macOS (right-click) and iOS (long-press)
+            if let provider = contextMenuProvider {
+                provider.menuBuilder(element)
             }
         }
     }

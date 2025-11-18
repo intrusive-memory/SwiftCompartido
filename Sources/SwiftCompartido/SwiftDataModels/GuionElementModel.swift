@@ -182,6 +182,24 @@ public final class GuionElementModel: GuionElementProtocol {
     @Relationship(deleteRule: .cascade)
     public var generatedContent: [TypedDataStorage]?
 
+    /// Custom outline elements attached to this screenplay element
+    ///
+    /// Custom elements allow users to attach media (audio, images, video, documents)
+    /// to scenes/sections for reference, production notes, or creative purposes.
+    ///
+    /// Examples:
+    /// - Music cues for soundtrack planning
+    /// - Sound effects for audio design reference
+    /// - Production notes with attached reference materials
+    /// - Generic media containers for flexible use
+    ///
+    /// **Delete Rule**: `.cascade` - When the element is deleted,
+    /// all attached custom elements are automatically deleted.
+    ///
+    /// **Inverse Relationship**: `CustomOutlineElement.parentElement`
+    @Relationship(deleteRule: .cascade)
+    public var customElements: [CustomOutlineElement]?
+
     // Cached parsed location data
     public var locationLighting: String?      // Raw value of SceneLighting enum
     public var locationScene: String?         // Primary location name

@@ -27,7 +27,7 @@ public struct DialogueTextView: View {
             ))
                 .font(.custom("Courier New", size: fontSize))
                 .foregroundStyle(.primary)
-                .textSelection(.enabled)
+                .textSelection(.disabled)  // TEMP: Disabled to allow custom context menu
                 .frame(maxWidth: .infinity, alignment: .leading)
 
             Spacer()

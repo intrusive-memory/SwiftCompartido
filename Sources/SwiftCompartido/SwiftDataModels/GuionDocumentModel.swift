@@ -205,6 +205,18 @@ public final class GuionDocumentModel {
     /// - SeeAlso: `isSourceFileModified()`, `sourceFileStatus()`
     public var sourceFileModificationDate: Date?
 
+    // MARK: - Recent Items Tracking (NEW in 1.4.4)
+
+    /// Date when this document was last opened by the user
+    ///
+    /// Used to display recent items in welcome screens and "Open Recent" menus.
+    /// Automatically updated when the document window is opened.
+    ///
+    /// - Note: A nil value indicates the document has never been opened (newly created/imported).
+    ///
+    /// - SeeAlso: Recent items queries in application UI layer
+    public var lastOpenedDate: Date?
+
     public init(filename: String? = nil, rawContent: String? = nil, suppressSceneNumbers: Bool = false, title: String? = nil) {
         self.filename = filename
         self.rawContent = rawContent
@@ -215,6 +227,7 @@ public final class GuionDocumentModel {
         self.sourceFileBookmark = nil
         self.lastImportDate = nil
         self.sourceFileModificationDate = nil
+        self.lastOpenedDate = nil
     }
 
     /// Reparse all scene heading locations (useful for migration or updates)
