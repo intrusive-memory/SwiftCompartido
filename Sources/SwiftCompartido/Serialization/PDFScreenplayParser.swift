@@ -227,6 +227,11 @@ public final class PDFScreenplayParser {
     /// - Dialogue (text following character names)
     /// - Action (paragraph text)
     ///
+    /// Also filters out common non-screenplay elements:
+    /// - Page numbers
+    /// - Headers and footers
+    /// - Draft information
+    ///
     /// - Parameters:
     ///   - text: Extracted PDF text
     ///   - progress: Optional progress reporting
@@ -242,6 +247,9 @@ public final class PDFScreenplayParser {
         // Clean up the text
         var lines = text.components(separatedBy: .newlines)
             .map { $0.trimmingCharacters(in: .whitespaces) }
+
+        // Filter out page numbers and headers/footers
+        lines = filterPageNumbersAndHeaders(lines)
 
         // Apply heuristic formatting
         var formattedLines: [String] = []
@@ -282,6 +290,67 @@ public final class PDFScreenplayParser {
         }
 
         return formattedLines.joined(separator: "\n")
+    }
+
+    /// Filter out page numbers, headers, and footers from extracted PDF lines
+    ///
+    /// Common patterns filtered:
+    /// - Simple page numbers (1, 2, 123, etc.)
+    /// - "Page X" formats
+    /// - Numbers with dots or periods (1., 2., etc.)
+    /// - Draft information (DRAFT, FINAL DRAFT, dates)
+    /// - Very short lines that are likely headers/footers
+    /// - Lines with only punctuation or numbers
+    ///
+    /// - Parameter lines: Array of text lines from PDF
+    /// - Returns: Filtered array with page numbers and headers removed
+    private static func filterPageNumbersAndHeaders(_ lines: [String]) -> [String] {
+        return lines.filter { line in
+            guard !line.isEmpty else { return true }
+
+            let trimmed = line.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !trimmed.isEmpty else { return true }
+
+            // Filter out simple page numbers (just digits, optionally with period)
+            let digitsAndPeriod = CharacterSet.decimalDigits.union(CharacterSet(charactersIn: "."))
+            if trimmed.trimmingCharacters(in: digitsAndPeriod).isEmpty && trimmed.count < 6 {
+                return false
+            }
+
+            // Filter out "Page X" patterns
+            if trimmed.range(of: "^(Page|PAGE|p\\.|P\\.)\\s*\\d+", options: .regularExpression) != nil {
+                return false
+            }
+
+            // Filter out common draft markers
+            let draftPatterns = [
+                "DRAFT", "FINAL DRAFT", "FIRST DRAFT", "SECOND DRAFT", "THIRD DRAFT",
+                "REVISED", "SHOOTING SCRIPT", "PRODUCTION DRAFT"
+            ]
+            let upperTrimmed = trimmed.uppercased()
+            for pattern in draftPatterns {
+                if upperTrimmed == pattern || upperTrimmed.hasPrefix(pattern + " ") {
+                    return false
+                }
+            }
+
+            // Filter out date-only lines (common in headers)
+            // Match patterns like "January 1, 2025" or "01/01/2025" or "1-1-2025"
+            if trimmed.range(of: "^\\d{1,2}[/-]\\d{1,2}[/-]\\d{2,4}$", options: .regularExpression) != nil {
+                return false
+            }
+            if trimmed.range(of: "^(January|February|March|April|May|June|July|August|September|October|November|December)\\s+\\d{1,2},?\\s+\\d{4}$", options: [.regularExpression, .caseInsensitive]) != nil {
+                return false
+            }
+
+            // Filter out very short lines (likely headers/footers) unless they look like character names or scene elements
+            if trimmed.count < 3 {
+                return false
+            }
+
+            // Keep the line
+            return true
+        }
     }
 
     /// Build the Foundation Models prompt for converting text to Fountain
