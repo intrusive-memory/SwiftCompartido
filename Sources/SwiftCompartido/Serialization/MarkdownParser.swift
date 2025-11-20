@@ -327,9 +327,9 @@ private struct MarkdownToGuionConverter: MarkupWalker {
             if let paragraph = child as? Paragraph {
                 let text = extractText(from: paragraph)
                 if !itemText.isEmpty {
-                    itemText.append(" ")
+                    itemText += " "
                 }
-                itemText.append(text)
+                itemText += text
             } else if child is UnorderedList || child is OrderedList {
                 hasNestedList = true
             }
@@ -397,11 +397,11 @@ private struct MarkdownToGuionConverter: MarkupWalker {
             if let textNode = child as? Markdown.Text {
                 text.append(textNode.string)
             } else if let code = child as? InlineCode {
-                text.append(code.code)
+                text += code.code
             } else if child is SoftBreak {
-                text.append(" ")
+                text += " "
             } else if child is LineBreak {
-                text.append("\n")
+                text += "\n"
             } else if let emphasis = child as? Emphasis {
                 text.append(extractText(from: emphasis))
             } else if let strong = child as? Strong {

@@ -76,19 +76,10 @@ public struct MarkdownListItemView: View {
             }
 
             // Bullet or number
-            if isOrdered {
-                // Use monospaced font for consistent number alignment
-                Text(bulletOrNumber)
-                    .font(.system(size: fontSize, design: .monospaced))
-                    .foregroundStyle(.primary)
-                    .frame(minWidth: 36, alignment: .trailing)
-            } else {
-                // Bullets use standard font
-                Text(bulletOrNumber)
-                    .font(.system(size: fontSize))
-                    .foregroundStyle(.primary)
-                    .frame(width: 20, alignment: .center)
-            }
+            Text(bulletOrNumber)
+                .font(.system(size: fontSize))
+                .foregroundStyle(.primary)
+                .frame(width: 30, alignment: .trailing)
 
             Spacer()
                 .frame(width: bulletSpacing)
@@ -100,19 +91,7 @@ public struct MarkdownListItemView: View {
                 .textSelection(.enabled)
                 .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .padding(.top, itemTopPadding)
-        .padding(.bottom, 1)
-    }
-
-    /// Calculate top padding based on list type and level
-    private var itemTopPadding: CGFloat {
-        // Top-level items need more spacing to separate them
-        if level == 0 {
-            return isOrdered ? 8 : 4
-        } else {
-            // Nested items need less spacing
-            return 2
-        }
+        .padding(.vertical, 2)
     }
 
     /// Returns the bullet point or number prefix
