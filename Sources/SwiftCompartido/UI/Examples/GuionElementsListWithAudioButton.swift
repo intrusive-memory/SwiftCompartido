@@ -59,7 +59,9 @@ public struct GuionElementsListWithAudioButton: View {
 
         // Only generate audio for dialogue, character names, and action
         guard elementType == .dialogue || elementType == .character || elementType == .action else {
+            #if DEBUG
             print("Skipping audio generation for element type: \(elementType)")
+            #endif
             return
         }
 
@@ -92,9 +94,13 @@ public struct GuionElementsListWithAudioButton: View {
             modelContext.insert(audioRecord)
             try modelContext.save()
 
+            #if DEBUG
             print("Generated audio for element: \(content.prefix(30))...")
+            #endif
         } catch {
+            #if DEBUG
             print("Failed to generate audio: \(error)")
+            #endif
         }
     }
 
@@ -175,9 +181,13 @@ public struct GuionElementsListWithFileBasedAudio: View {
             modelContext.insert(audioRecord)
             try modelContext.save()
 
+            #if DEBUG
             print("Generated and stored audio file for element")
+            #endif
         } catch {
+            #if DEBUG
             print("Failed to generate audio: \(error)")
+            #endif
         }
     }
 

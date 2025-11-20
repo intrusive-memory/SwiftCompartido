@@ -279,7 +279,9 @@ extension AudioPlayerManager: @preconcurrency AVAudioPlayerDelegate {
     }
 
     public func audioPlayerDecodeErrorDidOccur(_ player: AVAudioPlayer, error: Error?) {
+        #if DEBUG
         print("Audio player decode error: \(error?.localizedDescription ?? "Unknown")")
+        #endif
         stop()
     }
 }

@@ -464,7 +464,9 @@ struct GuionElementRow<TrailingContent: View>: View {
                     Text("Tap Activated!")
                         .font(.caption.bold())
                     Button("Generate Audio") {
+                        #if DEBUG
                         print("Generate tapped")
+                        #endif
                     }
                     .buttonStyle(.borderedProminent)
                     .controlSize(.small)
