@@ -232,6 +232,9 @@ public enum MarkdownParser {
 private struct MarkdownToGuionConverter: MarkupWalker {
     var elements: [GuionElement] = []
 
+    /// Current nesting level for lists (0 = top level, 1 = nested once, etc.)
+    private var listNestingLevel: Int = 0
+
     // MARK: - Block Elements
 
     mutating func visitHeading(_ heading: Heading) {
@@ -291,29 +294,71 @@ private struct MarkdownToGuionConverter: MarkupWalker {
     }
 
     mutating func visitUnorderedList(_ unorderedList: UnorderedList) {
+        let currentLevel = listNestingLevel
+        listNestingLevel += 1
+
         for child in unorderedList.listItems {
-            let text = extractText(from: child)
-            if !text.isEmpty {
-                let element = GuionElement(
-                    type: .action,
-                    text: "• " + text
-                )
-                elements.append(element)
-            }
+            processListItem(child, level: currentLevel, isOrdered: false, itemNumber: nil)
         }
+
+        listNestingLevel -= 1
     }
 
     mutating func visitOrderedList(_ orderedList: OrderedList) {
+        let currentLevel = listNestingLevel
+        listNestingLevel += 1
+
         var itemNumber = orderedList.startIndex
         for child in orderedList.listItems {
-            let text = extractText(from: child)
-            if !text.isEmpty {
-                let element = GuionElement(
-                    type: .action,
-                    text: "\(itemNumber). " + text
-                )
-                elements.append(element)
-                itemNumber += 1
+            processListItem(child, level: currentLevel, isOrdered: true, itemNumber: Int(itemNumber))
+            itemNumber += 1
+        }
+
+        listNestingLevel -= 1
+    }
+
+    /// Process a single list item, handling nested lists recursively
+    private mutating func processListItem(_ listItem: ListItem, level: Int, isOrdered: Bool, itemNumber: Int?) {
+        // Extract text from immediate children (paragraphs), but not nested lists
+        var itemText = ""
+        var hasNestedList = false
+
+        for child in listItem.children {
+            if let paragraph = child as? Paragraph {
+                let text = extractText(from: paragraph)
+                if !itemText.isEmpty {
+                    itemText += " "
+                }
+                itemText += text
+            } else if child is UnorderedList || child is OrderedList {
+                hasNestedList = true
+            }
+        }
+
+        // Create list item element with proper type and level
+        if !itemText.isEmpty {
+            let elementType: ElementType
+            if isOrdered {
+                elementType = .orderedListItem(level: level)
+            } else {
+                elementType = .unorderedListItem(level: level)
+            }
+
+            let element = GuionElement(
+                type: elementType,
+                text: itemText
+            )
+            elements.append(element)
+        }
+
+        // Process nested lists
+        if hasNestedList {
+            for child in listItem.children {
+                if let nestedUnorderedList = child as? UnorderedList {
+                    visitUnorderedList(nestedUnorderedList)
+                } else if let nestedOrderedList = child as? OrderedList {
+                    visitOrderedList(nestedOrderedList)
+                }
             }
         }
     }
@@ -353,9 +398,9 @@ private struct MarkdownToGuionConverter: MarkupWalker {
                 text += textNode.string
             } else if let code = child as? InlineCode {
                 text += code.code
-            } else if let softBreak = child as? SoftBreak {
+            } else if child is SoftBreak {
                 text += " "
-            } else if let lineBreak = child as? LineBreak {
+            } else if child is LineBreak {
                 text += "\n"
             } else if let emphasis = child as? Emphasis {
                 text += extractText(from: emphasis)
