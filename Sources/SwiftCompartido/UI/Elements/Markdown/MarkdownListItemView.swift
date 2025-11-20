@@ -76,10 +76,19 @@ public struct MarkdownListItemView: View {
             }
 
             // Bullet or number
-            Text(bulletOrNumber)
-                .font(.system(size: fontSize))
-                .foregroundStyle(.primary)
-                .frame(width: 30, alignment: .trailing)
+            if isOrdered {
+                // Use monospaced font for consistent number alignment
+                Text(bulletOrNumber)
+                    .font(.system(size: fontSize, design: .monospaced))
+                    .foregroundStyle(.primary)
+                    .frame(minWidth: 36, alignment: .trailing)
+            } else {
+                // Bullets use standard font
+                Text(bulletOrNumber)
+                    .font(.system(size: fontSize))
+                    .foregroundStyle(.primary)
+                    .frame(width: 20, alignment: .center)
+            }
 
             Spacer()
                 .frame(width: bulletSpacing)
