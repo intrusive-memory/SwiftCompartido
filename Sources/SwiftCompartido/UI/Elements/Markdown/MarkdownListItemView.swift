@@ -100,7 +100,19 @@ public struct MarkdownListItemView: View {
                 .textSelection(.enabled)
                 .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .padding(.vertical, 2)
+        .padding(.top, itemTopPadding)
+        .padding(.bottom, 1)
+    }
+
+    /// Calculate top padding based on list type and level
+    private var itemTopPadding: CGFloat {
+        // Top-level items need more spacing to separate them
+        if level == 0 {
+            return isOrdered ? 8 : 4
+        } else {
+            // Nested items need less spacing
+            return 2
+        }
     }
 
     /// Returns the bullet point or number prefix
