@@ -117,25 +117,27 @@ struct PandocIntegrationTests {
 
         let (elements, _) = try PandocDocumentParser.parse(url: fixtureURL)
 
-        // Find list items (markdown parser converts to bullets • or numbers)
-        let listItems = elements.filter { element in
-            element.elementType == .action && (
-                element.elementText.hasPrefix("•") ||  // Bulleted lists
-                element.elementText.hasPrefix("1.") ||  // Numbered lists
-                element.elementText.hasPrefix("2.") ||
-                element.elementText.hasPrefix("3.")
-            )
+        // Find list items using the dedicated list element types
+        let unordered = elements.filter { element in
+            if case .unorderedListItem = element.elementType {
+                return true
+            }
+            return false
         }
 
-        #expect(listItems.count >= 3, "Should have at least 3 list items")
+        let ordered = elements.filter { element in
+            if case .orderedListItem = element.elementType {
+                return true
+            }
+            return false
+        }
 
-        // Verify bulleted list (converted to bullet •)
-        let bulletItem = listItems.first { $0.elementText.hasPrefix("•") }
-        #expect(bulletItem != nil, "Should have bulleted list item")
+        #expect(unordered.count >= 1, "Should have at least one unordered list item")
+        #expect(ordered.count >= 1, "Should have at least one ordered list item")
 
-        // Verify numbered list
-        let numberedItem = listItems.first { $0.elementText.hasPrefix("1.") }
-        #expect(numberedItem != nil, "Should have numbered list item")
+        // Validate that list item text was preserved
+        #expect(unordered.contains { !$0.elementText.isEmpty }, "Unordered list text should not be empty")
+        #expect(ordered.contains { !$0.elementText.isEmpty }, "Ordered list text should not be empty")
         #endif
     }
 
