@@ -49,12 +49,29 @@ struct MarkdownParserTests {
 
         let (elements, _) = try MarkdownParser.parse(markdown)
 
-        let actions = elements.filter { $0.elementType == .action }
-        #expect(actions.count >= 3)
+        // Markdown list items are now represented as dedicated list element types
+        let listItems = elements.compactMap { element -> (ElementType, String)? in
+            switch element.elementType {
+            case .unorderedListItem(let level):
+                return (.unorderedListItem(level: level), element.elementText)
+            default:
+                return nil
+            }
+        }
 
-        // Check that bullet points are preserved
-        let bulletedItems = actions.filter { $0.elementText.hasPrefix("• ") }
-        #expect(bulletedItems.count == 3)
+        #expect(listItems.count == 3)
+        #expect(listItems.allSatisfy { elementType, _ in
+            if case .unorderedListItem(let level) = elementType {
+                return level == 0
+            }
+            return false
+        })
+
+        // Ensure the list item text is preserved without markdown bullets
+        let texts = listItems.map { $0.1 }
+        #expect(texts.contains("First item"))
+        #expect(texts.contains("Second item"))
+        #expect(texts.contains("Third item"))
     }
 
     // MARK: - YAML Front Matter Tests
