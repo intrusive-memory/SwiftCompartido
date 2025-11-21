@@ -117,29 +117,27 @@ struct PandocIntegrationTests {
 
         let (elements, _) = try PandocDocumentParser.parse(url: fixtureURL)
 
-        // Find unordered list items
-        let unorderedListItems = elements.filter { element in
+        // Find list items using the dedicated list element types
+        let unordered = elements.filter { element in
             if case .unorderedListItem = element.elementType {
                 return true
             }
             return false
         }
 
-        // Find ordered list items
-        let orderedListItems = elements.filter { element in
+        let ordered = elements.filter { element in
             if case .orderedListItem = element.elementType {
                 return true
             }
             return false
         }
 
-        // Should have some list items (bulleted or numbered)
-        let totalListItems = unorderedListItems.count + orderedListItems.count
-        #expect(totalListItems >= 3, "Should have at least 3 list items")
+        #expect(unordered.count >= 1, "Should have at least one unordered list item")
+        #expect(ordered.count >= 1, "Should have at least one ordered list item")
 
-        // Verify we have both unordered and ordered lists
-        #expect(unorderedListItems.count >= 1, "Should have at least one unordered list item")
-        #expect(orderedListItems.count >= 1, "Should have at least one ordered list item")
+        // Validate that list item text was preserved
+        #expect(unordered.contains { !$0.elementText.isEmpty }, "Unordered list text should not be empty")
+        #expect(ordered.contains { !$0.elementText.isEmpty }, "Ordered list text should not be empty")
         #endif
     }
 
