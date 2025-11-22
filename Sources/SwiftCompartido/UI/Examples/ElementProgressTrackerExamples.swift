@@ -88,7 +88,7 @@ public struct ElementProgressTrackerExamples: View {
         let tracker = element.progressTracker(using: progressState)
 
         do {
-            try await tracker.withProgress(
+            _ = try await tracker.withProgress(
                 startMessage: "Processing element...",
                 completeMessage: "Processing complete!"
             ) { updateProgress in

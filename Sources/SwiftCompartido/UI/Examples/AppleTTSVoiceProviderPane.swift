@@ -129,5 +129,4 @@ public struct AppleTTSVoiceProviderPane: View {
 #Preview {
     AppleTTSVoiceProviderPane()
         .padding()
-        .previewLayout(.sizeThatFits)
 }
