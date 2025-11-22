@@ -611,4 +611,343 @@ public actor GitProjectService {
         }
     }
     #endif
+
+    // MARK: - Branch Management
+
+    /// List all branches in the repository
+    ///
+    /// - Parameter repository: The repository to list branches for
+    /// - Returns: Array of branch names
+    /// - Throws: `GitError` if branch listing fails
+    public func listBranches(in repository: GitRepositoryModel) async throws -> [String] {
+        #if os(macOS)
+        let process = Process()
+        process.currentDirectoryURL = URL(fileURLWithPath: repository.localPath)
+        process.executableURL = URL(fileURLWithPath: "/usr/bin/git")
+        process.arguments = ["branch", "--format=%(refname:short)"]
+
+        let pipe = Pipe()
+        process.standardOutput = pipe
+        process.standardError = pipe
+
+        try process.run()
+        process.waitUntilExit()
+
+        if process.terminationStatus != 0 {
+            let data = pipe.fileHandleForReading.readDataToEndOfFile()
+            let error = String(data: data, encoding: .utf8) ?? "Unknown error"
+            throw GitError.commitFailed(reason: "Failed to list branches: \(error)")
+        }
+
+        let data = pipe.fileHandleForReading.readDataToEndOfFile()
+        let output = String(data: data, encoding: .utf8) ?? ""
+        return output.split(separator: "\n").map { String($0).trimmingCharacters(in: .whitespaces) }
+        #else
+        throw GitError.commitFailed(reason: "Branch management not supported on iOS")
+        #endif
+    }
+
+    /// Create a new branch
+    ///
+    /// - Parameters:
+    ///   - name: Name for the new branch
+    ///   - repository: The repository to create the branch in
+    ///   - checkout: Whether to check out the new branch immediately
+    /// - Throws: `GitError` if branch creation fails
+    public func createBranch(
+        named name: String,
+        in repository: GitRepositoryModel,
+        checkout: Bool = true
+    ) async throws {
+        #if os(macOS)
+        let process = Process()
+        process.currentDirectoryURL = URL(fileURLWithPath: repository.localPath)
+        process.executableURL = URL(fileURLWithPath: "/usr/bin/git")
+        process.arguments = checkout ? ["checkout", "-b", name] : ["branch", name]
+
+        let pipe = Pipe()
+        process.standardOutput = pipe
+        process.standardError = pipe
+
+        try process.run()
+        process.waitUntilExit()
+
+        if process.terminationStatus != 0 {
+            let data = pipe.fileHandleForReading.readDataToEndOfFile()
+            let error = String(data: data, encoding: .utf8) ?? "Unknown error"
+            throw GitError.commitFailed(reason: "Failed to create branch: \(error)")
+        }
+
+        // Update model if checked out
+        if checkout {
+            repository.currentBranch = name
+            try? modelContext?.save()
+        }
+        #else
+        throw GitError.commitFailed(reason: "Branch management not supported on iOS")
+        #endif
+    }
+
+    /// Switch to a different branch
+    ///
+    /// - Parameters:
+    ///   - branchName: Name of the branch to switch to
+    ///   - repository: The repository
+    /// - Throws: `GitError` if checkout fails
+    public func switchBranch(
+        to branchName: String,
+        in repository: GitRepositoryModel
+    ) async throws {
+        #if os(macOS)
+        let process = Process()
+        process.currentDirectoryURL = URL(fileURLWithPath: repository.localPath)
+        process.executableURL = URL(fileURLWithPath: "/usr/bin/git")
+        process.arguments = ["checkout", branchName]
+
+        let pipe = Pipe()
+        process.standardOutput = pipe
+        process.standardError = pipe
+
+        try process.run()
+        process.waitUntilExit()
+
+        if process.terminationStatus != 0 {
+            let data = pipe.fileHandleForReading.readDataToEndOfFile()
+            let error = String(data: data, encoding: .utf8) ?? "Unknown error"
+            throw GitError.commitFailed(reason: "Failed to switch branch: \(error)")
+        }
+
+        // Update model
+        repository.currentBranch = branchName
+        try? modelContext?.save()
+        #else
+        throw GitError.commitFailed(reason: "Branch management not supported on iOS")
+        #endif
+    }
+
+    /// Delete a branch
+    ///
+    /// - Parameters:
+    ///   - branchName: Name of the branch to delete
+    ///   - repository: The repository
+    ///   - force: Whether to force delete (even if not merged)
+    /// - Throws: `GitError` if deletion fails
+    public func deleteBranch(
+        named branchName: String,
+        in repository: GitRepositoryModel,
+        force: Bool = false
+    ) async throws {
+        #if os(macOS)
+        let process = Process()
+        process.currentDirectoryURL = URL(fileURLWithPath: repository.localPath)
+        process.executableURL = URL(fileURLWithPath: "/usr/bin/git")
+        process.arguments = force ? ["branch", "-D", branchName] : ["branch", "-d", branchName]
+
+        let pipe = Pipe()
+        process.standardOutput = pipe
+        process.standardError = pipe
+
+        try process.run()
+        process.waitUntilExit()
+
+        if process.terminationStatus != 0 {
+            let data = pipe.fileHandleForReading.readDataToEndOfFile()
+            let error = String(data: data, encoding: .utf8) ?? "Unknown error"
+            throw GitError.commitFailed(reason: "Failed to delete branch: \(error)")
+        }
+        #else
+        throw GitError.commitFailed(reason: "Branch management not supported on iOS")
+        #endif
+    }
+
+    /// Merge a branch into the current branch
+    ///
+    /// - Parameters:
+    ///   - branchName: Name of the branch to merge
+    ///   - repository: The repository
+    /// - Returns: True if merge completed, false if there are conflicts
+    /// - Throws: `GitError` if merge fails
+    public func mergeBranch(
+        _ branchName: String,
+        into repository: GitRepositoryModel
+    ) async throws -> Bool {
+        #if os(macOS)
+        let process = Process()
+        process.currentDirectoryURL = URL(fileURLWithPath: repository.localPath)
+        process.executableURL = URL(fileURLWithPath: "/usr/bin/git")
+        process.arguments = ["merge", branchName, "--no-edit"]
+
+        let pipe = Pipe()
+        process.standardOutput = pipe
+        process.standardError = pipe
+
+        try process.run()
+        process.waitUntilExit()
+
+        // Exit code 0 = success, 1 = conflicts
+        if process.terminationStatus == 0 {
+            return true  // No conflicts
+        } else if process.terminationStatus == 1 {
+            // Check if there are conflicts
+            let conflictedFiles = try await listConflictedFiles(in: repository)
+            return conflictedFiles.isEmpty
+        } else {
+            let data = pipe.fileHandleForReading.readDataToEndOfFile()
+            let error = String(data: data, encoding: .utf8) ?? "Unknown error"
+            throw GitError.commitFailed(reason: "Failed to merge branch: \(error)")
+        }
+        #else
+        throw GitError.commitFailed(reason: "Branch management not supported on iOS")
+        #endif
+    }
+
+    /// Check if there are uncommitted changes
+    ///
+    /// - Parameter repository: The repository
+    /// - Returns: True if there are uncommitted changes
+    public func hasUncommittedChanges(in repository: GitRepositoryModel) async throws -> Bool {
+        let status = try await self.status(repository: repository)
+        return status.modifiedFiles > 0
+    }
+
+    /// Get diff between two branches
+    ///
+    /// - Parameters:
+    ///   - baseBranch: The base branch name
+    ///   - compareBranch: The branch to compare
+    ///   - repository: The repository
+    /// - Returns: Array of changed file paths
+    public func diff(
+        from baseBranch: String,
+        to compareBranch: String,
+        in repository: GitRepositoryModel
+    ) async throws -> [String] {
+        #if os(macOS)
+        let process = Process()
+        process.currentDirectoryURL = URL(fileURLWithPath: repository.localPath)
+        process.executableURL = URL(fileURLWithPath: "/usr/bin/git")
+        process.arguments = ["diff", "--name-only", "\(baseBranch)..\(compareBranch)"]
+
+        let pipe = Pipe()
+        process.standardOutput = pipe
+        process.standardError = pipe
+
+        try process.run()
+        process.waitUntilExit()
+
+        if process.terminationStatus != 0 {
+            let data = pipe.fileHandleForReading.readDataToEndOfFile()
+            let error = String(data: data, encoding: .utf8) ?? "Unknown error"
+            throw GitError.commitFailed(reason: "Failed to get diff: \(error)")
+        }
+
+        let data = pipe.fileHandleForReading.readDataToEndOfFile()
+        let output = String(data: data, encoding: .utf8) ?? ""
+        return output.split(separator: "\n").map { String($0).trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty }
+        #else
+        throw GitError.commitFailed(reason: "Branch management not supported on iOS")
+        #endif
+    }
+
+    // MARK: - Conflict Resolution
+
+    /// List all files with merge conflicts.
+    ///
+    /// - Parameter repository: The repository to check
+    /// - Returns: Array of file paths with conflicts
+    /// - Throws: GitError if repository cannot be accessed
+    public func listConflictedFiles(in repository: GitRepositoryModel) async throws -> [String] {
+        #if os(macOS)
+        let process = Process()
+        process.currentDirectoryURL = URL(fileURLWithPath: repository.localPath)
+        process.executableURL = URL(fileURLWithPath: "/usr/bin/git")
+        process.arguments = ["diff", "--name-only", "--diff-filter=U"]
+
+        let pipe = Pipe()
+        process.standardOutput = pipe
+        process.standardError = pipe
+
+        try process.run()
+        process.waitUntilExit()
+
+        // Exit code 0 means no conflicts or conflicts found
+        let data = pipe.fileHandleForReading.readDataToEndOfFile()
+        let output = String(data: data, encoding: .utf8) ?? ""
+        return output.split(separator: "\n").map { String($0).trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty }
+        #else
+        throw GitError.commitFailed(reason: "Conflict resolution not supported on iOS")
+        #endif
+    }
+
+    /// Resolve a conflict using a specific strategy.
+    ///
+    /// - Parameters:
+    ///   - file: Path to the conflicted file
+    ///   - repository: The repository
+    ///   - strategy: Resolution strategy ("ours" or "theirs")
+    /// - Throws: GitError if resolution fails
+    public func resolveConflict(
+        file: String,
+        in repository: GitRepositoryModel,
+        strategy: String
+    ) async throws {
+        #if os(macOS)
+        let repoPath = repository.localPath
+
+        // Use git checkout to resolve conflict
+        let checkoutProcess = Process()
+        checkoutProcess.executableURL = URL(fileURLWithPath: "/usr/bin/git")
+        checkoutProcess.arguments = ["checkout", "--\(strategy)", file]
+        checkoutProcess.currentDirectoryURL = URL(fileURLWithPath: repoPath)
+
+        let outputPipe = Pipe()
+        let errorPipe = Pipe()
+        checkoutProcess.standardOutput = outputPipe
+        checkoutProcess.standardError = errorPipe
+
+        try checkoutProcess.run()
+        checkoutProcess.waitUntilExit()
+
+        if checkoutProcess.terminationStatus != 0 {
+            let errorData = errorPipe.fileHandleForReading.readDataToEndOfFile()
+            let errorMessage = String(data: errorData, encoding: .utf8) ?? "Unknown error"
+            throw GitError.commitFailed(reason: "Conflict resolution failed: \(errorMessage)")
+        }
+
+        // Stage the resolved file
+        try await stageFile(file, in: repository)
+        #else
+        throw GitError.commitFailed(reason: "Conflict resolution not supported on iOS")
+        #endif
+    }
+
+    /// Stage a file for commit.
+    ///
+    /// - Parameters:
+    ///   - file: Path to the file to stage
+    ///   - repository: The repository
+    /// - Throws: GitError if staging fails
+    public func stageFile(_ file: String, in repository: GitRepositoryModel) async throws {
+        #if os(macOS)
+        let process = Process()
+        process.currentDirectoryURL = URL(fileURLWithPath: repository.localPath)
+        process.executableURL = URL(fileURLWithPath: "/usr/bin/git")
+        process.arguments = ["add", file]
+
+        let pipe = Pipe()
+        process.standardOutput = pipe
+        process.standardError = pipe
+
+        try process.run()
+        process.waitUntilExit()
+
+        if process.terminationStatus != 0 {
+            let data = pipe.fileHandleForReading.readDataToEndOfFile()
+            let error = String(data: data, encoding: .utf8) ?? "Unknown error"
+            throw GitError.commitFailed(reason: "Failed to stage file: \(error)")
+        }
+        #else
+        throw GitError.commitFailed(reason: "Conflict resolution not supported on iOS")
+        #endif
+    }
 }
