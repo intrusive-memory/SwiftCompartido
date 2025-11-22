@@ -190,25 +190,26 @@ public final class GitRepositoryModel: @unchecked Sendable {
     @Relationship(deleteRule: .nullify)
     public var document: GuionDocumentModel?
 
-    /// LFS files downloaded from this repository
+    /// LFS file patterns tracked in this repository
     ///
-    /// Stores metadata about LFS files (audio, images, PDFs) as `TypedDataStorage` records.
-    /// Files follow Phase 6 architecture - stored as file references, not in-memory.
+    /// Stores file patterns (e.g., "*.mp3", "*.wav") configured in `.gitattributes`
+    /// for Git LFS tracking. These patterns determine which files are stored as
+    /// LFS pointers rather than full content in the Git repository.
     ///
-    /// **Delete Rule**: `.cascade` - Deleting the repository automatically deletes
-    /// all associated LFS file records and cleans up files on disk.
+    /// Automatically synchronized with `.gitattributes` by `GitProjectService`.
     ///
     /// ## Example
     ///
     /// ```swift
-    /// for lfsFile in repository.lfsFiles {
-    ///     if let audio = lfsFile.asGeneratedAudio {
-    ///         print("Audio: \(audio.fileReference?.filename ?? "unknown")")
-    ///     }
+    /// for pattern in repository.lfsFiles {
+    ///     print("LFS tracked: \(pattern)")
     /// }
+    /// // Output:
+    /// // LFS tracked: *.mp3
+    /// // LFS tracked: *.wav
+    /// // LFS tracked: *.mp4
     /// ```
-    @Relationship(deleteRule: .cascade)
-    public var lfsFiles: [TypedDataStorage]
+    public var lfsFiles: [String]
 
     /// Cached commit history (optional)
     ///

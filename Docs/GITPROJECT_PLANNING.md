@@ -7,9 +7,9 @@ GitProject adds native Git version control integration to SwiftCompartido, allow
 ## Status
 
 - **Phase 1**: ✅ Complete - Core Git Operations (clone, pull, push, commit, status)
-- **Phase 2**: ✅ Complete - Git LFS Integration
-- **Phase 3**: ✅ Complete - SwiftUI Configuration & Management
-- **Phase 4**: ✅ Complete - Advanced Features (branches, merge, conflict resolution)
+- **Phase 2**: 🔨 In Progress - Git LFS Integration
+- **Phase 3**: 📋 Planned - SwiftUI Configuration & Management
+- **Phase 4**: 📋 Planned - Advanced Features (branches, merge, conflict resolution)
 
 ---
 
@@ -51,7 +51,7 @@ GitProject adds native Git version control integration to SwiftCompartido, allow
 
 ---
 
-## Phase 2: Git LFS Integration ✅
+## Phase 2: Git LFS Integration 🔨
 
 ### Objectives
 
@@ -92,18 +92,7 @@ Enable Large File Storage (LFS) support for audio, video, and image files genera
 
 ---
 
-## Phase 3: SwiftUI Configuration & Management ✅
-
-### Completed Features
-
-All Phase 3 SwiftUI components have been implemented and successfully built:
-
-- **GitProjectSetupSheet** - Modal sheet for initializing or cloning repositories with progress tracking
-- **GitProjectConfigurationView** - Main configuration panel for Git operations and repository status
-- **GitCommitHistoryView** - Commit history display with search and filtering
-- **GitCredentialInputView** - Manual credential entry with SSH key and token support
-- **GitStatusBadge** - Compact repository status badge for document metadata
-- **GitQuickActionsMenu** - Quick access menu for commit/pull/push operations
+## Phase 3: SwiftUI Configuration & Management 📋
 
 ### Objectives
 
@@ -344,33 +333,27 @@ DocumentMetadataView(document: document) {
 
 ---
 
-## Phase 4: Advanced Features ✅
+## Phase 4: Advanced Features 📋
 
-### Completed Features
+### Objectives
 
-Phase 4 implements advanced Git workflows for professional screenplay collaboration:
+Implement advanced Git workflows for professional screenplay collaboration.
+
+### Features
 
 #### Branch Management
-- ✅ **Create branch** from current commit with optional checkout
-- ✅ **Switch branch** with uncommitted changes handling
-- ✅ **Merge branches** with conflict detection (returns true/false for conflicts)
-- ✅ **Delete branches** (local only, with force option)
-- ✅ **Branch comparison** - Show diff between branches (list of changed files)
-- ✅ **List all branches** - Get all branches in repository
+- **Create branch** from current commit
+- **Switch branch** with uncommitted changes handling
+- **Merge branches** with conflict detection
+- **Delete branches** (local and remote)
+- **Branch comparison** - Show diff between branches
 
 #### Merge & Conflict Resolution
-- ✅ **Conflict detection** - Identify files with merge conflicts
-- ✅ **Conflict markers** - Display conflict content in files
-- ✅ **Resolution strategies** - Accept ours/theirs options
-- ✅ **Manual conflict editing** - Edit files directly to resolve
-- ✅ **File staging** - Mark resolved files as ready for commit
-
-#### UI Components
-- ✅ **GitBranchManagerView** - Complete branch management UI with create/switch/delete/merge
-- ✅ **GitDiffView** - Visual diff comparison between branches
-- ✅ **GitConflictResolverView** - Comprehensive conflict resolution interface with split view
-
-### Future Enhancements (Not in Current Scope)
+- **Three-way merge** visualization
+- **Conflict markers** in screenplay text
+- **Side-by-side diff** for conflicted elements
+- **Accept theirs/ours/both** buttons
+- **Manual conflict editing**
 
 #### Collaboration Features
 - **Pull request integration** (GitHub/GitLab API)
@@ -379,7 +362,7 @@ Phase 4 implements advanced Git workflows for professional screenplay collaborat
 - **Blame view** - Show commit author per element
 
 #### History & Diff
-- **Three-way merge** visualization
+- **Visual diff** for screenplay elements
 - **Scene-level diff** highlighting
 - **Dialogue change tracking**
 - **Time-travel** - View screenplay at any commit
@@ -394,20 +377,17 @@ Phase 4 implements advanced Git workflows for professional screenplay collaborat
 | 1 | GitCredentialManager | ✅ Complete | ✅ 17 tests | 90%+ |
 | 1 | GitProjectService | ✅ Complete | ✅ 18 tests | 90%+ |
 | 1 | SwiftData Models | ✅ Complete | ✅ Covered | 95%+ |
-| 2 | GitAttributesParser | ✅ Complete | ✅ 13 tests | 95%+ |
-| 2 | LFS Operations | ✅ Complete | ✅ Covered | 90%+ |
-| 2 | LFS Tests | ✅ Complete | ✅ 13 tests | 95%+ |
-| 3 | GitProjectConfigurationView | ✅ Complete | ✅ Built | - |
-| 3 | GitProjectSetupSheet | ✅ Complete | ✅ Built | - |
-| 3 | GitCommitHistoryView | ✅ Complete | ✅ Built | - |
-| 3 | GitStatusBadge | ✅ Complete | ✅ Built | - |
-| 3 | GitQuickActionsMenu | ✅ Complete | ✅ Built | - |
-| 3 | GitCredentialInputView | ✅ Complete | ✅ Built | - |
-| 4 | Branch Management (Service) | ✅ Complete | ✅ Built | - |
-| 4 | GitBranchManagerView | ✅ Complete | ✅ Built | - |
-| 4 | GitDiffView | ✅ Complete | ✅ Built | - |
-| 4 | GitConflictResolverView | ✅ Complete | ✅ Built | - |
-| 4 | Conflict Resolution (Service) | ✅ Complete | ✅ Built | - |
+| 2 | .gitattributes Parser | 📋 Planned | - | - |
+| 2 | LFS Operations | 📋 Planned | - | - |
+| 2 | LFS Tests | 📋 Planned | - | - |
+| 3 | GitProjectConfigurationView | 📋 Planned | - | - |
+| 3 | GitProjectSetupSheet | 📋 Planned | - | - |
+| 3 | GitCommitHistoryView | 📋 Planned | - | - |
+| 3 | GitSyncProgressView | 📋 Planned | - | - |
+| 3 | GitCredentialInputView | 📋 Planned | - | - |
+| 4 | Branch Management | 📋 Future | - | - |
+| 4 | Merge/Conflict UI | 📋 Future | - | - |
+| 4 | PR Integration | 📋 Future | - | - |
 
 ---
 
@@ -505,4 +485,4 @@ Phase 4 implements advanced Git workflows for professional screenplay collaborat
 
 **Last Updated**: 2025-11-21
 **Version**: 1.0
-**Status**: Phase 1-4 Complete
+**Status**: Phase 1 Complete, Phase 2 In Progress
