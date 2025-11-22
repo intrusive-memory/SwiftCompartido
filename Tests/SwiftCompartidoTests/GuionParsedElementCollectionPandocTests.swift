@@ -119,15 +119,23 @@ struct GuionParsedElementCollectionPandocTests {
 
         #expect(screenplay.filename == "lists.docx")
 
-        // Verify list items parsed
-        let listItems = screenplay.elements.filter { element in
-            element.elementType == .action && (
-                element.elementText.hasPrefix("-") ||
-                element.elementText.first?.isNumber == true
-            )
+        // Verify list items parsed as unordered or ordered list elements
+        let unorderedListItems = screenplay.elements.filter { element in
+            if case .unorderedListItem = element.elementType {
+                return true
+            }
+            return false
         }
 
-        #expect(listItems.count >= 3, "Should have at least 3 list items")
+        let orderedListItems = screenplay.elements.filter { element in
+            if case .orderedListItem = element.elementType {
+                return true
+            }
+            return false
+        }
+
+        let totalListItems = unorderedListItems.count + orderedListItems.count
+        #expect(totalListItems >= 3, "Should have at least 3 list items")
         #endif
     }
 
@@ -178,12 +186,20 @@ struct GuionParsedElementCollectionPandocTests {
         #expect(screenplay.filename == "nested-lists.docx")
         #expect(screenplay.elements.count >= 1)
 
-        // Verify document loaded successfully and has list items
+        // Verify document loaded successfully and has list items (unordered or ordered)
         let listItems = screenplay.elements.filter { element in
-            element.elementType == .action &&
-            (element.elementText.contains("First item") ||
-             element.elementText.contains("Nested item") ||
-             element.elementText.contains("Second item"))
+            let isListItem: Bool
+            switch element.elementType {
+            case .unorderedListItem, .orderedListItem:
+                isListItem = true
+            default:
+                isListItem = false
+            }
+
+            return isListItem &&
+                (element.elementText.contains("First item") ||
+                 element.elementText.contains("Nested item") ||
+                 element.elementText.contains("Second item"))
         }
 
         #expect(listItems.count >= 1, "Should have parsed list items")
