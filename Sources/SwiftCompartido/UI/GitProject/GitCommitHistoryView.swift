@@ -213,11 +213,17 @@ public struct GitCommitHistoryView: View {
         isLoading = true
         errorMessage = nil
 
-        // Load commits from cached data in SwiftData
-        // In a real implementation, you might also refresh from git
-        commits = repository.commits.sorted { $0.timestamp > $1.timestamp }
+        do {
+            // Load commits from cached data in SwiftData
+            // In a real implementation, you might also refresh from git
+            commits = repository.commits.sorted { $0.timestamp > $1.timestamp }
 
-        isLoading = false
+            isLoading = false
+
+        } catch {
+            errorMessage = "Failed to load commits: \(error.localizedDescription)"
+            isLoading = false
+        }
     }
 }
 

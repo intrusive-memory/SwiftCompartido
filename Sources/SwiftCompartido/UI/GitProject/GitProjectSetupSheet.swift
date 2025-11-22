@@ -148,9 +148,7 @@ public struct GitProjectSetupSheet: View {
             TextField("Remote URL (Optional)", text: $remoteURL, prompt: Text("https://github.com/user/repo.git"))
                 .textContentType(.URL)
                 .autocorrectionDisabled()
-                #if os(iOS)
                 .textInputAutocapitalization(.never)
-                #endif
 
             Text("Add a remote repository to push changes to")
                 .font(.caption)
@@ -163,9 +161,7 @@ public struct GitProjectSetupSheet: View {
             TextField("Remote URL", text: $remoteURL, prompt: Text("https://github.com/user/repo.git"))
                 .textContentType(.URL)
                 .autocorrectionDisabled()
-                #if os(iOS)
                 .textInputAutocapitalization(.never)
-                #endif
 
             TextField("Local Path", text: $localPath, prompt: Text("/path/to/clone"))
                 .textContentType(.none)
@@ -301,6 +297,10 @@ public struct GitProjectSetupSheet: View {
 
         progressMessage = "Repository initialized"
         progress = 0.6
+        #else
+        // On iOS, we'd need to use libgit2 directly
+        throw GitProjectService.GitError.commitFailed(reason: "Git initialization not supported on iOS")
+        #endif
 
         // Create repository model
         let repository = GitRepositoryModel(
@@ -309,7 +309,8 @@ public struct GitProjectSetupSheet: View {
         )
         repository.currentBranch = branchName
 
-        // Add remote if provided
+        // Add remote if provided (macOS only)
+        #if os(macOS)
         if !remoteURL.isEmpty {
             let remoteProcess = Process()
             remoteProcess.currentDirectoryURL = localURL
@@ -318,12 +319,9 @@ public struct GitProjectSetupSheet: View {
             try remoteProcess.run()
             remoteProcess.waitUntilExit()
         }
+        #endif
 
         return repository
-        #else
-        // On iOS, we'd need to use libgit2 directly
-        throw GitProjectService.GitError.commitFailed(reason: "Git initialization not supported on iOS")
-        #endif
     }
 
     private func cloneRepository(service: GitProjectService) async throws -> GitRepositoryModel {
