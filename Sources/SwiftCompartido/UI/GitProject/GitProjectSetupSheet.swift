@@ -148,7 +148,9 @@ public struct GitProjectSetupSheet: View {
             TextField("Remote URL (Optional)", text: $remoteURL, prompt: Text("https://github.com/user/repo.git"))
                 .textContentType(.URL)
                 .autocorrectionDisabled()
+                #if os(iOS)
                 .textInputAutocapitalization(.never)
+                #endif
 
             Text("Add a remote repository to push changes to")
                 .font(.caption)
@@ -161,7 +163,9 @@ public struct GitProjectSetupSheet: View {
             TextField("Remote URL", text: $remoteURL, prompt: Text("https://github.com/user/repo.git"))
                 .textContentType(.URL)
                 .autocorrectionDisabled()
+                #if os(iOS)
                 .textInputAutocapitalization(.never)
+                #endif
 
             TextField("Local Path", text: $localPath, prompt: Text("/path/to/clone"))
                 .textContentType(.none)
