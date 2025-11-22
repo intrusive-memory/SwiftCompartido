@@ -35,7 +35,9 @@ struct GuionDocumentConfiguration: FileDocument {
                 self.document = GuionDocumentModel()
                 document.rawContent = content
                 document.filename = configuration.file.filename
+                #if DEBUG
                 print("📦 TextPack bundle loaded: \(configuration.file.filename ?? "unknown")")
+                #endif
                 return
             }
         }
@@ -45,23 +47,31 @@ struct GuionDocumentConfiguration: FileDocument {
 
         // Store the file wrapper for later processing
         let content = Self.extractContent(from: configuration.file, filename: configuration.file.filename)
+        #if DEBUG
         print("📥 Document loaded: \(configuration.file.filename ?? "unknown"), content length: \(content?.count ?? 0)")
+        #endif
         document.rawContent = content
         document.filename = configuration.file.filename
+        #if DEBUG
         print("📄 GuionDocument initialized with rawContent: \(document.rawContent?.count ?? 0) chars")
+        #endif
     }
 
     /// Extract content from FileWrapper, handling both regular files and packages
     private static func extractContent(from fileWrapper: FileWrapper, filename: String?) -> String? {
         guard let data = fileWrapper.regularFileContents else {
+            #if DEBUG
             print("⚠️ No regular file contents")
+            #endif
             return nil
         }
 
         // Check if it's a Highland file (ZIP archive)
         let ext = (filename as NSString?)?.pathExtension.lowercased()
         if ext == "highland" {
+            #if DEBUG
             print("📦 Highland ZIP file detected, extracting...")
+            #endif
             return extractHighlandContent(from: data)
         }
 
@@ -70,7 +80,9 @@ struct GuionDocumentConfiguration: FileDocument {
             return content
         }
 
+        #if DEBUG
         print("⚠️ Could not decode file as UTF-8")
+        #endif
         return nil
     }
 
@@ -92,18 +104,24 @@ struct GuionDocumentConfiguration: FileDocument {
             // Find .textbundle directory
             let contents = try fileManager.contentsOfDirectory(at: extractDir, includingPropertiesForKeys: nil)
             guard let textBundleURL = contents.first(where: { $0.pathExtension == "textbundle" }) else {
+                #if DEBUG
                 print("⚠️ No .textbundle found in Highland file")
+                #endif
                 return nil
             }
 
+            #if DEBUG
             print("✅ Found textbundle: \(textBundleURL.lastPathComponent)")
+            #endif
 
             // Look for content files in priority order
             let textBundleContents = try fileManager.contentsOfDirectory(at: textBundleURL, includingPropertiesForKeys: nil)
 
             // 1. Try text.md (Highland 2 standard)
             if let textMdURL = textBundleContents.first(where: { $0.lastPathComponent == "text.md" }) {
+                #if DEBUG
                 print("✅ Found text.md")
+                #endif
                 let content = try String(contentsOf: textMdURL, encoding: .utf8)
                 try? fileManager.removeItem(at: tempDir)
                 return content
@@ -111,7 +129,9 @@ struct GuionDocumentConfiguration: FileDocument {
 
             // 2. Try any .fountain file
             if let fountainURL = textBundleContents.first(where: { $0.pathExtension.lowercased() == "fountain" }) {
+                #if DEBUG
                 print("✅ Found fountain file: \(fountainURL.lastPathComponent)")
+                #endif
                 let content = try String(contentsOf: fountainURL, encoding: .utf8)
                 try? fileManager.removeItem(at: tempDir)
                 return content
@@ -119,18 +139,24 @@ struct GuionDocumentConfiguration: FileDocument {
 
             // 3. Try any .md file
             if let mdURL = textBundleContents.first(where: { $0.pathExtension.lowercased() == "md" }) {
+                #if DEBUG
                 print("✅ Found markdown file: \(mdURL.lastPathComponent)")
+                #endif
                 let content = try String(contentsOf: mdURL, encoding: .utf8)
                 try? fileManager.removeItem(at: tempDir)
                 return content
             }
 
+            #if DEBUG
             print("⚠️ No content files found in textbundle")
+            #endif
             try? fileManager.removeItem(at: tempDir)
             return nil
 
         } catch {
+            #if DEBUG
             print("❌ Error extracting Highland content: \(error)")
+            #endif
             try? fileManager.removeItem(at: tempDir)
             return nil
         }

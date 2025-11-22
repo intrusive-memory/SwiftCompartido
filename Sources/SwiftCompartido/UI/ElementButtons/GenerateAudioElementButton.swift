@@ -62,7 +62,7 @@ public struct GenerateAudioElementButton: View {
         }
         .buttonStyle(.plain)
         .disabled(isGenerating || !canGenerateAudio)
-        .help(canGenerateAudio ? "Generate audio for this element" : "Audio generation not available for \(element.elementType)")
+        .help(canGenerateAudio ? "Generate audio for this element" : "Audio generation not available for \(String(describing: element.elementType))")
         .alert("Error Generating Audio", isPresented: .constant(errorMessage != nil)) {
             Button("OK") { errorMessage = nil }
         } message: {

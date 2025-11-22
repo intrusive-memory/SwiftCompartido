@@ -211,7 +211,9 @@ public struct GeneratedContentListView: View {
                 // AudioPlayerManager accepts TypedDataStorage for audio playback
                 try audioPlayer.play(record: item, storageArea: storageArea)
             } catch {
+                #if DEBUG
                 print("Failed to play audio: \(error.localizedDescription)")
+                #endif
             }
         } else {
             // Stop any current audio playback for non-audio items

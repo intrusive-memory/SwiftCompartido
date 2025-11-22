@@ -171,6 +171,22 @@ public enum ElementType: Equatable, Sendable, Hashable {
     ///
     /// Forces a page break at this point, denoted with `===` in Fountain.
     case pageBreak
+
+    /// Unordered list item (markdown).
+    ///
+    /// A bullet point list item from markdown documents.
+    /// The level indicates nesting depth (0 = top level, 1 = nested once, etc.)
+    ///
+    /// - Parameter level: The nesting depth (0-based)
+    case unorderedListItem(level: Int)
+
+    /// Ordered list item (markdown).
+    ///
+    /// A numbered list item from markdown documents.
+    /// The level indicates nesting depth (0 = top level, 1 = nested once, etc.)
+    ///
+    /// - Parameter level: The nesting depth (0-based)
+    case orderedListItem(level: Int)
 }
 
 // MARK: - String Conversion
@@ -206,6 +222,10 @@ extension ElementType: CustomStringConvertible {
             return "Lyrics"
         case .pageBreak:
             return "Page Break"
+        case .unorderedListItem:
+            return "Unordered List Item"
+        case .orderedListItem:
+            return "Ordered List Item"
         }
     }
 }
@@ -255,6 +275,10 @@ extension ElementType {
             self = .lyrics
         case "Page Break":
             self = .pageBreak
+        case "Unordered List Item":
+            self = .unorderedListItem(level: 0)
+        case "Ordered List Item":
+            self = .orderedListItem(level: 0)
         default:
             // Default to action for unknown types
             self = .action
@@ -265,10 +289,10 @@ extension ElementType {
 // MARK: - Properties
 
 extension ElementType {
-    /// The hierarchical level for section headings.
+    /// The hierarchical level for section headings and list items.
     ///
-    /// Returns the level value for `.sectionHeading(level:)` cases,
-    /// or 0 for all other element types.
+    /// Returns the level value for `.sectionHeading(level:)`, `.unorderedListItem(level:)`,
+    /// and `.orderedListItem(level:)` cases, or 0 for all other element types.
     ///
     /// ## Example
     ///
@@ -276,14 +300,23 @@ extension ElementType {
     /// let act = ElementType.sectionHeading(level: 2)
     /// print(act.level) // 2
     ///
+    /// let listItem = ElementType.unorderedListItem(level: 1)
+    /// print(listItem.level) // 1
+    ///
     /// let dialogue = ElementType.dialogue
     /// print(dialogue.level) // 0
     /// ```
     public var level: Int {
-        if case .sectionHeading(let level) = self {
+        switch self {
+        case .sectionHeading(let level):
             return level
+        case .unorderedListItem(let level):
+            return level
+        case .orderedListItem(let level):
+            return level
+        default:
+            return 0
         }
-        return 0
     }
 
     /// Whether this element type is a section heading.
@@ -322,10 +355,17 @@ extension ElementType: Codable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let typeString = try container.decode(String.self, forKey: .type)
 
-        if typeString == "Section Heading" {
+        switch typeString {
+        case "Section Heading":
             let level = try container.decode(Int.self, forKey: .level)
             self = .sectionHeading(level: level)
-        } else {
+        case "Unordered List Item":
+            let level = try container.decode(Int.self, forKey: .level)
+            self = .unorderedListItem(level: level)
+        case "Ordered List Item":
+            let level = try container.decode(Int.self, forKey: .level)
+            self = .orderedListItem(level: level)
+        default:
             self = ElementType(string: typeString)
         }
     }
@@ -334,8 +374,13 @@ extension ElementType: Codable {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(description, forKey: .type)
 
-        if case .sectionHeading(let level) = self {
+        switch self {
+        case .sectionHeading(let level),
+             .unorderedListItem(let level),
+             .orderedListItem(let level):
             try container.encode(level, forKey: .level)
+        default:
+            break
         }
     }
 }

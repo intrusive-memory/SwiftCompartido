@@ -88,7 +88,7 @@ public struct ElementProgressTrackerExamples: View {
         let tracker = element.progressTracker(using: progressState)
 
         do {
-            try await tracker.withProgress(
+            _ = try await tracker.withProgress(
                 startMessage: "Processing element...",
                 completeMessage: "Processing complete!"
             ) { updateProgress in
@@ -107,7 +107,9 @@ public struct ElementProgressTrackerExamples: View {
             }
         } catch {
             // Errors are automatically reported via tracker.setError()
+            #if DEBUG
             print("Operation failed: \(error)")
+            #endif
         }
     }
 
@@ -126,7 +128,9 @@ public struct ElementProgressTrackerExamples: View {
 
         do {
             try await tracker.withSteps(steps) { index, step in
+                #if DEBUG
                 print("Executing step \(index): \(step)")
+                #endif
                 try await Task.sleep(for: .milliseconds(400))
 
                 // Simulate occasional error
@@ -137,7 +141,9 @@ public struct ElementProgressTrackerExamples: View {
                 }
             }
         } catch {
+            #if DEBUG
             print("Step failed: \(error)")
+            #endif
         }
     }
 }
@@ -191,10 +197,14 @@ public struct AudioGenerationWithTrackerExample: View {
                 return audio
             }
 
+            #if DEBUG
             print("Generated \(audioData.count) bytes of audio")
+            #endif
 
         } catch {
+            #if DEBUG
             print("Audio generation failed: \(error)")
+            #endif
             // Error is automatically shown in progress bar
         }
     }

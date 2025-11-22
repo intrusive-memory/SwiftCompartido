@@ -117,25 +117,29 @@ struct PandocIntegrationTests {
 
         let (elements, _) = try PandocDocumentParser.parse(url: fixtureURL)
 
-        // Find list items (markdown parser converts to bullets • or numbers)
-        let listItems = elements.filter { element in
-            element.elementType == .action && (
-                element.elementText.hasPrefix("•") ||  // Bulleted lists
-                element.elementText.hasPrefix("1.") ||  // Numbered lists
-                element.elementText.hasPrefix("2.") ||
-                element.elementText.hasPrefix("3.")
-            )
+        // Find unordered list items
+        let unorderedListItems = elements.filter { element in
+            if case .unorderedListItem = element.elementType {
+                return true
+            }
+            return false
         }
 
-        #expect(listItems.count >= 3, "Should have at least 3 list items")
+        // Find ordered list items
+        let orderedListItems = elements.filter { element in
+            if case .orderedListItem = element.elementType {
+                return true
+            }
+            return false
+        }
 
-        // Verify bulleted list (converted to bullet •)
-        let bulletItem = listItems.first { $0.elementText.hasPrefix("•") }
-        #expect(bulletItem != nil, "Should have bulleted list item")
+        // Should have some list items (bulleted or numbered)
+        let totalListItems = unorderedListItems.count + orderedListItems.count
+        #expect(totalListItems >= 3, "Should have at least 3 list items")
 
-        // Verify numbered list
-        let numberedItem = listItems.first { $0.elementText.hasPrefix("1.") }
-        #expect(numberedItem != nil, "Should have numbered list item")
+        // Verify we have both unordered and ordered lists
+        #expect(unorderedListItems.count >= 1, "Should have at least one unordered list item")
+        #expect(orderedListItems.count >= 1, "Should have at least one ordered list item")
         #endif
     }
 

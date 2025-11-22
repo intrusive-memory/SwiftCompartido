@@ -168,6 +168,9 @@ struct GuionElementRow<TrailingContent: View>: View {
             case .sectionHeading:
                 MarkdownSectionHeadingView(element: element)
                     .debugBorder()
+            case .unorderedListItem, .orderedListItem:
+                MarkdownListItemView(element: element, document: element.document)
+                    .debugBorder()
             // For other types in markdown, fall through to standard views
             default:
                 standardElementView
@@ -216,6 +219,11 @@ struct GuionElementRow<TrailingContent: View>: View {
                 .debugBorder()
         case .pageBreak:
             PageBreakView()
+                .debugBorder()
+        case .unorderedListItem, .orderedListItem:
+            // List items in non-markdown files (shouldn't normally happen)
+            // Fall back to action view
+            ActionView(element: element)
                 .debugBorder()
         }
     }
@@ -456,7 +464,9 @@ struct GuionElementRow<TrailingContent: View>: View {
                     Text("Tap Activated!")
                         .font(.caption.bold())
                     Button("Generate Audio") {
+                        #if DEBUG
                         print("Generate tapped")
+                        #endif
                     }
                     .buttonStyle(.borderedProminent)
                     .controlSize(.small)
