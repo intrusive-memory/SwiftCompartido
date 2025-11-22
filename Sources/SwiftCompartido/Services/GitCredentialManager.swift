@@ -360,8 +360,13 @@ public final class GitCredentialManager {
             return (scheme: "ssh", host: String(host))
         }
 
-        // Handle standard URLs
-        guard let url = URL(string: urlString) else { return nil }
-        return (scheme: url.scheme ?? "https", host: url.host)
+        // Handle standard URLs - must have valid scheme
+        guard let url = URL(string: urlString),
+              let scheme = url.scheme,
+              scheme.lowercased() == "https" || scheme.lowercased() == "http" || scheme.lowercased() == "ssh" else {
+            return nil
+        }
+
+        return (scheme: scheme, host: url.host)
     }
 }
