@@ -148,8 +148,9 @@ final class PerformanceTests: XCTestCase {
 
         measure(metrics: metrics, options: options) {
             let expectation = self.expectation(description: "Parse medium fountain")
-            Task {
-                _ = try await GuionParsedElementCollection(string: mediumScript)
+            let scriptCopy = mediumScript
+            Task { @Sendable in
+                _ = try await GuionParsedElementCollection(string: scriptCopy)
                 expectation.fulfill()
             }
             wait(for: [expectation], timeout: 10.0)
@@ -203,6 +204,7 @@ final class PerformanceTests: XCTestCase {
 
     // MARK: - SwiftData Conversion Performance
 
+    @MainActor
     func testSwiftDataModelConversionPerformance() throws {
         // Create a screenplay with multiple elements
         let script = """
@@ -257,6 +259,7 @@ final class PerformanceTests: XCTestCase {
 
     // MARK: - Element Ordering Performance
 
+    @MainActor
     func testElementOrderingPerformance() throws {
         let config = ModelConfiguration(isStoredInMemoryOnly: true)
         let container = try! ModelContainer(
@@ -266,8 +269,7 @@ final class PerformanceTests: XCTestCase {
 
         // Create a document with 1000 elements
         let document = GuionDocumentModel(
-            filename: "ordering_test.fountain",
-            originalFormat: .fountain
+            filename: "ordering_test.fountain"
         )
 
         for i in 0..<1000 {
@@ -295,6 +297,7 @@ final class PerformanceTests: XCTestCase {
         }
     }
 
+    @MainActor
     func testElementFilteringPerformance() throws {
         let config = ModelConfiguration(isStoredInMemoryOnly: true)
         let container = try! ModelContainer(
@@ -304,13 +307,12 @@ final class PerformanceTests: XCTestCase {
 
         // Create a document with mixed element types
         let document = GuionDocumentModel(
-            filename: "filtering_test.fountain",
-            originalFormat: .fountain
+            filename: "filtering_test.fountain"
         )
 
         let elementTypes: [ElementType] = [
             .sceneHeading, .action, .dialogue, .character,
-            .parenthetical, .transition, .section, .synopsis
+            .parenthetical, .transition, .sectionHeading(level: 1), .synopsis
         ]
 
         for i in 0..<500 {
@@ -346,8 +348,7 @@ final class PerformanceTests: XCTestCase {
         let testText = "This is a test of generated content storage performance."
         let textData = GeneratedTextData(
             text: testText,
-            model: "test-model",
-            provider: "test-provider"
+            model: "test-model"
         )
 
         let metrics: [XCTMetric] = [
@@ -378,6 +379,7 @@ final class PerformanceTests: XCTestCase {
         }
     }
 
+    @MainActor
     func testGeneratedContentRetrievalPerformance() throws {
         let config = ModelConfiguration(isStoredInMemoryOnly: true)
         let container = try! ModelContainer(
@@ -389,8 +391,7 @@ final class PerformanceTests: XCTestCase {
         for i in 0..<100 {
             let textData = GeneratedTextData(
                 text: "Content \(i)",
-                model: "model-\(i % 5)",
-                provider: "provider-\(i % 3)"
+                model: "model-\(i % 5)"
             )
             let record = TypedDataStorage(
                 id: UUID(),
@@ -419,12 +420,12 @@ final class PerformanceTests: XCTestCase {
             _ = try? container.mainContext.fetch(descriptor1)
 
             let descriptor2 = FetchDescriptor<TypedDataStorage>(
-                sortBy: [SortDescriptor(\.createdAt, order: .reverse)]
+                sortBy: [SortDescriptor(\TypedDataStorage.generatedAt, order: .reverse)]
             )
             _ = try? container.mainContext.fetch(descriptor2)
 
             let descriptor3 = FetchDescriptor<TypedDataStorage>(
-                predicate: #Predicate { $0.metadata.contentType == .text }
+                predicate: #Predicate { $0.mimeType.contains("text") }
             )
             _ = try? container.mainContext.fetch(descriptor3)
         }
@@ -438,23 +439,26 @@ final class PerformanceTests: XCTestCase {
         measure(metrics: [XCTClockMetric(), XCTMemoryMetric()]) {
             for i in 0..<1000 {
                 _ = TypedDataFileReference(
+                    requestID: UUID(),
                     fileName: "test-\(i).fountain",
-                    fileExtension: "fountain",
-                    mimeType: "text/plain",
                     fileSize: 1024,
-                    storageArea: .temporary(requestID: UUID())
+                    mimeType: "text/plain"
                 )
             }
         }
     }
 
     func testStorageAreaReferencePerformance() {
+        let testBundleURL = URL(fileURLWithPath: "/tmp/test.guion")
         measure(metrics: [XCTClockMetric()]) {
             for _ in 0..<1000 {
                 let requestID = UUID()
                 _ = StorageAreaReference.temporary(requestID: requestID)
-                _ = StorageAreaReference.persistent(subfolder: "test")
-                _ = StorageAreaReference.cache(subfolder: "test")
+                _ = StorageAreaReference.inBundle(
+                    requestID: requestID,
+                    bundleURL: testBundleURL,
+                    bundleIdentifier: "test-bundle"
+                )
             }
         }
     }
@@ -520,8 +524,9 @@ final class PerformanceTests: XCTestCase {
 
         measure(metrics: [XCTMemoryMetric()]) {
             let expectation = self.expectation(description: "Parse large document")
-            Task {
-                _ = try await GuionParsedElementCollection(string: largeScript)
+            let scriptCopy = largeScript
+            Task { @Sendable in
+                _ = try await GuionParsedElementCollection(string: scriptCopy)
                 expectation.fulfill()
             }
             wait(for: [expectation], timeout: 30.0)
@@ -539,8 +544,7 @@ final class PerformanceTests: XCTestCase {
             // Create 1000 documents with elements
             for docIndex in 0..<100 {
                 let document = GuionDocumentModel(
-                    filename: "doc_\(docIndex).fountain",
-                    originalFormat: .fountain
+                    filename: "doc_\(docIndex).fountain"
                 )
 
                 for elemIndex in 0..<100 {
@@ -566,6 +570,7 @@ final class PerformanceTests: XCTestCase {
 
     // MARK: - Baseline Recording & Comparison
 
+    @MainActor
     func testRecordPerformanceBaseline() throws {
         print("""
 
@@ -630,7 +635,7 @@ final class PerformanceTests: XCTestCase {
         wait(for: [conversionExpectation], timeout: 10.0)
 
         // Measure other operations
-        let document = GuionDocumentModel(filename: "test.fountain", originalFormat: .fountain)
+        let document = GuionDocumentModel(filename: "test.fountain")
         for i in 0..<100 {
             let element = GuionElementModel(
                 elementText: "Element \(i)",
@@ -648,15 +653,14 @@ final class PerformanceTests: XCTestCase {
 
         let fileRefStart = Date()
         _ = TypedDataFileReference(
+            requestID: UUID(),
             fileName: "test.mp3",
-            fileExtension: "mp3",
-            mimeType: "audio/mpeg",
             fileSize: 1024,
-            storageArea: .temporary(requestID: UUID())
+            mimeType: "audio/mpeg"
         )
         let fileRefTime = Date().timeIntervalSince(fileRefStart)
 
-        let textData = GeneratedTextData(text: "Test", model: "test", provider: "test")
+        let textData = GeneratedTextData(text: "Test", model: "test")
         let storageStart = Date()
         let record = TypedDataStorage(
             id: UUID(),
