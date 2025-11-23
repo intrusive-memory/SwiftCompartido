@@ -203,6 +203,7 @@ public class FountainParser: @unchecked Sendable {
         var isCommentBlock = false
         var isInsideDialogueBlock = false
         var commentText = ""
+        var lastCharacterIndex: Int? = nil  // Cache last character index for O(1) dual dialogue detection
 
         for line in lines {
             index += 1
@@ -441,18 +442,13 @@ public class FountainParser: @unchecked Sendable {
                             element.isDualDialogue = true
                             element.elementText = element.elementText.replacingOccurrences(of: "\\s*\\^\\s*$", with: "", options: .regularExpression)
 
-                            // Mark previous character elements as dual dialogue
-                            var foundPreviousCharacter = false
-                            var idx = elements.count - 1
-                            while idx >= 0 && !foundPreviousCharacter {
-                                if elements[idx].elementType == .character {
-                                    elements[idx].isDualDialogue = true
-                                    foundPreviousCharacter = true
-                                }
-                                idx -= 1
+                            // Mark previous character element as dual dialogue using cached index (O(1))
+                            if let lastIdx = lastCharacterIndex {
+                                elements[lastIdx].isDualDialogue = true
                             }
                         }
 
+                        lastCharacterIndex = elements.count  // Cache this character's index
                         elements.append(element)
                         isInsideDialogueBlock = true
                         continue
@@ -531,6 +527,9 @@ public class FountainParser: @unchecked Sendable {
         let totalLines = processedContents.components(separatedBy: .newlines).count
         progress?.setTotalUnitCount(Int64(totalLines))
 
+        // Calculate progress update interval (report every 1% or every line if < 100 lines)
+        let titlePageUpdateInterval = max(1, topLines.count / 100)
+
         for (lineIndex, line) in topLines.enumerated() {
             // Check for cancellation
             try Task.checkCancellation()
@@ -571,8 +570,8 @@ public class FountainParser: @unchecked Sendable {
                 openValues.append(line.trimmingCharacters(in: .whitespaces))
             }
 
-            // Report progress every 100 lines for title page
-            if lineIndex % 100 == 0 {
+            // Report progress every 1% (or every line if < 100 lines)
+            if lineIndex % titlePageUpdateInterval == 0 {
                 progress?.update(
                     completedUnits: Int64(lineIndex),
                     description: "Parsing title page..."
@@ -605,13 +604,17 @@ public class FountainParser: @unchecked Sendable {
         var isCommentBlock = false
         var isInsideDialogueBlock = false
         var commentText = ""
+        var lastCharacterIndex: Int? = nil  // Cache last character index for O(1) dual dialogue detection
 
         let titlePageLineCount = topLines.count
+        // Calculate progress update interval for body (report every 1% or every line if < 100 lines)
+        let bodyUpdateInterval = max(1, lines.count / 100)
+
         for line in lines {
             index += 1
 
-            // Check for cancellation every 100 lines
-            if index % 100 == 0 {
+            // Check for cancellation and report progress every 1%
+            if index % bodyUpdateInterval == 0 {
                 try Task.checkCancellation()
                 progress?.update(
                     completedUnits: Int64(titlePageLineCount + index),
@@ -853,18 +856,13 @@ public class FountainParser: @unchecked Sendable {
                             element.isDualDialogue = true
                             element.elementText = element.elementText.replacingOccurrences(of: "\\s*\\^\\s*$", with: "", options: .regularExpression)
 
-                            // Mark previous character elements as dual dialogue
-                            var foundPreviousCharacter = false
-                            var idx = elements.count - 1
-                            while idx >= 0 && !foundPreviousCharacter {
-                                if elements[idx].elementType == .character {
-                                    elements[idx].isDualDialogue = true
-                                    foundPreviousCharacter = true
-                                }
-                                idx -= 1
+                            // Mark previous character element as dual dialogue using cached index (O(1))
+                            if let lastIdx = lastCharacterIndex {
+                                elements[lastIdx].isDualDialogue = true
                             }
                         }
 
+                        lastCharacterIndex = elements.count  // Cache this character's index
                         elements.append(element)
                         isInsideDialogueBlock = true
                         continue
