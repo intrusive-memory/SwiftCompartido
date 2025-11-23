@@ -35,11 +35,11 @@ public class FountainWriter {
         var document = ""
 
         if !titlePageContent.isEmpty {
-            document += "\(titlePageContent)\n"
+            document.append("\(titlePageContent)\n")
         }
 
         if !documentContent.isEmpty {
-            document += documentContent
+            document.append(documentContent)
         }
 
         return document.trimmingCharacters(in: .newlines)
@@ -86,7 +86,7 @@ public class FountainWriter {
                 let text = element.elementText.hasPrefix(" ")
                     ? String(element.elementText.dropFirst())
                     : element.elementText
-                textToWrite = sectionDepthMarkup + " " + text
+                textToWrite = "\(sectionDepthMarkup) \(text)"
             case .transition:
                 if !matches(string: element.elementText, pattern: FountainRegexes.transitionPattern) {
                     textToWrite = "> \(element.elementText)"
@@ -117,9 +117,9 @@ public class FountainWriter {
             // Character elements need a blank line before them to be recognized by the parser
             // Dialogue, parenthetical, and comments don't need blank lines before them
             if element.elementType == .dialogue || element.elementType == .parenthetical || element.elementType == .comment {
-                fountainContent += "\(textToWrite)\n"
+                fountainContent.append("\(textToWrite)\n")
             } else {
-                fountainContent += "\n\(textToWrite)\n"
+                fountainContent.append("\n\(textToWrite)\n")
             }
         }
 
@@ -139,11 +139,11 @@ public class FountainWriter {
                     if key == "authors" {
                         keyString = "Author"
                     }
-                    titlePageContent += "\(keyString): \(values[0])\n"
+                    titlePageContent.append("\(keyString): \(values[0])\n")
                 } else {
-                    titlePageContent += "\(keyString):\n"
+                    titlePageContent.append("\(keyString):\n")
                     for value in values {
-                        titlePageContent += "\t\(value)\n"
+                        titlePageContent.append("\t\(value)\n")
                     }
                 }
             }

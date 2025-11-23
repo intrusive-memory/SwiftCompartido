@@ -264,11 +264,11 @@ extension GuionElement: CustomStringConvertible {
         var typeOutput = elementType.description
 
         if isCentered {
-            typeOutput += " (centered)"
+            typeOutput.append(" (centered)")
         } else if isDualDialogue {
-            typeOutput += " (dual dialogue)"
+            typeOutput.append(" (dual dialogue)")
         } else if elementType.level > 0 {
-            typeOutput += " (\(elementType.level))"
+            typeOutput.append(" (\(elementType.level))")
         }
 
         return "\(typeOutput): \(elementText)"
@@ -281,11 +281,11 @@ extension GuionElementProtocol {
         var typeOutput = elementType.description
 
         if isCentered {
-            typeOutput += " (centered)"
+            typeOutput.append(" (centered)")
         } else if isDualDialogue {
-            typeOutput += " (dual dialogue)"
+            typeOutput.append(" (dual dialogue)")
         } else if elementType.level > 0 {
-            typeOutput += " (\(elementType.level))"
+            typeOutput.append(" (\(elementType.level))")
         }
 
         return "\(typeOutput): \(elementText)"

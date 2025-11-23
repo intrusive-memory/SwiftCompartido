@@ -1,17 +1,17 @@
 name: Performance Tests
 
 on:
-  # Disabled for PR/push - run manually or on schedule only
+  # Disabled temporarily - performance tests need to be fixed
   # pull_request:
-  #   branches: [main]
+  #   branches: [main, development]
   # push:
-  #   branches: [main]
-  release:
-    types: [published, created]
+  #   branches: [main, development]
+  # release:
+  #   types: [published, created]
   workflow_dispatch:
-  schedule:
-    # Run performance tests weekly on Sundays at 00:00 UTC
-    - cron: '0 0 * * 0'
+  # schedule:
+  #   # Run performance tests weekly on Sundays at 00:00 UTC
+  #   - cron: '0 0 * * 0'
 
 jobs:
   performance:
@@ -31,6 +31,98 @@ jobs:
 
       - name: Show Swift version
         run: swift --version
+
+      - name: Find latest release tag
+        id: latest_release
+        run: |
+          # Get the latest release tag
+          LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+
+          if [ -z "$LATEST_TAG" ]; then
+            echo "No release tags found - using main branch as baseline"
+            echo "baseline_ref=main" >> $GITHUB_OUTPUT
+            echo "baseline_label=main branch" >> $GITHUB_OUTPUT
+          else
+            echo "Found latest release: $LATEST_TAG"
+            echo "baseline_ref=$LATEST_TAG" >> $GITHUB_OUTPUT
+            echo "baseline_label=$LATEST_TAG" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Run baseline performance tests
+        if: github.event_name == 'pull_request'
+        id: baseline_tests
+        run: |
+          echo "Running baseline performance tests on ${{ steps.latest_release.outputs.baseline_label }}..."
+
+          # Save current commit SHA (not branch, since we might be in detached HEAD)
+          CURRENT_SHA=$(git rev-parse HEAD)
+
+          # Checkout baseline ref
+          git checkout ${{ steps.latest_release.outputs.baseline_ref }}
+
+          # Clean build artifacts to ensure clean baseline build
+          rm -rf ~/Library/Developer/Xcode/DerivedData/SwiftCompartido-* || true
+
+          # Create baseline output directory
+          mkdir -p performance-results/baseline
+
+          # Build and test baseline
+          set +e
+          xcodebuild test \
+            -scheme SwiftCompartido \
+            -sdk iphonesimulator \
+            -destination 'platform=iOS Simulator,name=iPhone 17 Pro' \
+            -configuration Release \
+            CODE_SIGNING_ALLOWED=NO \
+            > performance-results/baseline/output.txt 2>&1
+
+          # Extract baseline metrics
+          grep -A 10 "📊 PERFORMANCE" performance-results/baseline/output.txt > performance-results/baseline/metrics.txt || true
+
+          # Convert to JSON
+          python3 - <<'PYTHON_SCRIPT' > performance-results/baseline.json
+          import json
+          import re
+
+          metrics = {}
+
+          try:
+              with open('performance-results/baseline/metrics.txt', 'r') as f:
+                  for line in f:
+                      match = re.search(r'([^:]+):\s*(\d+\.\d+)s', line)
+                      if match:
+                          name = match.group(1).strip()
+                          value = float(match.group(2))
+                          metrics[name] = {
+                              'name': name,
+                              'unit': 'seconds',
+                              'value': value
+                          }
+          except FileNotFoundError:
+              pass
+
+          benchmarks = [
+              {
+                  'name': v['name'],
+                  'unit': v['unit'],
+                  'value': v['value']
+              }
+              for v in metrics.values()
+          ]
+
+          print(json.dumps(benchmarks, indent=2))
+          PYTHON_SCRIPT
+
+          echo "=== Baseline metrics ==="
+          cat performance-results/baseline.json
+
+          # Return to PR commit SHA
+          git checkout $CURRENT_SHA
+
+          # Clean build artifacts again to ensure clean PR build
+          rm -rf ~/Library/Developer/Xcode/DerivedData/SwiftCompartido-* || true
+
+          exit 0
 
       - name: Build in Release mode for iOS Simulator
         run: |
@@ -155,20 +247,142 @@ jobs:
           fail-on-alert: false
           comment-on-alert: false
 
-      - name: Comment benchmark result on PR
-        uses: benchmark-action/github-action-benchmark@v1
+      - name: Format performance results for PR comment
         if: github.event_name == 'pull_request'
+        id: format_results
+        run: |
+          echo "Formatting performance results for PR comment..."
+
+          # Compare PR results with baseline and create markdown comment
+          python3 - > performance-comment.md <<'PYTHON_SCRIPT'
+          import json
+          import os
+
+          # Load PR results
+          pr_results = {}
+          try:
+              with open('performance-results/benchmarks.json', 'r') as f:
+                  pr_data = json.load(f)
+                  pr_results = {item['name']: item['value'] for item in pr_data}
+          except (FileNotFoundError, json.JSONDecodeError):
+              pr_results = {}
+
+          # Load baseline results
+          baseline_results = {}
+          baseline_label = "${{ steps.latest_release.outputs.baseline_label }}"
+          try:
+              with open('performance-results/baseline.json', 'r') as f:
+                  baseline_data = json.load(f)
+                  baseline_results = {item['name']: item['value'] for item in baseline_data}
+          except (FileNotFoundError, json.JSONDecodeError):
+              baseline_label = None
+
+          # Header
+          print("## 📊 Performance Test Results")
+          print()
+          print("**SwiftCompartido** performance comparison:")
+          print()
+
+          if not pr_results:
+              print("⚠️ No performance metrics were captured from this PR.")
+              print()
+              print("---")
+              print("*Performance tests are informational only and do not block PRs.*")
+              print()
+              print("<sub>🤖 This comment updates automatically on new commits</sub>")
+          elif not baseline_results:
+              # No baseline - just show PR results
+              print(f"**Baseline**: No release found - showing PR results only")
+              print()
+              print("| Metric | This PR |")
+              print("|--------|---------|")
+              for name, value in sorted(pr_results.items()):
+                  print(f"| {name} | {value:.4f}s |")
+              print()
+              print("*Baseline comparison will be available after first release.*")
+              print()
+              print("---")
+              print("*Performance tests are informational only and do not block PRs.*")
+              print()
+              print("<sub>🤖 This comment updates automatically on new commits</sub>")
+          else:
+              # Compare results
+              improvements = 0
+              regressions = 0
+              unchanged = 0
+
+              comparisons = []
+
+              for name in sorted(set(pr_results.keys()) | set(baseline_results.keys())):
+                  pr_value = pr_results.get(name)
+                  baseline_value = baseline_results.get(name)
+
+                  if pr_value is None:
+                      comparisons.append((name, None, baseline_value, "removed", 0))
+                  elif baseline_value is None:
+                      comparisons.append((name, pr_value, None, "new", 0))
+                  else:
+                      diff_pct = ((pr_value - baseline_value) / baseline_value) * 100
+
+                      # For time metrics, lower is better
+                      if abs(diff_pct) < 1:  # Less than 1% change
+                          status = "unchanged"
+                          unchanged += 1
+                      elif diff_pct < 0:  # PR is faster
+                          status = "improved"
+                          improvements += 1
+                      else:  # PR is slower
+                          status = "regressed"
+                          regressions += 1
+
+                      comparisons.append((name, pr_value, baseline_value, status, diff_pct))
+
+              # Overall verdict
+              if regressions == 0 and improvements > 0:
+                  verdict = f"✅ **Faster** - {improvements} metric(s) improved"
+              elif regressions > 0 and improvements == 0:
+                  verdict = f"⚠️ **Slower** - {regressions} metric(s) regressed"
+              elif regressions > 0 and improvements > 0:
+                  verdict = f"⚖️ **Mixed** - {improvements} improved, {regressions} regressed"
+              else:
+                  verdict = "➡️ **Unchanged** - No significant performance changes"
+
+              print(f"**Baseline**: {baseline_label}")
+              print()
+              print(verdict)
+              print()
+              print("| Metric | This PR | Baseline | Change | Status |")
+              print("|--------|---------|----------|--------|--------|")
+
+              for name, pr_val, baseline_val, status, diff_pct in comparisons:
+                  if status == "new":
+                      print(f"| {name} | {pr_val:.4f}s | - | - | 🆕 New |")
+                  elif status == "removed":
+                      print(f"| {name} | - | {baseline_val:.4f}s | - | ❌ Removed |")
+                  elif status == "unchanged":
+                      print(f"| {name} | {pr_val:.4f}s | {baseline_val:.4f}s | {diff_pct:+.1f}% | ➡️ No change |")
+                  elif status == "improved":
+                      print(f"| {name} | {pr_val:.4f}s | {baseline_val:.4f}s | {diff_pct:+.1f}% | ✅ Faster |")
+                  else:  # regressed
+                      print(f"| {name} | {pr_val:.4f}s | {baseline_val:.4f}s | {diff_pct:+.1f}% | ⚠️ Slower |")
+
+              print()
+              print("---")
+              print("*Performance tests are informational only and do not block PRs.*")
+              print()
+              print("<sub>🤖 This comment updates automatically on new commits</sub>")
+          PYTHON_SCRIPT
+
+          # Save for next step
+          cat performance-comment.md
+
+      - name: Post PR comment
+        if: github.event_name == 'pull_request'
+        uses: marocchino/sticky-pull-request-comment@v2
         with:
-          name: Swift Performance Benchmarks
-          tool: 'customSmallerIsBetter'
-          output-file-path: performance-results/benchmarks.json
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          auto-push: false
-          comment-always: true
-          # Don't fail on performance regression in PRs
-          fail-on-alert: false
-          alert-threshold: '120%'
-          summary-always: true
+          header: performance-results
+          path: performance-comment.md
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload performance results
         uses: actions/upload-artifact@v4
