@@ -1,13 +1,12 @@
 name: Performance Tests
 
 on:
-  # Disabled temporarily - performance tests need to be fixed
-  # pull_request:
-  #   branches: [main, development]
-  # push:
-  #   branches: [main, development]
-  # release:
-  #   types: [published, created]
+  pull_request:
+    branches: [main, development]
+  push:
+    branches: [main, development]
+  release:
+    types: [published, created]
   workflow_dispatch:
   # schedule:
   #   # Run performance tests weekly on Sundays at 00:00 UTC
@@ -54,14 +53,11 @@ jobs:
         run: |
           echo "Running baseline performance tests on ${{ steps.latest_release.outputs.baseline_label }}..."
 
-          # Save current commit SHA (not branch, since we might be in detached HEAD)
-          CURRENT_SHA=$(git rev-parse HEAD)
+          # Save current branch
+          CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
 
           # Checkout baseline ref
           git checkout ${{ steps.latest_release.outputs.baseline_ref }}
-
-          # Clean build artifacts to ensure clean baseline build
-          rm -rf ~/Library/Developer/Xcode/DerivedData/SwiftCompartido-* || true
 
           # Create baseline output directory
           mkdir -p performance-results/baseline
@@ -116,11 +112,8 @@ jobs:
           echo "=== Baseline metrics ==="
           cat performance-results/baseline.json
 
-          # Return to PR commit SHA
-          git checkout $CURRENT_SHA
-
-          # Clean build artifacts again to ensure clean PR build
-          rm -rf ~/Library/Developer/Xcode/DerivedData/SwiftCompartido-* || true
+          # Return to PR branch
+          git checkout $CURRENT_BRANCH
 
           exit 0
 
