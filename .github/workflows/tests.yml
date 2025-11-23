@@ -8,9 +8,36 @@ on:
   workflow_dispatch:
 
 jobs:
-  test:
-    name: iOS Tests
+  # Step 1: Code Quality (runs first)
+  code-quality:
+    name: Code Quality
     runs-on: macos-26
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check for TODOs in committed code
+        run: |
+          if git diff origin/main...HEAD | grep -E "^\+.*TODO|^\+.*FIXME"; then
+            echo "⚠️  Warning: New TODOs or FIXMEs detected"
+          fi
+
+      - name: Check file sizes
+        run: |
+          find Sources -type f -name "*.swift" -size +100k -exec echo "⚠️  Large file: {}" \;
+
+      - name: Check for print statements
+        run: |
+          if grep -r "print(" Sources/ --include="*.swift" | grep -v "// print"; then
+            echo "⚠️  Warning: print() statements found in source code"
+          fi
+
+  # Step 2: Unit Tests (runs after code quality passes)
+  unit-tests-ios:
+    name: iOS Unit Tests
+    runs-on: macos-26
+    needs: [code-quality]
 
     steps:
       - name: Checkout code
@@ -35,15 +62,13 @@ jobs:
             -quiet \
             CODE_SIGNING_ALLOWED=NO
 
-      - name: Run tests on iOS Simulator
+      - name: Run unit tests on iOS Simulator
         run: |
           set +e
 
-          TOTAL_CPUS=$(sysctl -n hw.ncpu)
-          echo "🖥️  Total CPUs: $TOTAL_CPUS"
-          echo "🧪 Running tests on iOS Simulator (long tests run on weekend schedule)"
+          echo "🧪 Running unit tests on iOS Simulator (integration and performance tests disabled)"
 
-          # Skip long-running test suites
+          # Skip long-running and integration test suites
           SKIP_TESTS=(
             "IntegrationTests"
             "ElementViewTests"
@@ -73,6 +98,7 @@ jobs:
             "OperationProgressTests"
             "HoverTimingTests"
             "HoverStateManagementTests"
+            "PerformanceTests"
           )
 
           SKIP_ARGS=""
@@ -80,14 +106,13 @@ jobs:
             SKIP_ARGS="$SKIP_ARGS -skip-testing:SwiftCompartidoTests/$test"
           done
 
-          # Run tests with xcodebuild for iOS Simulator
+          # Run tests with reduced parallelism
           xcodebuild test \
             -scheme SwiftCompartido \
             -sdk iphonesimulator \
             -destination 'platform=iOS Simulator,name=iPhone 17 Pro' \
             -enableCodeCoverage YES \
-            -parallel-testing-enabled YES \
-            -maximum-parallel-testing-workers $TOTAL_CPUS \
+            -parallel-testing-enabled NO \
             $SKIP_ARGS \
             CODE_SIGNING_ALLOWED=NO \
             > test_output.txt 2>&1
@@ -96,16 +121,17 @@ jobs:
 
           # Check if tests passed
           if grep -q "Test run with .* tests in .* suites passed\|TEST SUCCEEDED" test_output.txt; then
-            echo "✅ All tests passed"
+            echo "✅ All unit tests passed"
             exit 0
           else
-            echo "❌ Tests failed"
+            echo "❌ Unit tests failed"
             exit $TEST_EXIT_CODE
           fi
 
-  macos-test:
-    name: macOS Tests
+  unit-tests-macos:
+    name: macOS Unit Tests
     runs-on: macos-26
+    needs: [code-quality]
 
     steps:
       - name: Checkout code
@@ -129,15 +155,13 @@ jobs:
             -quiet \
             CODE_SIGNING_ALLOWED=NO
 
-      - name: Run tests on macOS
+      - name: Run unit tests on macOS
         run: |
           set +e
 
-          TOTAL_CPUS=$(sysctl -n hw.ncpu)
-          echo "🖥️  Total CPUs: $TOTAL_CPUS"
-          echo "🧪 Running tests on macOS (long tests run on weekend schedule)"
+          echo "🧪 Running unit tests on macOS (integration and performance tests disabled)"
 
-          # Skip long-running test suites (same as iOS)
+          # Skip long-running and integration test suites (same as iOS)
           SKIP_TESTS=(
             "IntegrationTests"
             "ElementViewTests"
@@ -167,6 +191,7 @@ jobs:
             "OperationProgressTests"
             "HoverTimingTests"
             "HoverStateManagementTests"
+            "PerformanceTests"
           )
 
           SKIP_ARGS=""
@@ -174,13 +199,12 @@ jobs:
             SKIP_ARGS="$SKIP_ARGS -skip-testing:SwiftCompartidoTests/$test"
           done
 
-          # Run tests with xcodebuild for macOS
+          # Run tests with reduced parallelism
           xcodebuild test \
             -scheme SwiftCompartido \
             -destination 'platform=macOS' \
             -enableCodeCoverage YES \
-            -parallel-testing-enabled YES \
-            -maximum-parallel-testing-workers $TOTAL_CPUS \
+            -parallel-testing-enabled NO \
             $SKIP_ARGS \
             CODE_SIGNING_ALLOWED=NO \
             > test_output_macos.txt 2>&1
@@ -189,33 +213,64 @@ jobs:
 
           # Check if tests passed
           if grep -q "Test run with .* tests in .* suites passed\|TEST SUCCEEDED" test_output_macos.txt; then
-            echo "✅ All tests passed"
+            echo "✅ All unit tests passed"
             exit 0
           else
-            echo "❌ Tests failed"
+            echo "❌ Unit tests failed"
             exit $TEST_EXIT_CODE
           fi
 
-  lint:
-    name: Code Quality
+  # Step 3: Performance Tests (runs after unit tests pass)
+  performance-tests:
+    name: Performance Tests
     runs-on: macos-26
+    needs: [unit-tests-ios, unit-tests-macos]
+    # Performance tests are informational only - don't block PRs
+    continue-on-error: true
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Check for TODOs in committed code
-        run: |
-          if git diff origin/main...HEAD | grep -E "^\+.*TODO|^\+.*FIXME"; then
-            echo "⚠️  Warning: New TODOs or FIXMEs detected"
-          fi
+      - name: Select Xcode
+        run: sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
 
-      - name: Check file sizes
-        run: |
-          find Sources -type f -name "*.swift" -size +100k -exec echo "⚠️  Large file: {}" \;
+      - name: Show Swift version
+        run: swift --version
 
-      - name: Check for print statements
+      - name: Install Pandoc
+        run: brew install pandoc
+
+      - name: Build for iOS Simulator
         run: |
-          if grep -r "print(" Sources/ --include="*.swift" | grep -v "// print"; then
-            echo "⚠️  Warning: print() statements found in source code"
-          fi
+          echo "🔨 Building for iOS Simulator (arm64)"
+          xcodebuild build \
+            -scheme SwiftCompartido \
+            -sdk iphonesimulator \
+            -destination 'platform=iOS Simulator,name=iPhone 17 Pro' \
+            -configuration Release \
+            -quiet \
+            CODE_SIGNING_ALLOWED=NO
+
+      - name: Run performance tests
+        run: |
+          echo "🧪 Running performance tests only"
+
+          set +e
+          xcodebuild test \
+            -scheme SwiftCompartido \
+            -sdk iphonesimulator \
+            -destination 'platform=iOS Simulator,name=iPhone 17 Pro' \
+            -configuration Release \
+            -only-testing:SwiftCompartidoTests/PerformanceTests \
+            CODE_SIGNING_ALLOWED=NO \
+            > performance_output.txt 2>&1
+          PERF_EXIT_CODE=$?
+
+          cat performance_output.txt
+
+          # Extract performance metrics
+          grep -A 10 "📊 PERFORMANCE" performance_output.txt || echo "No performance metrics found"
+
+          # Performance tests don't block - always exit 0
+          exit 0
