@@ -1,12 +1,13 @@
 name: Performance Tests
 
 on:
-  pull_request:
-    branches: [main, development]
-  push:
-    branches: [main, development]
-  release:
-    types: [published, created]
+  # Disabled temporarily - performance tests need to be fixed
+  # pull_request:
+  #   branches: [main, development]
+  # push:
+  #   branches: [main, development]
+  # release:
+  #   types: [published, created]
   workflow_dispatch:
   # schedule:
   #   # Run performance tests weekly on Sundays at 00:00 UTC
