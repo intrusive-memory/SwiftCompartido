@@ -268,7 +268,7 @@ private struct MarkdownToGuionConverter: MarkupWalker {
                 if !text.isEmpty {
                     let element = GuionElement(
                         type: .action,
-                        text: "> " + text
+                        text: "> \(text)"
                     )
                     elements.append(element)
                 }
@@ -287,7 +287,7 @@ private struct MarkdownToGuionConverter: MarkupWalker {
         for line in lines {
             let element = GuionElement(
                 type: .action,
-                text: "    " + String(line) // Indent to indicate code
+                text: "    \(line)" // Indent to indicate code
             )
             elements.append(element)
         }
@@ -327,9 +327,9 @@ private struct MarkdownToGuionConverter: MarkupWalker {
             if let paragraph = child as? Paragraph {
                 let text = extractText(from: paragraph)
                 if !itemText.isEmpty {
-                    itemText += " "
+                    itemText.append(" ")
                 }
-                itemText += text
+                itemText.append(text)
             } else if child is UnorderedList || child is OrderedList {
                 hasNestedList = true
             }
@@ -395,26 +395,26 @@ private struct MarkdownToGuionConverter: MarkupWalker {
 
         for child in markup.children {
             if let textNode = child as? Markdown.Text {
-                text += textNode.string
+                text.append(textNode.string)
             } else if let code = child as? InlineCode {
-                text += code.code
+                text.append(code.code)
             } else if child is SoftBreak {
-                text += " "
+                text.append(" ")
             } else if child is LineBreak {
-                text += "\n"
+                text.append("\n")
             } else if let emphasis = child as? Emphasis {
-                text += extractText(from: emphasis)
+                text.append(extractText(from: emphasis))
             } else if let strong = child as? Strong {
-                text += extractText(from: strong)
+                text.append(extractText(from: strong))
             } else if let link = child as? Link {
                 // Extract link text (ignore URL)
-                text += extractText(from: link)
+                text.append(extractText(from: link))
             } else if let image = child as? Image {
                 // Use alt text for images
-                text += extractText(from: image)
+                text.append(extractText(from: image))
             } else if child.childCount > 0 {
                 // Recursively extract from any other nodes with children
-                text += extractText(from: child)
+                text.append(extractText(from: child))
             }
         }
 

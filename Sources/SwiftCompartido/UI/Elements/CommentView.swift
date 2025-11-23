@@ -18,7 +18,7 @@ public struct CommentView: View {
     }
 
     public var body: some View {
-        Text("[[" + element.elementText + "]]")
+        Text("[[\(element.elementText)]]")
             .font(.custom("Courier New", size: fontSize * 0.83))
             .foregroundStyle(.secondary.opacity(0.6))
             .italic()
