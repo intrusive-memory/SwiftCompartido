@@ -529,6 +529,47 @@ This project follows a **strict branch-based workflow**:
 - Can be triggered manually via GitHub Actions UI
 - Includes coverage reporting to Codecov (separate flags for iOS and macOS)
 
+### Branch Protection Configuration
+
+**⚠️ IMPORTANT: When tests are changed or renamed, branch protections must be evaluated.**
+
+The `main` branch has required status checks that must pass before PRs can be merged. These checks are configured in GitHub repository settings and must match the actual CI workflow job names.
+
+**When to Update Branch Protections:**
+- ✅ When CI workflow job names change
+- ✅ When test jobs are added or removed
+- ✅ When platforms are added or removed (iOS, macOS)
+- ✅ When test structure is reorganized (short vs long tests)
+
+**How to Update Branch Protections:**
+
+View current protections:
+```bash
+gh api repos/intrusive-memory/SwiftCompartido/branches/main/protection/required_status_checks
+```
+
+Update required checks:
+```bash
+gh api --method PATCH repos/intrusive-memory/SwiftCompartido/branches/main/protection/required_status_checks \
+  -H "Accept: application/vnd.github.v3+json" \
+  --input - <<'EOF'
+{
+  "strict": true,
+  "contexts": [
+    "iOS Tests (Short)",
+    "macOS Tests (Short)",
+    "Code Quality"
+  ]
+}
+EOF
+```
+
+**Best Practices:**
+- Keep branch protection checks minimal but essential
+- Align check names exactly with CI workflow job names
+- Document protection changes in PR descriptions
+- Test protection changes by creating a test PR
+
 **See [`.claude/WORKFLOW.md`](.claude/WORKFLOW.md) for:**
 - Complete branch strategy
 - Commit message conventions
