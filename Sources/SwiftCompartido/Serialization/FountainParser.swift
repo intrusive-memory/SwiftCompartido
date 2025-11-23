@@ -34,6 +34,48 @@ public class FountainParser: @unchecked Sendable {
     private static let inlinePattern = "^([^\\t\\s][^:]+):\\s*([^\\t\\s].*$)"
     private static let directivePattern = "^([^\\t\\s][^:]+):([\\t\\s]*$)"
 
+    // MARK: - Cached Regex Patterns
+
+    /// Cached compiled regex patterns for maximum performance
+    /// Patterns are compiled once and reused throughout parsing
+    private static let regexCache: [String: (pattern: NSRegularExpression, caseInsensitive: NSRegularExpression?)] = {
+        var cache: [String: (pattern: NSRegularExpression, caseInsensitive: NSRegularExpression?)] = [:]
+
+        let patterns: [(key: String, pattern: String, needsCaseInsensitive: Bool)] = [
+            ("directive", directivePattern, false),
+            ("inline", inlinePattern, false),
+            ("twoSpaces", "^\\s{2}$", false),
+            ("twoOrMoreSpaces", "^\\s{2,}$", false),
+            ("commentStart", "^\\/\\*", false),
+            ("commentEnd", "\\*\\/\\s*$", false),
+            ("whitespaceOnly", "^\\s*$", false),
+            ("pageBreak", "^={3,}\\s*$", false),
+            ("section", "^\\s*\\[{2}\\s*([^\\]\\n])+\\s*\\]{2}\\s*$", false),
+            ("synopsis", "^\\s*=\\s+", false),
+            ("sceneNumber", "#([^\\n#]*?)#\\s*$", false),
+            ("sceneHeading", "^(INT|EXT|EST|(I|INT)\\.?\\/(E|EXT)\\.?)[\\.\\-\\s][^\\n]+$", true),
+            ("overBlack", "^OVER BLACK$", true),
+            ("transition", "[^a-z]*TO:$", false),
+            ("character", "^[^a-z]+(\\(cont'd\\))?$", false),
+            ("dualDialogueMarker", "\\^\\s*$", false),
+            ("parenthetical", "^\\s*\\(", false),
+            ("leadingWhitespace", "^\\s*", false),
+            ("lineEndings", "\\r\\n|\\r|\\n", false)
+        ]
+
+        for (key, patternString, needsCaseInsensitive) in patterns {
+            do {
+                let regex = try NSRegularExpression(pattern: patternString, options: [])
+                let caseInsensitiveRegex = needsCaseInsensitive ? try NSRegularExpression(pattern: patternString, options: [.caseInsensitive]) : nil
+                cache[key] = (pattern: regex, caseInsensitive: caseInsensitiveRegex)
+            } catch {
+                print("Warning: Failed to compile regex pattern '\(key)': \(error)")
+            }
+        }
+
+        return cache
+    }()
+
     public init(file filePath: String) throws {
         let contents = try String(contentsOfFile: filePath, encoding: .utf8)
         parseContents(contents)
@@ -47,6 +89,9 @@ public class FountainParser: @unchecked Sendable {
     ///
     /// This async initializer parses a Fountain screenplay with progress updates and
     /// cancellation support. Progress is reported approximately every 100 lines.
+    ///
+    /// Parsing is automatically offloaded to a background thread to prevent blocking
+    /// the main thread during long operations.
     ///
     /// - Parameters:
     ///   - string: The Fountain format text to parse
@@ -64,7 +109,17 @@ public class FountainParser: @unchecked Sendable {
     /// let parser = try await FountainParser(string: screenplay, progress: progress)
     /// ```
     public init(string: String, progress: OperationProgress? = nil) async throws {
-        try await parseContentsAsync(string, progress: progress)
+        // Offload parsing to background thread to prevent main thread blocking
+        // Using Task with priority ensures background execution while inheriting cancellation
+        let parseTask = Task(priority: .userInitiated) { [self] in
+            try await self.parseContentsAsync(string, progress: progress)
+        }
+
+        // Check if already cancelled before awaiting
+        try Task.checkCancellation()
+
+        // Await the result (cancellation will propagate automatically)
+        try await parseTask.value
     }
 
     private func parseContents(_ contents: String) {
@@ -86,21 +141,21 @@ public class FountainParser: @unchecked Sendable {
         let topLines = topOfDocument.components(separatedBy: "\n")
 
         for line in topLines {
-            if line.isEmpty || matches(string: line, pattern: Self.directivePattern) {
+            if line.isEmpty || matchesCached(string: line, patternKey: "directive") {
                 foundTitlePage = true
                 // If a key was open we want to close it
                 if !openKey.isEmpty {
                     titlePage.append([openKey: openValues])
                 }
 
-                if var key = firstMatch(in: line, pattern: Self.directivePattern, captureGroup: 1)?.lowercased() {
+                if var key = firstMatchCached(in: line, patternKey: "directive", captureGroup: 1)?.lowercased() {
                     if key == "author" {
                         key = "authors"
                     }
                     openKey = key
                     openValues = []
                 }
-            } else if matches(string: line, pattern: Self.inlinePattern) {
+            } else if matchesCached(string: line, patternKey: "inline") {
                 foundTitlePage = true
                 // If a key was open we want to close it
                 if !openKey.isEmpty {
@@ -109,8 +164,8 @@ public class FountainParser: @unchecked Sendable {
                     openValues = []
                 }
 
-                if var key = firstMatch(in: line, pattern: Self.inlinePattern, captureGroup: 1)?.lowercased(),
-                   let value = firstMatch(in: line, pattern: Self.inlinePattern, captureGroup: 2) {
+                if var key = firstMatchCached(in: line, patternKey: "inline", captureGroup: 1)?.lowercased(),
+                   let value = firstMatchCached(in: line, patternKey: "inline", captureGroup: 2) {
                     if key == "author" {
                         key = "authors"
                     }
@@ -148,6 +203,7 @@ public class FountainParser: @unchecked Sendable {
         var isCommentBlock = false
         var isInsideDialogueBlock = false
         var commentText = ""
+        var lastCharacterIndex: Int? = nil  // Cache last character index for O(1) dual dialogue detection
 
         for line in lines {
             index += 1
@@ -179,7 +235,7 @@ public class FountainParser: @unchecked Sendable {
             }
 
             // Empty lines within dialogue -- denoted by two spaces inside a dialogue block
-            if matches(string: line, pattern: "^\\s{2}$") && isInsideDialogueBlock {
+            if matchesCached(string: line, patternKey: "twoSpaces") && isInsideDialogueBlock {
                 newlinesBefore = 0
                 if let lastIndex = elements.indices.last {
                     if elements[lastIndex].elementType == .dialogue {
@@ -194,7 +250,7 @@ public class FountainParser: @unchecked Sendable {
             }
 
             // Multiple spaces (action)
-            if matches(string: line, pattern: "^\\s{2,}$") {
+            if matchesCached(string: line, patternKey: "twoOrMoreSpaces") {
                 elements.append(GuionElement(type: .action, text: line))
                 newlinesBefore = 0
                 continue
@@ -208,8 +264,8 @@ public class FountainParser: @unchecked Sendable {
             }
 
             // Open Boneyard
-            if matches(string: line, pattern: "^\\/\\*") {
-                if matches(string: line, pattern: "\\*\\/\\s*$") {
+            if matchesCached(string: line, patternKey: "commentStart") {
+                if matchesCached(string: line, patternKey: "commentEnd") {
                     let text = line
                         .replacingOccurrences(of: "/*", with: "")
                         .replacingOccurrences(of: "*/", with: "")
@@ -224,9 +280,9 @@ public class FountainParser: @unchecked Sendable {
             }
 
             // Close Boneyard
-            if matches(string: line, pattern: "\\*\\/\\s*$") {
+            if matchesCached(string: line, patternKey: "commentEnd") {
                 let text = line.replacingOccurrences(of: "*/", with: "")
-                if !text.isEmpty && !matches(string: text, pattern: "^\\s*$") {
+                if !text.isEmpty && !matchesCached(string: text, patternKey: "whitespaceOnly") {
                     commentText.append(text.trimmingCharacters(in: .whitespaces))
                 }
                 isCommentBlock = false
@@ -244,7 +300,7 @@ public class FountainParser: @unchecked Sendable {
             }
 
             // Page Breaks
-            if matches(string: line, pattern: "^={3,}\\s*$") {
+            if matchesCached(string: line, patternKey: "pageBreak") {
                 elements.append(GuionElement(type: .pageBreak, text: line))
                 newlinesBefore = 0
                 continue
@@ -261,7 +317,7 @@ public class FountainParser: @unchecked Sendable {
             }
 
             // Comment
-            if newlinesBefore > 0 && matches(string: line, pattern: "^\\s*\\[{2}\\s*([^\\]\\n])+\\s*\\]{2}\\s*$") {
+            if newlinesBefore > 0 && matchesCached(string: line, patternKey: "section") {
                 let text = line
                     .replacingOccurrences(of: "[[", with: "")
                     .replacingOccurrences(of: "]]", with: "")
@@ -271,7 +327,7 @@ public class FountainParser: @unchecked Sendable {
             }
 
             // Synopsis
-            if newlinesBefore > 0 && matches(string: line, pattern: "^\\s*=\\s+") {
+            if newlinesBefore > 0 && matchesCached(string: line, patternKey: "synopsis") {
                 let text = line
                     .replacingOccurrences(of: "^\\s*=\\s+", with: "", options: .regularExpression)
                     .trimmingCharacters(in: .whitespaces)
@@ -303,8 +359,8 @@ public class FountainParser: @unchecked Sendable {
                 var sceneNumber: String?
                 var text = ""
 
-                if matches(string: line, pattern: "#([^\\n#]*?)#\\s*$") {
-                    sceneNumber = firstMatch(in: line, pattern: "#([^\\n#]*?)#\\s*$", captureGroup: 1)
+                if matchesCached(string: line, patternKey: "sceneNumber") {
+                    sceneNumber = firstMatchCached(in: line, patternKey: "sceneNumber", captureGroup: 1)
                     text = line.replacingOccurrences(of: "#([^\\n#]*?)#\\s*$", with: "", options: .regularExpression)
                     text = String(text.dropFirst()).trimmingCharacters(in: .whitespaces)
                 } else {
@@ -319,13 +375,13 @@ public class FountainParser: @unchecked Sendable {
             }
 
             // Scene Headings
-            if newlinesBefore > 0 && (matches(string: line, pattern: "^(INT|EXT|EST|(I|INT)\\.?\\/(E|EXT)\\.?)[\\.\\-\\s][^\\n]+$", caseInsensitive: true) || matches(string: line, pattern: "^OVER BLACK$", caseInsensitive: true)) {
+            if newlinesBefore > 0 && (matchesCached(string: line, patternKey: "sceneHeading", caseInsensitive: true) || matchesCached(string: line, patternKey: "overBlack", caseInsensitive: true)) {
                 newlinesBefore = 0
                 var sceneNumber: String?
                 var text = ""
 
-                if matches(string: line, pattern: "#([^\\n#]*?)#\\s*$") {
-                    sceneNumber = firstMatch(in: line, pattern: "#([^\\n#]*?)#\\s*$", captureGroup: 1)
+                if matchesCached(string: line, patternKey: "sceneNumber") {
+                    sceneNumber = firstMatchCached(in: line, patternKey: "sceneNumber", captureGroup: 1)
                     text = line.replacingOccurrences(of: "#([^\\n#]*?)#\\s*$", with: "", options: .regularExpression)
                 } else {
                     text = line
@@ -339,7 +395,7 @@ public class FountainParser: @unchecked Sendable {
             }
 
             // Transitions
-            if matches(string: line, pattern: "[^a-z]*TO:$") {
+            if matchesCached(string: line, patternKey: "transition") {
                 newlinesBefore = 0
                 elements.append(GuionElement(type: .transition, text: line))
                 continue
@@ -373,7 +429,7 @@ public class FountainParser: @unchecked Sendable {
             }
 
             // Character
-            if newlinesBefore > 0 && matches(string: line, pattern: "^[^a-z]+(\\(cont'd\\))?$") {
+            if newlinesBefore > 0 && matchesCached(string: line, patternKey: "character") {
                 // Look ahead to see if the next line is blank
                 let nextIndex = index + 1
                 if nextIndex < lines.count {
@@ -382,22 +438,17 @@ public class FountainParser: @unchecked Sendable {
                         newlinesBefore = 0
                         var element = GuionElement(type: .character, text: line)
 
-                        if matches(string: line, pattern: "\\^\\s*$") {
+                        if matchesCached(string: line, patternKey: "dualDialogueMarker") {
                             element.isDualDialogue = true
                             element.elementText = element.elementText.replacingOccurrences(of: "\\s*\\^\\s*$", with: "", options: .regularExpression)
 
-                            // Mark previous character elements as dual dialogue
-                            var foundPreviousCharacter = false
-                            var idx = elements.count - 1
-                            while idx >= 0 && !foundPreviousCharacter {
-                                if elements[idx].elementType == .character {
-                                    elements[idx].isDualDialogue = true
-                                    foundPreviousCharacter = true
-                                }
-                                idx -= 1
+                            // Mark previous character element as dual dialogue using cached index (O(1))
+                            if let lastIdx = lastCharacterIndex {
+                                elements[lastIdx].isDualDialogue = true
                             }
                         }
 
+                        lastCharacterIndex = elements.count  // Cache this character's index
                         elements.append(element)
                         isInsideDialogueBlock = true
                         continue
@@ -407,7 +458,7 @@ public class FountainParser: @unchecked Sendable {
 
             // Dialogue and Parentheticals
             if isInsideDialogueBlock {
-                if newlinesBefore == 0 && matches(string: line, pattern: "^\\s*\\(") {
+                if newlinesBefore == 0 && matchesCached(string: line, patternKey: "parenthetical") {
                     elements.append(GuionElement(type: .parenthetical, text: line))
                     continue
                 } else {
@@ -476,25 +527,28 @@ public class FountainParser: @unchecked Sendable {
         let totalLines = processedContents.components(separatedBy: .newlines).count
         progress?.setTotalUnitCount(Int64(totalLines))
 
+        // Calculate progress update interval (report every 1% or every line if < 100 lines)
+        let titlePageUpdateInterval = max(1, topLines.count / 100)
+
         for (lineIndex, line) in topLines.enumerated() {
             // Check for cancellation
             try Task.checkCancellation()
 
-            if line.isEmpty || matches(string: line, pattern: Self.directivePattern) {
+            if line.isEmpty || matchesCached(string: line, patternKey: "directive") {
                 foundTitlePage = true
                 // If a key was open we want to close it
                 if !openKey.isEmpty {
                     titlePage.append([openKey: openValues])
                 }
 
-                if var key = firstMatch(in: line, pattern: Self.directivePattern, captureGroup: 1)?.lowercased() {
+                if var key = firstMatchCached(in: line, patternKey: "directive", captureGroup: 1)?.lowercased() {
                     if key == "author" {
                         key = "authors"
                     }
                     openKey = key
                     openValues = []
                 }
-            } else if matches(string: line, pattern: Self.inlinePattern) {
+            } else if matchesCached(string: line, patternKey: "inline") {
                 foundTitlePage = true
                 // If a key was open we want to close it
                 if !openKey.isEmpty {
@@ -503,8 +557,8 @@ public class FountainParser: @unchecked Sendable {
                     openValues = []
                 }
 
-                if var key = firstMatch(in: line, pattern: Self.inlinePattern, captureGroup: 1)?.lowercased(),
-                   let value = firstMatch(in: line, pattern: Self.inlinePattern, captureGroup: 2) {
+                if var key = firstMatchCached(in: line, patternKey: "inline", captureGroup: 1)?.lowercased(),
+                   let value = firstMatchCached(in: line, patternKey: "inline", captureGroup: 2) {
                     if key == "author" {
                         key = "authors"
                     }
@@ -516,8 +570,8 @@ public class FountainParser: @unchecked Sendable {
                 openValues.append(line.trimmingCharacters(in: .whitespaces))
             }
 
-            // Report progress every 100 lines for title page
-            if lineIndex % 100 == 0 {
+            // Report progress every 1% (or every line if < 100 lines)
+            if lineIndex % titlePageUpdateInterval == 0 {
                 progress?.update(
                     completedUnits: Int64(lineIndex),
                     description: "Parsing title page..."
@@ -550,13 +604,17 @@ public class FountainParser: @unchecked Sendable {
         var isCommentBlock = false
         var isInsideDialogueBlock = false
         var commentText = ""
+        var lastCharacterIndex: Int? = nil  // Cache last character index for O(1) dual dialogue detection
 
         let titlePageLineCount = topLines.count
+        // Calculate progress update interval for body (report every 1% or every line if < 100 lines)
+        let bodyUpdateInterval = max(1, lines.count / 100)
+
         for line in lines {
             index += 1
 
-            // Check for cancellation every 100 lines
-            if index % 100 == 0 {
+            // Check for cancellation and report progress every 1%
+            if index % bodyUpdateInterval == 0 {
                 try Task.checkCancellation()
                 progress?.update(
                     completedUnits: Int64(titlePageLineCount + index),
@@ -591,7 +649,7 @@ public class FountainParser: @unchecked Sendable {
             }
 
             // Empty lines within dialogue -- denoted by two spaces inside a dialogue block
-            if matches(string: line, pattern: "^\\s{2}$") && isInsideDialogueBlock {
+            if matchesCached(string: line, patternKey: "twoSpaces") && isInsideDialogueBlock {
                 newlinesBefore = 0
                 if let lastIndex = elements.indices.last {
                     if elements[lastIndex].elementType == .dialogue {
@@ -606,7 +664,7 @@ public class FountainParser: @unchecked Sendable {
             }
 
             // Multiple spaces (action)
-            if matches(string: line, pattern: "^\\s{2,}$") {
+            if matchesCached(string: line, patternKey: "twoOrMoreSpaces") {
                 elements.append(GuionElement(type: .action, text: line))
                 newlinesBefore = 0
                 continue
@@ -620,8 +678,8 @@ public class FountainParser: @unchecked Sendable {
             }
 
             // Open Boneyard
-            if matches(string: line, pattern: "^\\/\\*") {
-                if matches(string: line, pattern: "\\*\\/\\s*$") {
+            if matchesCached(string: line, patternKey: "commentStart") {
+                if matchesCached(string: line, patternKey: "commentEnd") {
                     let text = line
                         .replacingOccurrences(of: "/*", with: "")
                         .replacingOccurrences(of: "*/", with: "")
@@ -636,9 +694,9 @@ public class FountainParser: @unchecked Sendable {
             }
 
             // Close Boneyard
-            if matches(string: line, pattern: "\\*\\/\\s*$") {
+            if matchesCached(string: line, patternKey: "commentEnd") {
                 let text = line.replacingOccurrences(of: "*/", with: "")
-                if !text.isEmpty && !matches(string: text, pattern: "^\\s*$") {
+                if !text.isEmpty && !matchesCached(string: text, patternKey: "whitespaceOnly") {
                     commentText.append(text.trimmingCharacters(in: .whitespaces))
                 }
                 isCommentBlock = false
@@ -656,7 +714,7 @@ public class FountainParser: @unchecked Sendable {
             }
 
             // Page Breaks
-            if matches(string: line, pattern: "^={3,}\\s*$") {
+            if matchesCached(string: line, patternKey: "pageBreak") {
                 elements.append(GuionElement(type: .pageBreak, text: line))
                 newlinesBefore = 0
                 continue
@@ -673,7 +731,7 @@ public class FountainParser: @unchecked Sendable {
             }
 
             // Comment
-            if newlinesBefore > 0 && matches(string: line, pattern: "^\\s*\\[{2}\\s*([^\\]\\n])+\\s*\\]{2}\\s*$") {
+            if newlinesBefore > 0 && matchesCached(string: line, patternKey: "section") {
                 let text = line
                     .replacingOccurrences(of: "[[", with: "")
                     .replacingOccurrences(of: "]]", with: "")
@@ -683,7 +741,7 @@ public class FountainParser: @unchecked Sendable {
             }
 
             // Synopsis
-            if newlinesBefore > 0 && matches(string: line, pattern: "^\\s*=\\s+") {
+            if newlinesBefore > 0 && matchesCached(string: line, patternKey: "synopsis") {
                 let text = line
                     .replacingOccurrences(of: "^\\s*=\\s+", with: "", options: .regularExpression)
                     .trimmingCharacters(in: .whitespaces)
@@ -715,8 +773,8 @@ public class FountainParser: @unchecked Sendable {
                 var sceneNumber: String?
                 var text = ""
 
-                if matches(string: line, pattern: "#([^\\n#]*?)#\\s*$") {
-                    sceneNumber = firstMatch(in: line, pattern: "#([^\\n#]*?)#\\s*$", captureGroup: 1)
+                if matchesCached(string: line, patternKey: "sceneNumber") {
+                    sceneNumber = firstMatchCached(in: line, patternKey: "sceneNumber", captureGroup: 1)
                     text = line.replacingOccurrences(of: "#([^\\n#]*?)#\\s*$", with: "", options: .regularExpression)
                     text = String(text.dropFirst()).trimmingCharacters(in: .whitespaces)
                 } else {
@@ -731,13 +789,13 @@ public class FountainParser: @unchecked Sendable {
             }
 
             // Scene Headings
-            if newlinesBefore > 0 && (matches(string: line, pattern: "^(INT|EXT|EST|(I|INT)\\.?\\/(E|EXT)\\.?)[\\.\\-\\s][^\\n]+$", caseInsensitive: true) || matches(string: line, pattern: "^OVER BLACK$", caseInsensitive: true)) {
+            if newlinesBefore > 0 && (matchesCached(string: line, patternKey: "sceneHeading", caseInsensitive: true) || matchesCached(string: line, patternKey: "overBlack", caseInsensitive: true)) {
                 newlinesBefore = 0
                 var sceneNumber: String?
                 var text = ""
 
-                if matches(string: line, pattern: "#([^\\n#]*?)#\\s*$") {
-                    sceneNumber = firstMatch(in: line, pattern: "#([^\\n#]*?)#\\s*$", captureGroup: 1)
+                if matchesCached(string: line, patternKey: "sceneNumber") {
+                    sceneNumber = firstMatchCached(in: line, patternKey: "sceneNumber", captureGroup: 1)
                     text = line.replacingOccurrences(of: "#([^\\n#]*?)#\\s*$", with: "", options: .regularExpression)
                 } else {
                     text = line
@@ -751,7 +809,7 @@ public class FountainParser: @unchecked Sendable {
             }
 
             // Transitions
-            if matches(string: line, pattern: "[^a-z]*TO:$") {
+            if matchesCached(string: line, patternKey: "transition") {
                 newlinesBefore = 0
                 elements.append(GuionElement(type: .transition, text: line))
                 continue
@@ -785,7 +843,7 @@ public class FountainParser: @unchecked Sendable {
             }
 
             // Character
-            if newlinesBefore > 0 && matches(string: line, pattern: "^[^a-z]+(\\(cont'd\\))?$") {
+            if newlinesBefore > 0 && matchesCached(string: line, patternKey: "character") {
                 // Look ahead to see if the next line is blank
                 let nextIndex = index + 1
                 if nextIndex < lines.count {
@@ -794,22 +852,17 @@ public class FountainParser: @unchecked Sendable {
                         newlinesBefore = 0
                         var element = GuionElement(type: .character, text: line)
 
-                        if matches(string: line, pattern: "\\^\\s*$") {
+                        if matchesCached(string: line, patternKey: "dualDialogueMarker") {
                             element.isDualDialogue = true
                             element.elementText = element.elementText.replacingOccurrences(of: "\\s*\\^\\s*$", with: "", options: .regularExpression)
 
-                            // Mark previous character elements as dual dialogue
-                            var foundPreviousCharacter = false
-                            var idx = elements.count - 1
-                            while idx >= 0 && !foundPreviousCharacter {
-                                if elements[idx].elementType == .character {
-                                    elements[idx].isDualDialogue = true
-                                    foundPreviousCharacter = true
-                                }
-                                idx -= 1
+                            // Mark previous character element as dual dialogue using cached index (O(1))
+                            if let lastIdx = lastCharacterIndex {
+                                elements[lastIdx].isDualDialogue = true
                             }
                         }
 
+                        lastCharacterIndex = elements.count  // Cache this character's index
                         elements.append(element)
                         isInsideDialogueBlock = true
                         continue
@@ -819,7 +872,7 @@ public class FountainParser: @unchecked Sendable {
 
             // Dialogue and Parentheticals
             if isInsideDialogueBlock {
-                if newlinesBefore == 0 && matches(string: line, pattern: "^\\s*\\(") {
+                if newlinesBefore == 0 && matchesCached(string: line, patternKey: "parenthetical") {
                     elements.append(GuionElement(type: .parenthetical, text: line))
                     continue
                 } else {
@@ -861,6 +914,37 @@ public class FountainParser: @unchecked Sendable {
 
     // MARK: - Regex Helpers
 
+    /// Fast regex matching using cached compiled patterns
+    private func matchesCached(string: String, patternKey: String, caseInsensitive: Bool = false) -> Bool {
+        guard let cached = Self.regexCache[patternKey] else {
+            print("Warning: Pattern key '\(patternKey)' not found in cache")
+            return false
+        }
+
+        let regex = caseInsensitive ? (cached.caseInsensitive ?? cached.pattern) : cached.pattern
+        let nsString = string as NSString
+        return regex.firstMatch(in: string, options: [], range: NSRange(location: 0, length: nsString.length)) != nil
+    }
+
+    /// Fast regex capture using cached compiled patterns
+    private func firstMatchCached(in text: String, patternKey: String, captureGroup: Int) -> String? {
+        guard let cached = Self.regexCache[patternKey] else {
+            print("Warning: Pattern key '\(patternKey)' not found in cache")
+            return nil
+        }
+
+        let nsText = text as NSString
+        guard let match = cached.pattern.firstMatch(in: text, options: [], range: NSRange(location: 0, length: nsText.length)) else {
+            return nil
+        }
+
+        guard match.numberOfRanges > captureGroup else { return nil }
+        let range = match.range(at: captureGroup)
+        guard range.location != NSNotFound else { return nil }
+        return nsText.substring(with: range)
+    }
+
+    /// Legacy regex matching - compiles pattern on every call (deprecated, use matchesCached)
     private func matches(string: String, pattern: String, caseInsensitive: Bool = false) -> Bool {
         let options: NSRegularExpression.Options = caseInsensitive ? [.caseInsensitive] : []
         guard let regex = try? NSRegularExpression(pattern: pattern, options: options) else {
@@ -871,6 +955,7 @@ public class FountainParser: @unchecked Sendable {
         return regex.firstMatch(in: string, options: [], range: NSRange(location: 0, length: nsString.length)) != nil
     }
 
+    /// Legacy regex capture - compiles pattern on every call (deprecated, use firstMatchCached)
     private func firstMatch(in text: String, pattern: String, captureGroup: Int) -> String? {
         guard let regex = try? NSRegularExpression(pattern: pattern, options: []) else {
             return nil

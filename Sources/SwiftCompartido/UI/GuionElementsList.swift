@@ -69,32 +69,34 @@ public struct GuionElementsList<TrailingContent: View>: View {
     }
 
     public var body: some View {
-        List {
-            ForEach(Array(elements.enumerated()), id: \.element.id) { index, element in
-                VStack(spacing: 0) {
-                    GuionElementRow(element: element, trailingContent: trailingContent)
+        ScrollView {
+            LazyVStack(spacing: 0, pinnedViews: []) {
+                ForEach(Array(elements.indices), id: \.self) { index in
+                    let element = elements[index]
+                    VStack(spacing: 0) {
+                        GuionElementRow(element: element, trailingContent: trailingContent)
 
-                    // Add full line spacing after action lines
-                    if element.elementType == .action {
-                        Spacer()
-                            .frame(height: fontSize * ScreenplayPageFormat.lineSpacingMultiplier)
+                        // Add full line spacing after action lines
+                        if element.elementType == .action {
+                            Spacer()
+                                .frame(height: fontSize * ScreenplayPageFormat.lineSpacingMultiplier)
+                        }
+                        // Add full line spacing after synopsis
+                        else if element.elementType == .synopsis {
+                            Spacer()
+                                .frame(height: fontSize * ScreenplayPageFormat.lineSpacingMultiplier)
+                        }
+                        // Add full line spacing after dialogue groups (character + dialogue/parenthetical)
+                        else if isEndOfDialogueGroup(at: index) {
+                            Spacer()
+                                .frame(height: fontSize * ScreenplayPageFormat.lineSpacingMultiplier)
+                        }
                     }
-                    // Add full line spacing after synopsis
-                    else if element.elementType == .synopsis {
-                        Spacer()
-                            .frame(height: fontSize * ScreenplayPageFormat.lineSpacingMultiplier)
-                    }
-                    // Add full line spacing after dialogue groups (character + dialogue/parenthetical)
-                    else if isEndOfDialogueGroup(at: index) {
-                        Spacer()
-                            .frame(height: fontSize * ScreenplayPageFormat.lineSpacingMultiplier)
-                    }
+                    .id(element.id)
                 }
             }
-            .listRowSeparator(.hidden)
-            .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+            .padding(.horizontal, 0)
         }
-        .listStyle(.plain)
         .environmentObject(dismissCoordinator)
     }
 
