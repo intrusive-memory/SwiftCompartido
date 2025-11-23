@@ -499,23 +499,43 @@ modelContext.insert(record)
 try modelContext.save()
 ```
 
-## Branch Protection and CI/CD
+## Development Workflow
+
+**⚠️ CRITICAL: See [`.claude/WORKFLOW.md`](.claude/WORKFLOW.md) for complete development workflow.**
+
+This project follows a **strict branch-based workflow**:
+
+### Quick Reference
+
+- **Development branch**: `development` (all work happens here)
+- **Main branch**: `main` (protected, PR-only)
+- **Workflow**: `development` → PR → CI passes → Merge → Tag → Release
+- **NEVER** commit directly to `main`
+- **NEVER** delete the `development` branch
+
+### CI/CD Requirements
 
 **Main branch is protected:**
 - Direct pushes blocked (PRs only)
 - No PR review required
-- GitHub Actions must pass:
+- GitHub Actions must pass before merge:
   - iOS Tests (Short): Fast unit tests (~300 tests, 2-5 min)
   - macOS Tests (Short): Fast unit tests on macOS platform (~300 tests, 2-5 min)
   - Code Quality: TODOs, large files, print statements
-
-**Workflow:** Create PR → Short tests run automatically → Merge when green
 
 **Weekend Testing:**
 - Long tests run Saturday/Sunday at 2 AM UTC (~100 tests, integration/UI)
 - Runs on both iOS Simulator and macOS platforms
 - Can be triggered manually via GitHub Actions UI
 - Includes coverage reporting to Codecov (separate flags for iOS and macOS)
+
+**See [`.claude/WORKFLOW.md`](.claude/WORKFLOW.md) for:**
+- Complete branch strategy
+- Commit message conventions
+- PR creation templates
+- Tagging and release process
+- Version numbering (semver)
+- Emergency hotfix procedures
 
 ## Documentation Resources
 
