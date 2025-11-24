@@ -58,6 +58,13 @@ public final class ElementProgressState {
     /// Auto-hide delay after completion (in seconds)
     public var autoHideDelay: TimeInterval = 2.0
 
+    /// Cancellation handlers for each element (MainActor-isolated for Swift 6 safety)
+    private var cancellationHandlers: [PersistentIdentifier: @MainActor () -> Void] = [:]
+
+    /// Flag indicating if cancellation has been requested
+    /// - Note: Used to stop batch operations from starting new tasks after cancel
+    public private(set) var isCancelled: Bool = false
+
     public init() {}
 
     /// Get progress for a specific element
@@ -115,6 +122,7 @@ public final class ElementProgressState {
             message: message ?? "Complete",
             isComplete: true
         )
+        cancellationHandlers.removeValue(forKey: elementID)  // Clean up handler
         scheduleAutoHide(for: elementID)
     }
 
@@ -128,6 +136,7 @@ public final class ElementProgressState {
             message: "Error: \(error.localizedDescription)",
             isComplete: true
         )
+        cancellationHandlers.removeValue(forKey: elementID)  // Clean up handler
         scheduleAutoHide(for: elementID)
     }
 
@@ -135,11 +144,111 @@ public final class ElementProgressState {
     /// - Parameter elementID: The persistent model ID of the element
     public func clearProgress(for elementID: PersistentIdentifier) {
         progressByElement.removeValue(forKey: elementID)
+        cancellationHandlers.removeValue(forKey: elementID)
     }
 
     /// Clear all progress
     public func clearAll() {
         progressByElement.removeAll()
+        cancellationHandlers.removeAll()
+        isCancelled = false
+    }
+
+    // MARK: - Batch Operations
+
+    /// Pre-register elements for batch operations
+    /// - Parameters:
+    ///   - elementIDs: Array of persistent model IDs to pre-register
+    ///   - message: Optional initial message for all elements
+    /// - Note: Use this for batch operations to show accurate total from the start
+    public func prepareForBatch(elementIDs: [PersistentIdentifier], message: String? = nil) {
+        // Reset cancellation flag for new batch operation
+        isCancelled = false
+
+        // Pre-register elements with zero progress
+        for elementID in elementIDs {
+            progressByElement[elementID] = ElementProgress(
+                progress: 0.0,
+                message: message ?? "Waiting...",
+                isComplete: false
+            )
+        }
+    }
+
+    /// Register a cancellation handler for an element
+    /// - Parameters:
+    ///   - elementID: The persistent model ID of the element
+    ///   - handler: MainActor-isolated closure to call when element should be cancelled
+    public func registerCancellationHandler(
+        for elementID: PersistentIdentifier,
+        handler: @escaping @MainActor () -> Void
+    ) {
+        cancellationHandlers[elementID] = handler
+    }
+
+    /// Cancel all in-progress operations
+    /// - Note: Uses Swift 6 structured concurrency for safe task cancellation
+    public func cancelAll() {
+        // Set cancellation flag to prevent new tasks from starting
+        isCancelled = true
+
+        // Get all in-progress element IDs
+        let inProgressIDs = progressByElement.filter { !$0.value.isComplete }.map { $0.key }
+
+        // Call cancellation handlers (Swift 6 ensures MainActor isolation)
+        for elementID in inProgressIDs {
+            cancellationHandlers[elementID]?()
+        }
+
+        // Clear all progress
+        clearAll()
+    }
+
+    // MARK: - Aggregate Progress Metrics
+
+    /// Total number of elements with tracked progress
+    public var totalElements: Int {
+        progressByElement.count
+    }
+
+    /// Number of elements with completed operations
+    public var completedElements: Int {
+        progressByElement.values.filter { $0.isComplete }.count
+    }
+
+    /// Number of elements with in-progress operations
+    public var inProgressElements: Int {
+        progressByElement.values.filter { !$0.isComplete }.count
+    }
+
+    /// Overall progress across all tracked elements (0.0 to 1.0)
+    public var overallProgress: Double {
+        guard totalElements > 0 else { return 0.0 }
+        return Double(completedElements) / Double(totalElements)
+    }
+
+    /// Whether there are any active progress operations
+    public var isActive: Bool {
+        !progressByElement.isEmpty
+    }
+
+    /// Aggregate status message describing current state
+    public var aggregateStatusMessage: String {
+        guard !progressByElement.isEmpty else { return "" }
+
+        // All tasks complete
+        if inProgressElements == 0 {
+            return "Complete: Generated \(totalElements) element\(totalElements == 1 ? "" : "s")"
+        }
+
+        // Single task in progress
+        if totalElements == 1, let progress = progressByElement.values.first {
+            let message = progress.message ?? "Processing"
+            return "\(message)..."
+        }
+
+        // Multiple tasks
+        return "Generating \(completedElements) of \(totalElements) elements..."
     }
 
     /// Schedule auto-hide for a completed element

@@ -239,7 +239,7 @@ public class FountainParser: @unchecked Sendable {
                 newlinesBefore = 0
                 if let lastIndex = elements.indices.last {
                     if elements[lastIndex].elementType == .dialogue {
-                        elements[lastIndex].elementText = "\(elements[lastIndex].elementText)\n\(line)"
+                        elements[lastIndex].elementText.append("\n\(line)")
                     } else {
                         elements.append(GuionElement(type: .dialogue, text: line))
                     }
@@ -464,7 +464,7 @@ public class FountainParser: @unchecked Sendable {
                 } else {
                     if let lastIndex = elements.indices.last {
                         if elements[lastIndex].elementType == .dialogue {
-                            elements[lastIndex].elementText = "\(elements[lastIndex].elementText)\n\(line)"
+                            elements[lastIndex].elementText.append("\n\(line)")
                         } else {
                             elements.append(GuionElement(type: .dialogue, text: line))
                         }
@@ -484,7 +484,7 @@ public class FountainParser: @unchecked Sendable {
                     elements[lastIndex].elementType = .action
                 }
 
-                elements[lastIndex].elementText = "\(elements[lastIndex].elementText)\n\(line)"
+                elements[lastIndex].elementText.append("\n\(line)")
                 newlinesBefore = 0
                 continue
             } else {
@@ -653,7 +653,7 @@ public class FountainParser: @unchecked Sendable {
                 newlinesBefore = 0
                 if let lastIndex = elements.indices.last {
                     if elements[lastIndex].elementType == .dialogue {
-                        elements[lastIndex].elementText = "\(elements[lastIndex].elementText)\n\(line)"
+                        elements[lastIndex].elementText.append("\n\(line)")
                     } else {
                         elements.append(GuionElement(type: .dialogue, text: line))
                     }
@@ -878,7 +878,7 @@ public class FountainParser: @unchecked Sendable {
                 } else {
                     if let lastIndex = elements.indices.last {
                         if elements[lastIndex].elementType == .dialogue {
-                            elements[lastIndex].elementText = "\(elements[lastIndex].elementText)\n\(line)"
+                            elements[lastIndex].elementText.append("\n\(line)")
                         } else {
                             elements.append(GuionElement(type: .dialogue, text: line))
                         }
@@ -898,7 +898,7 @@ public class FountainParser: @unchecked Sendable {
                     elements[lastIndex].elementType = .action
                 }
 
-                elements[lastIndex].elementText = "\(elements[lastIndex].elementText)\n\(line)"
+                elements[lastIndex].elementText.append("\n\(line)")
                 newlinesBefore = 0
                 continue
             } else {

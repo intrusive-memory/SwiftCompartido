@@ -66,6 +66,12 @@ public struct ElementProgressTracker {
         state.clearProgress(for: elementID)
     }
 
+    /// Register a cancellation handler for this element
+    /// - Parameter handler: MainActor-isolated closure to call when element should be cancelled
+    public func registerCancellationHandler(handler: @escaping @MainActor () -> Void) {
+        state.registerCancellationHandler(for: elementID, handler: handler)
+    }
+
     // MARK: - Progress Queries
 
     /// Check if this element has visible progress
