@@ -74,6 +74,12 @@ public struct DialogueBlockView: View {
     }
 
     public var body: some View {
+        // Calculate fixed character widths instead of using GeometryReader
+        // This eliminates layout calculations during scroll
+        let characterWidth = fontSize * ScreenplayPageFormat.courierCharacterAspectRatio
+        let backgroundLeftMargin = characterWidth * 14.3   // 22% of 65 characters = 14.3 characters
+        let backgroundWidth = characterWidth * 36.4        // 56% of 65 characters = 36.4 characters
+
         VStack(alignment: .leading, spacing: 0) {
             Spacer(minLength: 20)
             ForEach(block.elements.indices, id: \.self) { index in
@@ -91,22 +97,20 @@ public struct DialogueBlockView: View {
             }
         }
         .background(
-            GeometryReader { geometry in
-                // Background positioned to cover only dialogue text area (25% to 75% of width)
-                HStack(spacing: 0) {
-                    Spacer()
-                        .frame(width: geometry.size.width * 0.22)
+            // Background positioned to cover only dialogue text area (22% to 78% of width)
+            HStack(spacing: 0) {
+                Spacer()
+                    .frame(width: backgroundLeftMargin)
 
-                    RoundedRectangle(cornerRadius: 6)
-                        .fill(Color.secondary.opacity(0.06))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 6)
-                                .stroke(Color.secondary.opacity(0.10), lineWidth: 1)
-                        )
-                        .frame(width: geometry.size.width * 0.56)
+                RoundedRectangle(cornerRadius: 6)
+                    .fill(Color.secondary.opacity(0.06))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 6)
+                            .stroke(Color.secondary.opacity(0.10), lineWidth: 1)
+                    )
+                    .frame(width: backgroundWidth)
 
-                    Spacer()
-                }
+                Spacer()
             }
         )
     }

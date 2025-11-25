@@ -17,26 +17,25 @@ public struct DialogueParentheticalView: View {
     }
 
     public var body: some View {
-        GeometryReader { geometry in
-            HStack(alignment: .top, spacing: 0) {
-                // 32% left margin for parentheticals
-                Spacer()
-                    .frame(width: geometry.size.width * 0.32)
+        // Calculate fixed character widths instead of using GeometryReader
+        // This eliminates layout calculations during scroll
+        let characterWidth = fontSize * ScreenplayPageFormat.courierCharacterAspectRatio
+        let leftMarginWidth = characterWidth * 20.8  // 32% of 65 characters = 20.8 characters
+        let contentMaxWidth = characterWidth * 24.7  // 38% of 65 characters = 24.7 characters
 
-                Text(element.elementText)
-                    .font(.custom("Courier New", size: fontSize * 0.65))
-                    .italic()
-                    .foregroundStyle(.secondary)
-                    .textSelection(.enabled)
-                    .frame(
-                        maxWidth: geometry.size.width * 0.38, // 100% - 32% - 30% = 38%
-                        alignment: .leading
-                    )
+        HStack(alignment: .top, spacing: 0) {
+            // 32% left margin for parentheticals (20.8 characters)
+            Spacer()
+                .frame(width: leftMarginWidth)
 
-                // 30% right margin
-                Spacer()
-                    .frame(width: geometry.size.width * 0.30)
-            }
+            Text(element.elementText)
+                .font(.custom("Courier New", size: fontSize * 0.65))
+                .italic()
+                .foregroundStyle(.secondary)
+                .textSelection(.enabled)
+                .frame(maxWidth: contentMaxWidth, alignment: .leading)
+
+            Spacer()
         }
         .fixedSize(horizontal: false, vertical: true)
     }

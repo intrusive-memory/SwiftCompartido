@@ -18,20 +18,23 @@ public struct TransitionView: View {
     }
 
     public var body: some View {
-        GeometryReader { geometry in
-            HStack(alignment: .top, spacing: 0) {
-                // 65% left margin for right-aligned effect
-                Spacer()
-                    .frame(width: geometry.size.width * 0.65)
+        // Calculate fixed character widths instead of using GeometryReader
+        // This eliminates layout calculations during scroll
+        let characterWidth = fontSize * ScreenplayPageFormat.courierCharacterAspectRatio
+        let leftMarginWidth = characterWidth * 42.25  // 65% of 65 characters = 42.25 characters
+        let contentMaxWidth = characterWidth * 22.75  // 35% of 65 characters = 22.75 characters
 
-                Text(element.elementText)
-                    .font(.custom("Courier New", size: fontSize))
-                    .foregroundStyle(.primary)
-                    .textSelection(.enabled)
-                    .multilineTextAlignment(.trailing)
-                    .frame(maxWidth: geometry.size.width * 0.35, alignment: .trailing)
-            }
-            .frame(width: geometry.size.width, alignment: .leading)
+        HStack(alignment: .top, spacing: 0) {
+            // 65% left margin for right-aligned effect (42.25 characters)
+            Spacer()
+                .frame(width: leftMarginWidth)
+
+            Text(element.elementText)
+                .font(.custom("Courier New", size: fontSize))
+                .foregroundStyle(.primary)
+                .textSelection(.enabled)
+                .multilineTextAlignment(.trailing)
+                .frame(maxWidth: contentMaxWidth, alignment: .trailing)
         }
         .fixedSize(horizontal: false, vertical: false)
     }
