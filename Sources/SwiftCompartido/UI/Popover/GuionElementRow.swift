@@ -7,6 +7,20 @@
 
 import SwiftUI
 
+/// Consolidated state for popover interaction
+/// Reduces memory footprint by grouping related boolean flags
+private struct PopoverState {
+    var isHoveringElement = false
+    var isHoveringPopover = false
+    var isVisible = false
+    var isLongPressing = false
+
+    /// Combined hover state: hovering either element OR popover
+    var isHovering: Bool {
+        isHoveringElement || isHoveringPopover
+    }
+}
+
 /// Row view that displays a GuionElementModel with optional popover support
 ///
 /// This view wraps the element-specific views (ActionView, DialogueTextView, etc.)
@@ -20,6 +34,7 @@ struct GuionElementRow<TrailingContent: View>: View {
     @Environment(\.guionElementContextMenu) private var contextMenuProvider
     @EnvironmentObject private var dismissCoordinator: PopoverDismissCoordinator
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(ElementProgressState.self) private var progressState
 
     /// Check if this element's document is a markdown file
     private var isMarkdownDocument: Bool {
@@ -28,16 +43,10 @@ struct GuionElementRow<TrailingContent: View>: View {
         return lowercased.hasSuffix(".md") || lowercased.hasSuffix(".markdown")
     }
 
-    // Separate hover states for element and popover (for interactive support)
-    @State private var isHoveringElement = false
-    @State private var isHoveringPopover = false
-    @State private var showPopover = false
+    // Consolidated popover state (reduces memory footprint from 7 properties to 3)
+    @State private var popoverState = PopoverState()
     @State private var hoverTask: Task<Void, Never>?
     @State private var gracePeriodTask: Task<Void, Never>?
-
-    // Long-press state for touch devices
-    @State private var isLongPressing = false
-    @State private var longPressLocation: CGPoint = .zero
 
     // Hover delay in seconds (will be configurable via environment in future phases)
     private let hoverDelay: TimeInterval = 0.3
@@ -47,11 +56,6 @@ struct GuionElementRow<TrailingContent: View>: View {
 
     // Long-press duration for touch devices
     private let longPressDuration: TimeInterval = 0.5
-
-    // Combined hover state: hovering either element OR popover
-    private var isHovering: Bool {
-        isHoveringElement || isHoveringPopover
-    }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -72,7 +76,7 @@ struct GuionElementRow<TrailingContent: View>: View {
                 .contentShape(Rectangle())
                 .onTapGesture {
                     // Tap on content area (not hover target) dismisses popover
-                    if showPopover {
+                    if popoverState.isVisible {
                         dismissPopover()
                     }
                 }
@@ -85,7 +89,7 @@ struct GuionElementRow<TrailingContent: View>: View {
             }
             .background(
                 // Visual feedback during long-press
-                isLongPressing ? Color.primary.opacity(0.05) : Color.clear
+                popoverState.isLongPressing ? Color.primary.opacity(0.05) : Color.clear
             )
             #if os(macOS)
             // macOS: Keep long-press as fallback for non-trackpad interactions
@@ -96,7 +100,7 @@ struct GuionElementRow<TrailingContent: View>: View {
             })
             #endif
             .overlay(alignment: .topTrailing) {
-                if showPopover, let provider = popoverProvider {
+                if popoverState.isVisible, let provider = popoverProvider {
                     popoverView(content: provider(element))
                         .onHover { hoveringPopover in
                             handlePopoverHover(hoveringPopover)
@@ -107,17 +111,19 @@ struct GuionElementRow<TrailingContent: View>: View {
                 }
             }
 
-            // Progress bar row (auto-shows when progress is active)
-            ElementProgressBar(element: element)
+            // Progress bar row (only rendered when there's active progress)
+            if progressState.isActive {
+                ElementProgressBar(element: element)
+            }
         }
         .onChange(of: dismissCoordinator.shouldDismiss) { oldValue, newValue in
-            if newValue == true && showPopover {
+            if newValue == true && popoverState.isVisible {
                 dismissPopover()
             }
         }
         .onDisappear {
             // Dismiss popover when row disappears (e.g., during scroll)
-            if showPopover {
+            if popoverState.isVisible {
                 dismissCoordinator.triggerDismiss()
             }
         }
@@ -241,7 +247,7 @@ struct GuionElementRow<TrailingContent: View>: View {
             .shadow(color: .black.opacity(0.35), radius: 12, x: 0, y: 6)
             .offset(x: -12, y: -8)
             .transition(reduceMotion ? .identity : .opacity.combined(with: .scale(scale: 0.95)))
-            .animation(reduceMotion ? .none : .easeInOut(duration: 0.2), value: showPopover)
+            .animation(reduceMotion ? .none : .easeInOut(duration: 0.2), value: popoverState.isVisible)
             .accessibilityElement(children: .combine)
             .accessibilityLabel("Additional information")
     }
@@ -250,7 +256,7 @@ struct GuionElementRow<TrailingContent: View>: View {
 
     /// Handles hover state changes on the element
     private func handleElementHover(_ hovering: Bool) {
-        isHoveringElement = hovering
+        popoverState.isHoveringElement = hovering
 
         if hovering {
             // Cancel any pending dismissal
@@ -261,8 +267,8 @@ struct GuionElementRow<TrailingContent: View>: View {
             hoverTask = Task { @MainActor in
                 do {
                     try await Task.sleep(for: .milliseconds(Int(hoverDelay * 1000)))
-                    if isHoveringElement {
-                        showPopover = true
+                    if popoverState.isHoveringElement {
+                        popoverState.isVisible = true
                     }
                 } catch {
                     // Task was cancelled, do nothing
@@ -279,8 +285,8 @@ struct GuionElementRow<TrailingContent: View>: View {
                 do {
                     try await Task.sleep(for: .milliseconds(Int(gracePeriod * 1000)))
                     // Only hide if not hovering either element or popover
-                    if !isHovering {
-                        showPopover = false
+                    if !popoverState.isHovering {
+                        popoverState.isVisible = false
                     }
                 } catch {
                     // Task was cancelled, do nothing
@@ -291,7 +297,7 @@ struct GuionElementRow<TrailingContent: View>: View {
 
     /// Handles hover state changes on the popover
     private func handlePopoverHover(_ hovering: Bool) {
-        isHoveringPopover = hovering
+        popoverState.isHoveringPopover = hovering
 
         if hovering {
             // Cancel any pending dismissal - user is now hovering popover
@@ -303,8 +309,8 @@ struct GuionElementRow<TrailingContent: View>: View {
                 do {
                     try await Task.sleep(for: .milliseconds(Int(gracePeriod * 1000)))
                     // Only hide if not hovering either element or popover
-                    if !isHovering {
-                        showPopover = false
+                    if !popoverState.isHovering {
+                        popoverState.isVisible = false
                     }
                 } catch {
                     // Task was cancelled, do nothing
@@ -317,21 +323,21 @@ struct GuionElementRow<TrailingContent: View>: View {
 
     /// Handles changes in long-press state (visual feedback)
     private func handleLongPressChanged(_ pressing: Bool) {
-        isLongPressing = pressing
+        popoverState.isLongPressing = pressing
 
         if !pressing {
             // Long-press was cancelled (finger moved or lifted too early)
             // Reset state
-            isLongPressing = false
+            popoverState.isLongPressing = false
         }
     }
 
     /// Handles completion of long-press gesture (triggers popover)
     private func handleLongPressComplete() {
-        isLongPressing = false
+        popoverState.isLongPressing = false
 
         // Show popover
-        showPopover = true
+        popoverState.isVisible = true
 
         // Trigger haptic feedback on iOS
         #if os(iOS)
@@ -347,7 +353,7 @@ struct GuionElementRow<TrailingContent: View>: View {
     private func handleTap() {
         #if os(iOS)
         // Toggle popover
-        showPopover.toggle()
+        popoverState.isVisible.toggle()
 
         // Trigger haptic feedback
         let generator = UIImpactFeedbackGenerator(style: .light)
@@ -357,9 +363,9 @@ struct GuionElementRow<TrailingContent: View>: View {
 
     /// Dismisses the popover
     private func dismissPopover() {
-        showPopover = false
-        isHoveringElement = false
-        isHoveringPopover = false
+        popoverState.isVisible = false
+        popoverState.isHoveringElement = false
+        popoverState.isHoveringPopover = false
         hoverTask?.cancel()
         gracePeriodTask?.cancel()
     }

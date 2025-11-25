@@ -16,6 +16,9 @@ public struct GuionElementsList<TrailingContent: View>: View {
 
     private let trailingContent: ((GuionElementModel) -> TrailingContent)?
 
+    /// Cached spacing map: true if element needs spacing after it
+    @State private var spacingMap: [PersistentIdentifier: Bool] = [:]
+
     /// Creates a GuionElementsList with all elements in order
     public init() where TrailingContent == EmptyView {
         _elements = Query(sort: [
@@ -71,23 +74,12 @@ public struct GuionElementsList<TrailingContent: View>: View {
     public var body: some View {
         ScrollView {
             LazyVStack(spacing: 0, pinnedViews: []) {
-                ForEach(Array(elements.indices), id: \.self) { index in
-                    let element = elements[index]
+                ForEach(Array(elements.enumerated()), id: \.element.id) { index, element in
                     VStack(spacing: 0) {
                         GuionElementRow(element: element, trailingContent: trailingContent)
 
-                        // Add full line spacing after action lines
-                        if element.elementType == .action {
-                            Spacer()
-                                .frame(height: fontSize * ScreenplayPageFormat.lineSpacingMultiplier)
-                        }
-                        // Add full line spacing after synopsis
-                        else if element.elementType == .synopsis {
-                            Spacer()
-                                .frame(height: fontSize * ScreenplayPageFormat.lineSpacingMultiplier)
-                        }
-                        // Add full line spacing after dialogue groups (character + dialogue/parenthetical)
-                        else if isEndOfDialogueGroup(at: index) {
+                        // Add full line spacing using cached spacing map
+                        if spacingMap[element.persistentModelID] == true {
                             Spacer()
                                 .frame(height: fontSize * ScreenplayPageFormat.lineSpacingMultiplier)
                         }
@@ -98,13 +90,53 @@ public struct GuionElementsList<TrailingContent: View>: View {
             .padding(.horizontal, 0)
         }
         .environmentObject(dismissCoordinator)
+        .onAppear {
+            computeSpacingMap()
+        }
+        .onChange(of: elements.count) { _, _ in
+            computeSpacingMap()
+        }
     }
 
     // MARK: - Spacing Helpers
 
+    /// Pre-compute which elements need spacing after them
+    /// This eliminates N+1 lookups during scroll by computing the map once
+    private func computeSpacingMap() {
+        var map: [PersistentIdentifier: Bool] = [:]
+
+        for (index, element) in elements.enumerated() {
+            // Action and synopsis always get spacing
+            if element.elementType == .action || element.elementType == .synopsis {
+                map[element.persistentModelID] = true
+                continue
+            }
+
+            // Dialogue and parenthetical get spacing if at end of dialogue group
+            if element.elementType == .dialogue || element.elementType == .parenthetical {
+                // Check if there's a next element
+                if index + 1 < elements.count {
+                    let nextElement = elements[index + 1]
+                    // Group ends if next element is NOT dialogue or parenthetical
+                    map[element.persistentModelID] = (nextElement.elementType != .dialogue && nextElement.elementType != .parenthetical)
+                } else {
+                    // Last element in list - it ends the group
+                    map[element.persistentModelID] = true
+                }
+            } else {
+                // All other element types don't get spacing
+                map[element.persistentModelID] = false
+            }
+        }
+
+        spacingMap = map
+    }
+
     /// Determines if the element at the given index is the end of a dialogue group
     /// A dialogue group consists of: character, dialogue, parenthetical (in any combination)
     /// The group ends when the next element is NOT dialogue or parenthetical
+    /// - Note: This function is deprecated in favor of the cached spacingMap
+    @available(*, deprecated, message: "Use spacingMap instead for better performance")
     private func isEndOfDialogueGroup(at index: Int) -> Bool {
         let element = elements[index]
 
