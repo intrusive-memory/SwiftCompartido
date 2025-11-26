@@ -160,13 +160,13 @@ public struct GuionElementsList<TrailingContent: View>: View {
                 continue
             }
 
-            // Dialogue and parenthetical get spacing if at end of dialogue group
-            if element.elementType == .dialogue || element.elementType == .parenthetical {
+            // Dialogue, parenthetical, and lyrics get spacing if at end of dialogue group
+            if element.elementType == .dialogue || element.elementType == .parenthetical || element.elementType == .lyrics {
                 // Check if there's a next element
                 if index + 1 < elements.count {
                     let nextElement = elements[index + 1]
-                    // Group ends if next element is NOT dialogue or parenthetical
-                    map[element.persistentModelID] = (nextElement.elementType != .dialogue && nextElement.elementType != .parenthetical)
+                    // Group ends if next element is NOT dialogue, parenthetical, or lyrics
+                    map[element.persistentModelID] = (nextElement.elementType != .dialogue && nextElement.elementType != .parenthetical && nextElement.elementType != .lyrics)
                 } else {
                     // Last element in list - it ends the group
                     map[element.persistentModelID] = true
@@ -181,15 +181,15 @@ public struct GuionElementsList<TrailingContent: View>: View {
     }
 
     /// Determines if the element at the given index is the end of a dialogue group
-    /// A dialogue group consists of: character, dialogue, parenthetical (in any combination)
-    /// The group ends when the next element is NOT dialogue or parenthetical
+    /// A dialogue group consists of: character, dialogue, parenthetical, lyrics (in any combination)
+    /// The group ends when the next element is NOT dialogue, parenthetical, or lyrics
     /// - Note: This function is deprecated in favor of the cached spacingMap
     @available(*, deprecated, message: "Use spacingMap instead for better performance")
     private func isEndOfDialogueGroup(at index: Int) -> Bool {
         let element = elements[index]
 
-        // Only dialogue and parenthetical elements can end a dialogue group
-        guard element.elementType == .dialogue || element.elementType == .parenthetical else {
+        // Only dialogue, parenthetical, and lyrics elements can end a dialogue group
+        guard element.elementType == .dialogue || element.elementType == .parenthetical || element.elementType == .lyrics else {
             return false
         }
 
@@ -201,9 +201,9 @@ public struct GuionElementsList<TrailingContent: View>: View {
 
         let nextElement = elements[index + 1]
 
-        // Group continues if next element is dialogue or parenthetical
+        // Group continues if next element is dialogue, parenthetical, or lyrics
         // Group ends if next element is anything else
-        return nextElement.elementType != .dialogue && nextElement.elementType != .parenthetical
+        return nextElement.elementType != .dialogue && nextElement.elementType != .parenthetical && nextElement.elementType != .lyrics
     }
 }
 

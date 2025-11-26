@@ -77,8 +77,8 @@ public struct DialogueBlockView: View {
         // Calculate fixed character widths instead of using GeometryReader
         // This eliminates layout calculations during scroll
         let characterWidth = fontSize * ScreenplayPageFormat.courierCharacterAspectRatio
-        let backgroundLeftMargin = characterWidth * (ScreenplayPageFormat.charactersPerLine * 0.22)   // 22% of 65 characters
-        let backgroundWidth = characterWidth * (ScreenplayPageFormat.charactersPerLine * 0.56)        // 56% of 65 characters
+        let backgroundLeftMargin = characterWidth * (0.22 * ScreenplayPageFormat.charactersPerLine)  // 22% left margin
+        let backgroundWidth = characterWidth * (0.56 * ScreenplayPageFormat.charactersPerLine)        // 56% width
 
         VStack(alignment: .leading, spacing: 0) {
             Spacer(minLength: 20)

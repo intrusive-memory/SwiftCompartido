@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import Observation
 
 /// Observable state that detects active scrolling
 ///
