@@ -21,8 +21,8 @@ public struct TransitionView: View {
         // Calculate fixed character widths instead of using GeometryReader
         // This eliminates layout calculations during scroll
         let characterWidth = fontSize * ScreenplayPageFormat.courierCharacterAspectRatio
-        let leftMarginWidth = characterWidth * 42.25  // 65% of 65 characters = 42.25 characters
-        let contentMaxWidth = characterWidth * 22.75  // 35% of 65 characters = 22.75 characters
+        let leftMarginWidth = characterWidth * (ScreenplayPageFormat.charactersPerLine * 0.65)  // 65% of 65 characters
+        let contentMaxWidth = characterWidth * (ScreenplayPageFormat.charactersPerLine * 0.35)  // 35% of 65 characters
 
         HStack(alignment: .top, spacing: 0) {
             // 65% left margin for right-aligned effect (42.25 characters)
