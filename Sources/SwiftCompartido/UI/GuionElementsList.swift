@@ -8,11 +8,21 @@
 import SwiftUI
 import SwiftData
 
+/// PreferenceKey for tracking scroll position
+private struct ScrollOffsetPreferenceKey: PreferenceKey {
+    static let defaultValue: CGFloat = 0
+
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = nextValue()
+    }
+}
+
 /// Simple list displaying GuionElementModels from SwiftData
 public struct GuionElementsList<TrailingContent: View>: View {
     @Query private var elements: [GuionElementModel]
     @Environment(\.screenplayFontSize) var fontSize
     @StateObject private var dismissCoordinator = PopoverDismissCoordinator()
+    @State private var scrollState = ScrollDetectionState()
 
     private let trailingContent: ((GuionElementModel) -> TrailingContent)?
 
@@ -74,6 +84,13 @@ public struct GuionElementsList<TrailingContent: View>: View {
     public var body: some View {
         ScrollView {
             LazyVStack(spacing: 0, pinnedViews: []) {
+                // Scroll position tracker (invisible)
+                GeometryReader { geometry in
+                    Color.clear
+                        .preference(key: ScrollOffsetPreferenceKey.self, value: geometry.frame(in: .named("scroll")).minY)
+                }
+                .frame(height: 0)
+
                 ForEach(Array(elements.enumerated()), id: \.element.id) { index, element in
                     VStack(spacing: 0) {
                         GuionElementRow(element: element, trailingContent: trailingContent)
@@ -89,12 +106,20 @@ public struct GuionElementsList<TrailingContent: View>: View {
             }
             .padding(.horizontal, 0)
         }
+        .coordinateSpace(name: "scroll")
+        .onPreferenceChange(ScrollOffsetPreferenceKey.self) { offset in
+            scrollState.updateScrollPosition(offset)
+        }
+        .environment(scrollState)
         .environmentObject(dismissCoordinator)
         .onAppear {
             computeSpacingMap()
         }
         .onChange(of: elements.count) { _, _ in
             computeSpacingMap()
+        }
+        .onDisappear {
+            scrollState.reset()
         }
     }
 

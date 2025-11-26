@@ -35,6 +35,7 @@ struct GuionElementRow<TrailingContent: View>: View {
     @EnvironmentObject private var dismissCoordinator: PopoverDismissCoordinator
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(ElementProgressState.self) private var progressState
+    @Environment(ScrollDetectionState.self) private var scrollState
 
     /// Check if this element's document is a markdown file
     private var isMarkdownDocument: Bool {
@@ -80,6 +81,7 @@ struct GuionElementRow<TrailingContent: View>: View {
                         dismissPopover()
                     }
                 }
+                .allowsHitTesting(!scrollState.isScrolling)
                 #endif
 
                 // Hover target area (only shown if popover is available)
@@ -98,6 +100,7 @@ struct GuionElementRow<TrailingContent: View>: View {
             }, onPressingChanged: { pressing in
                 handleLongPressChanged(pressing)
             })
+            .allowsHitTesting(!scrollState.isScrolling)
             #endif
             .overlay(alignment: .topTrailing) {
                 if popoverState.isVisible, let provider = popoverProvider {
@@ -108,6 +111,7 @@ struct GuionElementRow<TrailingContent: View>: View {
                         .onTapGesture {
                             // Allow taps inside popover (prevent dismissal)
                         }
+                        .allowsHitTesting(!scrollState.isScrolling)
                 }
             }
 
@@ -133,7 +137,11 @@ struct GuionElementRow<TrailingContent: View>: View {
             if let provider = contextMenuProvider {
                 provider.menuBuilder(element)
             }
+        } preview: {
+            // Empty preview to enable context menu with allowsHitTesting
+            EmptyView()
         }
+        .allowsHitTesting(!scrollState.isScrolling)
     }
 
     // MARK: - Hover Target
@@ -158,6 +166,7 @@ struct GuionElementRow<TrailingContent: View>: View {
                 handleTap()
             }
             #endif
+            .allowsHitTesting(!scrollState.isScrolling)
     }
 
     // MARK: - Element View
