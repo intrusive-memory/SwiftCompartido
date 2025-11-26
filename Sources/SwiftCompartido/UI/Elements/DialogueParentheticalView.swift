@@ -20,8 +20,8 @@ public struct DialogueParentheticalView: View {
         // Calculate fixed character widths instead of using GeometryReader
         // This eliminates layout calculations during scroll
         let characterWidth = fontSize * ScreenplayPageFormat.courierCharacterAspectRatio
-        let leftMarginWidth = characterWidth * 20.8  // 32% of 65 characters = 20.8 characters
-        let contentMaxWidth = characterWidth * 24.7  // 38% of 65 characters = 24.7 characters
+        let leftMarginWidth = characterWidth * (ScreenplayPageFormat.charactersPerLine * 0.32)  // 32% of 65 characters
+        let contentMaxWidth = characterWidth * (ScreenplayPageFormat.charactersPerLine * 0.38)  // 38% of 65 characters
 
         HStack(alignment: .top, spacing: 0) {
             // 32% left margin for parentheticals (20.8 characters)
