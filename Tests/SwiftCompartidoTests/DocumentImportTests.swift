@@ -42,7 +42,44 @@ final class DocumentImportTests: XCTestCase {
         guard let path = bundle.resourcePath else {
             throw NSError(domain: "Test", code: 1, userInfo: [NSLocalizedDescriptionKey: "Could not find resource path"])
         }
-        fixturesPath = URL(fileURLWithPath: path).appendingPathComponent("Fixtures")
+
+        // Try Fixtures subdirectory first (local development), then fall back to root (Xcode Cloud)
+        let fixturesSubdir = URL(fileURLWithPath: path).appendingPathComponent("Fixtures")
+        if FileManager.default.fileExists(atPath: fixturesSubdir.path) {
+            fixturesPath = fixturesSubdir
+        } else {
+            // On Xcode Cloud, fixtures might be at the root level
+            fixturesPath = URL(fileURLWithPath: path)
+        }
+    }
+
+    /// Helper to find fixture files that might be in Fixtures/ or at the root
+    private func fixtureURL(for filename: String) -> URL {
+        let url = fixturesPath.appendingPathComponent(filename)
+        if FileManager.default.fileExists(atPath: url.path) {
+            return url
+        }
+
+        // If not found in fixturesPath, try alternate location
+        let bundle: Bundle
+        #if SWIFT_PACKAGE
+        bundle = Bundle.module
+        #else
+        bundle = Bundle(for: type(of: self))
+        #endif
+
+        if let path = bundle.resourcePath {
+            let alternateBase = fixturesPath.path.contains("Fixtures")
+                ? URL(fileURLWithPath: path)  // Try root if we were using Fixtures/
+                : URL(fileURLWithPath: path).appendingPathComponent("Fixtures")  // Try Fixtures/ if we were using root
+            let alternateURL = alternateBase.appendingPathComponent(filename)
+            if FileManager.default.fileExists(atPath: alternateURL.path) {
+                return alternateURL
+            }
+        }
+
+        // Return original path even if it doesn't exist (let test handle the error)
+        return url
     }
 
     override func tearDown() async throws {
@@ -134,7 +171,7 @@ final class DocumentImportTests: XCTestCase {
 
     func testImportHighlandFile() throws {
         // Check if we have Highland test files
-        let highlandURL = fixturesPath.appendingPathComponent("bigfish.highland")
+        let highlandURL = fixtureURL(for: "bigfish.highland")
 
         if FileManager.default.fileExists(atPath: highlandURL.path) {
             // Test transformation
@@ -349,7 +386,7 @@ final class DocumentImportTests: XCTestCase {
 
     func testHighlandFileWithOutlineElements() async throws {
         // Test parsing of Highland file that contains only outline elements (synopsis)
-        let highlandURL = fixturesPath.appendingPathComponent("a fool in the desert.highland")
+        let highlandURL = fixtureURL(for: "a fool in the desert.highland")
 
         // Verify file exists
         guard FileManager.default.fileExists(atPath: highlandURL.path) else {
@@ -397,7 +434,7 @@ final class DocumentImportTests: XCTestCase {
 
     func testHighlandToSwiftDataConversion() async throws {
         // Test converting Highland file with outline elements to SwiftData
-        let highlandURL = fixturesPath.appendingPathComponent("a fool in the desert.highland")
+        let highlandURL = fixtureURL(for: "a fool in the desert.highland")
 
         guard FileManager.default.fileExists(atPath: highlandURL.path) else {
             XCTFail("Highland test file 'a fool in the desert.highland' not found")
