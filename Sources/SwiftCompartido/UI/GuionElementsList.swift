@@ -17,6 +17,29 @@ private struct ScrollOffsetPreferenceKey: PreferenceKey {
     }
 }
 
+/// Container view for element rows with stable identity
+///
+/// This view wraps GuionElementRow and its spacing with a stable identity
+/// based on the element's persistent model ID to optimize list performance.
+private struct ElementRowContainer<TrailingContent: View>: View {
+    let element: GuionElementModel
+    let needsSpacing: Bool
+    let fontSize: CGFloat
+    let trailingContent: ((GuionElementModel) -> TrailingContent)?
+
+    var body: some View {
+        VStack(spacing: 0) {
+            GuionElementRow(element: element, trailingContent: trailingContent)
+
+            // Add full line spacing using cached spacing map
+            if needsSpacing {
+                Spacer()
+                    .frame(height: fontSize * ScreenplayPageFormat.lineSpacingMultiplier)
+            }
+        }
+    }
+}
+
 /// Simple list displaying GuionElementModels from SwiftData
 public struct GuionElementsList<TrailingContent: View>: View {
     @Query private var elements: [GuionElementModel]
@@ -91,21 +114,20 @@ public struct GuionElementsList<TrailingContent: View>: View {
                 }
                 .frame(height: 0)
 
-                ForEach(Array(elements.enumerated()), id: \.element.id) { index, element in
-                    VStack(spacing: 0) {
-                        GuionElementRow(element: element, trailingContent: trailingContent)
-
-                        // Add full line spacing using cached spacing map
-                        if spacingMap[element.persistentModelID] == true {
-                            Spacer()
-                                .frame(height: fontSize * ScreenplayPageFormat.lineSpacingMultiplier)
-                        }
-                    }
-                    .id(element.id)
+                ForEach(elements, id: \.persistentModelID) { element in
+                    ElementRowContainer(
+                        element: element,
+                        needsSpacing: spacingMap[element.persistentModelID] == true,
+                        fontSize: fontSize,
+                        trailingContent: trailingContent
+                    )
+                    .id(element.persistentModelID)
                 }
             }
+            .scrollTargetLayout()
             .padding(.horizontal, 0)
         }
+        .scrollBounceBehavior(.basedOnSize)
         .coordinateSpace(name: "scroll")
         .onPreferenceChange(ScrollOffsetPreferenceKey.self) { offset in
             scrollState.updateScrollPosition(offset)

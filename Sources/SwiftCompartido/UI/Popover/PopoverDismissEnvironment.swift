@@ -39,7 +39,7 @@ private struct PopoverDismissActionKey: EnvironmentKey {
 }
 
 private struct PopoverDismissIDKey: EnvironmentKey {
-    nonisolated(unsafe) static let defaultValue = UUID()
+    static let defaultValue = UUID()
 }
 
 extension EnvironmentValues {
