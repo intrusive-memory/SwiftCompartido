@@ -32,7 +32,8 @@ struct GuionElementRow<TrailingContent: View>: View {
 
     @Environment(\.guionElementPopover) private var popoverProvider
     @Environment(\.guionElementContextMenu) private var contextMenuProvider
-    @EnvironmentObject private var dismissCoordinator: PopoverDismissCoordinator
+    @Environment(\.popoverDismissAction) private var dismissAction
+    @Environment(\.popoverDismissID) private var dismissID
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(ElementProgressState.self) private var progressState
     @Environment(ScrollDetectionState.self) private var scrollState
@@ -120,15 +121,16 @@ struct GuionElementRow<TrailingContent: View>: View {
                 ElementProgressBar(element: element)
             }
         }
-        .onChange(of: dismissCoordinator.shouldDismiss) { oldValue, newValue in
-            if newValue == true && popoverState.isVisible {
+        .onChange(of: dismissID) { _, _ in
+            // Dismiss popover when dismissID changes
+            if popoverState.isVisible {
                 dismissPopover()
             }
         }
         .onDisappear {
-            // Dismiss popover when row disappears (e.g., during scroll)
+            // Trigger dismissal of all popovers when row disappears
             if popoverState.isVisible {
-                dismissCoordinator.triggerDismiss()
+                dismissAction?()
             }
         }
         .contextMenu {

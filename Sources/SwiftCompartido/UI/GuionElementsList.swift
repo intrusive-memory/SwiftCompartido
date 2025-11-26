@@ -21,8 +21,8 @@ private struct ScrollOffsetPreferenceKey: PreferenceKey {
 public struct GuionElementsList<TrailingContent: View>: View {
     @Query private var elements: [GuionElementModel]
     @Environment(\.screenplayFontSize) var fontSize
-    @StateObject private var dismissCoordinator = PopoverDismissCoordinator()
     @State private var scrollState = ScrollDetectionState()
+    @State private var dismissID = UUID()
 
     private let trailingContent: ((GuionElementModel) -> TrailingContent)?
 
@@ -111,7 +111,8 @@ public struct GuionElementsList<TrailingContent: View>: View {
             scrollState.updateScrollPosition(offset)
         }
         .environment(scrollState)
-        .environmentObject(dismissCoordinator)
+        .environment(\.popoverDismissAction, { dismissID = UUID() })
+        .environment(\.popoverDismissID, dismissID)
         .onAppear {
             computeSpacingMap()
         }
