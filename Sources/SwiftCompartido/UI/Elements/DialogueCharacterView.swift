@@ -20,8 +20,8 @@ public struct DialogueCharacterView: View {
         // Calculate fixed character widths instead of using GeometryReader
         // This eliminates layout calculations during scroll
         let characterWidth = fontSize * ScreenplayPageFormat.courierCharacterAspectRatio
-        let leftMarginWidth = characterWidth * 26  // 40% of 65 characters = 26 characters
-        let contentMaxWidth = characterWidth * 39  // 60% of 65 characters = 39 characters
+        let leftMarginWidth = characterWidth * (ScreenplayPageFormat.charactersPerLine * 0.40)  // 40% of 65 characters
+        let contentMaxWidth = characterWidth * (ScreenplayPageFormat.charactersPerLine * 0.60)  // 60% of 65 characters
 
         HStack(alignment: .bottom, spacing: 0) {
             // 40% left margin for character names (26 characters)
