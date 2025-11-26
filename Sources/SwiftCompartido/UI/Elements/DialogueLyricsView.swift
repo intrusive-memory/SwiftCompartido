@@ -20,8 +20,8 @@ public struct DialogueLyricsView: View {
         // Calculate fixed character widths instead of using GeometryReader
         // This eliminates layout calculations during scroll
         let characterWidth = fontSize * ScreenplayPageFormat.courierCharacterAspectRatio
-        let leftMarginWidth = characterWidth * 16.25  // 25% of 65 characters = 16.25 characters
-        let contentMaxWidth = characterWidth * 32.5   // 50% of 65 characters = 32.5 characters
+        let leftMarginWidth = characterWidth * (ScreenplayPageFormat.charactersPerLine * 0.25)  // 25% of 65 characters
+        let contentMaxWidth = characterWidth * (ScreenplayPageFormat.charactersPerLine * 0.50)   // 50% of 65 characters
 
         HStack(alignment: .top, spacing: 0) {
             // 25% left margin for lyrics (16.25 characters)
