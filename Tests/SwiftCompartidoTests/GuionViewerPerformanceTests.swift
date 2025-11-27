@@ -65,52 +65,32 @@ final class GuionViewerPerformanceTests: XCTestCase {
 
         """
 
+        // Template for scene elements (each element adds 1 to count)
+        let sceneTemplate: [(text: String, elementCount: Int)] = [
+            ("INT. TEST LOCATION {scene} - DAY\n\n", 1),
+            ("Action description for scene {scene}. This is a longer action line that contains enough text to be realistic for testing purposes. It might span multiple lines when rendered.\n\n", 1),
+            ("CHARACTER ONE\n", 1),
+            ("This is dialogue from character one in scene {scene}. It contains **bold text**, *italic text*, and _underlined text_ to test formatting performance.\n\n", 1),
+            ("CHARACTER TWO\n", 1),
+            ("(excited)\n", 1),
+            ("A response from character two with a parenthetical!\n\n", 1),
+            ("Another action happens in scene {scene}.\n\n", 1),
+            ("CHARACTER THREE\n", 1),
+            ("Final dialogue for this scene from character three.\n\n", 1)
+        ]
+
         var currentIndex = 0
-        let elementsPerScene = 10 // Scene heading + action + 4 dialogue blocks (2 each)
-        let sceneCount = (elementCount / elementsPerScene) + 1
+        var sceneNum = 1
 
-        for sceneNum in 1...sceneCount {
-            // Scene heading
-            screenplay += "\nINT. TEST LOCATION \(sceneNum) - DAY\n\n"
-            currentIndex += 1
-            if currentIndex >= elementCount { break }
+        while currentIndex < elementCount {
+            for (template, count) in sceneTemplate {
+                if currentIndex >= elementCount { break }
 
-            // Action
-            screenplay += "Action description for scene \(sceneNum). This is a longer action line that contains enough text to be realistic for testing purposes. It might span multiple lines when rendered.\n\n"
-            currentIndex += 1
-            if currentIndex >= elementCount { break }
-
-            // Dialogue block 1
-            screenplay += "CHARACTER ONE\n"
-            currentIndex += 1
-            if currentIndex >= elementCount { break }
-
-            screenplay += "This is dialogue from character one in scene \(sceneNum). It contains **bold text**, *italic text*, and _underlined text_ to test formatting performance.\n\n"
-            currentIndex += 1
-            if currentIndex >= elementCount { break }
-
-            // Dialogue block 2
-            screenplay += "CHARACTER TWO\n"
-            currentIndex += 1
-            if currentIndex >= elementCount { break }
-
-            screenplay += "(excited)\nA response from character two with a parenthetical!\n\n"
-            currentIndex += 2 // parenthetical + dialogue
-            if currentIndex >= elementCount { break }
-
-            // Additional action
-            screenplay += "Another action happens in scene \(sceneNum).\n\n"
-            currentIndex += 1
-            if currentIndex >= elementCount { break }
-
-            // Dialogue block 3
-            screenplay += "CHARACTER THREE\n"
-            currentIndex += 1
-            if currentIndex >= elementCount { break }
-
-            screenplay += "Final dialogue for this scene from character three.\n\n"
-            currentIndex += 1
-            if currentIndex >= elementCount { break }
+                let text = template.replacingOccurrences(of: "{scene}", with: "\(sceneNum)")
+                screenplay += text
+                currentIndex += count
+            }
+            sceneNum += 1
         }
 
         screenplay += "\nFADE OUT.\n"
@@ -137,7 +117,11 @@ final class GuionViewerPerformanceTests: XCTestCase {
     func testParsePerformance_100Elements() throws {
         let screenplay = generateLargeScreenplay(elementCount: 100)
 
-        measure(metrics: [XCTClockMetric(), XCTMemoryMetric()]) {
+        let metrics: [XCTMetric] = [XCTClockMetric(), XCTMemoryMetric()]
+        let options = XCTMeasureOptions()
+        options.iterationCount = measureIterations
+
+        measure(metrics: metrics, options: options) {
             let expectation = self.expectation(description: "Parse 100 elements")
             let scriptCopy = screenplay
             Task { @Sendable in
@@ -151,7 +135,11 @@ final class GuionViewerPerformanceTests: XCTestCase {
     func testParsePerformance_500Elements() throws {
         let screenplay = generateLargeScreenplay(elementCount: 500)
 
-        measure(metrics: [XCTClockMetric(), XCTMemoryMetric()]) {
+        let metrics: [XCTMetric] = [XCTClockMetric(), XCTMemoryMetric()]
+        let options = XCTMeasureOptions()
+        options.iterationCount = measureIterations
+
+        measure(metrics: metrics, options: options) {
             let expectation = self.expectation(description: "Parse 500 elements")
             let scriptCopy = screenplay
             Task { @Sendable in
@@ -165,7 +153,11 @@ final class GuionViewerPerformanceTests: XCTestCase {
     func testParsePerformance_1000Elements() throws {
         let screenplay = generateLargeScreenplay(elementCount: 1000)
 
-        measure(metrics: [XCTClockMetric(), XCTMemoryMetric()]) {
+        let metrics: [XCTMetric] = [XCTClockMetric(), XCTMemoryMetric()]
+        let options = XCTMeasureOptions()
+        options.iterationCount = measureIterations
+
+        measure(metrics: metrics, options: options) {
             let expectation = self.expectation(description: "Parse 1000 elements")
             let scriptCopy = screenplay
             Task { @Sendable in
@@ -179,7 +171,11 @@ final class GuionViewerPerformanceTests: XCTestCase {
     func testParsePerformance_5000Elements() throws {
         let screenplay = generateLargeScreenplay(elementCount: 5000)
 
-        measure(metrics: [XCTClockMetric(), XCTMemoryMetric()]) {
+        let metrics: [XCTMetric] = [XCTClockMetric(), XCTMemoryMetric()]
+        let options = XCTMeasureOptions()
+        options.iterationCount = 3  // Reduced for large dataset
+
+        measure(metrics: metrics, options: options) {
             let expectation = self.expectation(description: "Parse 5000 elements")
             let scriptCopy = screenplay
             Task { @Sendable in
@@ -200,7 +196,11 @@ final class GuionViewerPerformanceTests: XCTestCase {
             configurations: config
         )
 
-        measure(metrics: [XCTClockMetric(), XCTMemoryMetric()]) {
+        let metrics: [XCTMetric] = [XCTClockMetric(), XCTMemoryMetric()]
+        let options = XCTMeasureOptions()
+        options.iterationCount = measureIterations
+
+        measure(metrics: metrics, options: options) {
             let expectation = self.expectation(description: "Convert 100 elements")
             Task {
                 _ = try await createDocument(from: screenplay, in: container)
@@ -221,7 +221,11 @@ final class GuionViewerPerformanceTests: XCTestCase {
             configurations: config
         )
 
-        measure(metrics: [XCTClockMetric(), XCTMemoryMetric()]) {
+        let metrics: [XCTMetric] = [XCTClockMetric(), XCTMemoryMetric()]
+        let options = XCTMeasureOptions()
+        options.iterationCount = measureIterations
+
+        measure(metrics: metrics, options: options) {
             let expectation = self.expectation(description: "Convert 1000 elements")
             Task {
                 _ = try await createDocument(from: screenplay, in: container)
@@ -242,7 +246,12 @@ final class GuionViewerPerformanceTests: XCTestCase {
             configurations: config
         )
 
-        measure(metrics: [XCTClockMetric(), XCTMemoryMetric()]) {
+        // For very large datasets, use fewer iterations to avoid CI timeouts
+        let metrics: [XCTMetric] = [XCTClockMetric(), XCTMemoryMetric()]
+        let options = XCTMeasureOptions()
+        options.iterationCount = 3  // Reduced from default 10 (3 * 24s = ~72s vs 240s)
+
+        measure(metrics: metrics, options: options) {
             let expectation = self.expectation(description: "Convert 5000 elements")
             Task {
                 _ = try await createDocument(from: screenplay, in: container)
@@ -354,7 +363,7 @@ final class GuionViewerPerformanceTests: XCTestCase {
 
     // MARK: - End-to-End Performance Tests
 
-    func testEndToEnd_ParseAndRender_1000Elements() throws {
+    func testEndToEnd_ParseAndRender_1000Elements() async throws {
         let screenplay = generateLargeScreenplay(elementCount: 1000)
 
         print("\n📊 PERFORMANCE BASELINE - 1000 Elements")
@@ -362,19 +371,8 @@ final class GuionViewerPerformanceTests: XCTestCase {
 
         // Measure parsing
         let parseStart = Date()
-        let parseExpectation = self.expectation(description: "Parse")
-        var parsed: GuionParsedElementCollection?
-        Task {
-            parsed = try await GuionParsedElementCollection(string: screenplay)
-            parseExpectation.fulfill()
-        }
-        wait(for: [parseExpectation], timeout: asyncTimeout)
+        let parsed = try await GuionParsedElementCollection(string: screenplay)
         let parseTime = Date().timeIntervalSince(parseStart)
-
-        guard let screenplay_parsed = parsed else {
-            XCTFail("Failed to parse screenplay")
-            return
-        }
 
         // Measure SwiftData conversion
         let convertStart = Date()
@@ -384,26 +382,15 @@ final class GuionViewerPerformanceTests: XCTestCase {
             configurations: config
         )
 
-        let convertExpectation = self.expectation(description: "Convert")
-        var document: GuionDocumentModel?
-        Task {
-            document = await GuionDocumentParserSwiftData.parse(
-                script: screenplay_parsed,
-                in: container.mainContext
-            )
-            convertExpectation.fulfill()
-        }
-        wait(for: [convertExpectation], timeout: asyncTimeout)
+        let document = await GuionDocumentParserSwiftData.parse(
+            script: parsed,
+            in: container.mainContext
+        )
         let convertTime = Date().timeIntervalSince(convertStart)
-
-        guard let doc = document else {
-            XCTFail("Failed to create document")
-            return
-        }
 
         // Measure sorted access
         let sortStart = Date()
-        let elements = doc.sortedElements
+        let elements = document.sortedElements
         let sortTime = Date().timeIntervalSince(sortStart)
 
         // Measure text formatting (simulates view rendering)
@@ -423,14 +410,21 @@ final class GuionViewerPerformanceTests: XCTestCase {
         print("----------------------------------------")
         print("TOTAL TIME:          \(String(format: "%.3f", totalTime))s")
         print("Elements:            \(elements.count)")
-        print("Avg per element:     \(String(format: "%.4f", totalTime / Double(elements.count)))s")
+
+        // Guard against division by zero
+        if elements.count > 0 {
+            print("Avg per element:     \(String(format: "%.4f", totalTime / Double(elements.count)))s")
+        } else {
+            print("Avg per element:     N/A (no elements)")
+        }
         print("========================================\n")
 
         // Assert reasonable performance thresholds
+        XCTAssertGreaterThan(elements.count, 0, "Should have parsed elements")
         XCTAssertLessThan(totalTime, 30.0, "Total time should be less than 30 seconds for 1000 elements")
     }
 
-    func testEndToEnd_ParseAndRender_5000Elements() throws {
+    func testEndToEnd_ParseAndRender_5000Elements() async throws {
         let screenplay = generateLargeScreenplay(elementCount: 5000)
 
         print("\n📊 PERFORMANCE BASELINE - 5000 Elements")
@@ -438,19 +432,8 @@ final class GuionViewerPerformanceTests: XCTestCase {
 
         // Measure parsing
         let parseStart = Date()
-        let parseExpectation = self.expectation(description: "Parse")
-        var parsed: GuionParsedElementCollection?
-        Task {
-            parsed = try await GuionParsedElementCollection(string: screenplay)
-            parseExpectation.fulfill()
-        }
-        wait(for: [parseExpectation], timeout: asyncTimeout)
+        let parsed = try await GuionParsedElementCollection(string: screenplay)
         let parseTime = Date().timeIntervalSince(parseStart)
-
-        guard let screenplay_parsed = parsed else {
-            XCTFail("Failed to parse screenplay")
-            return
-        }
 
         // Measure SwiftData conversion
         let convertStart = Date()
@@ -460,26 +443,15 @@ final class GuionViewerPerformanceTests: XCTestCase {
             configurations: config
         )
 
-        let convertExpectation = self.expectation(description: "Convert")
-        var document: GuionDocumentModel?
-        Task {
-            document = await GuionDocumentParserSwiftData.parse(
-                script: screenplay_parsed,
-                in: container.mainContext
-            )
-            convertExpectation.fulfill()
-        }
-        wait(for: [convertExpectation], timeout: asyncTimeout)
+        let document = await GuionDocumentParserSwiftData.parse(
+            script: parsed,
+            in: container.mainContext
+        )
         let convertTime = Date().timeIntervalSince(convertStart)
-
-        guard let doc = document else {
-            XCTFail("Failed to create document")
-            return
-        }
 
         // Measure sorted access
         let sortStart = Date()
-        let elements = doc.sortedElements
+        let elements = document.sortedElements
         let sortTime = Date().timeIntervalSince(sortStart)
 
         // Measure text formatting (simulates view rendering)
@@ -499,10 +471,17 @@ final class GuionViewerPerformanceTests: XCTestCase {
         print("----------------------------------------")
         print("TOTAL TIME:          \(String(format: "%.3f", totalTime))s")
         print("Elements:            \(elements.count)")
-        print("Avg per element:     \(String(format: "%.4f", totalTime / Double(elements.count)))s")
+
+        // Guard against division by zero
+        if elements.count > 0 {
+            print("Avg per element:     \(String(format: "%.4f", totalTime / Double(elements.count)))s")
+        } else {
+            print("Avg per element:     N/A (no elements)")
+        }
         print("========================================\n")
 
         // Assert reasonable performance thresholds (more lenient for larger dataset)
+        XCTAssertGreaterThan(elements.count, 0, "Should have parsed elements")
         XCTAssertLessThan(totalTime, 150.0, "Total time should be less than 150 seconds for 5000 elements")
     }
 
