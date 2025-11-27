@@ -52,6 +52,10 @@ final class GuionViewerPerformanceTests: XCTestCase {
     /// Number of iterations for performance measurements
     let measureIterations = 5
 
+    /// Whether to set performance baselines (enable for initial baseline, disable for comparisons)
+    /// Set to `true` when establishing new baselines, `false` when comparing against baselines
+    let establishBaselines = false  // TODO: Set to true on first run, then false
+
     // MARK: - Helper Methods
 
     /// Generates a large screenplay with specified number of elements
@@ -419,6 +423,16 @@ final class GuionViewerPerformanceTests: XCTestCase {
         }
         print("========================================\n")
 
+        // Record metrics for build-to-build tracking
+        await PerformanceMetricsTracker.shared.recordMetric(
+            testName: "ParseAndRender_1000",
+            elementCount: elements.count,
+            parseTime: parseTime,
+            convertTime: convertTime,
+            sortTime: sortTime,
+            formatTime: formatTime
+        )
+
         // Assert reasonable performance thresholds
         XCTAssertGreaterThan(elements.count, 0, "Should have parsed elements")
         XCTAssertLessThan(totalTime, 30.0, "Total time should be less than 30 seconds for 1000 elements")
@@ -480,9 +494,33 @@ final class GuionViewerPerformanceTests: XCTestCase {
         }
         print("========================================\n")
 
+        // Record metrics for build-to-build tracking
+        await PerformanceMetricsTracker.shared.recordMetric(
+            testName: "ParseAndRender_5000",
+            elementCount: elements.count,
+            parseTime: parseTime,
+            convertTime: convertTime,
+            sortTime: sortTime,
+            formatTime: formatTime
+        )
+
         // Assert reasonable performance thresholds (more lenient for larger dataset)
         XCTAssertGreaterThan(elements.count, 0, "Should have parsed elements")
         XCTAssertLessThan(totalTime, 150.0, "Total time should be less than 150 seconds for 5000 elements")
+    }
+
+    // MARK: - Test Suite Lifecycle
+
+    override func tearDown() async throws {
+        // Save performance report after all tests complete
+        try await PerformanceMetricsTracker.shared.saveReport()
+
+        // Optionally compare with baseline
+        if let comparison = try? await PerformanceMetricsTracker.shared.compareWithBaseline() {
+            print(comparison.summary)
+        }
+
+        try await super.tearDown()
     }
 
     // MARK: - Memory Pressure Tests
