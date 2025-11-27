@@ -504,7 +504,7 @@ Task {
 
 SwiftCompartido has **95%+ test coverage** with **437 passing tests** across 28 test suites.
 
-Run tests:
+### Run Tests
 
 ```bash
 # Run all tests (uses xcodebuild)
@@ -521,6 +521,46 @@ xcodebuild test \
 ```
 
 **Note**: Use `./build.sh` or `xcodebuild` for reliable builds and testing.
+
+### Performance Testing
+
+SwiftCompartido includes comprehensive performance benchmarks to track rendering speed and detect regressions:
+
+```bash
+# Run performance tests
+xcodebuild test \
+  -scheme SwiftCompartido \
+  -sdk iphonesimulator \
+  -destination 'platform=iOS Simulator,name=iPhone 17 Pro' \
+  -configuration Release \
+  -only-testing:SwiftCompartidoTests/GuionViewerPerformanceTests \
+  CODE_SIGNING_ALLOWED=NO
+```
+
+**Performance Baselines (iPhone 17 Pro Simulator, arm64):**
+
+| Test | Elements | Parse | Convert | Format | Total | Bottleneck |
+|------|----------|-------|---------|--------|-------|------------|
+| 1000 elements | 1000 | 0.016s | 1.127s | 0.054s | **1.200s** | SwiftData conversion (94%) |
+| 5000 elements | 5000 | 0.072s | 23.732s | 0.234s | **24.050s** | SwiftData conversion (99%) |
+
+**Features:**
+- ✅ **Build-to-build tracking**: JSON reports exported for historical comparison
+- ✅ **Regression detection**: Automatic alerts for >10% performance degradation
+- ✅ **CI integration**: Performance results uploaded as GitHub Actions artifacts
+- ✅ **Bottleneck analysis**: Identifies SwiftData conversion as primary optimization target
+
+**View Performance Reports:**
+```bash
+# Local results
+ls /tmp/performance_results/
+cat /tmp/performance_results/performance_*.json | jq '.'
+
+# CI artifacts
+# Download from GitHub Actions → Artifacts → performance-results
+```
+
+See [CLAUDE.md](./CLAUDE.md#performance-testing--benchmarking) for detailed performance tracking documentation.
 
 ## Development Workflow
 

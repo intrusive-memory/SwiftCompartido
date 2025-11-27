@@ -215,6 +215,98 @@ GuionElementsList(document: screenplay) { element in
 - `GUION_ELEMENTS_LIST_COLUMNS.md`: Trailing column documentation
 - `TEST_COVERAGE_STATUS.md`: Test coverage analysis
 - `.claude/skills/add-guion-element-button.md`: Skill for creating custom buttons
+- `.claude/skills/performance-tracking.md`: Performance tracking strategies
+
+## Performance Testing & Benchmarking
+
+SwiftCompartido includes comprehensive performance testing to track rendering speed and detect regressions.
+
+### Performance Test Suite
+
+Located in `Tests/SwiftCompartidoTests/GuionViewerPerformanceTests.swift`, the suite measures:
+
+- **Parsing performance**: GuionParsedElementCollection on 100-5000 element screenplays
+- **SwiftData conversion**: Parse → SwiftData model creation time
+- **Element access**: `sortedElements` retrieval performance
+- **Text formatting**: FountainTextFormatter (bold, italic, underline) processing
+- **End-to-end benchmarks**: Complete parse → render pipeline
+
+**Run performance tests:**
+```bash
+xcodebuild test \
+  -scheme SwiftCompartido \
+  -sdk iphonesimulator \
+  -destination 'platform=iOS Simulator,name=iPhone 17 Pro' \
+  -configuration Release \
+  -only-testing:SwiftCompartidoTests/GuionViewerPerformanceTests \
+  CODE_SIGNING_ALLOWED=NO
+```
+
+### Performance Baselines (Current)
+
+**1000 Elements:**
+- Parse: 0.016s
+- Convert: 1.127s (94% of total) ← Primary bottleneck
+- Format: 0.054s
+- **Total: 1.200s**
+
+**5000 Elements:**
+- Parse: 0.072s
+- Convert: 23.732s (99% of total) ← Primary bottleneck
+- Format: 0.234s
+- **Total: 24.050s**
+
+**Bottleneck Analysis:**
+1. SwiftData conversion scales poorly (1.1s → 23.7s for 5x elements)
+2. Text formatting is efficient (~1% of total time)
+3. Parsing is negligible (< 1% of total time)
+
+### Build-to-Build Performance Tracking
+
+**PerformanceMetricsTracker** automatically records metrics and exports JSON reports:
+
+```swift
+// Automatically tracked in tests
+await PerformanceMetricsTracker.shared.recordMetric(
+    testName: "ParseAndRender_1000",
+    elementCount: 1000,
+    parseTime: 0.016,
+    convertTime: 1.127,
+    sortTime: 0.003,
+    formatTime: 0.054
+)
+```
+
+**JSON Output Location:** `/tmp/performance_results/performance_*.json`
+
+**Automatic Comparison:**
+- Compares current run with previous baseline
+- Detects regressions >10%
+- Prints diff report in test output
+
+**CI Integration:**
+- Performance tests run after unit tests pass (non-blocking)
+- JSON reports uploaded as artifacts (90-day retention)
+- Available for download from GitHub Actions
+
+**View Reports:**
+```bash
+# Local
+ls /tmp/performance_results/
+cat /tmp/performance_results/performance_*.json | jq '.'
+
+# CI Artifacts
+# Download from GitHub Actions → Artifacts → performance-results
+```
+
+### Future Optimization Targets
+
+Based on current baselines, TextKit 2 implementation should target:
+- **SwiftData conversion**: Pre-compute during parsing phase
+- **Text rendering**: Viewport-based layout (only render visible elements)
+- **Memory usage**: 30-50% reduction via lazy loading
+
+See `.claude/skills/performance-tracking.md` for advanced tracking strategies.
 
 ## Essential Build Commands
 
