@@ -589,7 +589,7 @@ EOF
 
 ## Project Metadata
 
-- **Version**: 5.2.0 (Development version with automated version bump workflow)
+- **Version**: 5.3.0 (Development version with automated version bump workflow)
 - **Swift**: 6.2+
 - **Platforms**: iOS 26.0+, macOS 26.0+
 - **Dependencies**: TextBundle, SwiftFijos (test-only)
