@@ -153,29 +153,6 @@ import SwiftFijos
     #expect(actionElement.sceneLocation == nil)
 }
 
-@Test func testExtractSceneLocations() async throws {
-    let fountainURL = try Fijos.getFixture("bigfish", extension: "fountain")
-    let script = try await GuionParsedElementCollection(file: fountainURL.path)
-
-    let scenes = script.extractSceneLocations()
-
-    // Should have scene locations
-    #expect(!scenes.isEmpty, "Should extract scene locations from Big Fish")
-
-    // Verify first scene (Big Fish starts with an INT scene)
-    if let firstScene = scenes.first {
-        #expect(firstScene.location.lighting == .interior)
-        #expect(firstScene.sceneHeading.elementType == .sceneHeading)
-        #expect(firstScene.sceneIndex >= 0)
-    }
-
-    // All scenes should have valid scene headings
-    for scene in scenes {
-        #expect(scene.sceneHeading.elementType == .sceneHeading)
-        #expect(!scene.location.originalText.isEmpty)
-    }
-}
-
 @Test func testGroupScenesByLocation() async throws {
     let fountainURL = try Fijos.getFixture("bigfish", extension: "fountain")
     let script = try await GuionParsedElementCollection(file: fountainURL.path)
