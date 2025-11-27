@@ -246,6 +246,7 @@ public actor PerformanceMetricsTracker {
     }
 
     private static func executeCommand(_ command: String, args: [String]) -> String {
+        #if os(macOS)
         let task = Process()
         task.executableURL = URL(fileURLWithPath: command)
         task.arguments = args
@@ -261,11 +262,15 @@ public actor PerformanceMetricsTracker {
         } catch {
             return "unknown"
         }
+        #else
+        // Process is not available on iOS
+        return "unavailable on iOS"
+        #endif
     }
 }
 
 /// Comparison between two performance reports
-public struct PerformanceComparison {
+public struct PerformanceComparison: Sendable {
     let current: PerformanceReport
     let baseline: PerformanceReport
 
@@ -307,7 +312,7 @@ public struct PerformanceComparison {
 }
 
 /// Comparison between two metrics for the same test
-public struct MetricComparison {
+public struct MetricComparison: Sendable {
     let current: PerformanceMetric
     let baseline: PerformanceMetric
 

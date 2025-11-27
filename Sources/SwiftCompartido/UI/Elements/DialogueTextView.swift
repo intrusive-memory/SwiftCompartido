@@ -21,7 +21,9 @@ public struct DialogueTextView: View {
             Spacer()
                 .frame(minWidth: 100) // 25% left margin
 
-            Text(FountainTextFormatter.format(
+            // Use pre-computed formatted text if available (NEW in 5.4.0)
+            // Falls back to runtime formatting for backward compatibility
+            Text(element.formattedText ?? FountainTextFormatter.format(
                 element.elementText,
                 baseFont: .custom("Courier New", size: fontSize)
             ))
