@@ -17,26 +17,25 @@ public struct DialogueLyricsView: View {
     }
 
     public var body: some View {
-        GeometryReader { geometry in
-            HStack(alignment: .top, spacing: 0) {
-                // 25% left margin for lyrics
-                Spacer()
-                    .frame(width: geometry.size.width * 0.25)
+        // Calculate fixed character widths instead of using GeometryReader
+        // This eliminates layout calculations during scroll
+        let characterWidth = fontSize * ScreenplayPageFormat.courierCharacterAspectRatio
+        let leftMarginWidth = characterWidth * (ScreenplayPageFormat.charactersPerLine * 0.25)  // 25% of 65 characters
+        let contentMaxWidth = characterWidth * (ScreenplayPageFormat.charactersPerLine * 0.50)   // 50% of 65 characters
 
-                Text(element.elementText)
-                    .font(.custom("Courier New", size: fontSize))
-                    .italic()
-                    .foregroundStyle(.primary)
-                    .textSelection(.enabled)
-                    .frame(
-                        maxWidth: geometry.size.width * 0.50, // 100% - 25% - 25% = 50%
-                        alignment: .leading
-                    )
+        HStack(alignment: .top, spacing: 0) {
+            // 25% left margin for lyrics (16.25 characters)
+            Spacer()
+                .frame(width: leftMarginWidth)
 
-                // 25% right margin
-                Spacer()
-                    .frame(width: geometry.size.width * 0.25)
-            }
+            Text(element.elementText)
+                .font(.custom("Courier New", size: fontSize))
+                .italic()
+                .foregroundStyle(.primary)
+                .textSelection(.enabled)
+                .frame(maxWidth: contentMaxWidth, alignment: .leading)
+
+            Spacer()
         }
         .fixedSize(horizontal: false, vertical: false)
     }

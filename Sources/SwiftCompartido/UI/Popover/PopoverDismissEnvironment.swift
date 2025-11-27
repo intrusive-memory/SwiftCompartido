@@ -2,36 +2,73 @@
 //  PopoverDismissEnvironment.swift
 //  SwiftCompartido
 //
-//  Coordinator for dismissing popovers on scroll
+//  Environment key for popover dismissal callbacks
 //
-//  This coordinator is injected via .environmentObject() rather than .environment()
-//  to ensure that views subscribing to the @Published shouldDismiss property
-//  receive updates when the property changes. Using @EnvironmentObject properly
-//  subscribes the view to the ObservableObject, allowing .onChange() to fire.
+//  Phase 4C Optimization: Replaced @EnvironmentObject with lightweight closure-based approach
+//  to reduce view invalidations when dismissal is triggered.
 //
 
 import SwiftUI
 
-/// Observable object to coordinate popover dismissal across multiple rows
+/// Environment key for popover dismissal callback
 ///
-/// This coordinator is injected into the view hierarchy via `.environmentObject()`
-/// and consumed via `@EnvironmentObject` to ensure proper observation of the
-/// `@Published shouldDismiss` property.
+/// This key provides a lightweight closure-based approach to popover dismissal,
+/// avoiding the overhead of @EnvironmentObject/@Published which invalidates
+/// all observing views when the state changes.
+///
+/// Usage in list view:
+/// ```swift
+/// @State private var dismissID = UUID()
+///
+/// GuionElementsList()
+///     .environment(\.popoverDismissAction, { dismissID = UUID() })
+///     .environment(\.popoverDismissID, dismissID)
+/// ```
+///
+/// Usage in row view:
+/// ```swift
+/// @Environment(\.popoverDismissAction) var dismissAction
+/// @Environment(\.popoverDismissID) var dismissID
+///
+/// .onChange(of: dismissID) { _, _ in
+///     // Dismiss popover
+/// }
+/// ```
+private struct PopoverDismissActionKey: EnvironmentKey {
+    nonisolated(unsafe) static let defaultValue: (() -> Void)? = nil
+}
+
+private struct PopoverDismissIDKey: EnvironmentKey {
+    static let defaultValue = UUID()
+}
+
+extension EnvironmentValues {
+    /// Closure to trigger popover dismissal
+    public var popoverDismissAction: (() -> Void)? {
+        get { self[PopoverDismissActionKey.self] }
+        set { self[PopoverDismissActionKey.self] = newValue }
+    }
+
+    /// ID that changes when popovers should dismiss
+    public var popoverDismissID: UUID {
+        get { self[PopoverDismissIDKey.self] }
+        set { self[PopoverDismissIDKey.self] = newValue }
+    }
+}
+
+/// Legacy coordinator for backward compatibility
+///
+/// This class is deprecated in favor of the environment key approach.
+/// Existing code can continue using it, but new code should use the environment keys.
+@available(*, deprecated, message: "Use environment keys popoverDismissAction and popoverDismissID instead")
 @MainActor
 public class PopoverDismissCoordinator: ObservableObject {
     @Published public var shouldDismiss: Bool = false
 
     public init() {}
 
-    /// Triggers dismissal of all popovers
-    ///
-    /// Sets `shouldDismiss` to `true`, then automatically resets it after 50ms
-    /// to allow for future dismissal events. Views observing this coordinator
-    /// via `@EnvironmentObject` will receive the change and can respond via
-    /// `.onChange(of: coordinator.shouldDismiss)`.
     public func triggerDismiss() {
         shouldDismiss = true
-        // Reset after a short delay to allow for future dismissals
         Task { @MainActor [weak self] in
             try? await Task.sleep(for: .milliseconds(50))
             self?.shouldDismiss = false

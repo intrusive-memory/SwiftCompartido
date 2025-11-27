@@ -42,7 +42,44 @@ final class DocumentExportTests: XCTestCase {
         guard let path = bundle.resourcePath else {
             throw NSError(domain: "Test", code: 1, userInfo: [NSLocalizedDescriptionKey: "Could not find resource path"])
         }
-        fixturesPath = URL(fileURLWithPath: path).appendingPathComponent("Fixtures")
+
+        // Try Fixtures subdirectory first (local development), then fall back to root (Xcode Cloud)
+        let fixturesSubdir = URL(fileURLWithPath: path).appendingPathComponent("Fixtures")
+        if FileManager.default.fileExists(atPath: fixturesSubdir.path) {
+            fixturesPath = fixturesSubdir
+        } else {
+            // On Xcode Cloud, fixtures might be at the root level
+            fixturesPath = URL(fileURLWithPath: path)
+        }
+    }
+
+    /// Helper to find fixture files that might be in Fixtures/ or at the root
+    private func fixtureURL(for filename: String) -> URL {
+        let url = fixturesPath.appendingPathComponent(filename)
+        if FileManager.default.fileExists(atPath: url.path) {
+            return url
+        }
+
+        // If not found in fixturesPath, try alternate location
+        let bundle: Bundle
+        #if SWIFT_PACKAGE
+        bundle = Bundle.module
+        #else
+        bundle = Bundle(for: type(of: self))
+        #endif
+
+        if let path = bundle.resourcePath {
+            let alternateBase = fixturesPath.path.contains("Fixtures")
+                ? URL(fileURLWithPath: path)  // Try root if we were using Fixtures/
+                : URL(fileURLWithPath: path).appendingPathComponent("Fixtures")  // Try Fixtures/ if we were using root
+            let alternateURL = alternateBase.appendingPathComponent(filename)
+            if FileManager.default.fileExists(atPath: alternateURL.path) {
+                return alternateURL
+            }
+        }
+
+        // Return original path even if it doesn't exist (let test handle the error)
+        return url
     }
 
     override func tearDown() async throws {
@@ -262,7 +299,7 @@ final class DocumentExportTests: XCTestCase {
 
     func testImportExportFidelity() async throws {
         // Test if we have BigFish.fountain available
-        let bigFishURL = fixturesPath.appendingPathComponent("BigFish.fountain")
+        let bigFishURL = fixtureURL(for: "BigFish.fountain")
 
         guard FileManager.default.fileExists(atPath: bigFishURL.path) else {
             // Use a synthetic test instead

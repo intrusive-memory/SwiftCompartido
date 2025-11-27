@@ -8,13 +8,49 @@
 import SwiftUI
 import SwiftData
 
+/// PreferenceKey for tracking scroll position
+private struct ScrollOffsetPreferenceKey: PreferenceKey {
+    static let defaultValue: CGFloat = 0
+
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = nextValue()
+    }
+}
+
+/// Container view for element rows with stable identity
+///
+/// This view wraps GuionElementRow and its spacing with a stable identity
+/// based on the element's persistent model ID to optimize list performance.
+private struct ElementRowContainer<TrailingContent: View>: View {
+    let element: GuionElementModel
+    let needsSpacing: Bool
+    let fontSize: CGFloat
+    let trailingContent: ((GuionElementModel) -> TrailingContent)?
+
+    var body: some View {
+        VStack(spacing: 0) {
+            GuionElementRow(element: element, trailingContent: trailingContent)
+
+            // Add full line spacing using cached spacing map
+            if needsSpacing {
+                Spacer()
+                    .frame(height: fontSize * ScreenplayPageFormat.lineSpacingMultiplier)
+            }
+        }
+    }
+}
+
 /// Simple list displaying GuionElementModels from SwiftData
 public struct GuionElementsList<TrailingContent: View>: View {
     @Query private var elements: [GuionElementModel]
     @Environment(\.screenplayFontSize) var fontSize
-    @StateObject private var dismissCoordinator = PopoverDismissCoordinator()
+    @State private var scrollState = ScrollDetectionState()
+    @State private var dismissID = UUID()
 
     private let trailingContent: ((GuionElementModel) -> TrailingContent)?
+
+    /// Cached spacing map: true if element needs spacing after it
+    @State private var spacingMap: [PersistentIdentifier: Bool] = [:]
 
     /// Creates a GuionElementsList with all elements in order
     public init() where TrailingContent == EmptyView {
@@ -71,45 +107,89 @@ public struct GuionElementsList<TrailingContent: View>: View {
     public var body: some View {
         ScrollView {
             LazyVStack(spacing: 0, pinnedViews: []) {
-                ForEach(Array(elements.indices), id: \.self) { index in
-                    let element = elements[index]
-                    VStack(spacing: 0) {
-                        GuionElementRow(element: element, trailingContent: trailingContent)
+                // Scroll position tracker (invisible)
+                GeometryReader { geometry in
+                    Color.clear
+                        .preference(key: ScrollOffsetPreferenceKey.self, value: geometry.frame(in: .named("scroll")).minY)
+                }
+                .frame(height: 0)
 
-                        // Add full line spacing after action lines
-                        if element.elementType == .action {
-                            Spacer()
-                                .frame(height: fontSize * ScreenplayPageFormat.lineSpacingMultiplier)
-                        }
-                        // Add full line spacing after synopsis
-                        else if element.elementType == .synopsis {
-                            Spacer()
-                                .frame(height: fontSize * ScreenplayPageFormat.lineSpacingMultiplier)
-                        }
-                        // Add full line spacing after dialogue groups (character + dialogue/parenthetical)
-                        else if isEndOfDialogueGroup(at: index) {
-                            Spacer()
-                                .frame(height: fontSize * ScreenplayPageFormat.lineSpacingMultiplier)
-                        }
-                    }
-                    .id(element.id)
+                ForEach(elements, id: \.persistentModelID) { element in
+                    ElementRowContainer(
+                        element: element,
+                        needsSpacing: spacingMap[element.persistentModelID] == true,
+                        fontSize: fontSize,
+                        trailingContent: trailingContent
+                    )
+                    .id(element.persistentModelID)
                 }
             }
+            .scrollTargetLayout()
             .padding(.horizontal, 0)
         }
-        .environmentObject(dismissCoordinator)
+        .scrollBounceBehavior(.basedOnSize)
+        .coordinateSpace(name: "scroll")
+        .onPreferenceChange(ScrollOffsetPreferenceKey.self) { offset in
+            scrollState.updateScrollPosition(offset)
+        }
+        .environment(scrollState)
+        .environment(\.popoverDismissAction, { dismissID = UUID() })
+        .environment(\.popoverDismissID, dismissID)
+        .onAppear {
+            computeSpacingMap()
+        }
+        .onChange(of: elements.count) { _, _ in
+            computeSpacingMap()
+        }
+        .onDisappear {
+            scrollState.reset()
+        }
     }
 
     // MARK: - Spacing Helpers
 
+    /// Pre-compute which elements need spacing after them
+    /// This eliminates N+1 lookups during scroll by computing the map once
+    private func computeSpacingMap() {
+        var map: [PersistentIdentifier: Bool] = [:]
+
+        for (index, element) in elements.enumerated() {
+            // Action and synopsis always get spacing
+            if element.elementType == .action || element.elementType == .synopsis {
+                map[element.persistentModelID] = true
+                continue
+            }
+
+            // Dialogue, parenthetical, and lyrics get spacing if at end of dialogue group
+            if element.elementType == .dialogue || element.elementType == .parenthetical || element.elementType == .lyrics {
+                // Check if there's a next element
+                if index + 1 < elements.count {
+                    let nextElement = elements[index + 1]
+                    // Group ends if next element is NOT dialogue, parenthetical, or lyrics
+                    map[element.persistentModelID] = (nextElement.elementType != .dialogue && nextElement.elementType != .parenthetical && nextElement.elementType != .lyrics)
+                } else {
+                    // Last element in list - it ends the group
+                    map[element.persistentModelID] = true
+                }
+            } else {
+                // All other element types don't get spacing
+                map[element.persistentModelID] = false
+            }
+        }
+
+        spacingMap = map
+    }
+
     /// Determines if the element at the given index is the end of a dialogue group
-    /// A dialogue group consists of: character, dialogue, parenthetical (in any combination)
-    /// The group ends when the next element is NOT dialogue or parenthetical
+    /// A dialogue group consists of: character, dialogue, parenthetical, lyrics (in any combination)
+    /// The group ends when the next element is NOT dialogue, parenthetical, or lyrics
+    /// - Note: This function is deprecated in favor of the cached spacingMap
+    @available(*, deprecated, message: "Use spacingMap instead for better performance")
     private func isEndOfDialogueGroup(at index: Int) -> Bool {
         let element = elements[index]
 
-        // Only dialogue and parenthetical elements can end a dialogue group
-        guard element.elementType == .dialogue || element.elementType == .parenthetical else {
+        // Only dialogue, parenthetical, and lyrics elements can end a dialogue group
+        guard element.elementType == .dialogue || element.elementType == .parenthetical || element.elementType == .lyrics else {
             return false
         }
 
@@ -121,9 +201,9 @@ public struct GuionElementsList<TrailingContent: View>: View {
 
         let nextElement = elements[index + 1]
 
-        // Group continues if next element is dialogue or parenthetical
+        // Group continues if next element is dialogue, parenthetical, or lyrics
         // Group ends if next element is anything else
-        return nextElement.elementType != .dialogue && nextElement.elementType != .parenthetical
+        return nextElement.elementType != .dialogue && nextElement.elementType != .parenthetical && nextElement.elementType != .lyrics
     }
 }
 

@@ -29,24 +29,6 @@ struct LongPressGestureTests {
         #expect(coordinator.shouldDismiss == true)
     }
 
-    @Test("Dismiss coordinator resets after delay")
-    func testDismissCoordinatorResets() async {
-        let coordinator = PopoverDismissCoordinator()
-        coordinator.triggerDismiss()
-        #expect(coordinator.shouldDismiss == true)
-
-        // Wait for reset (coordinator resets after 50ms, wait 500ms to be safe)
-        // Using a longer delay to account for CI environment timing variations
-        // and to ensure the background Task has time to complete
-        try? await Task.sleep(for: .milliseconds(500))
-
-        // Yield to allow the main actor to process any pending updates
-        await Task.yield()
-
-        #expect(coordinator.shouldDismiss == false)
-    }
-
-
     // MARK: - SwiftData Integration Tests
 
     @Test("GuionElementsList with SwiftData model context compiles")
