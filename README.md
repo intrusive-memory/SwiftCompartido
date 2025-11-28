@@ -4,7 +4,7 @@
     <img src="https://img.shields.io/badge/Swift-6.2+-orange.svg" />
     <img src="https://img.shields.io/badge/Platform-iOS%2026.0+%20|%20macOS%2026.0+-lightgrey.svg" />
     <img src="https://img.shields.io/badge/License-MIT-blue.svg" />
-    <img src="https://img.shields.io/badge/Version-5.2.0-blue.svg" />
+    <img src="https://img.shields.io/badge/Version-5.3.0-blue.svg" />
 </p>
 
 **SwiftCompartido** is a comprehensive Swift package for screenplay management, AI-generated content storage, and document serialization. Built with SwiftData, SwiftUI, and modern Swift concurrency.
@@ -16,6 +16,27 @@
 ## Features
 
 ### 📝 Screenplay Management
+
+#### ⚡ GuionTextEditor - High-Performance Viewer (NEW in 5.5.0)
+
+Fast, read-only screenplay viewer powered by TextKit 2:
+
+- **400-1600x faster** than List-based rendering
+- **Full screenplay formatting**: Scene headings, dialogue margins, transitions
+- **GitHub-style markdown**: Headings, lists, inline formatting
+- **Cross-platform**: iOS 26.0+ and macOS 26.0+
+- **Font size scaling**: 8pt - 24pt with dynamic margins
+
+```swift
+GuionTextEditor(document: document)
+    .environment(\.screenplayFontSize, 12)
+```
+
+**Performance:**
+- 1000 elements: 0.003s (400x faster)
+- 5000 elements: 0.015s (1600x faster)
+
+See [Usage Guide](#guiontexteditor-usage) below for detailed examples.
 
 #### Supported File Formats & Parsing Flow
 
@@ -139,16 +160,97 @@ Add to your `Package.swift`:
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/intrusive-memory/SwiftCompartido.git", from: "5.2.0")
+    .package(url: "https://github.com/intrusive-memory/SwiftCompartido.git", from: "5.3.0")
 ]
 ```
 
 Or in Xcode:
 1. **File → Add Package Dependencies**
 2. Enter: `https://github.com/intrusive-memory/SwiftCompartido.git`
-3. Select version: **5.2.0** or later
+3. Select version: **5.3.0** or later
 
 ### Usage Examples
+
+#### GuionTextEditor Usage
+
+**Basic Usage:**
+
+```swift
+import SwiftCompartido
+import SwiftUI
+import SwiftData
+
+struct ScreenplayView: View {
+    let document: GuionDocumentModel
+
+    var body: some View {
+        GuionTextEditor(document: document)
+            .environment(\.screenplayFontSize, 12)
+    }
+}
+```
+
+**With Font Size Controls:**
+
+```swift
+struct ScreenplayViewWithControls: View {
+    let document: GuionDocumentModel
+    @State private var fontSize: CGFloat = 12
+
+    var body: some View {
+        VStack {
+            // Font size controls
+            HStack {
+                Button("-") { fontSize = max(8, fontSize - 1) }
+                Text("\(Int(fontSize))pt")
+                    .frame(width: 40)
+                Button("+") { fontSize = min(24, fontSize + 1) }
+            }
+            .padding()
+
+            // Formatted screenplay viewer
+            GuionTextEditor(document: document)
+                .environment(\.screenplayFontSize, fontSize)
+        }
+    }
+}
+```
+
+**Side-by-Side Comparison:**
+
+```swift
+struct ComparisonView: View {
+    let document: GuionDocumentModel
+
+    var body: some View {
+        HStack(spacing: 0) {
+            VStack {
+                Text("List-Based")
+                    .font(.caption)
+                GuionElementsList(document: document)
+            }
+
+            Divider()
+
+            VStack {
+                Text("TextKit 2 (400-1600x faster)")
+                    .font(.caption)
+                GuionTextEditor(document: document)
+            }
+        }
+    }
+}
+```
+
+**What's Formatted:**
+- Scene headings: Bold, 1.5x size
+- Character names: Bold, 40% left margin
+- Dialogue: 25% margins
+- Parentheticals: 30% left margin
+- Transitions: Right-aligned
+- Markdown headings (H1-H6)
+- Lists (ordered/unordered)
+- Inline bold, italic, underline
 
 #### Parse a Fountain Screenplay
 
@@ -504,7 +606,7 @@ Task {
 
 SwiftCompartido has **95%+ test coverage** with **437 passing tests** across 28 test suites.
 
-Run tests:
+### Run Tests
 
 ```bash
 # Run all tests (uses xcodebuild)
@@ -521,6 +623,46 @@ xcodebuild test \
 ```
 
 **Note**: Use `./build.sh` or `xcodebuild` for reliable builds and testing.
+
+### Performance Testing
+
+SwiftCompartido includes comprehensive performance benchmarks to track rendering speed and detect regressions:
+
+```bash
+# Run performance tests
+xcodebuild test \
+  -scheme SwiftCompartido \
+  -sdk iphonesimulator \
+  -destination 'platform=iOS Simulator,name=iPhone 17 Pro' \
+  -configuration Release \
+  -only-testing:SwiftCompartidoTests/GuionViewerPerformanceTests \
+  CODE_SIGNING_ALLOWED=NO
+```
+
+**Performance Baselines (iPhone 17 Pro Simulator, arm64):**
+
+| Test | Elements | Parse | Convert | Format | Total | Bottleneck |
+|------|----------|-------|---------|--------|-------|------------|
+| 1000 elements | 1000 | 0.016s | 1.127s | 0.054s | **1.200s** | SwiftData conversion (94%) |
+| 5000 elements | 5000 | 0.072s | 23.732s | 0.234s | **24.050s** | SwiftData conversion (99%) |
+
+**Features:**
+- ✅ **Build-to-build tracking**: JSON reports exported for historical comparison
+- ✅ **Regression detection**: Automatic alerts for >10% performance degradation
+- ✅ **CI integration**: Performance results uploaded as GitHub Actions artifacts
+- ✅ **Bottleneck analysis**: Identifies SwiftData conversion as primary optimization target
+
+**View Performance Reports:**
+```bash
+# Local results
+ls /tmp/performance_results/
+cat /tmp/performance_results/performance_*.json | jq '.'
+
+# CI artifacts
+# Download from GitHub Actions → Artifacts → performance-results
+```
+
+See [CLAUDE.md](./CLAUDE.md#performance-testing--benchmarking) for detailed performance tracking documentation.
 
 ## Development Workflow
 

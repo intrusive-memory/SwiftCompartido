@@ -17,7 +17,9 @@ public struct ActionView: View {
     }
 
     public var body: some View {
-        Text(FountainTextFormatter.format(
+        // Use pre-computed formatted text if available (NEW in 5.4.0)
+        // Falls back to runtime formatting for backward compatibility
+        Text(element.formattedText ?? FountainTextFormatter.format(
             element.elementText,
             baseFont: .custom("Courier New", size: fontSize)
         ))

@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SwiftUI
 #if canImport(SwiftData)
 import SwiftData
 
@@ -874,6 +875,13 @@ public final class GuionDocumentModel {
             var currentChapter = 0
             var positionInChapter = 0
 
+            // Pre-compute formatted text for better rendering performance (NEW in 5.4.0)
+            let baseFont = Font.custom("Courier New", size: 12)
+
+            // Batch creation: Create all element models first (NEW in 5.4.0)
+            var elementModels: [GuionElementModel] = []
+            elementModels.reserveCapacity(elementsWithSummaries.count)
+
             for (index, element) in elementsWithSummaries.enumerated() {
                 if index % 10 == 0 {
                     try? Task.checkCancellation()
@@ -886,15 +894,32 @@ public final class GuionDocumentModel {
                 )
 
                 let elementModel = GuionElementModel(from: element, chapterIndex: chapterIndex, orderIndex: orderIndex)
-                elementModel.document = document
-                document.elements.append(elementModel)
+
+                // Pre-compute formatted text (eliminates runtime formatting overhead)
+                elementModel.formattedText = FountainTextFormatter.format(element.elementText, baseFont: baseFont)
+
+                elementModels.append(elementModel)
             }
+
+            // Batch assignment: Set document relationship and add to array (NEW in 5.4.0)
+            // This is much faster than appending one-by-one
+            for elementModel in elementModels {
+                elementModel.document = document
+            }
+            document.elements.append(contentsOf: elementModels)
         } else {
             // Convert elements without summaries with chapter-based ordering
             progress?.update(completedUnits: completedUnits, description: "Converting elements...")
 
             var currentChapter = 0
             var positionInChapter = 0
+
+            // Pre-compute formatted text for better rendering performance (NEW in 5.4.0)
+            let baseFont = Font.custom("Courier New", size: 12)
+
+            // Batch creation: Create all element models first (NEW in 5.4.0)
+            var elementModels: [GuionElementModel] = []
+            elementModels.reserveCapacity(screenplay.elements.count)
 
             for (index, element) in screenplay.elements.enumerated() {
                 // Check for cancellation every 10 elements
@@ -909,14 +934,24 @@ public final class GuionDocumentModel {
                 )
 
                 let elementModel = GuionElementModel(from: element, chapterIndex: chapterIndex, orderIndex: orderIndex)
-                elementModel.document = document
-                document.elements.append(elementModel)
+
+                // Pre-compute formatted text (eliminates runtime formatting overhead)
+                elementModel.formattedText = FountainTextFormatter.format(element.elementText, baseFont: baseFont)
+
+                elementModels.append(elementModel)
 
                 completedUnits += 1
                 if completedUnits % 10 == 0 {
                     progress?.update(completedUnits: completedUnits, description: "Converting elements (\(index + 1)/\(screenplay.elements.count))...")
                 }
             }
+
+            // Batch assignment: Set document relationship and add to array (NEW in 5.4.0)
+            // This is much faster than appending one-by-one
+            for elementModel in elementModels {
+                elementModel.document = document
+            }
+            document.elements.append(contentsOf: elementModels)
         }
 
         progress?.complete(description: "Conversion complete - \(document.elements.count) elements")

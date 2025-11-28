@@ -254,7 +254,7 @@ jobs:
 
       - name: Run performance tests
         run: |
-          echo "🧪 Running performance tests only"
+          echo "🧪 Running performance tests (baseline and UI rendering)"
 
           set +e
           xcodebuild test \
@@ -263,6 +263,7 @@ jobs:
             -destination 'platform=iOS Simulator,name=iPhone 17 Pro' \
             -configuration Release \
             -only-testing:SwiftCompartidoTests/PerformanceTests \
+            -only-testing:SwiftCompartidoTests/GuionViewerPerformanceTests \
             CODE_SIGNING_ALLOWED=NO \
             > performance_output.txt 2>&1
           PERF_EXIT_CODE=$?
@@ -272,5 +273,18 @@ jobs:
           # Extract performance metrics
           grep -A 10 "📊 PERFORMANCE" performance_output.txt || echo "No performance metrics found"
 
+          # Save performance results as artifact
+          echo "Saving performance results..."
+          mkdir -p performance_results
+          cp performance_output.txt performance_results/performance_$(date +%Y%m%d_%H%M%S).txt
+
           # Performance tests don't block - always exit 0
           exit 0
+
+      - name: Upload performance results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: performance-results
+          path: performance_results/
+          retention-days: 30
