@@ -21,7 +21,7 @@ private struct ScrollOffsetPreferenceKey: PreferenceKey {
 ///
 /// This view wraps GuionElementRow and its spacing with a stable identity
 /// based on the element's persistent model ID to optimize list performance.
-private struct ElementRowContainer<TrailingContent: View>: View {
+struct ElementRowContainer<TrailingContent: View>: View {
     let element: GuionElementModel
     let needsSpacing: Bool
     let fontSize: CGFloat
@@ -48,21 +48,39 @@ public struct GuionElementsList<TrailingContent: View>: View {
     @State private var dismissID = UUID()
 
     private let trailingContent: ((GuionElementModel) -> TrailingContent)?
+    private let isHierarchical: Bool
 
     /// Cached spacing map: true if element needs spacing after it
     @State private var spacingMap: [PersistentIdentifier: Bool] = [:]
 
+    /// Hierarchical tree (only built if isHierarchical == true)
+    @State private var hierarchyRoots: [HierarchyNode] = []
+
+    /// Disclosure states for hierarchy nodes
+    @State private var disclosureStates: [PersistentIdentifier: Bool] = [:]
+
+    /// Progress tracking for hierarchy building
+    @State private var buildProgress: OperationProgress? = nil
+    @State private var buildProgressMessage: String = ""
+    @State private var buildProgressFraction: Double = 0.0
+    @State private var isBuilding: Bool = false
+
     /// Creates a GuionElementsList with all elements in order
-    public init() where TrailingContent == EmptyView {
+    /// - Parameter hierarchical: If true, displays elements in hierarchical disclosure groups (default: false)
+    public init(hierarchical: Bool = false) where TrailingContent == EmptyView {
         _elements = Query(sort: [
             SortDescriptor(\GuionElementModel.chapterIndex),
             SortDescriptor(\GuionElementModel.orderIndex)
         ])
         self.trailingContent = nil
+        self.isHierarchical = hierarchical
     }
 
     /// Creates a GuionElementsList filtered to a specific document, in order
-    public init(document: GuionDocumentModel) where TrailingContent == EmptyView {
+    /// - Parameters:
+    ///   - document: The document to filter elements by
+    ///   - hierarchical: If true, displays elements in hierarchical disclosure groups (default: false)
+    public init(document: GuionDocumentModel, hierarchical: Bool = false) where TrailingContent == EmptyView {
         let documentID = document.persistentModelID
         _elements = Query(
             filter: #Predicate<GuionElementModel> { element in
@@ -74,23 +92,28 @@ public struct GuionElementsList<TrailingContent: View>: View {
             ]
         )
         self.trailingContent = nil
+        self.isHierarchical = hierarchical
     }
 
     /// Creates a GuionElementsList with all elements in order and custom trailing content for each row
-    /// - Parameter trailingContent: A ViewBuilder closure that creates trailing content for each element
-    public init(@ViewBuilder trailingContent: @escaping (GuionElementModel) -> TrailingContent) {
+    /// - Parameters:
+    ///   - hierarchical: If true, displays elements in hierarchical disclosure groups (default: false)
+    ///   - trailingContent: A ViewBuilder closure that creates trailing content for each element
+    public init(hierarchical: Bool = false, @ViewBuilder trailingContent: @escaping (GuionElementModel) -> TrailingContent) {
         _elements = Query(sort: [
             SortDescriptor(\GuionElementModel.chapterIndex),
             SortDescriptor(\GuionElementModel.orderIndex)
         ])
         self.trailingContent = trailingContent
+        self.isHierarchical = hierarchical
     }
 
     /// Creates a GuionElementsList filtered to a specific document with custom trailing content for each row
     /// - Parameters:
     ///   - document: The document to filter elements by
+    ///   - hierarchical: If true, displays elements in hierarchical disclosure groups (default: false)
     ///   - trailingContent: A ViewBuilder closure that creates trailing content for each element
-    public init(document: GuionDocumentModel, @ViewBuilder trailingContent: @escaping (GuionElementModel) -> TrailingContent) {
+    public init(document: GuionDocumentModel, hierarchical: Bool = false, @ViewBuilder trailingContent: @escaping (GuionElementModel) -> TrailingContent) {
         let documentID = document.persistentModelID
         _elements = Query(
             filter: #Predicate<GuionElementModel> { element in
@@ -102,44 +125,87 @@ public struct GuionElementsList<TrailingContent: View>: View {
             ]
         )
         self.trailingContent = trailingContent
+        self.isHierarchical = hierarchical
     }
 
     public var body: some View {
-        ScrollView {
-            LazyVStack(spacing: 0, pinnedViews: []) {
-                // Scroll position tracker (invisible)
-                GeometryReader { geometry in
-                    Color.clear
-                        .preference(key: ScrollOffsetPreferenceKey.self, value: geometry.frame(in: .named("scroll")).minY)
-                }
-                .frame(height: 0)
+        ZStack {
+            ScrollView {
+                LazyVStack(spacing: 0, pinnedViews: []) {
+                    // Scroll position tracker (invisible)
+                    GeometryReader { geometry in
+                        Color.clear
+                            .preference(key: ScrollOffsetPreferenceKey.self, value: geometry.frame(in: .named("scroll")).minY)
+                    }
+                    .frame(height: 0)
 
-                ForEach(elements, id: \.persistentModelID) { element in
-                    ElementRowContainer(
-                        element: element,
-                        needsSpacing: spacingMap[element.persistentModelID] == true,
-                        fontSize: fontSize,
-                        trailingContent: trailingContent
-                    )
-                    .id(element.persistentModelID)
+                    if isHierarchical {
+                        // Hierarchical mode - render tree
+                        ForEach(hierarchyRoots) { node in
+                            HierarchySection(
+                                node: node,
+                                elements: elements,
+                                spacingMap: spacingMap,
+                                fontSize: fontSize,
+                                trailingContent: trailingContent,
+                                disclosureStates: $disclosureStates
+                            )
+                        }
+                    } else {
+                        // Flat mode - render list
+                        ForEach(elements, id: \.persistentModelID) { element in
+                            ElementRowContainer(
+                                element: element,
+                                needsSpacing: spacingMap[element.persistentModelID] == true,
+                                fontSize: fontSize,
+                                trailingContent: trailingContent
+                            )
+                            .id(element.persistentModelID)
+                        }
+                    }
+                }
+                .scrollTargetLayout()
+                .padding(.horizontal, 0)
+            }
+            .scrollBounceBehavior(.basedOnSize)
+            .coordinateSpace(name: "scroll")
+            .onPreferenceChange(ScrollOffsetPreferenceKey.self) { offset in
+                scrollState.updateScrollPosition(offset)
+            }
+
+            // Progress overlay for hierarchy building
+            if isBuilding {
+                VStack {
+                    Spacer()
+                    HStack {
+                        ProgressView(value: buildProgressFraction) {
+                            Text(buildProgressMessage)
+                                .font(.caption)
+                        }
+                        .progressViewStyle(.linear)
+                        .frame(maxWidth: 400)
+                        .padding()
+                        .background(.regularMaterial)
+                        .cornerRadius(8)
+                    }
+                    .padding()
                 }
             }
-            .scrollTargetLayout()
-            .padding(.horizontal, 0)
-        }
-        .scrollBounceBehavior(.basedOnSize)
-        .coordinateSpace(name: "scroll")
-        .onPreferenceChange(ScrollOffsetPreferenceKey.self) { offset in
-            scrollState.updateScrollPosition(offset)
         }
         .environment(scrollState)
         .environment(\.popoverDismissAction, { dismissID = UUID() })
         .environment(\.popoverDismissID, dismissID)
         .onAppear {
             computeSpacingMap()
+            if isHierarchical {
+                buildHierarchy()
+            }
         }
         .onChange(of: elements.count) { _, _ in
             computeSpacingMap()
+            if isHierarchical {
+                buildHierarchy()
+            }
         }
         .onDisappear {
             scrollState.reset()
@@ -204,6 +270,41 @@ public struct GuionElementsList<TrailingContent: View>: View {
         // Group continues if next element is dialogue, parenthetical, or lyrics
         // Group ends if next element is anything else
         return nextElement.elementType != .dialogue && nextElement.elementType != .parenthetical && nextElement.elementType != .lyrics
+    }
+
+    // MARK: - Hierarchy Building
+
+    /// Builds the hierarchical tree structure asynchronously with progress reporting
+    private func buildHierarchy() {
+        isBuilding = true
+        buildProgressMessage = "Building hierarchy..."
+        buildProgressFraction = 0.0
+
+        // Capture elements and spacingMap on main actor
+        let elementsCopy = elements
+        let spacingMapCopy = spacingMap
+
+        Task { @MainActor in
+            let progress = OperationProgress(totalUnits: Int64(elementsCopy.count)) { update in
+                Task { @MainActor in
+                    self.buildProgressMessage = update.description
+                    self.buildProgressFraction = update.fractionCompleted ?? 0.0
+                }
+            }
+
+            // Build hierarchy on background thread
+            let roots = await Task.detached {
+                HierarchyBuilder.buildHierarchy(
+                    from: elementsCopy,
+                    spacingMap: spacingMapCopy,
+                    progress: progress
+                )
+            }.value
+
+            // Update UI on main thread
+            hierarchyRoots = roots
+            isBuilding = false
+        }
     }
 }
 
