@@ -3,7 +3,7 @@
 //  SwiftCompartido
 //
 //  Read-only TextKit 2 display for screenplay documents
-//  Phase 1: Fast scrolling with basic Courier text
+//  with full screenplay and markdown formatting
 //
 
 import SwiftUI
@@ -11,8 +11,10 @@ import SwiftData
 
 /// Read-only text view for screenplay documents
 ///
-/// Phase 1: Displays all elements as plain Courier text in a single scrollable view
-/// Focus: Fast scrolling performance, no formatting yet
+/// Displays formatted screenplays and markdown documents with proper styling:
+/// - **Screenplay**: Scene headings, dialogue margins, transitions, etc.
+/// - **Markdown**: GitHub-style headings, lists, and inline formatting
+/// - **Inline formatting**: Bold, italic, underline from Fountain syntax
 ///
 /// ## Example
 ///
@@ -28,11 +30,33 @@ import SwiftData
 ///     }
 /// }
 /// ```
+///
+/// ## Formatting Support
+///
+/// ### Screenplay Elements
+/// - Scene headings: Bold, 1.5x size, full width
+/// - Character names: Bold, 0.75x size, 40% left margin
+/// - Dialogue: 25% left and right margins
+/// - Parentheticals: 30% left margin
+/// - Action: Full width
+/// - Transitions: Right-aligned
+///
+/// ### Markdown Elements
+/// - Headings (H1-H6): GitHub-style sizing
+/// - Unordered lists: Bullet points with indentation
+/// - Ordered lists: Numbered lists with indentation
+/// - Comments: Gray, italic
+/// - Boneyard: Grayed out (omitted content)
+///
+/// ### Inline Formatting
+/// - `**bold**` → **bold**
+/// - `*italic*` → *italic*
+/// - `_underline_` → underline
 public struct GuionTextEditor: View {
     let document: GuionDocumentModel
 
     @Environment(\.screenplayFontSize) var fontSize
-    @State private var text: String = ""
+    @State private var attributedText: NSAttributedString = NSAttributedString()
 
     public init(document: GuionDocumentModel) {
         self.document = document
@@ -40,7 +64,7 @@ public struct GuionTextEditor: View {
 
     public var body: some View {
         GuionTextEditorRepresentable(
-            text: text,
+            attributedText: attributedText,
             fontSize: fontSize
         )
         .onAppear {
@@ -50,19 +74,21 @@ public struct GuionTextEditor: View {
             rebuildText()
         }
         .onChange(of: fontSize) { _, _ in
-            // No need to rebuild text, just update font size
-            // TextViewRepresentable will handle it in updateUIView/updateNSView
+            rebuildText()
         }
     }
 
     private func rebuildText() {
-        text = GuionTextElementMapper.buildText(from: document.sortedElements)
+        attributedText = GuionTextElementMapper.buildAttributedText(
+            from: document.sortedElements,
+            fontSize: fontSize
+        )
     }
 }
 
 // MARK: - Preview
 
-#Preview("TextKit 2 Editor - Basic") {
+#Preview("TextKit 2 Editor - Formatted") {
     GuionTextEditor(document: GuionDocumentModel())
         .modelContainer(for: [GuionDocumentModel.self, GuionElementModel.self])
         .environment(\.screenplayFontSize, 12)

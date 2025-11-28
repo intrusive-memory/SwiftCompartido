@@ -3,7 +3,7 @@
 //  SwiftCompartido
 //
 //  Cross-platform read-only text view wrapper
-//  Phase 1: Basic display with Courier font - no fancy formatting
+//  Displays formatted NSAttributedString with screenplay and markdown styling
 //
 
 import SwiftUI
@@ -11,16 +11,15 @@ import SwiftUI
 #if os(iOS)
 import UIKit
 
-/// iOS read-only text view wrapper - minimal version
+/// iOS read-only text view wrapper with attributed text support
 struct GuionTextEditorRepresentable: UIViewRepresentable {
-    let text: String
+    let attributedText: NSAttributedString
     let fontSize: CGFloat
 
     func makeUIView(context: Context) -> UITextView {
         let textView = UITextView()
 
         // Basic settings
-        textView.font = UIFont(name: "Courier New", size: fontSize) ?? UIFont.monospacedSystemFont(ofSize: fontSize, weight: .regular)
         textView.isEditable = false
         textView.isSelectable = true
         textView.isScrollEnabled = true
@@ -36,12 +35,8 @@ struct GuionTextEditorRepresentable: UIViewRepresentable {
     }
 
     func updateUIView(_ uiView: UITextView, context: Context) {
-        if uiView.text != text {
-            uiView.text = text
-        }
-
-        if let currentFont = uiView.font, currentFont.pointSize != fontSize {
-            uiView.font = UIFont(name: "Courier New", size: fontSize) ?? UIFont.monospacedSystemFont(ofSize: fontSize, weight: .regular)
+        if uiView.attributedText != attributedText {
+            uiView.attributedText = attributedText
         }
     }
 }
@@ -49,9 +44,9 @@ struct GuionTextEditorRepresentable: UIViewRepresentable {
 #elseif os(macOS)
 import AppKit
 
-/// macOS read-only text view wrapper - minimal version
+/// macOS read-only text view wrapper with attributed text support
 struct GuionTextEditorRepresentable: NSViewRepresentable {
-    let text: String
+    let attributedText: NSAttributedString
     let fontSize: CGFloat
 
     func makeNSView(context: Context) -> NSScrollView {
@@ -63,7 +58,6 @@ struct GuionTextEditorRepresentable: NSViewRepresentable {
         let textView = NSTextView()
 
         // Basic settings
-        textView.font = NSFont(name: "Courier New", size: fontSize) ?? NSFont.monospacedSystemFont(ofSize: fontSize, weight: .regular)
         textView.isEditable = false
         textView.isSelectable = true
 
@@ -87,12 +81,8 @@ struct GuionTextEditorRepresentable: NSViewRepresentable {
     func updateNSView(_ nsView: NSScrollView, context: Context) {
         guard let textView = nsView.documentView as? NSTextView else { return }
 
-        if textView.string != text {
-            textView.string = text
-        }
-
-        if let currentFont = textView.font, currentFont.pointSize != fontSize {
-            textView.font = NSFont(name: "Courier New", size: fontSize) ?? NSFont.monospacedSystemFont(ofSize: fontSize, weight: .regular)
+        if textView.attributedString() != attributedText {
+            textView.textStorage?.setAttributedString(attributedText)
         }
     }
 }
