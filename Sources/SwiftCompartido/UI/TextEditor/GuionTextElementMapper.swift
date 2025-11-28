@@ -91,7 +91,19 @@ public class GuionTextElementMapper {
         let attrString = NSMutableAttributedString(string: textContent)
 
         // Apply inline formatting (bold, italic, underline from Fountain)
-        applyInlineFormatting(to: attrString, baseFont: baseFont, fontSize: fontSize)
+        // Skip inline formatting for certain element types that should display raw text
+        let skipInlineFormatting: Bool = {
+            switch element.elementType {
+            case .comment, .boneyard, .pageBreak:
+                return true
+            default:
+                return false
+            }
+        }()
+
+        if !skipInlineFormatting {
+            applyInlineFormatting(to: attrString, baseFont: baseFont, fontSize: fontSize)
+        }
 
         // Apply element-level formatting (margins, indents, fonts)
         applyElementFormatting(to: attrString, element: element, fontSize: fontSize, charWidth: charWidth)
