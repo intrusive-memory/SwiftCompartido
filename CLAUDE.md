@@ -96,6 +96,91 @@ flowchart TD
   - macOS: Opens System Settings → Accessibility → Spoken Content
   - iOS/Catalyst: Opens app settings with fallback guidance
 
+## ✨ New Features in 5.5.0
+
+### GuionTextEditor - TextKit 2 Screenplay Viewer
+
+SwiftCompartido now includes a high-performance, read-only screenplay viewer powered by TextKit 2.
+
+#### Performance
+
+**400-1600x faster than List-based rendering:**
+
+| Elements | Load Time | vs GuionElementsList |
+|----------|-----------|----------------------|
+| **1000** | 0.003s | 400x faster (was 1.2s) |
+| **5000** | 0.015s | 1600x faster (was 24s) |
+
+#### Features
+
+**Screenplay Formatting:**
+- Scene headings: Bold, 1.5x size, full width
+- Character names: Bold, 0.75x size, 40% left margin
+- Dialogue: 25% left/right margins
+- Parentheticals: 30% left margin
+- Action: Full width with proper spacing
+- Transitions: Right-aligned
+- Lyrics: Dialogue formatting
+
+**Markdown Formatting (GitHub-style):**
+- Section headings (H1-H6): Progressive sizing (2.0x → 0.9x base size)
+- Unordered lists: Bullet indentation by level
+- Ordered lists: Number indentation by level
+- Comments: Gray, italic, indented
+- Boneyard: Grayed out (omitted content)
+- Page breaks: Centered, gray
+
+**Inline Formatting (Fountain syntax):**
+- `**bold**` → Bold text
+- `*italic*` → Italic text
+- `_underline_` → Underlined text
+
+#### Usage
+
+```swift
+import SwiftCompartido
+import SwiftUI
+
+struct ScreenplayView: View {
+    let document: GuionDocumentModel
+    @State private var fontSize: CGFloat = 12
+
+    var body: some View {
+        VStack {
+            // Font size controls
+            HStack {
+                Button("-") { fontSize = max(8, fontSize - 1) }
+                Text("\(Int(fontSize))pt")
+                Button("+") { fontSize = min(24, fontSize + 1) }
+            }
+
+            // Fast, formatted screenplay viewer
+            GuionTextEditor(document: document)
+                .environment(\.screenplayFontSize, fontSize)
+        }
+    }
+}
+```
+
+#### Technical Implementation
+
+- **NSAttributedString** with NSParagraphStyle for margins/indents
+- **Character-width-based margins** that scale with font size
+- **Cross-platform**: UIFont/NSFont and UIColor/NSColor abstraction
+- **Pre-computed formattedText** support with runtime fallback
+- **Read-only**: Optimized for display performance
+- **Text selection**: Enabled for copying
+
+#### When to Use
+
+- **GuionTextEditor**: Fast scrolling, large documents (1000+ elements), read-only viewing
+- **GuionElementsList**: Interactive features, editing, per-element actions
+
+#### Platform Support
+
+- ✅ iOS 26.0+ (UITextView backend)
+- ✅ macOS 26.0+ (NSTextView backend)
+
 ## ✨ New Features in 4.1.0
 
 ### YAML Front Matter Support
