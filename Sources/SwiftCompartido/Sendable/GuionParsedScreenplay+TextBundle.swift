@@ -161,9 +161,23 @@ extension GuionParsedElementCollection {
             // Write outline.json
             let outlineURL = resourcesDir.appendingPathComponent("outline.json")
             try writeOutlineJSON(to: outlineURL)
+
+            // Write custom-pages.json if there are custom pages
+            if !customPages.isEmpty {
+                let customPagesURL = resourcesDir.appendingPathComponent("custom-pages.json")
+                try writeCustomPagesJSON(to: customPagesURL)
+            }
         }
 
         return textBundleURL
+    }
+
+    /// Write custom pages to JSON file
+    /// - Parameter url: Destination URL for custom-pages.json
+    private func writeCustomPagesJSON(to url: URL) throws {
+        let jsonArray = try customPages.map { try $0.toDictionary() }
+        let jsonData = try JSONSerialization.data(withJSONObject: jsonArray, options: [.prettyPrinted, .sortedKeys])
+        try jsonData.write(to: url)
     }
 }
 
