@@ -280,6 +280,22 @@ public final class GuionDocumentModel {
     /// - SeeAlso: Recent items queries in application UI layer
     public var lastOpenedDate: Date?
 
+    // MARK: - Parsing Progress (Transient - not persisted)
+
+    /// Current parsing progress (0.0 to 1.0)
+    ///
+    /// Transient property updated during file parsing to show progress in UI.
+    /// Not persisted to disk - reset to 0 on app relaunch.
+    @Transient
+    public var parsingProgress: Double = 0.0
+
+    /// Human-readable parsing progress description
+    ///
+    /// Transient property showing current parsing step (e.g., "Parsing elements...", "Processing title page...")
+    /// Not persisted to disk - reset to nil on app relaunch.
+    @Transient
+    public var parsingDescription: String?
+
     public init(filename: String? = nil, rawContent: String? = nil, suppressSceneNumbers: Bool = false, title: String? = nil) {
         self.filename = filename
         self.rawContent = rawContent
