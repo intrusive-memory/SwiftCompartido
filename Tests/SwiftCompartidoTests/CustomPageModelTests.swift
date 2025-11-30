@@ -71,7 +71,7 @@ struct CustomPageModelTests {
         let originalContainer = try CustomPageContainer(page: castList, type: .castList)
         let model = CustomPageModel.from(originalContainer)
 
-        let restoredContainer = try model.toDTO()
+        let restoredContainer = model.toDTO()
 
         #expect(restoredContainer.type == .castList)
         #expect(restoredContainer.id == "cast-id")
@@ -105,7 +105,7 @@ struct CustomPageModelTests {
         // Original -> Container -> Model -> Container -> CastList
         let container1 = try CustomPageContainer(page: castList, type: .castList)
         let model = CustomPageModel.from(container1)
-        let container2 = try model.toDTO()
+        let container2 = model.toDTO()
         let restoredCastList = try container2.asCastList()
 
         #expect(restoredCastList?.id == castList.id)

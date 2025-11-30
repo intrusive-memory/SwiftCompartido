@@ -49,13 +49,14 @@ public enum CustomPageType: String, Codable, Sendable {
 /// - Store typed pages (like CastListPage) with full model support
 /// - Preserve unsupported page types as raw JSON for round-trip fidelity
 /// - Detect page type without deserializing the entire object
-public struct CustomPageContainer: Codable, Sendable {
+///
+/// **Serialization**: Use `init(from dictionary:)` and `toDictionary()` for JSON serialization.
+/// This struct does NOT conform to `Codable` to prevent accidental data loss from incomplete
+/// serialization. All custom page data is preserved in `rawJSON` and must be serialized using
+/// the dictionary-based methods.
+public struct CustomPageContainer: Sendable {
     public let type: CustomPageType
     public let rawJSON: Data
-
-    private enum CodingKeys: String, CodingKey {
-        case type
-    }
 
     /// Initialize from a typed custom page
     public init<T: CustomPage>(page: T, type: CustomPageType) throws {
@@ -74,26 +75,6 @@ public struct CustomPageContainer: Codable, Sendable {
         let typeString = dictionary["type"] as? String ?? "unknown"
         self.type = CustomPageType(rawValue: typeString) ?? .unknown
         self.rawJSON = try JSONSerialization.data(withJSONObject: dictionary)
-    }
-
-    public init(from decoder: Decoder) throws {
-        // For JSON decoding, we just read the type field and store raw JSON
-        // This is primarily used when loading from files via JSONDecoder
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        let typeString = try container.decodeIfPresent(String.self, forKey: .type) ?? "unknown"
-        self.type = CustomPageType(rawValue: typeString) ?? .unknown
-
-        // Store raw data - we'll encode the entire dictionary when needed
-        // For now, just encode a minimal stub
-        let stub = ["type": typeString]
-        self.rawJSON = try JSONEncoder().encode(stub)
-    }
-
-    public func encode(to encoder: Encoder) throws {
-        // When encoding, we can't use singleValueContainer with [String: Any]
-        // Instead, clients should use toDictionary() for JSON serialization
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(type.rawValue, forKey: .type)
     }
 
     /// Convert to dictionary for JSON serialization

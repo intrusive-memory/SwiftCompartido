@@ -1027,7 +1027,7 @@ public final class GuionDocumentModel {
         let convertedElements = sortedElements.map { GuionElement(from: $0) }
 
         // Convert custom pages (MUST use sortedCustomPages!)
-        let convertedCustomPages = sortedCustomPages.compactMap { try? $0.toDTO() }
+        let convertedCustomPages = sortedCustomPages.map { $0.toDTO() }
 
         return GuionParsedElementCollection(
             filename: filename,

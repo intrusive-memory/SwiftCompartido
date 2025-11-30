@@ -77,6 +77,18 @@ public struct CastListPage: CustomPage, Identifiable {
             self.name = name
             self.position = position
         }
+
+        // MARK: - Equatable & Hashable (ID-based)
+
+        /// Two cast members are equal if they have the same ID
+        public static func == (lhs: CastMember, rhs: CastMember) -> Bool {
+            lhs.id == rhs.id
+        }
+
+        /// Hash based on ID only
+        public func hash(into hasher: inout Hasher) {
+            hasher.combine(id)
+        }
     }
 
     public init(
@@ -134,6 +146,22 @@ public struct CastListPage: CustomPage, Identifiable {
         }
     }
 
+    // MARK: - Private Helpers
+
+    /// Extract all character names from a screenplay (normalized to uppercase)
+    private func screenplayCharacters(from screenplay: GuionParsedElementCollection) -> Set<String> {
+        Set(
+            screenplay.elements.compactMap { element -> String? in
+                if case .character = element.elementType {
+                    return element.elementText.trimmingCharacters(in: .whitespacesAndNewlines).uppercased()
+                }
+                return nil
+            }
+        )
+    }
+
+    // MARK: - Public Methods
+
     /// Trim cast list to only include characters that appear in the given screenplay
     ///
     /// This method removes cast members whose roles don't appear in the screenplay.
@@ -159,19 +187,7 @@ public struct CastListPage: CustomPage, Identifiable {
     ///
     /// - Parameter screenplay: The screenplay to match characters against
     public mutating func trim(toCharactersIn screenplay: GuionParsedElementCollection) {
-        // Extract all character names from dialogue elements
-        let charactersInScreenplay = Set(
-            screenplay.elements
-                .compactMap { element -> String? in
-                    switch element.elementType {
-                    case .character:
-                        return element.elementText.trimmingCharacters(in: .whitespacesAndNewlines).uppercased()
-                    default:
-                        return nil
-                    }
-                }
-                .map { $0.uppercased() } // Normalize to uppercase for comparison
-        )
+        let charactersInScreenplay = screenplayCharacters(from: screenplay)
 
         // Remove cast members whose roles don't appear in the screenplay
         items.removeAll { member in
@@ -188,17 +204,7 @@ public struct CastListPage: CustomPage, Identifiable {
     /// - Parameter screenplay: The screenplay to check against
     /// - Returns: Array of cast members not found in the screenplay
     public func membersNotIn(_ screenplay: GuionParsedElementCollection) -> [CastMember] {
-        let charactersInScreenplay = Set(
-            screenplay.elements
-                .compactMap { element -> String? in
-                    switch element.elementType {
-                    case .character:
-                        return element.elementText.trimmingCharacters(in: .whitespacesAndNewlines).uppercased()
-                    default:
-                        return nil
-                    }
-                }
-        )
+        let charactersInScreenplay = screenplayCharacters(from: screenplay)
 
         return items.filter { member in
             let normalizedRole = member.role.trimmingCharacters(in: .whitespacesAndNewlines).uppercased()
@@ -213,22 +219,11 @@ public struct CastListPage: CustomPage, Identifiable {
     /// - Parameter screenplay: The screenplay to check against
     /// - Returns: Array of character names found in screenplay but missing from cast list
     public func charactersNotInCast(from screenplay: GuionParsedElementCollection) -> [String] {
-        let charactersInScreenplay = Set(
-            screenplay.elements
-                .compactMap { element -> String? in
-                    switch element.elementType {
-                    case .character:
-                        return element.elementText.trimmingCharacters(in: .whitespacesAndNewlines)
-                    default:
-                        return nil
-                    }
-                }
-        )
-
-        let rolesInCast = Set(items.map { $0.role.uppercased() })
+        let charactersInScreenplay = screenplayCharacters(from: screenplay)
+        let rolesInCast = Set(items.map { $0.role.trimmingCharacters(in: .whitespacesAndNewlines).uppercased() })
 
         return charactersInScreenplay.filter { character in
-            !rolesInCast.contains(character.uppercased())
+            !rolesInCast.contains(character)
         }.sorted()
     }
 

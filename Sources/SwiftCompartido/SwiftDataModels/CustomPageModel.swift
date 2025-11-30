@@ -45,7 +45,7 @@ import SwiftData
 /// modelContext.insert(model)
 ///
 /// // Convert back to DTO
-/// let restoredContainer = try model.toDTO()
+/// let restoredContainer = model.toDTO()
 /// let restoredCastList = try restoredContainer.asCastList()
 /// ```
 @Model
@@ -86,17 +86,26 @@ public final class CustomPageModel {
 
     /// Create from a CustomPageContainer
     public static func from(_ container: CustomPageContainer) -> CustomPageModel {
-        CustomPageModel(
-            id: container.id ?? UUID().uuidString,
-            title: container.title ?? "Untitled Page",
-            position: container.positionValue ?? 0,
+        // Deserialize JSON once instead of calling computed properties multiple times
+        let jsonDict = try? container.asRawJSON()
+        let id = jsonDict?["id"] as? String ?? UUID().uuidString
+        let title = jsonDict?["title"] as? String ?? "Untitled Page"
+        let position = jsonDict?["position"] as? Int ?? 0
+
+        return CustomPageModel(
+            id: id,
+            title: title,
+            position: position,
             pageType: container.type.rawValue,
             jsonData: container.rawJSON
         )
     }
 
     /// Convert to a CustomPageContainer
-    public func toDTO() throws -> CustomPageContainer {
+    ///
+    /// This method never throws - it gracefully handles unknown page types by
+    /// returning a container with type `.unknown`.
+    public func toDTO() -> CustomPageContainer {
         guard let type = CustomPageType(rawValue: pageType) else {
             return CustomPageContainer(type: .unknown, rawJSON: jsonData)
         }
@@ -115,13 +124,16 @@ public final class CustomPageModel {
 
     /// Update from a CustomPageContainer
     public func update(from container: CustomPageContainer) throws {
-        self.title = container.title ?? self.title
-        self.position = container.positionValue ?? self.position
+        // Deserialize JSON once instead of calling computed properties multiple times
+        let jsonDict = try? container.asRawJSON()
+
+        self.title = jsonDict?["title"] as? String ?? self.title
+        self.position = jsonDict?["position"] as? Int ?? self.position
         self.pageType = container.type.rawValue
         self.jsonData = container.rawJSON
 
         // Update ID if it changed (rare, but possible)
-        if let newID = container.id {
+        if let newID = jsonDict?["id"] as? String {
             self.id = newID
         }
     }

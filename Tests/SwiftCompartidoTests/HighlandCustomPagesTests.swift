@@ -247,6 +247,54 @@ struct HighlandCustomPagesTests {
         #expect(reloadedCast2?.items.count == 2)
     }
 
+    // MARK: - includeResources Flag Tests
+
+    @Test("Custom pages written even with includeResources: false")
+    func testCustomPagesWithoutIncludeResources() throws {
+        let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: tempDir) }
+
+        let castList = CastListPage(
+            title: "Main Cast",
+            position: 0,
+            printDots: true,
+            items: [
+                CastListPage.CastMember(role: "HAMLET", name: "Actor 1", position: 0)
+            ]
+        )
+
+        let screenplay = GuionParsedElementCollection(
+            filename: "test.fountain",
+            elements: [
+                GuionElement(elementType: .action, elementText: "Test action.")
+            ],
+            titlePage: [],
+            suppressSceneNumbers: false,
+            customPages: [try CustomPageContainer(page: castList, type: .castList)]
+        )
+
+        // CRITICAL: Write with includeResources: false
+        // Custom pages should STILL be written (user-authored content)
+        let highlandURL = try screenplay.writeToHighland(
+            destinationURL: tempDir,
+            name: "test",
+            includeResources: false  // ← Test the fix!
+        )
+
+        // Read it back
+        let reloaded = try GuionParsedElementCollection(highland: highlandURL)
+
+        // Custom pages MUST be preserved even with includeResources: false
+        #expect(reloaded.customPages.count == 1)
+        #expect(reloaded.customPages[0].type == .castList)
+
+        let reloadedCastList = try reloaded.customPages[0].asCastList()
+        #expect(reloadedCastList?.title == "Main Cast")
+        #expect(reloadedCastList?.items.count == 1)
+        #expect(reloadedCastList?.items[0].role == "HAMLET")
+    }
+
     // MARK: - Unsupported Type Preservation Tests
 
     @Test("Preserves unsupported custom page types")

@@ -116,7 +116,8 @@ extension GuionParsedElementCollection {
     /// - Parameters:
     ///   - destinationURL: The directory where the Highland file should be created
     ///   - name: The base name for the Highland file (without extension)
-    ///   - includeResources: Whether to include characters.json and outline.json in resources
+    ///   - includeResources: Whether to include derived metadata files (characters.json and outline.json).
+    ///                       User-authored content like custom-pages.json is always written regardless of this setting.
     /// - Returns: The URL of the created Highland file
     /// - Throws: Writing errors
     @discardableResult
