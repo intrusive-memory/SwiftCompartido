@@ -87,6 +87,14 @@ public class GuionTextElementMapper {
             textContent = element.elementText
         }
 
+        // Prepend hashtag prefix for section headings
+        var hashtagPrefixLength = 0
+        if case .sectionHeading(let level) = element.elementType {
+            let hashtagPrefix = String(repeating: "#", count: level) + " "
+            textContent = hashtagPrefix + textContent
+            hashtagPrefixLength = hashtagPrefix.count
+        }
+
         // Create base attributed string
         let attrString = NSMutableAttributedString(string: textContent)
 
@@ -107,6 +115,16 @@ public class GuionTextElementMapper {
 
         // Apply element-level formatting (margins, indents, fonts)
         applyElementFormatting(to: attrString, element: element, fontSize: fontSize, charWidth: charWidth)
+
+        // Gray out hashtag prefix for section headings
+        if hashtagPrefixLength > 0 {
+            let prefixRange = NSRange(location: 0, length: hashtagPrefixLength)
+            #if os(iOS)
+            attrString.addAttribute(.foregroundColor, value: PlatformColor.secondaryLabel.withAlphaComponent(0.5), range: prefixRange)
+            #elseif os(macOS)
+            attrString.addAttribute(.foregroundColor, value: PlatformColor.secondaryLabelColor.withAlphaComponent(0.5), range: prefixRange)
+            #endif
+        }
 
         return attrString
     }
