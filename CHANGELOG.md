@@ -5,6 +5,73 @@ All notable changes to SwiftCompartido will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.0.1] - 2025-11-30
+
+### 🐛 Bug Fixes
+
+**Critical Data Loss Prevention**
+- **Fixed custom pages being dropped on export** when `includeResources: false`
+  - `custom-pages.json` is now always written (user-authored content)
+  - `includeResources` only affects derived files (`characters.json`, `outline.json`)
+  - Prevents silent data loss on TextBundle/Highland round-trip exports
+  - Added regression test: `testCustomPagesWithoutIncludeResources()`
+
+**Data Integrity**
+- **Removed broken `Codable` conformance** from `CustomPageContainer`
+  - Previous implementation only encoded/decoded `type` field
+  - Could silently lose all `rawJSON` data if accidentally used
+  - Now uses explicit `init(from dictionary:)` and `toDictionary()` methods
+  - Updated documentation to prevent misuse
+
+**Correctness**
+- **Fixed `CastMember` equality semantics** to use ID-only comparison
+  - Changed from synthesized (all properties) to explicit ID-based equality
+  - Aligns with `Identifiable` protocol semantics
+  - Fixes `testCastMemberHashable` test failure
+  - Ensures correct behavior in `Set` and `Dictionary` operations
+
+### ⚡ Performance Improvements
+
+**Custom Page Operations**
+- **3x faster custom page creation** - `CustomPageModel.from(_:)` deserializes JSON once instead of 3x
+- **3x faster custom page updates** - `CustomPageModel.update(from:)` deserializes JSON once instead of 3x
+- **Optimized character extraction** - Moved string normalization outside filter loops
+
+### 🧹 Code Quality
+
+**API Simplification**
+- **Removed misleading `throws`** from `CustomPageModel.toDTO()`
+  - Method never actually throws - gracefully handles all cases
+  - Updated all call sites to remove unnecessary `try`/`try?`
+  - Changed `GuionDocumentModel` to use `map` instead of `compactMap`
+
+**DRY Compliance**
+- **Eliminated ~30 lines of duplicate code** in character extraction logic
+  - Created private `screenplayCharacters(from:)` helper method
+  - Refactored `trim(toCharactersIn:)`, `membersNotIn(_:)`, and `charactersNotInCast(from:)`
+  - Ensures consistency across all character extraction operations
+
+**Documentation**
+- Clarified `includeResources` parameter behavior in TextBundle/Highland export methods
+- Added inline comments explaining custom pages vs. derived metadata distinction
+
+### 🧪 Testing
+
+- Added `testCustomPagesWithoutIncludeResources()` to prevent regression
+- All 78 affected tests passing
+- No breaking changes introduced
+
+### 📦 Files Modified
+
+- `Sources/SwiftCompartido/Sendable/CastListPage.swift`
+- `Sources/SwiftCompartido/Sendable/CustomPage.swift`
+- `Sources/SwiftCompartido/Sendable/GuionParsedScreenplay+Highland.swift`
+- `Sources/SwiftCompartido/Sendable/GuionParsedScreenplay+TextBundle.swift`
+- `Sources/SwiftCompartido/SwiftDataModels/CustomPageModel.swift`
+- `Sources/SwiftCompartido/SwiftDataModels/GuionDocumentModel.swift`
+- `Tests/SwiftCompartidoTests/CustomPageModelTests.swift`
+- `Tests/SwiftCompartidoTests/HighlandCustomPagesTests.swift`
+
 ## [5.0.0] - 2025-11-23
 
 ### 🚀 Performance Improvements
