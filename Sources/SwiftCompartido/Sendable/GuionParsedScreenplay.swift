@@ -88,6 +88,7 @@ public final class GuionParsedElementCollection {
     public let elements: [GuionElement]
     public let titlePage: [[String: [String]]]
     public let suppressSceneNumbers: Bool
+    public let customPages: [CustomPageContainer]
 
     /// Initialize with parsed screenplay data
     /// - Parameters:
@@ -95,16 +96,19 @@ public final class GuionParsedElementCollection {
     ///   - elements: Array of GuionElements
     ///   - titlePage: Title page metadata
     ///   - suppressSceneNumbers: Whether to suppress scene numbers
+    ///   - customPages: Custom pages (Cast Lists, Production Notes, etc.)
     public init(
         filename: String? = nil,
         elements: [GuionElement] = [],
         titlePage: [[String: [String]]] = [],
-        suppressSceneNumbers: Bool = false
+        suppressSceneNumbers: Bool = false,
+        customPages: [CustomPageContainer] = []
     ) {
         self.filename = filename
         self.elements = elements
         self.titlePage = titlePage
         self.suppressSceneNumbers = suppressSceneNumbers
+        self.customPages = customPages
     }
 
     /// Convenience initializer that parses from a file
@@ -125,11 +129,13 @@ public final class GuionParsedElementCollection {
         if ext == "md" || ext == "markdown" {
             let contents = try String(contentsOfFile: path, encoding: .utf8)
             let (elements, titlePage) = try MarkdownParser.parse(contents)
+            let customPages = Self.loadCustomPagesForFile(url: url)
             self.init(
                 filename: filename,
                 elements: elements,
                 titlePage: titlePage,
-                suppressSceneNumbers: false
+                suppressSceneNumbers: false,
+                customPages: customPages
             )
         } else if ext == "docx" || ext == "odt" || ext == "rtf" {
             // Parse Pandoc-supported document formats
@@ -151,10 +157,13 @@ public final class GuionParsedElementCollection {
         } else {
             // Default to Fountain parser
             let fountainParser = try FountainParser(file: path)
+            let customPages = Self.loadCustomPagesForFile(url: url)
             self.init(
                 filename: filename,
                 elements: fountainParser.elements,
-                titlePage: fountainParser.titlePage
+                titlePage: fountainParser.titlePage,
+                suppressSceneNumbers: false,
+                customPages: customPages
             )
         }
     }
@@ -417,11 +426,18 @@ public final class GuionParsedElementCollection {
     public func write(toFile path: String) throws {
         let document = FountainWriter.document(from: self)
         try document.write(toFile: path, atomically: true, encoding: .utf8)
+
+        // Write custom pages sidecar if present
+        let url = URL(fileURLWithPath: path)
+        try? writeCustomPagesSidecar(for: url)
     }
 
     public func write(to url: URL) throws {
         let document = FountainWriter.document(from: self)
         try document.write(to: url, atomically: true, encoding: .utf8)
+
+        // Write custom pages sidecar if present
+        try? writeCustomPagesSidecar(for: url)
     }
 
     /// Get guión elements from this screenplay
@@ -610,6 +626,75 @@ extension GuionParsedElementCollection: CustomStringConvertible {
 /// ```
 @available(*, deprecated, renamed: "GuionParsedElementCollection", message: "Use GuionParsedElementCollection instead. GuionParsedScreenplay is deprecated.")
 public typealias GuionParsedScreenplay = GuionParsedElementCollection
+
+// MARK: - Custom Pages Helpers
+
+extension GuionParsedElementCollection {
+    /// Load custom pages from a sidecar JSON file
+    ///
+    /// Searches for custom pages JSON in the following order:
+    /// 1. `{basename}-custom-pages.json` (document-specific)
+    /// 2. `custom-pages.json` (shared)
+    ///
+    /// For example, for `script.fountain`:
+    /// - First tries: `script-custom-pages.json`
+    /// - Then tries: `custom-pages.json`
+    ///
+    /// - Parameter url: URL to the screenplay file
+    /// - Returns: Array of CustomPageContainer objects
+    static func loadCustomPagesForFile(url: URL) -> [CustomPageContainer] {
+        let directory = url.deletingLastPathComponent()
+        let basename = url.deletingPathExtension().lastPathComponent
+
+        // Try document-specific file first
+        let specificURL = directory.appendingPathComponent("\(basename)-custom-pages.json")
+        if let pages = tryLoadCustomPagesJSON(from: specificURL) {
+            return pages
+        }
+
+        // Fall back to shared file
+        let sharedURL = directory.appendingPathComponent("custom-pages.json")
+        if let pages = tryLoadCustomPagesJSON(from: sharedURL) {
+            return pages
+        }
+
+        return []
+    }
+
+    /// Try to load custom pages from a JSON file
+    private static func tryLoadCustomPagesJSON(from url: URL) -> [CustomPageContainer]? {
+        guard FileManager.default.fileExists(atPath: url.path) else {
+            return nil
+        }
+
+        do {
+            let data = try Data(contentsOf: url)
+            let jsonArray = try JSONSerialization.jsonObject(with: data) as? [[String: Any]] ?? []
+            return try jsonArray.compactMap { try CustomPageContainer(from: $0) }
+        } catch {
+            print("Warning: Failed to load \(url.lastPathComponent): \(error)")
+            return nil
+        }
+    }
+
+    /// Write custom pages to a sidecar JSON file
+    ///
+    /// Writes to `{basename}-custom-pages.json` in the same directory as the screenplay file.
+    ///
+    /// - Parameters:
+    ///   - url: URL to the screenplay file (e.g., `script.fountain`)
+    func writeCustomPagesSidecar(for url: URL) throws {
+        guard !customPages.isEmpty else { return }
+
+        let directory = url.deletingLastPathComponent()
+        let basename = url.deletingPathExtension().lastPathComponent
+        let sidecarURL = directory.appendingPathComponent("\(basename)-custom-pages.json")
+
+        let jsonArray = try customPages.map { try $0.toDictionary() }
+        let jsonData = try JSONSerialization.data(withJSONObject: jsonArray, options: [.prettyPrinted, .sortedKeys])
+        try jsonData.write(to: sidecarURL)
+    }
+}
 
 // MARK: - Error Types
 

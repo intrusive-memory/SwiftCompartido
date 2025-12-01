@@ -147,6 +147,35 @@ public final class GuionDocumentModel {
     @Relationship(deleteRule: .cascade)
     public var titlePage: [TitlePageEntryModel]
 
+    /// Custom pages (Cast Lists, Production Notes, etc.)
+    ///
+    /// Custom pages are additional non-screenplay pages that can be included
+    /// when printing or exporting a screenplay. Examples include cast lists,
+    /// production notes, concept images, and blank pages.
+    ///
+    /// **Delete Rule**: `.cascade` - When the document is deleted,
+    /// all custom pages are automatically deleted.
+    ///
+    /// ## Example
+    ///
+    /// ```swift
+    /// let castList = CastListPage(title: "Cast List", position: 0)
+    /// let container = try CustomPageContainer(page: castList, type: .castList)
+    /// let pageModel = CustomPageModel.from(container)
+    /// document.customPages.append(pageModel)
+    /// ```
+    @Relationship(deleteRule: .cascade)
+    public var customPages: [CustomPageModel]
+
+    /// Custom pages sorted by position
+    ///
+    /// Use this property when displaying or exporting custom pages to maintain
+    /// the correct print order. The `customPages` relationship array does NOT
+    /// guarantee order in SwiftData.
+    public var sortedCustomPages: [CustomPageModel] {
+        customPages.sorted { $0.position < $1.position }
+    }
+
     /// The title of the screenplay
     ///
     /// This stored property is set during parsing from the screenplay's title page.
@@ -251,6 +280,22 @@ public final class GuionDocumentModel {
     /// - SeeAlso: Recent items queries in application UI layer
     public var lastOpenedDate: Date?
 
+    // MARK: - Parsing Progress (Transient - not persisted)
+
+    /// Current parsing progress (0.0 to 1.0)
+    ///
+    /// Transient property updated during file parsing to show progress in UI.
+    /// Not persisted to disk - reset to 0 on app relaunch.
+    @Transient
+    public var parsingProgress: Double = 0.0
+
+    /// Human-readable parsing progress description
+    ///
+    /// Transient property showing current parsing step (e.g., "Parsing elements...", "Processing title page...")
+    /// Not persisted to disk - reset to nil on app relaunch.
+    @Transient
+    public var parsingDescription: String?
+
     public init(filename: String? = nil, rawContent: String? = nil, suppressSceneNumbers: Bool = false, title: String? = nil) {
         self.filename = filename
         self.rawContent = rawContent
@@ -258,6 +303,7 @@ public final class GuionDocumentModel {
         self.title = title
         self.elements = []
         self.titlePage = []
+        self.customPages = []
         self.sourceFileBookmark = nil
         self.lastImportDate = nil
         self.sourceFileModificationDate = nil
@@ -954,7 +1000,15 @@ public final class GuionDocumentModel {
             document.elements.append(contentsOf: elementModels)
         }
 
-        progress?.complete(description: "Conversion complete - \(document.elements.count) elements")
+        // Convert custom pages
+        progress?.update(completedUnits: completedUnits, description: "Converting custom pages...")
+        for pageContainer in screenplay.customPages {
+            let pageModel = CustomPageModel.from(pageContainer)
+            pageModel.document = document
+            document.customPages.append(pageModel)
+        }
+
+        progress?.complete(description: "Conversion complete - \(document.elements.count) elements, \(document.customPages.count) custom pages")
         context.insert(document)
         return document
     }
@@ -972,11 +1026,15 @@ public final class GuionDocumentModel {
         // Convert elements using protocol-based conversion (MUST use sortedElements!)
         let convertedElements = sortedElements.map { GuionElement(from: $0) }
 
+        // Convert custom pages (MUST use sortedCustomPages!)
+        let convertedCustomPages = sortedCustomPages.map { $0.toDTO() }
+
         return GuionParsedElementCollection(
             filename: filename,
             elements: convertedElements,
             titlePage: titlePageArray,
-            suppressSceneNumbers: suppressSceneNumbers
+            suppressSceneNumbers: suppressSceneNumbers,
+            customPages: convertedCustomPages
         )
     }
 

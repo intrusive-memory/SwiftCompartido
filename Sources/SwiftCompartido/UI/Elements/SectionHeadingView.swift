@@ -47,8 +47,22 @@ public struct SectionHeadingView: View {
     }
 
     /// Renders text with bold and italic formatting using AttributedString
+    /// Includes greyed-out hashtag prefix to visually identify outline level
     private var formattedText: Text {
-        Text(parseFormattedText(element.elementText))
+        // Greyed-out hashtag prefix (# for level 1, ## for level 2, etc.)
+        let hashtagPrefix = String(repeating: "#", count: level)
+        var prefixAttributedString = AttributedString(hashtagPrefix)
+        prefixAttributedString.foregroundColor = .secondary.opacity(0.5)
+
+        // Add space between hashtags and text
+        let spacer = AttributedString(" ")
+
+        // Parse the element text with formatting
+        let textAttributedString = parseFormattedText(element.elementText)
+
+        // Combine: hashtags + space + text
+        let combined = prefixAttributedString + spacer + textAttributedString
+        return Text(combined)
     }
 
     /// Parses text with **bold** and *italic* markers into AttributedString

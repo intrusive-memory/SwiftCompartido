@@ -105,11 +105,12 @@ extension GuionParsedElementCollection {
         return finalURL
     }
 
-    /// Write the current GuionParsedElementCollection to a TextBundle with resources (characters.json, outline.json)
+    /// Write the current GuionParsedElementCollection to a TextBundle with resources
     /// - Parameters:
     ///   - destinationURL: The URL where the TextBundle should be created
     ///   - name: The base name for the TextBundle (without extension)
-    ///   - includeResources: Whether to include characters.json and outline.json in resources folder
+    ///   - includeResources: Whether to include derived metadata files (characters.json and outline.json).
+    ///                       User-authored content like custom-pages.json is always written regardless of this setting.
     /// - Returns: The URL of the created TextBundle
     /// - Throws: Writing errors
     @discardableResult
@@ -145,7 +146,21 @@ extension GuionParsedElementCollection {
             fountainFilename: "\(name).fountain"
         )
 
-        // Add resources if requested
+        // Always write custom-pages.json if present (user-authored content)
+        // This must happen regardless of includeResources setting
+        if !customPages.isEmpty {
+            let resourcesDir = textBundleURL.appendingPathComponent("resources")
+
+            // Create resources directory if it doesn't exist
+            if !fileManager.fileExists(atPath: resourcesDir.path) {
+                try fileManager.createDirectory(at: resourcesDir, withIntermediateDirectories: true)
+            }
+
+            let customPagesURL = resourcesDir.appendingPathComponent("custom-pages.json")
+            try writeCustomPagesJSON(to: customPagesURL)
+        }
+
+        // Add derived metadata files if requested
         if includeResources {
             let resourcesDir = textBundleURL.appendingPathComponent("resources")
 
@@ -154,16 +169,24 @@ extension GuionParsedElementCollection {
                 try fileManager.createDirectory(at: resourcesDir, withIntermediateDirectories: true)
             }
 
-            // Write characters.json
+            // Write characters.json (derived metadata)
             let charactersURL = resourcesDir.appendingPathComponent("characters.json")
             try writeCharactersJSON(to: charactersURL)
 
-            // Write outline.json
+            // Write outline.json (derived metadata)
             let outlineURL = resourcesDir.appendingPathComponent("outline.json")
             try writeOutlineJSON(to: outlineURL)
         }
 
         return textBundleURL
+    }
+
+    /// Write custom pages to JSON file
+    /// - Parameter url: Destination URL for custom-pages.json
+    private func writeCustomPagesJSON(to url: URL) throws {
+        let jsonArray = try customPages.map { try $0.toDictionary() }
+        let jsonData = try JSONSerialization.data(withJSONObject: jsonArray, options: [.prettyPrinted, .sortedKeys])
+        try jsonData.write(to: url)
     }
 }
 

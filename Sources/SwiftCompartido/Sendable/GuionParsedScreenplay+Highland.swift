@@ -75,12 +75,40 @@ extension GuionParsedElementCollection {
         // Parse as Fountain (Highland's .md files are actually Fountain format)
         let fountainParser = try FountainParser(file: contentURL.path)
 
+        // Load custom pages from resources/custom-pages.json if present
+        let customPages = Self.loadCustomPages(from: textBundleURL)
+
         self.init(
             filename: url.lastPathComponent,
             elements: fountainParser.elements,
             titlePage: fountainParser.titlePage,
-            suppressSceneNumbers: false
+            suppressSceneNumbers: false,
+            customPages: customPages
         )
+    }
+
+    /// Load custom pages from a TextBundle's resources directory
+    /// - Parameter textBundleURL: URL to the .textbundle directory
+    /// - Returns: Array of CustomPageContainer objects
+    private static func loadCustomPages(from textBundleURL: URL) -> [CustomPageContainer] {
+        let resourcesURL = textBundleURL.appendingPathComponent("resources")
+        let customPagesURL = resourcesURL.appendingPathComponent("custom-pages.json")
+
+        guard FileManager.default.fileExists(atPath: customPagesURL.path) else {
+            return []
+        }
+
+        do {
+            let data = try Data(contentsOf: customPagesURL)
+            let jsonArray = try JSONSerialization.jsonObject(with: data) as? [[String: Any]] ?? []
+
+            return try jsonArray.compactMap { dict in
+                try CustomPageContainer(from: dict)
+            }
+        } catch {
+            print("Warning: Failed to load custom-pages.json: \(error)")
+            return []
+        }
     }
 
     /// Write the current GuionParsedElementCollection to a Highland file (.highland)
@@ -88,7 +116,8 @@ extension GuionParsedElementCollection {
     /// - Parameters:
     ///   - destinationURL: The directory where the Highland file should be created
     ///   - name: The base name for the Highland file (without extension)
-    ///   - includeResources: Whether to include characters.json and outline.json in resources
+    ///   - includeResources: Whether to include derived metadata files (characters.json and outline.json).
+    ///                       User-authored content like custom-pages.json is always written regardless of this setting.
     /// - Returns: The URL of the created Highland file
     /// - Throws: Writing errors
     @discardableResult
