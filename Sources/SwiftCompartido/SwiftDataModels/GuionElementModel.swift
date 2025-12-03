@@ -67,6 +67,30 @@ import SwiftData
 /// - ``updateType(_:)``
 @Model
 public final class GuionElementModel: GuionElementProtocol {
+    /// Stable UUID for this element
+    ///
+    /// This UUID is used for reliable element identification across app intents,
+    /// shortcuts, and other external integrations. Unlike SwiftData's PersistentIdentifier,
+    /// this UUID has a stable string representation that can be safely serialized.
+    ///
+    /// **Use Cases**:
+    /// - App Intents: Pass element UUID as parameter
+    /// - Shortcuts: Reference specific elements
+    /// - External APIs: Stable element identification
+    ///
+    /// **Important**: Use `uuid.uuidString` for string comparisons, never PersistentIdentifier
+    ///
+    /// ## Example
+    ///
+    /// ```swift
+    /// // CORRECT - Use stable UUID
+    /// let foundElement = document.elements.first { $0.uuid.uuidString == elementID }
+    ///
+    /// // WRONG - Don't use PersistentIdentifier string representation
+    /// let badElement = document.elements.first { String(describing: $0.id).contains(elementID) }
+    /// ```
+    @Attribute(.unique) public var uuid: UUID
+
     /// Chapter index for multi-chapter screenplays
     ///
     /// - 0: Elements before the first chapter (title page, opening scenes)
@@ -242,7 +266,8 @@ public final class GuionElementModel: GuionElementProtocol {
     @Attribute(.transformable(by: "NSSecureUnarchiveFromDataTransformer"))
     public var formattedText: AttributedString?
 
-    public init(elementText: String, elementType: ElementType, isCentered: Bool = false, isDualDialogue: Bool = false, sceneNumber: String? = nil, sectionDepth: Int = 0, summary: String? = nil, sceneId: String? = nil, chapterIndex: Int = 0, orderIndex: Int = 0) {
+    public init(elementText: String, elementType: ElementType, isCentered: Bool = false, isDualDialogue: Bool = false, sceneNumber: String? = nil, sectionDepth: Int = 0, summary: String? = nil, sceneId: String? = nil, chapterIndex: Int = 0, orderIndex: Int = 0, uuid: UUID = UUID()) {
+        self.uuid = uuid
         self.chapterIndex = chapterIndex
         self.orderIndex = orderIndex
         self.elementText = elementText
