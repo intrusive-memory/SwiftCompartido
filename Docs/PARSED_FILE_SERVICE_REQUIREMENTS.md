@@ -8,6 +8,7 @@ SwiftCompartido 6.1.0 introduces a **Parsed File Service** powered by App Intent
 1. **Purely additive** - Zero breaking changes to existing APIs
 2. **Single code path** - App Intents are thin wrappers around core APIs (no duplicate logic)
 3. **Integration testing** - App Intents can be used for testing the standard application path
+4. **Read-only scope** - v6.1.0 focuses on parsing and querying only (export deferred to future release)
 
 ---
 
@@ -16,9 +17,10 @@ SwiftCompartido 6.1.0 introduces a **Parsed File Service** powered by App Intent
 1. **Enable Shortcuts Integration**: Allow users to parse screenplay files via Siri Shortcuts
 2. **Headless Parsing**: Support parsing without UI/view dependencies
 3. **Database Integration**: Return persistent SwiftData document references
-4. **Workflow Chaining**: Return element data that can be directly chained to downstream intents (voice generation, export, etc.)
+4. **Workflow Chaining**: Return element data that can be directly chained to downstream intents (voice generation, analysis, etc.)
 5. **Format Agnostic**: Support all existing screenplay formats (Fountain, FDX, PDF, Markdown, Highland, TextBundle)
 6. **Single-Shot Operations**: Parse + filter in one intent to minimize user workflow complexity
+7. **Read-Only Focus**: Parse and query only (no write/export in this release)
 
 ---
 
@@ -68,15 +70,17 @@ SwiftCompartido 6.1.0 introduces a **Parsed File Service** powered by App Intent
 - [ ] Return array of `ScreenplayElementsReference` objects
 - [ ] Handle partial failures gracefully
 
-### Story 5: Export Document via Shortcuts
+### Story 5: Future - Export Document via Shortcuts (Deferred to 6.2.0+)
 **As a** user
-**I want to** export a parsed document to Fountain/FDX/PDF
+**I want to** export a parsed document to Fountain/FDX/Markdown
 **So that** I can share formatted screenplays
 
-**Acceptance Criteria**:
-- [ ] Accept `ScreenplayElementsReference` or document ID
-- [ ] Accept target format (fountain, fdx, markdown)
-- [ ] Return file URL to exported document
+**Status**: DEFERRED - Export functionality will be a separate service in a future release
+
+**Rationale**:
+- Separates read (parse/query) from write (export) concerns
+- Export requires separate WriterService with its own intents
+- Keeps 6.1.0 focused and easier to implement/test
 
 ---
 
@@ -560,90 +564,28 @@ public struct QueryScreenplayElementsIntent: AppIntent {
 }
 ```
 
-**`ExportScreenplayIntent` - Export to File**
-- **Accepts**: `ScreenplayElementsReference` OR `ScreenplayDocumentEntity`
-- **Returns**: `IntentFile` for saving to Files app
+---
 
-```swift
-@available(iOS 26.0, macOS 26.0, *)
-public struct ExportScreenplayIntent: AppIntent {
-    public static let title: LocalizedStringResource = "Export Screenplay"
-    public static let description = IntentDescription(
-        "Export screenplay elements to a file format"
-    )
+## Deferred Features (Future Releases)
 
-    @Parameter(title: "Elements Reference")
-    public var elementsReference: ScreenplayElementsReference?
+### Export/Write Functionality (v6.2.0+)
 
-    @Parameter(title: "Document (if no elements reference)")
-    public var document: ScreenplayDocumentEntity?
+**Scope**: Screenplay export to Fountain, FDX, Markdown formats
 
-    @Parameter(
-        title: "Format",
-        default: ExportFormat.fountain
-    )
-    public var format: ExportFormat
+**Why Deferred**:
+- Separates read (parse/query) from write (export) concerns
+- Export requires separate `ScreenplayWriterService` with unified code path
+- Allows 6.1.0 to focus on core parsing and querying
+- Writer service can be designed independently with proper architecture
 
-    public static var parameterSummary: some ParameterSummary {
-        Summary("Export screenplay as \(\.$format)")
-    }
+**Planned Intents** (future):
+- `ExportScreenplayIntent` - Export elements to file format
+- `WriteScreenplayIntent` - Create/modify screenplay documents
+- Writer service will delegate to existing writers (FDXDocumentWriter, FountainTextWriter, etc.)
 
-    @MainActor
-    public func perform() async throws -> some IntentResult & ReturnsValue<IntentFile> {
-        // Get elements from reference or query document
-        let elements: [ElementReference]
-        let title: String
+---
 
-        if let reference = elementsReference {
-            elements = reference.elements
-            title = reference.documentTitle
-        } else if let doc = document {
-            // Fallback: query all elements from document
-            let allElements = try await service.elements(documentID: doc.id, filter: nil)
-            elements = allElements.map { ElementReference(from: $0) }
-            title = doc.title
-        } else {
-            throw IntentError.message("No document or elements reference provided")
-        }
-
-        // Export to format
-        let fileURL = try await exportService.export(
-            elements: elements,
-            title: title,
-            format: format
-        )
-
-        let intentFile = IntentFile(fileURL: fileURL, filename: "\(title).\(format.fileExtension)")
-        return .result(value: intentFile)
-    }
-}
-
-public enum ExportFormat: String, AppEnum {
-    case fountain
-    case fdx
-    case markdown
-
-    public var fileExtension: String {
-        switch self {
-        case .fountain: return "fountain"
-        case .fdx: return "fdx"
-        case .markdown: return "md"
-        }
-    }
-
-    public static let typeDisplayRepresentation = TypeDisplayRepresentation(
-        name: "Export Format"
-    )
-
-    public static let caseDisplayRepresentations: [ExportFormat: DisplayRepresentation] = [
-        .fountain: "Fountain",
-        .fdx: "Final Draft (FDX)",
-        .markdown: "Markdown"
-    ]
-}
-```
-
-**6. App Shortcuts Provider**
+**5. App Shortcuts Provider**
 
 ```swift
 import AppIntents
@@ -689,20 +631,18 @@ Sources/SwiftCompartido/
 │   │   ├── ElementReference.swift               (NEW)
 │   │   └── ScreenplayDocumentEntity.swift       (NEW - METADATA ONLY)
 │   ├── Intents/
-│   │   ├── ParseScreenplayFileIntent.swift  (NEW)
-│   │   ├── QueryScreenplayElementsIntent.swift (NEW)
-│   │   └── ExportScreenplayIntent.swift     (NEW)
+│   │   ├── ParseScreenplayFileIntent.swift      (NEW)
+│   │   └── QueryScreenplayElementsIntent.swift  (NEW)
 │   ├── OptionsProviders/
 │   │   └── ElementTypeOptionsProvider.swift (NEW)
 │   └── SwiftCompartidoShortcuts.swift       (NEW)
 
 Tests/SwiftCompartidoTests/
 ├── Services/
-│   └── ParsedFileServiceTests.swift     (NEW)
+│   └── ParsedFileServiceTests.swift         (NEW)
 └── AppIntents/
     ├── ParseScreenplayFileIntentTests.swift (NEW)
-    ├── QueryScreenplayElementsIntentTests.swift (NEW)
-    └── ExportScreenplayIntentTests.swift (NEW)
+    └── QueryScreenplayElementsIntentTests.swift (NEW)
 ```
 
 ---
@@ -773,9 +713,10 @@ No feature flags needed - App Intents are opt-in by design. Apps that don't use 
 - ✅ Parse file with source tracking → Creates file reference
 - ✅ Parse file without source tracking → No file reference
 
-**App Intent Tests (20 tests)**
+**App Intent Tests (15 tests)**
 - ✅ ParseScreenplayFileIntent with valid file → Returns ScreenplayElementsReference
 - ✅ ParseScreenplayFileIntent with dialogue filter → Returns only dialogue
+- ✅ ParseScreenplayFileIntent with scene filter → Returns only scenes
 - ✅ ParseScreenplayFileIntent with invalid file → Throws error
 - ✅ ScreenplayElementsReference serialization → Codable round-trip succeeds
 - ✅ ElementReference.isDialogue → Correctly identifies dialogue types
@@ -784,16 +725,10 @@ No feature flags needed - App Intents are opt-in by design. Apps that don't use 
 - ✅ ScreenplayElementsReference.dialogueCount(for:) → Correct count per character
 - ✅ QueryScreenplayElementsIntent with filters → Returns filtered reference
 - ✅ QueryScreenplayElementsIntent without filters → Returns all elements in reference
-- ✅ ExportScreenplayIntent with reference → Returns valid file
-- ✅ ExportScreenplayIntent with document entity → Returns valid file
-- ✅ ExportScreenplayIntent to Fountain → Correct format
-- ✅ ExportScreenplayIntent to FDX → Correct format
-- ✅ ExportScreenplayIntent to Markdown → Correct format
+- ✅ QueryScreenplayElementsIntent by character → Correct filtering
 - ✅ Entity display representation → Correct title/subtitle
 - ✅ Transferable conformance → ScreenplayElementsReference transfers correctly
 - ✅ Large reference (1000+ elements) → Serializes without errors
-- ✅ Empty reference (0 elements) → Handles gracefully
-- ✅ Chain Parse → Export → Verify output matches input
 
 ### Integration Tests via App Intents
 
@@ -839,49 +774,47 @@ final class ScreenplayWorkflowIntegrationTests: XCTestCase {
         XCTAssertTrue(queryResult.value.elements.allSatisfy { $0.characterName == "SARAH" })
     }
 
-    func testExportRoundTrip() async throws {
-        // Parse → Export → Parse → Verify identical
-        let originalIntent = ParseScreenplayFileIntent()
-        originalIntent.file = testFile
+    func testParseMultipleFormats() async throws {
+        // Test parsing different formats through unified API
+        let formats = ["screenplay.fountain", "screenplay.fdx", "screenplay.pdf"]
 
-        let reference1 = try await originalIntent.perform().value
+        for format in formats {
+            let testFile = IntentFile(/* test file */)
+            let parseIntent = ParseScreenplayFileIntent()
+            parseIntent.file = testFile
 
-        let exportIntent = ExportScreenplayIntent()
-        exportIntent.elementsReference = reference1
-        exportIntent.format = .fountain
+            let reference = try await parseIntent.perform().value
 
-        let exportedFile = try await exportIntent.perform().value
-
-        // Re-parse exported file
-        let reimportIntent = ParseScreenplayFileIntent()
-        reimportIntent.file = exportedFile
-
-        let reference2 = try await reimportIntent.perform().value
-
-        // Verify element count and content match
-        XCTAssertEqual(reference1.elementCount, reference2.elementCount)
+            // Verify parsing succeeded regardless of format
+            XCTAssertGreaterThan(reference.elementCount, 0)
+            XCTAssertNotNil(reference.documentTitle)
+        }
     }
 }
 ```
 
 **Benefits of Intent-based Integration Testing**:
 - ✅ Tests the EXACT code path users will execute in Shortcuts
-- ✅ Validates entire stack (parse → SwiftData → query → export)
+- ✅ Validates entire stack (parse → SwiftData → query)
 - ✅ No test-specific code paths (same API as production)
 - ✅ Catches integration bugs between layers
 
-**Shortcut Workflow Tests (10 tests via App Intents)**
-- ✅ Import screenplay → Query dialogue → Count words
-- ✅ Import screenplay → Filter by character → Export to PDF
-- ✅ Batch import 5 files → Verify all documents created
-- ✅ Query elements → Pass to next shortcut action
+**Shortcut Workflow Tests (8 tests via App Intents)**
+- ✅ Parse screenplay → Query dialogue → Count words
+- ✅ Parse screenplay with dialogue filter → Verify filter applied
+- ✅ Parse screenplay → Query by character → Verify character elements
+- ✅ Parse screenplay → Count scenes (via scene filter)
+- ✅ Parse Fountain file → Verify all elements parsed
+- ✅ Parse FDX file → Verify all elements parsed
+- ✅ Parse PDF file → Verify all elements parsed
+- ✅ Parse with source tracking → Verify file reference created
 
 ### Performance Tests
 
 **Benchmarks:**
 - Parse 1000-element screenplay: < 2s
 - Query 1000 elements with filter: < 0.5s
-- Export 1000-element screenplay to Fountain: < 1s
+- Serialize ScreenplayElementsReference (1000 elements): < 0.1s
 
 ---
 
@@ -1087,22 +1020,26 @@ public struct GenerateVoiceForElementsIntent: AppIntent {
 - [ ] All intents delegate to ParsedFileService
 - [ ] Intents are < 50 lines each (thin wrappers)
 
-### Phase 3: Export & Shortcuts (Week 3)
-**Goal**: Complete workflow support with unified export path
+### Phase 3: Shortcuts & Integration Tests (Week 3)
+**Goal**: Complete Shortcuts integration and comprehensive testing
 
-- [ ] Implement `ExportScreenplayIntent`
-  - ✅ **MUST** use existing writers (FDXDocumentWriter, FountainTextWriter)
-  - ✅ **NO** duplicate export logic
 - [ ] Implement `SwiftCompartidoShortcuts` provider
-- [ ] Create example Shortcuts
-- [ ] Write integration tests via App Intents (10 tests)
-  - ✅ Test full stack (parse → query → export → re-parse)
-  - ✅ Verify round-trip fidelity
+- [ ] Create example Shortcuts workflows
+  - Parse + query dialogue workflow
+  - Parse + count scenes workflow
+  - Character dialogue analysis workflow
+- [ ] Write integration tests via App Intents (8 tests)
+  - ✅ Test full stack (parse → SwiftData → query)
+  - ✅ Verify all formats work through unified API
+- [ ] Performance testing
+  - Parse 1000-element screenplay
+  - Query with filters
+  - Serialization benchmarks
 
 **Acceptance Criteria**:
-- [ ] Export intent uses existing writers
 - [ ] Integration tests use App Intents (not separate test code)
-- [ ] Round-trip tests pass (parse → export → parse → identical)
+- [ ] All screenplay formats (Fountain, FDX, PDF) tested
+- [ ] Example Shortcuts demonstrate voice generation workflow
 
 ### Phase 4: Documentation & Polish (Week 4)
 **Goal**: Document unified architecture and best practices
