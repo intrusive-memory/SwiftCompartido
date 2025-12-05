@@ -203,7 +203,7 @@ struct DocumentImportTests {
         #expect(transformFilename("UPPERCASE.FOUNTAIN") == "UPPERCASE.guion")
 
         // Test nil
-        #expect(transformFilename(nil == nil))
+        #expect(transformFilename(nil) == nil, "Nil should return nil")
 
         // Test empty string
         #expect(transformFilename("") == ".guion")
