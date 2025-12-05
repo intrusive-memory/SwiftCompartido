@@ -590,10 +590,22 @@ Task {
 
 ## Documentation
 
+### User Guides
 - **[Quick Usage Summary](./USAGE-SUMMARY.md)** - Fast reference and common patterns
+- **[App Intents Guide](./Docs/APP_INTENTS_GUIDE.md)** - Complete guide to Shortcuts integration (NEW in 6.0.0)
 - **[AI Reference Guide](./AI-REFERENCE.md)** - Comprehensive guide for AI assistants
 - **[Contributing Guide](./CONTRIBUTING.md)** - How to contribute
 - **[Changelog](./CHANGELOG.md)** - Version history
+
+### API Documentation
+- **[ParsedFileService API](./Docs/PARSED_FILE_SERVICE_API.md)** - Complete API reference for screenplay parsing and querying (NEW in 6.0.0)
+- **[Source File Tracking](./SOURCE_FILE_TRACKING.md)** - Automatic external file change detection
+- **[PDF Capabilities](./Docs/PDF_CAPABILITIES.md)** - AI-powered PDF screenplay parsing (iOS 26+)
+
+### Developer Documentation
+- **[CLAUDE.md](./CLAUDE.md)** - Architecture guide and development patterns
+- **[Workflow Guide](./.claude/WORKFLOW.md)** - Branch strategy, commits, PRs, and releases
+- **[Migration Guide](./Docs/old/PRODUCIESTA_MIGRATION_GUIDE.md)** - Migrating existing apps to SwiftCompartido
 
 ## Requirements
 

@@ -627,6 +627,47 @@ When adding new tests, you **MUST** evaluate whether they belong in short or lon
 
 ## Common Patterns
 
+### App Intents & Shortcuts Integration (NEW in 6.0.0)
+
+SwiftCompartido provides comprehensive App Intents support for Apple Shortcuts integration:
+
+**Core Components:**
+- `ParseScreenplayFileIntent` - Parse screenplay files via Shortcuts
+- `QueryScreenplayElementsIntent` - Query elements from parsed documents
+- `ScreenplayElementsReference` - Transferable reference type for chaining workflows
+- `SwiftCompartidoShortcuts` - Siri voice command registration
+- `ParsedFileService` - Unified service layer (single code path for UI and Intents)
+
+**Example: Parse screenplay via Shortcuts**
+```swift
+// In Shortcuts app:
+// 1. Get File → screenplay.fountain
+// 2. Parse Screenplay File (filter: Dialogue)
+// 3. Use result in voice generation workflow
+
+// Programmatic usage:
+@MainActor
+func parseViaIntent(url: URL) async throws -> ScreenplayElementsReference {
+    var intent = ParseScreenplayFileIntent()
+    intent.fileURL = url
+    intent.elementTypes = [ElementTypeEntity(id: "Dialogue", elementType: .dialogue)]
+
+    let result = try await intent.perform()
+    return result.value
+}
+```
+
+**Siri Voice Commands:**
+- "Import screenplay with SwiftCompartido"
+- "Query screenplay elements in SwiftCompartido"
+- "Get screenplay dialogue in SwiftCompartido"
+
+**Architecture:** All App Intents delegate to `ParsedFileService.shared` for consistent behavior across Shortcuts, programmatic usage, and UI. This ensures a single code path for parsing and querying.
+
+**Documentation:**
+- See `Docs/APP_INTENTS_GUIDE.md` for complete user guide
+- See `Docs/PARSED_FILE_SERVICE_API.md` for API reference
+
 ### Parsing Screenplays
 
 ```swift
@@ -644,6 +685,23 @@ struct ContentView: View {
     var body: some View {
         GuionViewer(document: document)
     }
+}
+```
+
+**Or use ParsedFileService (NEW in 6.0.0):**
+```swift
+@MainActor
+func parseAndQuery(url: URL) async throws {
+    let service = ParsedFileService.shared
+
+    // Parse file
+    let documentID = try await service.parseFile(at: url)
+
+    // Query dialogue
+    let filter = ElementFilter(elementTypes: [.dialogue])
+    let elements = try await service.elements(documentID: documentID, filter: filter)
+
+    print("Found \(elements.count) dialogue elements")
 }
 ```
 
@@ -757,13 +815,23 @@ EOF
 
 ## Documentation Resources
 
+### User Guides
 - `README.md` - User-facing overview
-- `CLAUDE.md` - This file - architecture guide
+- `Docs/APP_INTENTS_GUIDE.md` - Complete guide to Shortcuts integration (NEW in 6.0.0)
 - `AI-REFERENCE.md` - Comprehensive API reference
+- `USAGE-SUMMARY.md` - Quick reference and common patterns
+- `CHANGELOG.md` - Version history
+
+### API Documentation
+- `Docs/PARSED_FILE_SERVICE_API.md` - Complete API reference for ParsedFileService (NEW in 6.0.0)
 - `Docs/PDF_CAPABILITIES.md` - PDF reading capabilities
 - `SOURCE_FILE_TRACKING.md` - Source file tracking guide
-- `CHANGELOG.md` - Version history
+
+### Developer Documentation
+- `CLAUDE.md` - This file - architecture guide
+- `.claude/WORKFLOW.md` - Branch strategy, commits, PRs, and releases
 - `.claude/docs/PRODUCIESTA_MIGRATION_GUIDE.md` - Migration guide for Produciesta app
+- `.claude/skills/*.md` - Reusable development skills and patterns
 
 ## Performance Optimizations (NEW in 5.4.0)
 
