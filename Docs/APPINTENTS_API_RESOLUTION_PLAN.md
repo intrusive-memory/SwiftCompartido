@@ -2,7 +2,11 @@
 
 **Date**: 2025-12-05
 **Issue**: Cannot return custom Transferable type from AppIntent `perform()` method
-**Status**: Research Complete - Implementation Path Identified
+**Status**: ✅ RESOLVED - AppEntity conformance required
+
+**Note**: This document is retained for historical reference. The solution was to make
+`ScreenplayElementsReference` conform to `AppEntity` (not just `Transferable`).
+`ParsedScreenplayIntentResult.swift` was initially created but later removed as unused.
 
 ---
 
