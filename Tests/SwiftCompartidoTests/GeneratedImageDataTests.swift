@@ -5,6 +5,7 @@
 //  Phase 5: Tests for GeneratedImageData and ImageGenerationConfig
 //
 
+import Foundation
 import Testing
 @testable import SwiftCompartido
 
@@ -239,7 +240,7 @@ struct GeneratedImageDataTests {
         let wide = ImageGenerationConfig.ImageSize.wide16x9
         let portrait = ImageGenerationConfig.ImageSize.portrait9x16
 
-        #expect(square.aspectRatio == 1.0, accuracy: 0.01)
+        #expect(abs(square.aspectRatio - 1.0) < 0.01)
         #expect(wide.aspectRatio > 1.0, "Wide should be > 1.0")
         #expect(portrait.aspectRatio < 1.0, "Portrait should be < 1.0")
     }

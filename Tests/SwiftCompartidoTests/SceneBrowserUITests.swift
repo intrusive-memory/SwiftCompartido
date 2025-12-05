@@ -5,6 +5,7 @@
 //  UI and Integration tests for Scene Browser widgets
 //
 
+import Foundation
 import Testing
 import SwiftFijos
 @testable import SwiftCompartido
@@ -20,7 +21,7 @@ struct SceneBrowserUITests {
         let browserData = script.extractSceneBrowserData()
 
         // Verify title exists
-        #expect(browserData.title, "Browser should have a title" != nil)
+        #expect(browserData.title != nil, "Browser should have a title")
         #expect(!browserData.title!.string.isEmpty, "Title should not be empty")
 
         // Verify chapters exist
@@ -39,7 +40,7 @@ struct SceneBrowserUITests {
         // Verify scene structure
         let firstScene = firstGroup.scenes[0]
         #expect(!firstScene.slugline.isEmpty, "Scene should have a slugline")
-        #expect(firstScene.element, "Scene should have outline element" != nil)
+        #expect(firstScene.element != nil, "Scene should have outline element")
     }
 
     @Test func testHierarchyIntegrityWithRealData() async throws {
@@ -115,7 +116,7 @@ struct SceneBrowserUITests {
                     if scene.hasPreScene {
                         foundPreScene = true
 
-                        #expect(scene.preSceneElements, "PreScene elements should exist" != nil)
+                        #expect(scene.preSceneElements != nil, "PreScene elements should exist")
                         #expect(scene.preSceneElements!.count > 0, "PreScene should have elements")
 
                         // Verify preScene content
@@ -251,7 +252,7 @@ struct SceneBrowserUITests {
         let browserData = createSampleBrowserData()
 
         // Verify title
-        #expect(browserData.title, "Should have a title" != nil)
+        #expect(browserData.title != nil, "Should have a title")
         #expect(browserData.title?.level == 1, "Title should be level 1")
 
         // Verify chapters
@@ -305,7 +306,7 @@ struct SceneBrowserUITests {
             chapters: []
         )
 
-        #expect(browserData.title, "Should have title even with no chapters" != nil)
+        #expect(browserData.title != nil, "Should have title even with no chapters")
         #expect(browserData.chapters.isEmpty, "Chapters should be empty")
     }
 
@@ -406,8 +407,8 @@ struct SceneBrowserUITests {
             sceneLocation: nil
         )
 
-        #expect(sceneData.sceneLocation, "Scene should have nil location" == nil)
-        #expect(!sceneData.sceneElements?.isEmpty ?? true, "Scene should still have elements")
+        #expect(sceneData.sceneLocation == nil, "Scene should have nil location")
+        #expect(!(sceneData.sceneElements?.isEmpty ?? true), "Scene should still have elements")
     }
 
     @Test func testPreSceneTextProperty() {
@@ -464,7 +465,7 @@ struct SceneBrowserUITests {
         let duration = Date().timeIntervalSince(startTime)
 
         // Verify data was extracted
-        #expect(browserData.title, "BigFish should have a title" != nil)
+        #expect(browserData.title != nil, "BigFish should have a title")
 
         print("⚡ Performance: BigFish extraction took \(String(format: "%.3f", duration)) seconds")
 
@@ -623,7 +624,7 @@ More action.
         )
 
         // Verify scene has dialogue elements
-        #expect(sceneWithDialogue.sceneElements, "Scene should have elements" != nil)
+        #expect(sceneWithDialogue.sceneElements != nil, "Scene should have elements")
         #expect(sceneWithDialogue.sceneElements?.count == 6, "Scene should have 6 elements")
 
         // Verify dialogue elements are present

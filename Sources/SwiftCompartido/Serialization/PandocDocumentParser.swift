@@ -66,7 +66,8 @@ public enum PandocDocumentParser {
         )
 
         // Parse markdown using existing MarkdownParser
-        return try MarkdownParser.parse(markdown)
+        let (elements, titlePage, _) = try MarkdownParser.parse(markdown)
+        return (elements, titlePage)
         #else
         // iOS doesn't support Process - document import not available
         throw PandocParserError.platformNotSupported

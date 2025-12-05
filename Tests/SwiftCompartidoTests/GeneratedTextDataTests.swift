@@ -5,6 +5,7 @@
 //  Phase 5: Tests for GeneratedTextData and TextGenerationConfig
 //
 
+import Foundation
 import Testing
 @testable import SwiftCompartido
 

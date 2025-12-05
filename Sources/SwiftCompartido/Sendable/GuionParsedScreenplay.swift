@@ -128,8 +128,7 @@ public final class GuionParsedElementCollection {
         // Detect markdown files
         if ext == "md" || ext == "markdown" {
             let contents = try String(contentsOfFile: path, encoding: .utf8)
-            let (elements, titlePage) = try MarkdownParser.parse(contents)
-            let customPages = Self.loadCustomPagesForFile(url: url)
+            let (elements, titlePage, customPages) = try MarkdownParser.parse(contents)
             self.init(
                 filename: filename,
                 elements: elements,
@@ -242,12 +241,13 @@ public final class GuionParsedElementCollection {
         case "md", "markdown":
             // Parse markdown files
             let contents = try String(contentsOfFile: path, encoding: .utf8)
-            let (elements, titlePage) = try MarkdownParser.parse(contents)
+            let (elements, titlePage, customPages) = try MarkdownParser.parse(contents)
             self.init(
                 filename: filename,
                 elements: elements,
                 titlePage: titlePage,
-                suppressSceneNumbers: false
+                suppressSceneNumbers: false,
+                customPages: customPages
             )
 
         case "highland":

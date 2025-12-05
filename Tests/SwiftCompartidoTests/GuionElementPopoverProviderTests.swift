@@ -5,6 +5,7 @@
 //  Tests for GuionElementPopoverProvider type-erased wrapper
 //
 
+import Foundation
 import Testing
 import SwiftUI
 import SwiftData

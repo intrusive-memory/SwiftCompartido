@@ -5,6 +5,7 @@
 //  Tests for Scene Browser data extraction and hierarchy
 //
 
+import Foundation
 import Testing
 import SwiftFijos
 @testable import SwiftCompartido
@@ -162,7 +163,7 @@ struct SceneBrowserTests {
         let browserData = script.extractSceneBrowserData()
 
         // Verify title exists
-        #expect(browserData.title, "Should have a title element" != nil)
+        #expect(browserData.title != nil, "Should have a title element")
 
         // Verify chapters exist
         #expect(browserData.chapters.count > 0, "Should have at least one chapter")

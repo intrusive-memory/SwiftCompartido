@@ -5,6 +5,7 @@
 //  Phase 4: Tests for GeneratedAudioData and AudioGenerationConfig
 //
 
+import Foundation
 import Testing
 @testable import SwiftCompartido
 

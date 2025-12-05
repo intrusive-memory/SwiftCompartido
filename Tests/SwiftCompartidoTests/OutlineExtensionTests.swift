@@ -7,6 +7,7 @@
 //  Tests for the enhanced outline functionality with proper level handling.
 //
 
+import Foundation
 import Testing
 import SwiftFijos
 @testable import SwiftCompartido

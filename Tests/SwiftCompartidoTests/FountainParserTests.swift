@@ -5,6 +5,7 @@
 //  Copyright (c) 2025
 //
 
+import Foundation
 import Testing
 @testable import SwiftCompartido
 
@@ -104,7 +105,7 @@ struct FountainParserTests {
 
         #expect(parser.elements.count > 0, "Should parse dialogue with double spaces")
         let characterIndex = parser.elements.firstIndex { $0.elementType == .character }
-        #expect(characterIndex, "Should have character element" != nil)
+        #expect(characterIndex != nil, "Should have character element")
     }
 
     // MARK: - Multiple Spaces (Action) Tests
@@ -356,7 +357,7 @@ struct FountainParserTests {
         #expect(parser.titlePage.count > 0, "Should have title page entries")
 
         let titleEntry = parser.titlePage.first { $0.keys.contains("title") }
-        #expect(titleEntry, "Should have title entry" != nil)
+        #expect(titleEntry != nil, "Should have title entry")
         #expect(titleEntry?["title"]?.first == "My Screenplay")
     }
 
@@ -384,7 +385,7 @@ struct FountainParserTests {
 
         // "Author" should be converted to "authors"
         let authorsEntry = parser.titlePage.first { $0.keys.contains("authors") }
-        #expect(authorsEntry, "Should convert 'author' to 'authors'" != nil)
+        #expect(authorsEntry != nil, "Should convert 'author' to 'authors'")
     }
 
     // MARK: - Edge Cases

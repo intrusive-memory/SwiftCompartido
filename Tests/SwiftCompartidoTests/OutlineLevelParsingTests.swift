@@ -5,6 +5,7 @@
 //  Comprehensive tests for outline level parsing and hierarchy
 //
 
+import Foundation
 import Testing
 import SwiftFijos
 @testable import SwiftCompartido
@@ -514,8 +515,8 @@ struct OutlineLevelParsingTests {
         let pitchNotes = level1Elements.first { $0.string == "PITCH NOTES" }
         let screenplay = level1Elements.first { $0.string == "SCREENPLAY" }
 
-        #expect(pitchNotes, "Should have PITCH NOTES section" != nil)
-        #expect(screenplay, "Should have SCREENPLAY section" != nil)
+        #expect(pitchNotes != nil, "Should have PITCH NOTES section")
+        #expect(screenplay != nil, "Should have SCREENPLAY section")
 
         // PITCH NOTES should have children like LOGLINE, GENRES, etc.
         let pitchNotesChildren = outline.filter {

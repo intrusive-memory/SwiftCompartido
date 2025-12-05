@@ -5,6 +5,7 @@
 //  Tests for popover accessibility features (keyboard focus, VoiceOver, reduced motion)
 //
 
+import Foundation
 import Testing
 import SwiftUI
 @testable import SwiftCompartido

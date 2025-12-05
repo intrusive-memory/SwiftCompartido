@@ -5,25 +5,14 @@
 //  Phase 6A: Tests for StorageAreaReference and TypedDataFileReference
 //
 
+import Foundation
 import Testing
 @testable import SwiftCompartido
 
 struct StorageAreaReferenceTests {
 
-    var tempDirectory: URL!
-
-    override func setUp() {
-        super.setUp()
-        tempDirectory = FileManager.default.temporaryDirectory
-            .appendingPathComponent(UUID().uuidString)
-    }
-
-    override func tearDown() {
-        if let tempDir = tempDirectory {
-            try? FileManager.default.removeItem(at: tempDir)
-        }
-        super.tearDown()
-    }
+    let tempDirectory = FileManager.default.temporaryDirectory
+        .appendingPathComponent(UUID().uuidString)
 
     // MARK: - Initialization Tests
 
@@ -213,24 +202,15 @@ struct StorageAreaReferenceTests {
 
 struct TypedDataFileReferenceTests {
 
-    var tempDirectory: URL!
-    var storageArea: StorageAreaReference!
+    let tempDirectory = FileManager.default.temporaryDirectory
+        .appendingPathComponent(UUID().uuidString)
+    let storageArea: StorageAreaReference
 
-    override func setUp() {
-        super.setUp()
-        tempDirectory = FileManager.default.temporaryDirectory
-            .appendingPathComponent(UUID().uuidString)
+    init() {
         storageArea = StorageAreaReference(
             requestID: UUID(),
             baseURL: tempDirectory
         )
-    }
-
-    override func tearDown() {
-        if let tempDir = tempDirectory {
-            try? FileManager.default.removeItem(at: tempDir)
-        }
-        super.tearDown()
     }
 
     // MARK: - Initialization Tests

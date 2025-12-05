@@ -5,6 +5,7 @@
 //  Phase 6A: Tests for ProviderCategory enum
 //
 
+import Foundation
 import Testing
 @testable import SwiftCompartido
 

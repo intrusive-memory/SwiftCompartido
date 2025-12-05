@@ -5,6 +5,7 @@
 //  Phase 6A: Tests for OutputFileType struct
 //
 
+import Foundation
 import Testing
 import UniformTypeIdentifiers
 @testable import SwiftCompartido

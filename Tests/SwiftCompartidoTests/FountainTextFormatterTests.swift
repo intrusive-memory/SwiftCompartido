@@ -5,6 +5,7 @@
 //  Tests for Fountain inline text formatting
 //
 
+import Foundation
 import Testing
 import SwiftUI
 @testable import SwiftCompartido

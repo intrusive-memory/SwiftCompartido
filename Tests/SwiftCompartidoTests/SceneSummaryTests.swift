@@ -6,6 +6,7 @@
 //
 //  Tests for scene summarization functionality
 
+import Foundation
 import Testing
 import SwiftFijos
 @testable import SwiftCompartido

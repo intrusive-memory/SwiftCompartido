@@ -5,6 +5,7 @@
 //  Phase 6A: Tests for SerializationFormat enum
 //
 
+import Foundation
 import Testing
 @testable import SwiftCompartido
 

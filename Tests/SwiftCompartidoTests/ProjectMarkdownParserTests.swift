@@ -5,17 +5,13 @@
 //  Copyright (c) 2025
 //
 
+import Foundation
 import Testing
 @testable import SwiftCompartido
 
 struct ProjectMarkdownParserTests {
 
-    var parser: ProjectMarkdownParser!
-
-    override func setUp() {
-        super.setUp()
-        parser = ProjectMarkdownParser()
-    }
+    let parser = ProjectMarkdownParser()
 
     // MARK: - Parsing Tests
 
@@ -258,9 +254,7 @@ struct ProjectMarkdownParserTests {
         #expect(frontMatter.type == frontMatter2.type)
         #expect(frontMatter.title == frontMatter2.title)
         #expect(frontMatter.author == frontMatter2.author)
-        #expect(frontMatter.created.timeIntervalSince1970,
-                       frontMatter2.created.timeIntervalSince1970,
-                       accuracy: 1.0)
+        #expect(abs(frontMatter.created.timeIntervalSince1970 - frontMatter2.created.timeIntervalSince1970) < 1.0)
         #expect(frontMatter.description == frontMatter2.description)
         #expect(frontMatter.season == frontMatter2.season)
         #expect(frontMatter.episodes == frontMatter2.episodes)

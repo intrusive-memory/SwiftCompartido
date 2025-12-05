@@ -5,6 +5,7 @@
 //  Tests for credential types and validation
 //
 
+import Foundation
 import Testing
 @testable import SwiftCompartido
 
@@ -133,39 +134,39 @@ struct AICredentialTests {
 
     // MARK: - AICredentialValidator Tests
 
-    @Test func testValidateAPIKey_Empty() {
+    @Test func testValidateAPIKey_Empty() throws {
         #expect(throws: AICredentialError.self) {
             try AICredentialValidator.validateAPIKey("", for: "openai")
         }
     }
 
-    @Test func testValidateAPIKey_TooShort() {
+    @Test func testValidateAPIKey_TooShort() throws {
         do { _ = try AICredentialValidator.validateAPIKey("short", for: "openai"); Issue.record("Expected error") } catch { /* Expected */ }
     }
 
-    @Test func testValidateAPIKey_OpenAI_Valid() {
+    @Test func testValidateAPIKey_OpenAI_Valid() throws {
         _ = try AICredentialValidator.validateAPIKey("sk-1234567890abcdef", for: "openai")
         _ = try AICredentialValidator.validateAPIKey("sk-proj-1234567890abcdef", for: "openai")
     }
 
-    @Test func testValidateAPIKey_OpenAI_Invalid() {
+    @Test func testValidateAPIKey_OpenAI_Invalid() throws {
         do { _ = try AICredentialValidator.validateAPIKey("invalid-key", for: "openai"); Issue.record("Expected error") } catch { /* Expected */ }
     }
 
-    @Test func testValidateAPIKey_Anthropic_Valid() {
+    @Test func testValidateAPIKey_Anthropic_Valid() throws {
         _ = try AICredentialValidator.validateAPIKey("sk-ant-1234567890abcdef", for: "anthropic")
     }
 
-    @Test func testValidateAPIKey_Anthropic_Invalid() {
+    @Test func testValidateAPIKey_Anthropic_Invalid() throws {
         do { _ = try AICredentialValidator.validateAPIKey("sk-1234567890", for: "anthropic"); Issue.record("Expected error") } catch { /* Expected */ }
     }
 
-    @Test func testValidateAPIKey_ElevenLabs_Valid() {
+    @Test func testValidateAPIKey_ElevenLabs_Valid() throws {
         _ = try AICredentialValidator.validateAPIKey("0123456789abcdef0123456789abcdef", for: "elevenlabs")
         _ = try AICredentialValidator.validateAPIKey("ABCDEF1234567890ABCDEF1234567890", for: "elevenlabs")
     }
 
-    @Test func testValidateAPIKey_ElevenLabs_Invalid() {
+    @Test func testValidateAPIKey_ElevenLabs_Invalid() throws {
         // Too short
         do { _ = try AICredentialValidator.validateAPIKey("0123456789abcdef", for: "elevenlabs"); Issue.record("Expected error") } catch { /* Expected */ }
 
@@ -176,44 +177,44 @@ struct AICredentialTests {
         do { _ = try AICredentialValidator.validateAPIKey("0123456789abcdefghij0123456789ab", for: "elevenlabs"); Issue.record("Expected error") } catch { /* Expected */ }
     }
 
-    @Test func testValidateAPIKey_UnknownProvider() {
+    @Test func testValidateAPIKey_UnknownProvider() throws {
         // Should accept any reasonable length for unknown providers
         _ = try AICredentialValidator.validateAPIKey("12345678", for: "unknown-provider")
         _ = try AICredentialValidator.validateAPIKey(String(repeating: "a", count: 100), for: "custom-provider")
     }
 
-    @Test func testValidateAPIKey_UnknownProvider_TooLong() {
+    @Test func testValidateAPIKey_UnknownProvider_TooLong() throws {
         let tooLong = String(repeating: "a", count: 1025)
         do { _ = try AICredentialValidator.validateAPIKey(tooLong, for: "custom-provider"); Issue.record("Expected error") } catch { /* Expected */ }
     }
 
-    @Test func testValidateAPIKey_Whitespace() {
+    @Test func testValidateAPIKey_Whitespace() throws {
         // Should handle leading/trailing whitespace
         _ = try AICredentialValidator.validateAPIKey("  sk-1234567890abcdef  ", for: "openai")
     }
 
-    @Test func testValidateOAuthToken_Valid() {
+    @Test func testValidateOAuthToken_Valid() throws {
         _ = try AICredentialValidator.validateOAuthToken("1234567890abcdef1234567890abcdef")
     }
 
-    @Test func testValidateOAuthToken_Empty() {
+    @Test func testValidateOAuthToken_Empty() throws {
         do { _ = try AICredentialValidator.validateOAuthToken(""); Issue.record("Expected error") } catch { /* Expected */ }
     }
 
-    @Test func testValidateOAuthToken_TooShort() {
+    @Test func testValidateOAuthToken_TooShort() throws {
         do { _ = try AICredentialValidator.validateOAuthToken("short"); Issue.record("Expected error") } catch { /* Expected */ }
     }
 
-    @Test func testValidateCertificate_Valid() {
+    @Test func testValidateCertificate_Valid() throws {
         let validData = Data(repeating: 0x42, count: 200)
         _ = try AICredentialValidator.validateCertificate(validData)
     }
 
-    @Test func testValidateCertificate_Empty() {
-        do { _ = try AICredentialValidator.validateCertificate(Data(); Issue.record("Expected error") } catch { /* Expected */ }
+    @Test func testValidateCertificate_Empty() throws {
+        do { _ = try AICredentialValidator.validateCertificate(Data()); Issue.record("Expected error") } catch { /* Expected */ }
     }
 
-    @Test func testValidateCertificate_TooSmall() {
+    @Test func testValidateCertificate_TooSmall() throws {
         let tooSmall = Data(repeating: 0x42, count: 50)
         do { _ = try AICredentialValidator.validateCertificate(tooSmall); Issue.record("Expected error") } catch { /* Expected */ }
     }

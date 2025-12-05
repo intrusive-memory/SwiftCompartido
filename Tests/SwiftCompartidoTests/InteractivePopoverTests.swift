@@ -5,6 +5,7 @@
 //  Tests for interactive popover behavior (buttons, controls, extended hover area)
 //
 
+import Foundation
 import Testing
 import SwiftUI
 @testable import SwiftCompartido

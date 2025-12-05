@@ -5,6 +5,7 @@
 //  Copyright (c) 2025
 //
 
+import Foundation
 import Testing
 import SwiftData
 import UniformTypeIdentifiers
@@ -17,9 +18,7 @@ struct DocumentImportTests {
     var modelContainer: ModelContainer!
     var fixturesPath: URL!
 
-    override func setUp() async throws {
-        try await super.setUp()
-
+    init() throws {
         // Create in-memory model context
         let schema = Schema([
             GuionDocumentModel.self,
@@ -81,15 +80,7 @@ struct DocumentImportTests {
         // Return original path even if it doesn't exist (let test handle the error)
         return url
     }
-
-    override func tearDown() async throws {
-        modelContext = nil
-        modelContainer = nil
-        fixturesPath = nil
-        try await super.tearDown()
-    }
-
-    // MARK: - GATE 2.1: Open native .guion file
+// MARK: - GATE 2.1: Open native .guion file
 
     @Test func testOpenNativeGuionFile() async throws {
         // Step 1: Create and save a .guion file
@@ -247,8 +238,8 @@ struct DocumentImportTests {
         // Verify scene locations are already cached
         let sceneElements = loaded.elements.filter { $0.elementType == .sceneHeading }
         for sceneElement in sceneElements {
-            #expect(sceneElement.locationLighting, "Scene location should be cached" != nil)
-            #expect(sceneElement.locationScene, "Scene location should be cached" != nil)
+            #expect(sceneElement.locationLighting != nil, "Scene location should be cached")
+            #expect(sceneElement.locationScene != nil, "Scene location should be cached")
         }
 
         print("💾 Native .guion save time: \(saveTime)s, load time: \(loadTime)s")
@@ -346,12 +337,12 @@ struct DocumentImportTests {
         let result = transformFilename(input)
 
         #expect(result == "already.guion", "Should not add .guion to already .guion files")
-        #expect(!result?.hasSuffix(".guion.guion") ?? true, "Should not double the extension")
+        #expect(!(result?.hasSuffix(".guion.guion") ?? false), "Should not double the extension")
     }
 
     @Test func testEmptyAndNilFilenames() {
         // Test edge cases
-        #expect(transformFilename(nil == nil), "Nil should return nil")
+        #expect(transformFilename(nil) == nil, "Nil should return nil")
         #expect(transformFilename("") == ".guion", "Empty string should add .guion")
         // Note: "." transforms to "..guion" because deletingPathExtension on "." returns "."
         // This is expected behavior from NSString.deletingPathExtension
@@ -428,8 +419,8 @@ struct DocumentImportTests {
 
         // Verify at least one synopsis element has content
         let firstSynopsis = synopsisElements.first
-        #expect(firstSynopsis, "Should have at least one synopsis element" != nil)
-        #expect(!firstSynopsis?.elementText.isEmpty ?? true, "Synopsis element should have text content")
+        #expect(firstSynopsis != nil, "Should have at least one synopsis element")
+        #expect(!(firstSynopsis?.elementText.isEmpty ?? true), "Synopsis element should have text content")
     }
 
     @Test func testHighlandToSwiftDataConversion() async throws {
@@ -452,7 +443,7 @@ struct DocumentImportTests {
         )
 
         // Verify document was created
-        #expect(document, "Document should be created" != nil)
+        #expect(document != nil, "Document should be created")
 
         // Verify elements were converted to SwiftData models
         let sortedElements = document.sortedElements
@@ -490,8 +481,8 @@ struct DocumentImportTests {
 
         // Verify specific content is preserved
         let firstSynopsis = synopsisModels.first
-        #expect(firstSynopsis, "Should have at least one synopsis model" != nil)
-        #expect(!firstSynopsis?.elementText.isEmpty ?? true, "Synopsis model should preserve text content")
+        #expect(firstSynopsis != nil, "Should have at least one synopsis model")
+        #expect(!(firstSynopsis?.elementText.isEmpty ?? true), "Synopsis model should preserve text content")
     }
 
     // MARK: - Helper Methods

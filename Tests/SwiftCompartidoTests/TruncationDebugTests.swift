@@ -5,6 +5,7 @@
 //  Debug tests to identify truncation issues
 //
 
+import Foundation
 import Testing
 import SwiftUI
 @testable import SwiftCompartido

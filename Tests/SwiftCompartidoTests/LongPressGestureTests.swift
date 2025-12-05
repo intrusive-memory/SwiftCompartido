@@ -5,6 +5,7 @@
 //  Tests for long-press gesture support on touch devices
 //
 
+import Foundation
 import Testing
 import SwiftUI
 import SwiftData

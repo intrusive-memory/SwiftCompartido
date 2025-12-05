@@ -5,6 +5,7 @@
 //  Phase 4: Export Functionality Separation Tests
 //
 
+import Foundation
 import Testing
 import SwiftData
 import UniformTypeIdentifiers
@@ -17,9 +18,7 @@ struct DocumentExportTests {
     var modelContainer: ModelContainer!
     var fixturesPath: URL!
 
-    override func setUp() async throws {
-        try await super.setUp()
-
+    init() throws {
         // Create in-memory model context
         let schema = Schema([
             GuionDocumentModel.self,
@@ -81,15 +80,7 @@ struct DocumentExportTests {
         // Return original path even if it doesn't exist (let test handle the error)
         return url
     }
-
-    override func tearDown() async throws {
-        modelContext = nil
-        modelContainer = nil
-        fixturesPath = nil
-        try await super.tearDown()
-    }
-
-    // MARK: - GATE 4.1: Export to Fountain
+// MARK: - GATE 4.1: Export to Fountain
 
     @Test func testExportToFountain() async throws {
         // Create a test document
@@ -153,7 +144,7 @@ struct DocumentExportTests {
         let fountainText = script.stringFromDocument()
 
         // Should not crash, may be empty or have minimal content
-        #expect(fountainText, "Should return a string (even if empty != nil)")
+        #expect(fountainText != nil, "Should return a string (even if empty)")
     }
 
     @Test func testExportPreservesElementOrder() async throws {
@@ -186,9 +177,9 @@ struct DocumentExportTests {
         let secondRange = fountainText.range(of: "LOCATION 2")
         let janeRange = fountainText.range(of: "JANE")
 
-        #expect(firstRange, "Should contain first scene" != nil)
-        #expect(secondRange, "Should contain second scene" != nil)
-        #expect(janeRange, "Should contain character" != nil)
+        #expect(firstRange != nil, "Should contain first scene")
+        #expect(secondRange != nil, "Should contain second scene")
+        #expect(janeRange != nil, "Should contain character")
 
         if let first = firstRange, let second = secondRange, let jane = janeRange {
             #expect(first.lowerBound < second.lowerBound, "First scene should come before second")
@@ -210,7 +201,7 @@ struct DocumentExportTests {
         #expect(!fdxData.isEmpty, "FDX output should not be empty")
 
         let fdxString = String(data: fdxData, encoding: .utf8)
-        #expect(fdxString, "FDX data should be valid UTF-8" != nil)
+        #expect(fdxString != nil, "FDX data should be valid UTF-8")
 
         if let xml = fdxString {
             #expect(xml.contains("<?xml"), "Should contain XML declaration")
@@ -246,7 +237,7 @@ struct DocumentExportTests {
         let fdxData = GuionDocumentParserSwiftData.toFDXData(from: document)
         let fdxString = String(data: fdxData, encoding: .utf8)
 
-        #expect(fdxString, "Should handle special characters" != nil)
+        #expect(fdxString != nil, "Should handle special characters")
 
         // XML entities should be properly escaped
         if let xml = fdxString {

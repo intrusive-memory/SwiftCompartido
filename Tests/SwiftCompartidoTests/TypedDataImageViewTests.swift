@@ -5,6 +5,7 @@
 //  Tests for cross-platform TypedDataImageView
 //
 
+import Foundation
 import Testing
 import SwiftData
 @testable import SwiftCompartido
@@ -31,10 +32,10 @@ struct TypedDataImageViewTests {
 
         #if canImport(UIKit)
         let image = UIImage(data: imageData)
-        #expect(image, "UIImage should be able to decode test data" != nil)
+        #expect(image != nil, "UIImage should be able to decode test data")
         #elseif canImport(AppKit)
         let image = NSImage(data: imageData)
-        #expect(image, "NSImage should be able to decode test data" != nil)
+        #expect(image != nil, "NSImage should be able to decode test data")
         #endif
     }
 
@@ -58,7 +59,7 @@ struct TypedDataImageViewTests {
         #expect(storage.imageFormat == "png")
         #expect(storage.width == 100)
         #expect(storage.height == 100)
-        #expect(!storage.binaryValue?.isEmpty ?? true, "Binary value should not be empty")
+        #expect(!(storage.binaryValue?.isEmpty ?? true), "Binary value should not be empty")
     }
 
     @Test func testTypedDataStorageGetBinary() throws {
@@ -82,7 +83,7 @@ struct TypedDataImageViewTests {
         let imageData = createTestImageData()
         let uiImage = UIImage(data: imageData)
 
-        #expect(uiImage, "Should create UIImage from data" != nil)
+        #expect(uiImage != nil, "Should create UIImage from data")
         #expect(uiImage?.size.width ?? 0 > 0, "Image should have width")
         #expect(uiImage?.size.height ?? 0 > 0, "Image should have height")
     }
@@ -103,7 +104,7 @@ struct TypedDataImageViewTests {
 
         // Recreate image
         let recreatedImage = UIImage(data: imageData)
-        #expect(recreatedImage, "Should recreate image from data" != nil)
+        #expect(recreatedImage != nil, "Should recreate image from data")
     }
     #endif
 
@@ -112,7 +113,7 @@ struct TypedDataImageViewTests {
         let imageData = createTestImageData()
         let nsImage = NSImage(data: imageData)
 
-        #expect(nsImage, "Should create NSImage from data" != nil)
+        #expect(nsImage != nil, "Should create NSImage from data")
         #expect(nsImage?.size.width ?? 0 > 0, "Image should have width")
         #expect(nsImage?.size.height ?? 0 > 0, "Image should have height")
     }
@@ -135,7 +136,7 @@ struct TypedDataImageViewTests {
 
         // Recreate image
         let recreatedImage = NSImage(data: imageData)
-        #expect(recreatedImage, "Should recreate image from data" != nil)
+        #expect(recreatedImage != nil, "Should recreate image from data")
     }
     #endif
 
@@ -146,10 +147,10 @@ struct TypedDataImageViewTests {
 
         #if canImport(UIKit)
         let image = UIImage(data: imageData)
-        #expect(image, "Should decode PNG format" != nil)
+        #expect(image != nil, "Should decode PNG format")
         #elseif canImport(AppKit)
         let image = NSImage(data: imageData)
-        #expect(image, "Should decode PNG format" != nil)
+        #expect(image != nil, "Should decode PNG format")
         #endif
     }
 
@@ -158,10 +159,10 @@ struct TypedDataImageViewTests {
 
         #if canImport(UIKit)
         let image = UIImage(data: imageData)
-        #expect(image, "Should decode JPEG format" != nil)
+        #expect(image != nil, "Should decode JPEG format")
         #elseif canImport(AppKit)
         let image = NSImage(data: imageData)
-        #expect(image, "Should decode JPEG format" != nil)
+        #expect(image != nil, "Should decode JPEG format")
         #endif
     }
 
@@ -172,10 +173,10 @@ struct TypedDataImageViewTests {
 
         #if canImport(UIKit)
         let image = UIImage(data: invalidData)
-        #expect(image, "Should not create image from invalid data" == nil)
+        #expect(image == nil, "Should not create image from invalid data")
         #elseif canImport(AppKit)
         let image = NSImage(data: invalidData)
-        #expect(image, "Should not create image from invalid data" == nil)
+        #expect(image == nil, "Should not create image from invalid data")
         #endif
     }
 
@@ -184,10 +185,10 @@ struct TypedDataImageViewTests {
 
         #if canImport(UIKit)
         let image = UIImage(data: emptyData)
-        #expect(image, "Should not create image from empty data" == nil)
+        #expect(image == nil, "Should not create image from empty data")
         #elseif canImport(AppKit)
         let image = NSImage(data: emptyData)
-        #expect(image, "Should not create image from empty data" == nil)
+        #expect(image == nil, "Should not create image from empty data")
         #endif
     }
 

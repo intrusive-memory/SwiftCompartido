@@ -5,6 +5,7 @@
 //  Copyright (c) 2025
 //
 
+import Foundation
 import Testing
 import SwiftData
 @testable import SwiftCompartido
@@ -12,12 +13,10 @@ import SwiftData
 @MainActor
 struct GuionSerializationTests {
 
-    var modelContext: ModelContext!
-    var modelContainer: ModelContainer!
+    var modelContext: ModelContext
+    var modelContainer: ModelContainer
 
-    override func setUp() async throws {
-        try await super.setUp()
-
+    init() throws {
         // Create in-memory model container for testing
         let schema = Schema([
             GuionDocumentModel.self,
@@ -27,26 +26,6 @@ struct GuionSerializationTests {
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
         modelContainer = try ModelContainer(for: schema, configurations: [modelConfiguration])
         modelContext = modelContainer.mainContext
-    }
-
-    override func tearDown() async throws {
-        // Clean up any remaining objects in context
-        if let context = modelContext {
-            // Delete all documents and their related objects
-            let descriptor = FetchDescriptor<GuionDocumentModel>()
-            if let documents = try? context.fetch(descriptor) {
-                for document in documents {
-                    context.delete(document)
-                }
-            }
-
-            // Save to process deletions
-            try? context.save()
-        }
-
-        modelContext = nil
-        modelContainer = nil
-        try await super.tearDown()
     }
 
     // MARK: - Gate 1.1: Round-trip serialization
@@ -135,7 +114,7 @@ struct GuionSerializationTests {
 
         // Verify all elements have correct parent reference
         for (index, element) in loaded.elements.enumerated() {
-            #expect(element.document, "Element \(index != nil) should have document reference")
+            #expect(element.document != nil, "Element \(index) should have document reference")
             #expect(element.document === loaded, "Element \(index) should reference loaded document")
         }
 
@@ -168,8 +147,8 @@ struct GuionSerializationTests {
         modelContext.insert(document)
 
         // Verify locations are cached before save
-        #expect(document.elements[0].locationLighting, "Location lighting should be cached" != nil)
-        #expect(document.elements[0].locationScene, "Location scene should be cached" != nil)
+        #expect(document.elements[0].locationLighting != nil, "Location lighting should be cached")
+        #expect(document.elements[0].locationScene != nil, "Location scene should be cached")
 
         // Save and reload
         let tempURL = FileManager.default.temporaryDirectory
@@ -181,11 +160,11 @@ struct GuionSerializationTests {
         // Verify all scene locations preserved
         for (index, element) in loaded.elements.enumerated() {
             #expect(element.elementType == .sceneHeading, "Element \(index) should be scene heading")
-            #expect(element.locationLighting, "Element \(index != nil) should have cached lighting")
-            #expect(element.locationScene, "Element \(index != nil) should have cached scene")
+            #expect(element.locationLighting != nil, "Element \(index) should have cached lighting")
+            #expect(element.locationScene != nil, "Element \(index) should have cached scene")
 
             let cachedLocation = element.cachedSceneLocation
-            #expect(cachedLocation, "Element \(index != nil) should reconstruct cached location")
+            #expect(cachedLocation != nil, "Element \(index) should reconstruct cached location")
         }
 
         // Verify specific location details
@@ -376,7 +355,7 @@ struct GuionSerializationTests {
         try document.validate()
 
         // Test scene location re-parsing
-        #expect(element.locationLighting, "Should have cached location" != nil)
+        #expect(element.locationLighting != nil, "Should have cached location")
     }
 
     @Test func testEncodingErrors() async throws {
@@ -407,7 +386,6 @@ struct GuionSerializationTests {
 
         // Attempt to load should throw error
         do { _ = try GuionDocumentModel.load(from: tempURL, in: modelContext); Issue.record("Expected error") } catch { /* Expected */ }
-        }
 
         // Cleanup
         try? FileManager.default.removeItem(at: tempURL)
@@ -533,10 +511,7 @@ struct GuionSerializationTests {
         document.rawContent = nil
         modelContext.insert(document)
 
-        do { _ = try document.validate(); Issue.record("Expected error") } catch { /* Expected */ } else {
-                Issue.record("Expected missingData error, got \(serializationError)")
-            }
-        }
+        do { _ = try document.validate(); Issue.record("Expected error") } catch { /* Expected */ }
     }
 
     @Test func testValidationSucceedsWithValidRelationships() async throws {
@@ -573,8 +548,8 @@ struct GuionSerializationTests {
         // Validate should ensure locations are cached
         try document.validate()
 
-        #expect(sceneElement.locationLighting, "Scene heading should have cached lighting" != nil)
-        #expect(sceneElement.locationScene, "Scene heading should have cached scene" != nil)
+        #expect(sceneElement.locationLighting != nil, "Scene heading should have cached lighting")
+        #expect(sceneElement.locationScene != nil, "Scene heading should have cached scene")
     }
 
     @Test func testValidationReparseMissingLocation() async throws {
@@ -598,8 +573,8 @@ struct GuionSerializationTests {
         try document.validate()
 
         // Location should now be cached
-        #expect(element.locationLighting, "Location should be re-parsed" != nil)
-        #expect(element.locationScene, "Location should be re-parsed" != nil)
+        #expect(element.locationLighting != nil, "Location should be re-parsed")
+        #expect(element.locationScene != nil, "Location should be re-parsed")
     }
 
     @Test func testUnsupportedVersionError() async throws {
@@ -665,6 +640,7 @@ struct GuionSerializationTests {
         let corruptedData = Data([0x00, 0x01, 0x02, 0x03, 0xFF, 0xFE])
 
         do { _ = try GuionDocumentModel.decodeFromBinaryData(corruptedData, in: modelContext); Issue.record("Expected error") } catch { /* Expected */ }
+    }
 
     @Test func testErrorDescriptions() {
         // Test error descriptions and recovery suggestions

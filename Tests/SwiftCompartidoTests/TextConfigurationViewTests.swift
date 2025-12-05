@@ -5,6 +5,7 @@
 //  Phase 7A: Tests for text configuration UI
 //
 
+import Foundation
 import Testing
 import SwiftUI
 @testable import SwiftCompartido
