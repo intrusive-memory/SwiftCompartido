@@ -154,11 +154,11 @@ final class SceneBrowserTests: XCTestCase {
 
     // MARK: - Test Hierarchy Extraction
 
-    func testExtractSceneBrowserDataWithTestFixture() throws {
+    func testExtractSceneBrowserDataWithTestFixture() async throws {
         // Load test.fountain fixture
-        let fountainPath = try Fijos.getFixture("test", extension: "fountain").path
+        let fountainPath = try await FixtureManager.shared.withExclusiveAccess(to: "test.fountain") { $0 }.path
 
-        let script = try GuionParsedElementCollection(file: fountainPath)
+        let script = try await GuionParsedElementCollection(file: fountainPath)
         let browserData = script.extractSceneBrowserData()
 
         // Verify title exists
@@ -175,10 +175,10 @@ final class SceneBrowserTests: XCTestCase {
         }
     }
 
-    func testSceneGroupsInChapter() throws {
-        let fountainPath = try Fijos.getFixture("test", extension: "fountain").path
+    func testSceneGroupsInChapter() async throws {
+        let fountainPath = try await FixtureManager.shared.withExclusiveAccess(to: "test.fountain") { $0 }.path
 
-        let script = try GuionParsedElementCollection(file: fountainPath)
+        let script = try await GuionParsedElementCollection(file: fountainPath)
         let browserData = script.extractSceneBrowserData()
 
         guard let firstChapter = browserData.chapters.first else {
@@ -196,10 +196,10 @@ final class SceneBrowserTests: XCTestCase {
         }
     }
 
-    func testScenesInSceneGroup() throws {
-        let fountainPath = try Fijos.getFixture("test", extension: "fountain").path
+    func testScenesInSceneGroup() async throws {
+        let fountainPath = try await FixtureManager.shared.withExclusiveAccess(to: "test.fountain") { $0 }.path
 
-        let script = try GuionParsedElementCollection(file: fountainPath)
+        let script = try await GuionParsedElementCollection(file: fountainPath)
         let browserData = script.extractSceneBrowserData()
 
         guard let firstChapter = browserData.chapters.first,
@@ -219,10 +219,10 @@ final class SceneBrowserTests: XCTestCase {
         }
     }
 
-    func testOverBlackAttachmentToNextScene() throws {
-        let fountainPath = try Fijos.getFixture("test", extension: "fountain").path
+    func testOverBlackAttachmentToNextScene() async throws {
+        let fountainPath = try await FixtureManager.shared.withExclusiveAccess(to: "test.fountain") { $0 }.path
 
-        let script = try GuionParsedElementCollection(file: fountainPath)
+        let script = try await GuionParsedElementCollection(file: fountainPath)
         let browserData = script.extractSceneBrowserData()
 
         // Find a scene with preScene content
@@ -246,10 +246,10 @@ final class SceneBrowserTests: XCTestCase {
         // If it doesn't exist, the test will just verify the structure works
     }
 
-    func testSceneDirectiveMetadata() throws {
-        let fountainPath = try Fijos.getFixture("test", extension: "fountain").path
+    func testSceneDirectiveMetadata() async throws {
+        let fountainPath = try await FixtureManager.shared.withExclusiveAccess(to: "test.fountain") { $0 }.path
 
-        let script = try GuionParsedElementCollection(file: fountainPath)
+        let script = try await GuionParsedElementCollection(file: fountainPath)
         let browserData = script.extractSceneBrowserData()
 
         // Look for scene groups with directives
@@ -284,20 +284,20 @@ final class SceneBrowserTests: XCTestCase {
         XCTAssertEqual(browserData.chapters.count, 0)
     }
 
-    func testScriptWithOnlyTitle() throws {
+    func testScriptWithOnlyTitle() async throws {
         let content = "# Test Title\n"
-        let script = try GuionParsedElementCollection(string: content)
+        let script = try await GuionParsedElementCollection(string: content)
         let browserData = script.extractSceneBrowserData()
 
         XCTAssertNotNil(browserData.title)
         XCTAssertEqual(browserData.chapters.count, 0)
     }
 
-    func testMultipleChapters() throws {
-        let fountainPath = try Fijos.getFixture("test", extension: "fountain").path
+    func testMultipleChapters() async throws {
+        let fountainPath = try await FixtureManager.shared.withExclusiveAccess(to: "test.fountain") { $0 }.path
         print("\n=== DEBUG: Loading file from: \(fountainPath) ===")
 
-        let script = try GuionParsedElementCollection(file: fountainPath)
+        let script = try await GuionParsedElementCollection(file: fountainPath)
         print("Loaded \(script.elements.count) elements")
 
         // Debug: Check for Section Headings

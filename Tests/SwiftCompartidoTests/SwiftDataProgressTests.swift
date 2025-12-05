@@ -449,7 +449,7 @@ struct SwiftDataProgressTests {
             }
         }
 
-        let url = try Fijos.getFixture("bigfish", extension: "fountain")
+        let url = try await FixtureManager.shared.withExclusiveAccess(to: "bigfish.fountain") { $0 }
         let context = try createInMemoryModelContext()
 
         let document = try await GuionDocumentParserSwiftData.loadAndParse(
@@ -494,7 +494,7 @@ struct SwiftDataProgressTests {
             }
         }
 
-        let url = try Fijos.getFixture("bigfish", extension: "fdx")
+        let url = try await FixtureManager.shared.withExclusiveAccess(to: "bigfish.fdx") { $0 }
         let context = try createInMemoryModelContext()
 
         let document = try await GuionDocumentParserSwiftData.loadAndParse(

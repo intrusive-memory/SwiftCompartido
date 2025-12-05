@@ -28,11 +28,11 @@ struct GuionParsedElementCollectionParsingTests {
     // MARK: - Fountain File Parsing
 
     @Test("Parse Fountain file synchronously")
-    func testParseFountainFileSync() throws {
-        let url = try Fijos.getFixture("bigfish", extension: "fountain")
+    func testParseFountainFileSync() async throws {
+        let url = try await FixtureManager.shared.withExclusiveAccess(to: "bigfish.fountain") { $0 }
 
         // Synchronous parsing
-        let screenplay = try GuionParsedElementCollection(file: url.path)
+        let screenplay = try await GuionParsedElementCollection(file: url.path)
 
         #expect(screenplay.elements.count > 0, "Should parse elements from Fountain file")
         #expect(screenplay.filename == "bigfish.fountain", "Should preserve filename")
@@ -44,7 +44,7 @@ struct GuionParsedElementCollectionParsingTests {
 
     @Test("Parse Fountain file asynchronously")
     func testParseFountainFileAsync() async throws {
-        let url = try Fijos.getFixture("bigfish", extension: "fountain")
+        let url = try await FixtureManager.shared.withExclusiveAccess(to: "bigfish.fountain") { $0 }
 
         // Async parsing without progress
         let screenplay = try await GuionParsedElementCollection(file: url.path)
@@ -60,7 +60,7 @@ struct GuionParsedElementCollectionParsingTests {
 
     @Test("Parse Fountain file with progress")
     func testParseFountainFileWithProgress() async throws {
-        let url = try Fijos.getFixture("bigfish", extension: "fountain")
+        let url = try await FixtureManager.shared.withExclusiveAccess(to: "bigfish.fountain") { $0 }
 
         actor ProgressCollector {
             var updateCount: Int = 0
@@ -100,7 +100,7 @@ struct GuionParsedElementCollectionParsingTests {
     // MARK: - Fountain String Parsing
 
     @Test("Parse Fountain string synchronously")
-    func testParseFountainStringSync() throws {
+    func testParseFountainStringSync() async throws {
         let fountainText = """
         Title: Test Screenplay
         Author: Test Author
@@ -123,7 +123,7 @@ struct GuionParsedElementCollectionParsingTests {
         FADE OUT.
         """
 
-        let screenplay = try GuionParsedElementCollection(string: fountainText)
+        let screenplay = try await GuionParsedElementCollection(string: fountainText)
 
         #expect(screenplay.elements.count > 0, "Should parse elements from string")
         #expect(screenplay.filename == nil, "String parsing should have no filename")
@@ -209,10 +209,10 @@ struct GuionParsedElementCollectionParsingTests {
         // This test will skip if the fixture is not found
 
         do {
-            let url = try Fijos.getFixture("bigfish", extension: "highland")
+            let url = try await FixtureManager.shared.withExclusiveAccess(to: "bigfish.highland") { $0 }
 
             // Highland files are ZIP archives containing TextBundles
-            let screenplay = try GuionParsedElementCollection(highland: url)
+            let screenplay = try await GuionParsedElementCollection(highland: url)
 
             #expect(screenplay.elements.count > 0, "Should parse elements from Highland file")
 
@@ -249,7 +249,7 @@ struct GuionParsedElementCollectionParsingTests {
         }
 
         // Should parse as Fountain file
-        let screenplay = try GuionParsedElementCollection(highland: highlandURL)
+        let screenplay = try await GuionParsedElementCollection(highland: highlandURL)
 
         #expect(screenplay.elements.count > 0, "Should parse plain Fountain .highland file")
         #expect(!screenplay.titlePage.isEmpty, "Should have title page")
@@ -301,7 +301,7 @@ struct GuionParsedElementCollectionParsingTests {
         }
 
         // Parse the TextBundle
-        let screenplay = try GuionParsedElementCollection(textBundle: bundleURL)
+        let screenplay = try await GuionParsedElementCollection(textBundle: bundleURL)
 
         #expect(screenplay.elements.count > 0, "Should parse elements from TextBundle")
         #expect(!screenplay.titlePage.isEmpty, "Should have title page")
@@ -337,7 +337,7 @@ struct GuionParsedElementCollectionParsingTests {
         }
 
         // Should find and parse the .md file
-        let screenplay = try GuionParsedElementCollection(textBundle: bundleURL)
+        let screenplay = try await GuionParsedElementCollection(textBundle: bundleURL)
 
         #expect(screenplay.elements.count > 0, "Should parse .md file from TextBundle")
     }
@@ -394,10 +394,10 @@ struct GuionParsedElementCollectionParsingTests {
     // MARK: - Parser Type Selection (Removed - Auto-detected by Extension)
 
     @Test("Parse detects format automatically")
-    func testParseAutoDetection() throws {
+    func testParseAutoDetection() async throws {
         let fountainText = "Title: Auto-Detection Test\n\nINT. ROOM - DAY"
 
-        let screenplay = try GuionParsedElementCollection(string: fountainText)
+        let screenplay = try await GuionParsedElementCollection(string: fountainText)
 
         #expect(screenplay.elements.count > 0, "Auto-detection should work for Fountain text")
     }

@@ -65,22 +65,22 @@ struct FountainCustomPagesSidecarTests {
     // MARK: - Reading Tests
 
     @Test("Reads Fountain file without sidecar")
-    func testReadFountainWithoutSidecar() throws {
+    func testReadFountainWithoutSidecar() async throws {
         let fountainURL = try createTempFountainFile(withSidecar: false)
         defer { try? FileManager.default.removeItem(at: fountainURL.deletingLastPathComponent()) }
 
-        let screenplay = try GuionParsedElementCollection(file: fountainURL.path)
+        let screenplay = try await GuionParsedElementCollection(file: fountainURL.path)
 
         #expect(screenplay.customPages.isEmpty)
         #expect(!screenplay.elements.isEmpty)
     }
 
     @Test("Reads Fountain file with document-specific sidecar")
-    func testReadFountainWithDocumentSpecificSidecar() throws {
+    func testReadFountainWithDocumentSpecificSidecar() async throws {
         let fountainURL = try createTempFountainFile(name: "myscript", withSidecar: true)
         defer { try? FileManager.default.removeItem(at: fountainURL.deletingLastPathComponent()) }
 
-        let screenplay = try GuionParsedElementCollection(file: fountainURL.path)
+        let screenplay = try await GuionParsedElementCollection(file: fountainURL.path)
 
         #expect(screenplay.customPages.count == 1)
         #expect(screenplay.customPages[0].type == .castList)
@@ -88,7 +88,7 @@ struct FountainCustomPagesSidecarTests {
     }
 
     @Test("Reads Fountain file with shared custom-pages.json")
-    func testReadFountainWithSharedSidecar() throws {
+    func testReadFountainWithSharedSidecar() async throws {
         let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         try FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
         defer { try? FileManager.default.removeItem(at: tempDir) }
@@ -106,13 +106,13 @@ struct FountainCustomPagesSidecarTests {
         try jsonData.write(to: sharedSidecarURL)
 
         // Read fountain file
-        let screenplay = try GuionParsedElementCollection(file: fountainURL.path)
+        let screenplay = try await GuionParsedElementCollection(file: fountainURL.path)
 
         #expect(screenplay.customPages.count == 1)
     }
 
     @Test("Document-specific sidecar takes precedence over shared")
-    func testDocumentSpecificTakesPrecedence() throws {
+    func testDocumentSpecificTakesPrecedence() async throws {
         let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         try FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
         defer { try? FileManager.default.removeItem(at: tempDir) }
@@ -151,7 +151,7 @@ struct FountainCustomPagesSidecarTests {
         try sharedJSON.write(to: sharedSidecarURL)
 
         // Read fountain file
-        let screenplay = try GuionParsedElementCollection(file: fountainURL.path)
+        let screenplay = try await GuionParsedElementCollection(file: fountainURL.path)
 
         #expect(screenplay.customPages.count == 1)
         let castList = try screenplay.customPages[0].asCastList()
@@ -161,7 +161,7 @@ struct FountainCustomPagesSidecarTests {
     // MARK: - Writing Tests
 
     @Test("Writes Fountain with document-specific sidecar")
-    func testWriteFountainWithSidecar() throws {
+    func testWriteFountainWithSidecar() async throws {
         let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         try FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
         defer { try? FileManager.default.removeItem(at: tempDir) }
@@ -200,7 +200,7 @@ struct FountainCustomPagesSidecarTests {
     }
 
     @Test("Does not create sidecar when no custom pages")
-    func testNoSidecarWhenNoCustomPages() throws {
+    func testNoSidecarWhenNoCustomPages() async throws {
         let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         try FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
         defer { try? FileManager.default.removeItem(at: tempDir) }
@@ -223,7 +223,7 @@ struct FountainCustomPagesSidecarTests {
     // MARK: - Round-Trip Tests
 
     @Test("Round-trip preserves custom pages via sidecar")
-    func testRoundTripViaSidecar() throws {
+    func testRoundTripViaSidecar() async throws {
         let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         try FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
         defer { try? FileManager.default.removeItem(at: tempDir) }
@@ -266,7 +266,7 @@ struct FountainCustomPagesSidecarTests {
         try original.write(to: fountainURL)
 
         // Read back
-        let reloaded = try GuionParsedElementCollection(file: fountainURL.path)
+        let reloaded = try await GuionParsedElementCollection(file: fountainURL.path)
 
         // Verify custom pages preserved
         #expect(reloaded.customPages.count == 1)
@@ -283,7 +283,7 @@ struct FountainCustomPagesSidecarTests {
     // MARK: - Edge Cases
 
     @Test("Handles malformed sidecar JSON gracefully")
-    func testMalformedSidecarJSON() throws {
+    func testMalformedSidecarJSON() async throws {
         let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         try FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
         defer { try? FileManager.default.removeItem(at: tempDir) }
@@ -299,12 +299,12 @@ struct FountainCustomPagesSidecarTests {
         try malformedJSON.write(to: sidecarURL, atomically: true, encoding: .utf8)
 
         // Should not crash, just return empty custom pages
-        let screenplay = try GuionParsedElementCollection(file: fountainURL.path)
+        let screenplay = try await GuionParsedElementCollection(file: fountainURL.path)
         #expect(screenplay.customPages.isEmpty)
     }
 
     @Test("Handles special characters in filename")
-    func testSpecialCharactersInFilename() throws {
+    func testSpecialCharactersInFilename() async throws {
         let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         try FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
         defer { try? FileManager.default.removeItem(at: tempDir) }
@@ -324,7 +324,7 @@ struct FountainCustomPagesSidecarTests {
         try jsonData.write(to: sidecarURL)
 
         // Read
-        let screenplay = try GuionParsedElementCollection(file: fountainURL.path)
+        let screenplay = try await GuionParsedElementCollection(file: fountainURL.path)
 
         #expect(screenplay.customPages.count == 1)
     }

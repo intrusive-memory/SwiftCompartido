@@ -21,9 +21,13 @@ struct IntegrationTests {
 
     // MARK: - Helper Methods
 
-    private func loadFixtureScreenplay(_ name: String) throws -> GuionParsedElementCollection {
-        let url = try Fijos.getFixture(name, extension: "fountain")
-        return try GuionParsedElementCollection(file: url.path)
+    private func loadFixtureScreenplay(_ name: String) async throws -> GuionParsedElementCollection {
+        let url = try await FixtureManager.shared.withExclusiveAccess(
+            to: "\(name).fountain"
+        ) { url in
+            return url
+        }
+        return try await GuionParsedElementCollection(file: url.path)
     }
 
     private func createInMemoryModelContext() throws -> ModelContext {
@@ -67,7 +71,7 @@ struct IntegrationTests {
         let collector = ProgressCollector()
 
         // Stage 1: Load screenplay (parse is implicit)
-        let screenplay = try loadFixtureScreenplay("bigfish")
+        let screenplay = try await loadFixtureScreenplay("bigfish")
         await collector.addStage("Parse: Loaded screenplay")
 
         // Stage 2: Convert to SwiftData with progress
@@ -167,7 +171,7 @@ struct IntegrationTests {
     @MainActor
     func testPerformanceRegression() async throws {
         #if canImport(SwiftData)
-        let screenplay = try loadFixtureScreenplay("bigfish")
+        let screenplay = try await loadFixtureScreenplay("bigfish")
         let context = try createInMemoryModelContext()
 
         // Baseline: Convert without progress
@@ -237,7 +241,7 @@ struct IntegrationTests {
         }
 
         // Convert large screenplay
-        let screenplay = try loadFixtureScreenplay("bigfish")
+        let screenplay = try await loadFixtureScreenplay("bigfish")
         let context = try createInMemoryModelContext()
         let _ = await GuionDocumentParserSwiftData.parse(
             script: screenplay,
@@ -358,7 +362,7 @@ struct IntegrationTests {
         // We verify this by checking that Task.checkCancellation() is present
         // in all progress-enabled methods
 
-        let screenplay = try loadFixtureScreenplay("bigfish")
+        let screenplay = try await loadFixtureScreenplay("bigfish")
         let context = try createInMemoryModelContext()
 
         // Run the workflow to completion to verify cancellation support exists
@@ -412,7 +416,7 @@ struct IntegrationTests {
         let monitor = WorkflowMonitor()
 
         // Load Big Fish
-        let screenplay = try loadFixtureScreenplay("bigfish")
+        let screenplay = try await loadFixtureScreenplay("bigfish")
         await monitor.markParseComplete()
 
         // Convert to SwiftData

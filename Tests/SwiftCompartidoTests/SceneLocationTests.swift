@@ -154,7 +154,7 @@ import SwiftFijos
 }
 
 @Test func testGroupScenesByLocation() async throws {
-    let fountainURL = try Fijos.getFixture("bigfish", extension: "fountain")
+    let fountainURL = try await FixtureManager.shared.withExclusiveAccess(to: "bigfish.fountain") { $0 }
     let script = try await GuionParsedElementCollection(file: fountainURL.path)
 
     let groups = script.groupScenesByLocation()
@@ -182,7 +182,7 @@ import SwiftFijos
 }
 
 @Test func testGetLocationsByFrequency() async throws {
-    let fountainURL = try Fijos.getFixture("bigfish", extension: "fountain")
+    let fountainURL = try await FixtureManager.shared.withExclusiveAccess(to: "bigfish.fountain") { $0 }
     let script = try await GuionParsedElementCollection(file: fountainURL.path)
 
     let locationsByFrequency = script.getLocationsByFrequency()
@@ -206,7 +206,7 @@ import SwiftFijos
 }
 
 @Test func testGetLocationsByAppearance() async throws {
-    let fountainURL = try Fijos.getFixture("bigfish", extension: "fountain")
+    let fountainURL = try await FixtureManager.shared.withExclusiveAccess(to: "bigfish.fountain") { $0 }
     let script = try await GuionParsedElementCollection(file: fountainURL.path)
 
     let locationsByAppearance = script.getLocationsByAppearance()
@@ -228,7 +228,7 @@ import SwiftFijos
 }
 
 @Test func testLightingAndTimeAnalysis() async throws {
-    let fountainURL = try Fijos.getFixture("bigfish", extension: "fountain")
+    let fountainURL = try await FixtureManager.shared.withExclusiveAccess(to: "bigfish.fountain") { $0 }
     let script = try await GuionParsedElementCollection(file: fountainURL.path)
 
     let groups = script.groupScenesByLocation()
@@ -258,7 +258,7 @@ import SwiftFijos
 }
 
 @Test func testScenesAtLocation() async throws {
-    let fountainURL = try Fijos.getFixture("bigfish", extension: "fountain")
+    let fountainURL = try await FixtureManager.shared.withExclusiveAccess(to: "bigfish.fountain") { $0 }
     let script = try await GuionParsedElementCollection(file: fountainURL.path)
 
     let allGroups = script.groupScenesByLocation()
@@ -278,7 +278,7 @@ import SwiftFijos
 }
 
 @Test func testAllLocations() async throws {
-    let fountainURL = try Fijos.getFixture("bigfish", extension: "fountain")
+    let fountainURL = try await FixtureManager.shared.withExclusiveAccess(to: "bigfish.fountain") { $0 }
     let script = try await GuionParsedElementCollection(file: fountainURL.path)
 
     let locations = script.allLocations()
@@ -290,7 +290,7 @@ import SwiftFijos
 }
 
 @Test func testWriteLocationBreakdownJSON() async throws {
-    let fountainURL = try Fijos.getFixture("bigfish", extension: "fountain")
+    let fountainURL = try await FixtureManager.shared.withExclusiveAccess(to: "bigfish.fountain") { $0 }
     let script = try await GuionParsedElementCollection(file: fountainURL.path)
 
     let tempDir = FileManager.default.temporaryDirectory

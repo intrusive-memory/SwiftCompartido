@@ -13,7 +13,7 @@ final class OutlineLevelParsingTests: XCTestCase {
 
     // MARK: - Basic Level Detection
 
-    func testSingleLevel1Header() throws {
+    func testSingleLevel1Header() async throws {
         let content = """
         # Main Title
 
@@ -22,7 +22,7 @@ final class OutlineLevelParsingTests: XCTestCase {
         Action.
         """
 
-        let script = try GuionParsedElementCollection(string: content)
+        let script = try await GuionParsedElementCollection(string: content)
         let outline = script.extractOutline()
 
         let level1Elements = outline.filter { $0.level == 1 }
@@ -30,7 +30,7 @@ final class OutlineLevelParsingTests: XCTestCase {
         XCTAssertEqual(level1Elements.first?.string, "Main Title")
     }
 
-    func testMultipleLevel1HeadersAllowed() throws {
+    func testMultipleLevel1HeadersAllowed() async throws {
         let content = """
         # First Title
 
@@ -41,7 +41,7 @@ final class OutlineLevelParsingTests: XCTestCase {
         More action.
         """
 
-        let script = try GuionParsedElementCollection(string: content)
+        let script = try await GuionParsedElementCollection(string: content)
         let outline = script.extractOutline()
 
         let level1Elements = outline.filter { $0.level == 1 }
@@ -51,7 +51,7 @@ final class OutlineLevelParsingTests: XCTestCase {
         XCTAssertEqual(level1Elements[1].string, "Second Title")
     }
 
-    func testNoLevel1CreatesSymtheticTitle() throws {
+    func testNoLevel1CreatesSymtheticTitle() async throws {
         let content = """
         ## Chapter 1
 
@@ -60,7 +60,7 @@ final class OutlineLevelParsingTests: XCTestCase {
         Action.
         """
 
-        let script = try GuionParsedElementCollection(string: content)
+        let script = try await GuionParsedElementCollection(string: content)
         let outline = script.extractOutline()
 
         let level1Elements = outline.filter { $0.level == 1 }
@@ -70,7 +70,7 @@ final class OutlineLevelParsingTests: XCTestCase {
 
     // MARK: - Chapter Level (Level 2) Detection
 
-    func testLevel2ChaptersDetection() throws {
+    func testLevel2ChaptersDetection() async throws {
         let content = """
         ## CHAPTER 1
 
@@ -87,7 +87,7 @@ final class OutlineLevelParsingTests: XCTestCase {
         More action.
         """
 
-        let script = try GuionParsedElementCollection(string: content)
+        let script = try await GuionParsedElementCollection(string: content)
         let outline = script.extractOutline()
 
         let chapters = outline.filter { $0.isChapter }
@@ -96,7 +96,7 @@ final class OutlineLevelParsingTests: XCTestCase {
         XCTAssertEqual(chapters[1].string, "CHAPTER 2")
     }
 
-    func testENDMarkersNotCountedAsChapters() throws {
+    func testENDMarkersNotCountedAsChapters() async throws {
         let content = """
         ## CHAPTER 1
 
@@ -113,7 +113,7 @@ final class OutlineLevelParsingTests: XCTestCase {
         ## END CHAPTER 2
         """
 
-        let script = try GuionParsedElementCollection(string: content)
+        let script = try await GuionParsedElementCollection(string: content)
         let outline = script.extractOutline()
 
         let chapters = outline.filter { $0.isChapter }
@@ -124,7 +124,7 @@ final class OutlineLevelParsingTests: XCTestCase {
         XCTAssertFalse(endMarkers.allSatisfy { $0.isChapter }, "END markers should not be chapters")
     }
 
-    func testSHOTDirectivesNotCountedAsChapters() throws {
+    func testSHOTDirectivesNotCountedAsChapters() async throws {
         let content = """
         ## CHAPTER 1
 
@@ -137,7 +137,7 @@ final class OutlineLevelParsingTests: XCTestCase {
         The door opens.
         """
 
-        let script = try GuionParsedElementCollection(string: content)
+        let script = try await GuionParsedElementCollection(string: content)
         let outline = script.extractOutline()
 
         let chapters = outline.filter { $0.isChapter }
@@ -150,7 +150,7 @@ final class OutlineLevelParsingTests: XCTestCase {
 
     // MARK: - Scene Group Level (Level 3) Detection
 
-    func testLevel3SceneGroupDetection() throws {
+    func testLevel3SceneGroupDetection() async throws {
         let content = """
         ## CHAPTER 1
 
@@ -167,7 +167,7 @@ final class OutlineLevelParsingTests: XCTestCase {
         More action.
         """
 
-        let script = try GuionParsedElementCollection(string: content)
+        let script = try await GuionParsedElementCollection(string: content)
         let outline = script.extractOutline()
 
         let sceneGroups = outline.filter { $0.level == 3 && $0.type == "sectionHeader" }
@@ -176,7 +176,7 @@ final class OutlineLevelParsingTests: XCTestCase {
         XCTAssertEqual(sceneGroups[1].string, "ACT ONE")
     }
 
-    func testSceneDirectiveExtraction() throws {
+    func testSceneDirectiveExtraction() async throws {
         let content = """
         ## CHAPTER 1
 
@@ -193,7 +193,7 @@ final class OutlineLevelParsingTests: XCTestCase {
         More action.
         """
 
-        let script = try GuionParsedElementCollection(string: content)
+        let script = try await GuionParsedElementCollection(string: content)
         let outline = script.extractOutline()
 
         let sceneGroups = outline.filter { $0.level == 3 && $0.type == "sectionHeader" }
@@ -211,7 +211,7 @@ final class OutlineLevelParsingTests: XCTestCase {
 
     // MARK: - Hierarchy and Parent-Child Relationships
 
-    func testChapterSceneGroupHierarchy() throws {
+    func testChapterSceneGroupHierarchy() async throws {
         let content = """
         ## CHAPTER 1
 
@@ -236,7 +236,7 @@ final class OutlineLevelParsingTests: XCTestCase {
         Even more action.
         """
 
-        let script = try GuionParsedElementCollection(string: content)
+        let script = try await GuionParsedElementCollection(string: content)
         let outline = script.extractOutline()
 
         let chapters = outline.filter { $0.isChapter }
@@ -253,7 +253,7 @@ final class OutlineLevelParsingTests: XCTestCase {
         XCTAssertEqual(groupsInChapter2.count, 1, "Chapter 2 should have 1 scene group")
     }
 
-    func testSceneHeadersUnderSceneGroups() throws {
+    func testSceneHeadersUnderSceneGroups() async throws {
         let content = """
         ## CHAPTER 1
 
@@ -268,7 +268,7 @@ final class OutlineLevelParsingTests: XCTestCase {
         Action two.
         """
 
-        let script = try GuionParsedElementCollection(string: content)
+        let script = try await GuionParsedElementCollection(string: content)
         let outline = script.extractOutline()
 
         let sceneGroup = outline.first { $0.level == 3 && $0.type == "sectionHeader" }
@@ -292,7 +292,7 @@ final class OutlineLevelParsingTests: XCTestCase {
         XCTAssertTrue(structural.first?.isSynthetic ?? false, "Title should be synthetic")
     }
 
-    func testScriptWithOnlyScenes() throws {
+    func testScriptWithOnlyScenes() async throws {
         let content = """
         INT. ROOM - DAY
 
@@ -303,7 +303,7 @@ final class OutlineLevelParsingTests: XCTestCase {
         More action.
         """
 
-        let script = try GuionParsedElementCollection(string: content)
+        let script = try await GuionParsedElementCollection(string: content)
         let outline = script.extractOutline()
 
         // Should create synthetic title
@@ -314,7 +314,7 @@ final class OutlineLevelParsingTests: XCTestCase {
         XCTAssertEqual(scenes.count, 2, "Should detect 2 scene headers")
     }
 
-    func testMixedHierarchyLevels() throws {
+    func testMixedHierarchyLevels() async throws {
         let content = """
         # Main Title
 
@@ -333,7 +333,7 @@ final class OutlineLevelParsingTests: XCTestCase {
         Direct scene without scene group.
         """
 
-        let script = try GuionParsedElementCollection(string: content)
+        let script = try await GuionParsedElementCollection(string: content)
         let outline = script.extractOutline()
 
         let level1 = outline.filter { $0.level == 1 }
@@ -349,7 +349,7 @@ final class OutlineLevelParsingTests: XCTestCase {
 
     // MARK: - Multiple Level 1 Headers with Separate Hierarchies
 
-    func testMultipleLevel1HeadersWithSeparateHierarchies() throws {
+    func testMultipleLevel1HeadersWithSeparateHierarchies() async throws {
         let content = """
         # PITCH NOTES
 
@@ -380,7 +380,7 @@ final class OutlineLevelParsingTests: XCTestCase {
         More action.
         """
 
-        let script = try GuionParsedElementCollection(string: content)
+        let script = try await GuionParsedElementCollection(string: content)
         let outline = script.extractOutline()
 
         // Should have 2 level 1 elements
@@ -409,7 +409,7 @@ final class OutlineLevelParsingTests: XCTestCase {
                       "All level 2 elements should belong to one of the level 1 parents")
     }
 
-    func testMultipleLevel1HeadersWithComplexHierarchies() throws {
+    func testMultipleLevel1HeadersWithComplexHierarchies() async throws {
         let content = """
         # SECTION A
 
@@ -444,7 +444,7 @@ final class OutlineLevelParsingTests: XCTestCase {
         Action in section B.
         """
 
-        let script = try GuionParsedElementCollection(string: content)
+        let script = try await GuionParsedElementCollection(string: content)
         let outline = script.extractOutline()
 
         let level1Elements = outline.filter { $0.level == 1 }
@@ -470,7 +470,7 @@ final class OutlineLevelParsingTests: XCTestCase {
         XCTAssertEqual(sceneGroupsUnderA1.count, 2, "Chapter A1 should have 2 scene groups")
     }
 
-    func testMrMrCharlesDocument() throws {
+    func testMrMrCharlesDocument() async throws {
         // This test uses inline content instead of a fixture file
         // The mr-mr-charles.fountain fixture demonstrates multiple level 1 sections
         let content = """
@@ -503,7 +503,7 @@ final class OutlineLevelParsingTests: XCTestCase {
         More action.
         """
 
-        let script = try GuionParsedElementCollection(string: content)
+        let script = try await GuionParsedElementCollection(string: content)
         let outline = script.extractOutline()
 
         // Should have multiple level 1 sections
@@ -544,7 +544,7 @@ final class OutlineLevelParsingTests: XCTestCase {
 
     // MARK: - Synthetic Element Generation for Missing Levels
 
-    func testMissingLevel3CreatesSymtheticElement() throws {
+    func testMissingLevel3CreatesSymtheticElement() async throws {
         let content = """
         ## Chapter 1
 
@@ -553,7 +553,7 @@ final class OutlineLevelParsingTests: XCTestCase {
         Action.
         """
 
-        let script = try GuionParsedElementCollection(string: content)
+        let script = try await GuionParsedElementCollection(string: content)
         let outline = script.extractOutline()
 
         // Should have chapter (level 2), synthetic level 3, and scene (level 4)
@@ -577,7 +577,7 @@ final class OutlineLevelParsingTests: XCTestCase {
         XCTAssertEqual(scene?.parentId, syntheticLevel3?.id, "Scene should be child of synthetic level 3")
     }
 
-    func testMissingLevel2And3CreatesMultipleSyntheticElements() throws {
+    func testMissingLevel2And3CreatesMultipleSyntheticElements() async throws {
         let content = """
         # Main Title
 
@@ -586,7 +586,7 @@ final class OutlineLevelParsingTests: XCTestCase {
         Action.
         """
 
-        let script = try GuionParsedElementCollection(string: content)
+        let script = try await GuionParsedElementCollection(string: content)
         let outline = script.extractOutline()
 
         // Should have title (level 1), synthetic level 2, synthetic level 3, and scene (level 4)
@@ -614,7 +614,7 @@ final class OutlineLevelParsingTests: XCTestCase {
         XCTAssertEqual(scene?.parentId, syntheticLevel3?.id, "Scene should be child of synthetic level 3")
     }
 
-    func testMultipleScenesWithMissingLevel3() throws {
+    func testMultipleScenesWithMissingLevel3() async throws {
         let content = """
         ## Chapter 1
 
@@ -627,7 +627,7 @@ final class OutlineLevelParsingTests: XCTestCase {
         Action 2.
         """
 
-        let script = try GuionParsedElementCollection(string: content)
+        let script = try await GuionParsedElementCollection(string: content)
         let outline = script.extractOutline()
 
         // Should create only ONE synthetic level 3 for both scenes
@@ -643,7 +643,7 @@ final class OutlineLevelParsingTests: XCTestCase {
         XCTAssertTrue(level4Elements.allSatisfy { $0.parentId == syntheticLevel3?.id }, "Both scenes should share the same synthetic parent")
     }
 
-    func testSyntheticElementsNotEncodedInSerialization() throws {
+    func testSyntheticElementsNotEncodedInSerialization() async throws {
         let content = """
         ## Chapter 1
 
@@ -652,7 +652,7 @@ final class OutlineLevelParsingTests: XCTestCase {
         Action.
         """
 
-        let script = try GuionParsedElementCollection(string: content)
+        let script = try await GuionParsedElementCollection(string: content)
         let outline = script.extractOutline()
 
         // Encode and decode
@@ -670,7 +670,7 @@ final class OutlineLevelParsingTests: XCTestCase {
         XCTAssertGreaterThan(realElements.count, 0, "Real elements should be preserved")
     }
 
-    func testMissingLevelWhenSceneGroupExists() throws {
+    func testMissingLevelWhenSceneGroupExists() async throws {
         let content = """
         ## Chapter 1
 
@@ -685,7 +685,7 @@ final class OutlineLevelParsingTests: XCTestCase {
         Action 2.
         """
 
-        let script = try GuionParsedElementCollection(string: content)
+        let script = try await GuionParsedElementCollection(string: content)
         let outline = script.extractOutline()
 
         // When level 3 exists explicitly, scenes under it should not create synthetic elements
@@ -704,7 +704,7 @@ final class OutlineLevelParsingTests: XCTestCase {
 
     // MARK: - Scene Browser Integration
 
-    func testSceneBrowserWithMultipleChapters() throws {
+    func testSceneBrowserWithMultipleChapters() async throws {
         let content = """
         ## CHAPTER 1
 
@@ -723,7 +723,7 @@ final class OutlineLevelParsingTests: XCTestCase {
         More action.
         """
 
-        let script = try GuionParsedElementCollection(string: content)
+        let script = try await GuionParsedElementCollection(string: content)
         let browserData = script.extractSceneBrowserData()
 
         XCTAssertEqual(browserData.chapters.count, 2, "Should extract 2 chapters")

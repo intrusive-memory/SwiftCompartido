@@ -68,22 +68,22 @@ struct HighlandCustomPagesTests {
     // MARK: - Reading Tests
 
     @Test("Reads Highland file without custom pages")
-    func testReadHighlandWithoutCustomPages() throws {
+    func testReadHighlandWithoutCustomPages() async throws {
         let highlandURL = try createTempHighlandFile(withCustomPages: false)
         defer { try? FileManager.default.removeItem(at: highlandURL.deletingLastPathComponent()) }
 
-        let screenplay = try GuionParsedElementCollection(highland: highlandURL)
+        let screenplay = try await GuionParsedElementCollection(highland: highlandURL)
 
         #expect(screenplay.customPages.isEmpty)
         #expect(screenplay.elements.count == 2)
     }
 
     @Test("Reads Highland file with custom pages")
-    func testReadHighlandWithCustomPages() throws {
+    func testReadHighlandWithCustomPages() async throws {
         let highlandURL = try createTempHighlandFile(withCustomPages: true)
         defer { try? FileManager.default.removeItem(at: highlandURL.deletingLastPathComponent()) }
 
-        let screenplay = try GuionParsedElementCollection(highland: highlandURL)
+        let screenplay = try await GuionParsedElementCollection(highland: highlandURL)
 
         #expect(screenplay.customPages.count == 1)
         #expect(screenplay.customPages[0].type == .castList)
@@ -91,11 +91,11 @@ struct HighlandCustomPagesTests {
     }
 
     @Test("Preserves cast list data when reading Highland")
-    func testPreservesCastListData() throws {
+    func testPreservesCastListData() async throws {
         let highlandURL = try createTempHighlandFile(withCustomPages: true)
         defer { try? FileManager.default.removeItem(at: highlandURL.deletingLastPathComponent()) }
 
-        let screenplay = try GuionParsedElementCollection(highland: highlandURL)
+        let screenplay = try await GuionParsedElementCollection(highland: highlandURL)
         let castList = try screenplay.customPages[0].asCastList()
 
         #expect(castList?.id == "test-cast-id")
@@ -109,7 +109,7 @@ struct HighlandCustomPagesTests {
     // MARK: - Writing Tests
 
     @Test("Writes Highland file without custom pages")
-    func testWriteHighlandWithoutCustomPages() throws {
+    func testWriteHighlandWithoutCustomPages() async throws {
         let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         try FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
         defer { try? FileManager.default.removeItem(at: tempDir) }
@@ -131,12 +131,12 @@ struct HighlandCustomPagesTests {
         #expect(FileManager.default.fileExists(atPath: highlandURL.path))
 
         // Read it back and verify no custom pages
-        let reloaded = try GuionParsedElementCollection(highland: highlandURL)
+        let reloaded = try await GuionParsedElementCollection(highland: highlandURL)
         #expect(reloaded.customPages.isEmpty)
     }
 
     @Test("Writes Highland file with custom pages")
-    func testWriteHighlandWithCustomPages() throws {
+    func testWriteHighlandWithCustomPages() async throws {
         let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         try FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
         defer { try? FileManager.default.removeItem(at: tempDir) }
@@ -167,7 +167,7 @@ struct HighlandCustomPagesTests {
         )
 
         // Read it back
-        let reloaded = try GuionParsedElementCollection(highland: highlandURL)
+        let reloaded = try await GuionParsedElementCollection(highland: highlandURL)
 
         #expect(reloaded.customPages.count == 1)
         #expect(reloaded.customPages[0].type == .castList)
@@ -181,7 +181,7 @@ struct HighlandCustomPagesTests {
     // MARK: - Round-Trip Tests
 
     @Test("Round-trip preserves custom pages")
-    func testRoundTripPreservation() throws {
+    func testRoundTripPreservation() async throws {
         let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         try FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
         defer { try? FileManager.default.removeItem(at: tempDir) }
@@ -228,7 +228,7 @@ struct HighlandCustomPagesTests {
             includeResources: true
         )
 
-        let reloaded = try GuionParsedElementCollection(highland: highlandURL)
+        let reloaded = try await GuionParsedElementCollection(highland: highlandURL)
 
         // Verify all custom pages preserved
         #expect(reloaded.customPages.count == 2)
@@ -250,7 +250,7 @@ struct HighlandCustomPagesTests {
     // MARK: - includeResources Flag Tests
 
     @Test("Custom pages written even with includeResources: false")
-    func testCustomPagesWithoutIncludeResources() throws {
+    func testCustomPagesWithoutIncludeResources() async throws {
         let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         try FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
         defer { try? FileManager.default.removeItem(at: tempDir) }
@@ -283,7 +283,7 @@ struct HighlandCustomPagesTests {
         )
 
         // Read it back
-        let reloaded = try GuionParsedElementCollection(highland: highlandURL)
+        let reloaded = try await GuionParsedElementCollection(highland: highlandURL)
 
         // Custom pages MUST be preserved even with includeResources: false
         #expect(reloaded.customPages.count == 1)
@@ -298,7 +298,7 @@ struct HighlandCustomPagesTests {
     // MARK: - Unsupported Type Preservation Tests
 
     @Test("Preserves unsupported custom page types")
-    func testPreservesUnsupportedTypes() throws {
+    func testPreservesUnsupportedTypes() async throws {
         let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         try FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
         defer { try? FileManager.default.removeItem(at: tempDir) }
@@ -334,7 +334,7 @@ struct HighlandCustomPagesTests {
             includeResources: true
         )
 
-        let reloaded = try GuionParsedElementCollection(highland: highlandURL)
+        let reloaded = try await GuionParsedElementCollection(highland: highlandURL)
 
         #expect(reloaded.customPages.count == 1)
         #expect(reloaded.customPages[0].type == .advanced)

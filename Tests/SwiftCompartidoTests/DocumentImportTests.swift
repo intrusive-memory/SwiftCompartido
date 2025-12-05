@@ -395,7 +395,7 @@ final class DocumentImportTests: XCTestCase {
         }
 
         // Parse the Highland file
-        let screenplay = try GuionParsedElementCollection(highland: highlandURL)
+        let screenplay = try await GuionParsedElementCollection(highland: highlandURL)
 
         // Verify we have elements
         XCTAssertGreaterThan(screenplay.elements.count, 0, "Should have parsed elements from Highland file")
@@ -442,7 +442,7 @@ final class DocumentImportTests: XCTestCase {
         }
 
         // Parse the Highland file
-        let screenplay = try GuionParsedElementCollection(highland: highlandURL)
+        let screenplay = try await GuionParsedElementCollection(highland: highlandURL)
 
         // Convert to SwiftData
         let document = await GuionDocumentParserSwiftData.parse(
