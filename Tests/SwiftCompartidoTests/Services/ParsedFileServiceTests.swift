@@ -340,6 +340,69 @@ struct ParsedFileServiceTests {
         #expect(elementsCount == sortedElementsCount)
     }
 
+    @Test("Query elements by character name")
+    func testQueryByCharacterName() async throws {
+        let container = try makeTestContainer()
+        let service = ParsedFileService(modelContainer: container)
+
+        let fileURL = try fixtureURL(named: "bigfish.fountain")
+        let documentID = try await service.parseFile(at: fileURL)
+
+        // Get all elements to find actual character names
+        let allElements = try await service.elements(documentID: documentID, filter: nil)
+        let characterElements = allElements.filter { $0.elementType == .character }
+
+        guard let firstCharacter = characterElements.first else {
+            throw TestError.noCharactersFound
+        }
+
+        let characterName = firstCharacter.elementText.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        // Query for that character's dialogue
+        let filter = ElementFilter(
+            elementTypes: [.dialogue],
+            characterName: characterName
+        )
+        let dialogueElements = try await service.elements(documentID: documentID, filter: filter)
+
+        // Verify all returned elements are dialogue
+        #expect(dialogueElements.count > 0, "Should have dialogue for character: \(characterName)")
+        #expect(dialogueElements.allSatisfy { $0.elementType == .dialogue })
+
+        // Verify filtering actually reduced the results
+        let allDialogue = allElements.filter { $0.elementType == .dialogue }
+        #expect(dialogueElements.count < allDialogue.count, "Character filter should narrow results")
+    }
+
+    @Test("Query elements by character name (case insensitive)")
+    func testQueryByCharacterNameCaseInsensitive() async throws {
+        let container = try makeTestContainer()
+        let service = ParsedFileService(modelContainer: container)
+
+        let fileURL = try fixtureURL(named: "bigfish.fountain")
+        let documentID = try await service.parseFile(at: fileURL)
+
+        // Find a character
+        let allElements = try await service.elements(documentID: documentID, filter: nil)
+        let characterElements = allElements.filter { $0.elementType == .character }
+
+        guard let firstCharacter = characterElements.first else {
+            throw TestError.noCharactersFound
+        }
+
+        let characterName = firstCharacter.elementText.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        // Query with lowercase version
+        let filter = ElementFilter(
+            elementTypes: [.dialogue],
+            characterName: characterName.lowercased()
+        )
+        let dialogueElements = try await service.elements(documentID: documentID, filter: filter)
+
+        // Should still find dialogue (case-insensitive match)
+        #expect(dialogueElements.count > 0, "Case-insensitive matching should work")
+    }
+
     // MARK: - Progress Tracking Tests
 
     @Test("Parse with progress tracking reports progress")
@@ -410,4 +473,5 @@ struct ParsedFileServiceTests {
 
 enum TestError: Error {
     case fixtureNotFound(String)
+    case noCharactersFound
 }

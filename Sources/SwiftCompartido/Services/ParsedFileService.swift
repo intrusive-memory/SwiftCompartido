@@ -124,11 +124,12 @@ public final class ParsedFileService {
         let document = try await self.document(id: documentID)
 
         // Use existing sortedElements property (composite key ordering)
-        var elements = document.sortedElements
+        let elements = document.sortedElements
 
         // Apply filter if provided
         if let filter = filter, !filter.isEmpty {
-            elements = elements.filter { filter.matches($0) }
+            // Use filter(elements:) instead of matches() to support character name filtering
+            return filter.filter(elements: elements)
         }
 
         return elements

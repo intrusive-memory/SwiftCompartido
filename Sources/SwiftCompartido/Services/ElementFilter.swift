@@ -34,8 +34,7 @@ public struct ElementFilter: Sendable, Codable, Equatable {
 
     /// Filter by character name (case-insensitive).
     /// If nil, elements with any character name (or no character) are included.
-    /// **Note**: Character name filtering requires more complex logic and is not yet implemented.
-    /// This field is reserved for future use.
+    /// Only applies to dialogue, parenthetical, and lyrics elements.
     public var characterName: String?
 
     /// Filter by text search (case-insensitive substring match).
@@ -71,8 +70,11 @@ public struct ElementFilter: Sendable, Codable, Equatable {
 
     /// Returns true if the given element matches this filter's criteria.
     ///
+    /// **Note**: This method cannot check `characterName` because it lacks context of preceding
+    /// CHARACTER elements. Use `filter(elements:)` instead for character name filtering.
+    ///
     /// - Parameter element: The element to test against this filter
-    /// - Returns: True if the element matches all specified criteria
+    /// - Returns: True if the element matches all specified criteria (except characterName)
     public func matches(_ element: GuionElementModel) -> Bool {
         var matches = true
 
@@ -84,18 +86,64 @@ public struct ElementFilter: Sendable, Codable, Equatable {
             matches = matches && element.chapterIndex == chapterIndex
         }
 
-        // TODO: Implement character name filtering
-        // Character name is not a stored property on GuionElementModel
-        // Will require scanning for preceding CHARACTER elements
-        if let _ = characterName {
-            // Character name filtering not yet implemented
-            // For now, skip this filter
-        }
+        // Character name filtering requires context (preceding CHARACTER elements)
+        // This is handled by filter(elements:) method instead
+        // Ignoring characterName in this method would make it inconsistent
 
         if let searchText = searchText {
             matches = matches && element.elementText.localizedCaseInsensitiveContains(searchText)
         }
 
         return matches
+    }
+
+    /// Filters an array of elements using this filter's criteria, including character name matching.
+    ///
+    /// This method tracks preceding CHARACTER elements to properly match character names
+    /// for dialogue, parenthetical, and lyrics elements.
+    ///
+    /// - Parameter elements: The elements to filter (should be sorted)
+    /// - Returns: Array of elements matching all filter criteria
+    public func filter(elements: [GuionElementModel]) -> [GuionElementModel] {
+        // If no character name filter, use simple element-by-element matching
+        guard let targetCharacter = characterName else {
+            return elements.filter { matches($0) }
+        }
+
+        // Track current character for character name filtering
+        var results: [GuionElementModel] = []
+        var currentCharacter: String? = nil
+
+        for element in elements {
+            // Update current character when we encounter a CHARACTER element
+            if element.elementType == .character {
+                currentCharacter = element.elementText.trimmingCharacters(in: .whitespacesAndNewlines)
+            }
+
+            // Check if element matches all criteria
+            var elementMatches = matches(element) // Check type, chapter, search text
+
+            // Additionally check character name for dialogue/parenthetical/lyrics
+            if elementMatches {
+                switch element.elementType {
+                case .dialogue, .parenthetical, .lyrics:
+                    // Only include if current character matches target
+                    elementMatches = currentCharacter?.localizedCaseInsensitiveCompare(targetCharacter) == .orderedSame
+                default:
+                    // For non-dialogue elements, character filter doesn't apply
+                    // Only include if not filtering to dialogue-only
+                    if let types = elementTypes, types.contains(.dialogue) || types.contains(.parenthetical) || types.contains(.lyrics) {
+                        // User is filtering to dialogue types, don't include non-dialogue
+                        elementMatches = false
+                    }
+                }
+            }
+
+            if elementMatches {
+                results.append(element)
+            }
+        }
+
+        return results
     }
 }
