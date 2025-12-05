@@ -5,43 +5,43 @@
 //  Phase 4: Tests for GeneratedAudioData and AudioGenerationConfig
 //
 
-import XCTest
+import Testing
 @testable import SwiftCompartido
 
-final class GeneratedAudioDataTests: XCTestCase {
+struct GeneratedAudioDataTests {
 
     // MARK: - AudioFormat Tests
 
-    func testAudioFormatMimeTypes() {
+    @Test func testAudioFormatMimeTypes() {
         // THEN
-        XCTAssertEqual(GeneratedAudioData.AudioFormat.mp3.mimeType, "audio/mpeg")
-        XCTAssertEqual(GeneratedAudioData.AudioFormat.wav.mimeType, "audio/wav")
-        XCTAssertEqual(GeneratedAudioData.AudioFormat.m4a.mimeType, "audio/mp4")
-        XCTAssertEqual(GeneratedAudioData.AudioFormat.flac.mimeType, "audio/flac")
-        XCTAssertEqual(GeneratedAudioData.AudioFormat.ogg.mimeType, "audio/ogg")
+        #expect(GeneratedAudioData.AudioFormat.mp3.mimeType == "audio/mpeg")
+        #expect(GeneratedAudioData.AudioFormat.wav.mimeType == "audio/wav")
+        #expect(GeneratedAudioData.AudioFormat.m4a.mimeType == "audio/mp4")
+        #expect(GeneratedAudioData.AudioFormat.flac.mimeType == "audio/flac")
+        #expect(GeneratedAudioData.AudioFormat.ogg.mimeType == "audio/ogg")
     }
 
-    func testAudioFormatFileExtensions() {
+    @Test func testAudioFormatFileExtensions() {
         // THEN
-        XCTAssertEqual(GeneratedAudioData.AudioFormat.mp3.fileExtension, "mp3")
-        XCTAssertEqual(GeneratedAudioData.AudioFormat.wav.fileExtension, "wav")
-        XCTAssertEqual(GeneratedAudioData.AudioFormat.m4a.fileExtension, "m4a")
-        XCTAssertEqual(GeneratedAudioData.AudioFormat.flac.fileExtension, "flac")
-        XCTAssertEqual(GeneratedAudioData.AudioFormat.ogg.fileExtension, "ogg")
+        #expect(GeneratedAudioData.AudioFormat.mp3.fileExtension == "mp3")
+        #expect(GeneratedAudioData.AudioFormat.wav.fileExtension == "wav")
+        #expect(GeneratedAudioData.AudioFormat.m4a.fileExtension == "m4a")
+        #expect(GeneratedAudioData.AudioFormat.flac.fileExtension == "flac")
+        #expect(GeneratedAudioData.AudioFormat.ogg.fileExtension == "ogg")
     }
 
-    func testAudioFormatRawValues() {
+    @Test func testAudioFormatRawValues() {
         // THEN
-        XCTAssertEqual(GeneratedAudioData.AudioFormat.mp3.rawValue, "mp3")
-        XCTAssertEqual(GeneratedAudioData.AudioFormat.wav.rawValue, "wav")
-        XCTAssertEqual(GeneratedAudioData.AudioFormat.m4a.rawValue, "m4a")
-        XCTAssertEqual(GeneratedAudioData.AudioFormat.flac.rawValue, "flac")
-        XCTAssertEqual(GeneratedAudioData.AudioFormat.ogg.rawValue, "ogg")
+        #expect(GeneratedAudioData.AudioFormat.mp3.rawValue == "mp3")
+        #expect(GeneratedAudioData.AudioFormat.wav.rawValue == "wav")
+        #expect(GeneratedAudioData.AudioFormat.m4a.rawValue == "m4a")
+        #expect(GeneratedAudioData.AudioFormat.flac.rawValue == "flac")
+        #expect(GeneratedAudioData.AudioFormat.ogg.rawValue == "ogg")
     }
 
     // MARK: - GeneratedAudioData Initialization Tests
 
-    func testGeneratedAudioDataInitialization() {
+    @Test func testGeneratedAudioDataInitialization() {
         // GIVEN
         let audioData = Data("test audio".utf8)
         let voiceID = "test-voice-123"
@@ -62,18 +62,18 @@ final class GeneratedAudioDataTests: XCTestCase {
         )
 
         // THEN
-        XCTAssertEqual(generated.audioData, audioData)
-        XCTAssertEqual(generated.format, .mp3)
-        XCTAssertEqual(generated.durationSeconds, 2.5)
-        XCTAssertEqual(generated.sampleRate, 44100)
-        XCTAssertEqual(generated.bitRate, 128000)
-        XCTAssertEqual(generated.channels, 2)
-        XCTAssertEqual(generated.voiceID, voiceID)
-        XCTAssertEqual(generated.voiceName, voiceName)
-        XCTAssertEqual(generated.model, model)
+        #expect(generated.audioData == audioData)
+        #expect(generated.format == .mp3)
+        #expect(generated.durationSeconds == 2.5)
+        #expect(generated.sampleRate == 44100)
+        #expect(generated.bitRate == 128000)
+        #expect(generated.channels == 2)
+        #expect(generated.voiceID == voiceID)
+        #expect(generated.voiceName == voiceName)
+        #expect(generated.model == model)
     }
 
-    func testGeneratedAudioDataWithNilAudioData() {
+    @Test func testGeneratedAudioDataWithNilAudioData() {
         // WHEN
         let generated = GeneratedAudioData(
             audioData: nil,
@@ -84,11 +84,11 @@ final class GeneratedAudioDataTests: XCTestCase {
         )
 
         // THEN
-        XCTAssertNil(generated.audioData)
-        XCTAssertEqual(generated.fileSize, 0, "File size should be 0 when audioData is nil")
+        #expect(generated.audioData == nil)
+        #expect(generated.fileSize == 0, "File size should be 0 when audioData is nil")
     }
 
-    func testGeneratedAudioDataWithOptionalParameters() {
+    @Test func testGeneratedAudioDataWithOptionalParameters() {
         // WHEN
         let generated = GeneratedAudioData(
             audioData: Data("test".utf8),
@@ -99,13 +99,13 @@ final class GeneratedAudioDataTests: XCTestCase {
         )
 
         // THEN
-        XCTAssertNil(generated.durationSeconds)
-        XCTAssertNil(generated.sampleRate)
-        XCTAssertNil(generated.bitRate)
-        XCTAssertNil(generated.channels)
+        #expect(generated.durationSeconds == nil)
+        #expect(generated.sampleRate == nil)
+        #expect(generated.bitRate == nil)
+        #expect(generated.channels == nil)
     }
 
-    func testGeneratedAudioDataFileSize() {
+    @Test func testGeneratedAudioDataFileSize() {
         // GIVEN
         let audioData = Data("test audio data with some length".utf8)
 
@@ -119,12 +119,12 @@ final class GeneratedAudioDataTests: XCTestCase {
         )
 
         // THEN
-        XCTAssertEqual(generated.fileSize, audioData.count)
+        #expect(generated.fileSize == audioData.count)
     }
 
     // MARK: - SerializableTypedData Conformance Tests
 
-    func testPreferredFormat() {
+    @Test func testPreferredFormat() {
         // GIVEN
         let generated = GeneratedAudioData(
             audioData: Data("test".utf8),
@@ -135,12 +135,12 @@ final class GeneratedAudioDataTests: XCTestCase {
         )
 
         // THEN
-        XCTAssertEqual(generated.preferredFormat, .plist)
+        #expect(generated.preferredFormat == .plist)
     }
 
     // MARK: - Codable Tests
 
-    func testGeneratedAudioDataCodable() throws {
+    @Test func testGeneratedAudioDataCodable() throws {
         // GIVEN
         let audioData = Data("test audio".utf8)
         let original = GeneratedAudioData(
@@ -163,18 +163,18 @@ final class GeneratedAudioDataTests: XCTestCase {
         let decoder = JSONDecoder()
         let decoded = try decoder.decode(GeneratedAudioData.self, from: data)
 
-        XCTAssertEqual(decoded.audioData, original.audioData)
-        XCTAssertEqual(decoded.format, original.format)
-        XCTAssertEqual(decoded.durationSeconds, original.durationSeconds)
-        XCTAssertEqual(decoded.sampleRate, original.sampleRate)
-        XCTAssertEqual(decoded.bitRate, original.bitRate)
-        XCTAssertEqual(decoded.channels, original.channels)
-        XCTAssertEqual(decoded.voiceID, original.voiceID)
-        XCTAssertEqual(decoded.voiceName, original.voiceName)
-        XCTAssertEqual(decoded.model, original.model)
+        #expect(decoded.audioData == original.audioData)
+        #expect(decoded.format == original.format)
+        #expect(decoded.durationSeconds == original.durationSeconds)
+        #expect(decoded.sampleRate == original.sampleRate)
+        #expect(decoded.bitRate == original.bitRate)
+        #expect(decoded.channels == original.channels)
+        #expect(decoded.voiceID == original.voiceID)
+        #expect(decoded.voiceName == original.voiceName)
+        #expect(decoded.model == original.model)
     }
 
-    func testGeneratedAudioDataCodableWithNilValues() throws {
+    @Test func testGeneratedAudioDataCodableWithNilValues() throws {
         // GIVEN
         let original = GeneratedAudioData(
             audioData: nil,
@@ -191,16 +191,16 @@ final class GeneratedAudioDataTests: XCTestCase {
         let decoded = try decoder.decode(GeneratedAudioData.self, from: data)
 
         // THEN
-        XCTAssertNil(decoded.audioData)
-        XCTAssertNil(decoded.durationSeconds)
-        XCTAssertNil(decoded.sampleRate)
-        XCTAssertNil(decoded.bitRate)
-        XCTAssertNil(decoded.channels)
+        #expect(decoded.audioData == nil)
+        #expect(decoded.durationSeconds == nil)
+        #expect(decoded.sampleRate == nil)
+        #expect(decoded.bitRate == nil)
+        #expect(decoded.channels == nil)
     }
 
     // MARK: - AudioGenerationConfig Tests
 
-    func testAudioGenerationConfigInitialization() {
+    @Test func testAudioGenerationConfigInitialization() {
         // WHEN
         let config = AudioGenerationConfig(
             voiceID: "voice-123",
@@ -212,15 +212,15 @@ final class GeneratedAudioDataTests: XCTestCase {
         )
 
         // THEN
-        XCTAssertEqual(config.voiceID, "voice-123")
-        XCTAssertEqual(config.voiceName, "Rachel")
-        XCTAssertEqual(config.modelID, "custom-model")
-        XCTAssertEqual(config.stability, 0.6)
-        XCTAssertEqual(config.similarityBoost, 0.8)
-        XCTAssertEqual(config.outputFormat, .mp3)
+        #expect(config.voiceID == "voice-123")
+        #expect(config.voiceName == "Rachel")
+        #expect(config.modelID == "custom-model")
+        #expect(config.stability == 0.6)
+        #expect(config.similarityBoost == 0.8)
+        #expect(config.outputFormat == .mp3)
     }
 
-    func testAudioGenerationConfigDefaults() {
+    @Test func testAudioGenerationConfigDefaults() {
         // WHEN
         let config = AudioGenerationConfig(
             voiceID: "voice-123",
@@ -228,48 +228,48 @@ final class GeneratedAudioDataTests: XCTestCase {
         )
 
         // THEN
-        XCTAssertEqual(config.modelID, "eleven_monolingual_v1")
-        XCTAssertEqual(config.stability, 0.5)
-        XCTAssertEqual(config.similarityBoost, 0.75)
-        XCTAssertEqual(config.outputFormat, .mp3)
+        #expect(config.modelID == "eleven_monolingual_v1")
+        #expect(config.stability == 0.5)
+        #expect(config.similarityBoost == 0.75)
+        #expect(config.outputFormat == .mp3)
     }
 
-    func testAudioGenerationConfigDefault() {
+    @Test func testAudioGenerationConfigDefault() {
         // WHEN
         let config = AudioGenerationConfig.default
 
         // THEN
-        XCTAssertEqual(config.voiceID, "21m00Tcm4TlvDq8ikWAM")
-        XCTAssertEqual(config.voiceName, "Rachel")
-        XCTAssertEqual(config.modelID, "eleven_monolingual_v1")
-        XCTAssertEqual(config.stability, 0.5)
-        XCTAssertEqual(config.similarityBoost, 0.75)
-        XCTAssertEqual(config.outputFormat, .mp3)
+        #expect(config.voiceID == "21m00Tcm4TlvDq8ikWAM")
+        #expect(config.voiceName == "Rachel")
+        #expect(config.modelID == "eleven_monolingual_v1")
+        #expect(config.stability == 0.5)
+        #expect(config.similarityBoost == 0.75)
+        #expect(config.outputFormat == .mp3)
     }
 
-    func testAudioGenerationConfigStable() {
+    @Test func testAudioGenerationConfigStable() {
         // WHEN
         let config = AudioGenerationConfig.stable(voiceID: "voice-123", voiceName: "Test")
 
         // THEN
-        XCTAssertEqual(config.voiceID, "voice-123")
-        XCTAssertEqual(config.voiceName, "Test")
-        XCTAssertEqual(config.stability, 0.75, "Stable config should have higher stability")
-        XCTAssertEqual(config.similarityBoost, 0.5, "Stable config should have lower similarity boost")
+        #expect(config.voiceID == "voice-123")
+        #expect(config.voiceName == "Test")
+        #expect(config.stability == 0.75, "Stable config should have higher stability")
+        #expect(config.similarityBoost == 0.5, "Stable config should have lower similarity boost")
     }
 
-    func testAudioGenerationConfigExpressive() {
+    @Test func testAudioGenerationConfigExpressive() {
         // WHEN
         let config = AudioGenerationConfig.expressive(voiceID: "voice-123", voiceName: "Test")
 
         // THEN
-        XCTAssertEqual(config.voiceID, "voice-123")
-        XCTAssertEqual(config.voiceName, "Test")
-        XCTAssertEqual(config.stability, 0.25, "Expressive config should have lower stability")
-        XCTAssertEqual(config.similarityBoost, 0.9, "Expressive config should have higher similarity boost")
+        #expect(config.voiceID == "voice-123")
+        #expect(config.voiceName == "Test")
+        #expect(config.stability == 0.25, "Expressive config should have lower stability")
+        #expect(config.similarityBoost == 0.9, "Expressive config should have higher similarity boost")
     }
 
-    func testAudioGenerationConfigCodable() throws {
+    @Test func testAudioGenerationConfigCodable() throws {
         // GIVEN
         let original = AudioGenerationConfig(
             voiceID: "voice-123",
@@ -287,17 +287,17 @@ final class GeneratedAudioDataTests: XCTestCase {
         let decoded = try decoder.decode(AudioGenerationConfig.self, from: data)
 
         // THEN
-        XCTAssertEqual(decoded.voiceID, original.voiceID)
-        XCTAssertEqual(decoded.voiceName, original.voiceName)
-        XCTAssertEqual(decoded.modelID, original.modelID)
-        XCTAssertEqual(decoded.stability, original.stability)
-        XCTAssertEqual(decoded.similarityBoost, original.similarityBoost)
-        XCTAssertEqual(decoded.outputFormat, original.outputFormat)
+        #expect(decoded.voiceID == original.voiceID)
+        #expect(decoded.voiceName == original.voiceName)
+        #expect(decoded.modelID == original.modelID)
+        #expect(decoded.stability == original.stability)
+        #expect(decoded.similarityBoost == original.similarityBoost)
+        #expect(decoded.outputFormat == original.outputFormat)
     }
 
     // MARK: - Edge Cases
 
-    func testGeneratedAudioDataWithAllFormats() {
+    @Test func testGeneratedAudioDataWithAllFormats() {
         // Test each format
         let formats: [GeneratedAudioData.AudioFormat] = [.mp3, .wav, .m4a, .flac, .ogg]
 
@@ -309,11 +309,11 @@ final class GeneratedAudioDataTests: XCTestCase {
                 voiceName: "Voice 1",
                 model: "model-1"
             )
-            XCTAssertEqual(generated.format, format)
+            #expect(generated.format == format)
         }
     }
 
-    func testAudioGenerationConfigBoundaryValues() {
+    @Test func testAudioGenerationConfigBoundaryValues() {
         // Test with boundary stability and similarity values
         let configMin = AudioGenerationConfig(
             voiceID: "voice-1",
@@ -329,9 +329,9 @@ final class GeneratedAudioDataTests: XCTestCase {
             similarityBoost: 1.0
         )
 
-        XCTAssertEqual(configMin.stability, 0.0)
-        XCTAssertEqual(configMin.similarityBoost, 0.0)
-        XCTAssertEqual(configMax.stability, 1.0)
-        XCTAssertEqual(configMax.similarityBoost, 1.0)
+        #expect(configMin.stability == 0.0)
+        #expect(configMin.similarityBoost == 0.0)
+        #expect(configMax.stability == 1.0)
+        #expect(configMax.similarityBoost == 1.0)
     }
 }

@@ -6,7 +6,7 @@
 //  These tests establish baselines and measure optimization improvements.
 //
 
-import XCTest
+import Testing
 import SwiftData
 @testable import SwiftCompartido
 
@@ -36,7 +36,7 @@ import SwiftData
 /// - XCTMemoryMetric: Memory allocations
 /// - XCTStorageMetric: Disk I/O
 ///
-final class PerformanceTests: XCTestCase {
+struct PerformanceTests {
 
     // MARK: - Test Configuration
 
@@ -67,7 +67,7 @@ final class PerformanceTests: XCTestCase {
 
     // MARK: - Parsing Performance
 
-    func testFountainParsingPerformanceSmallFile() throws {
+    @Test func testFountainParsingPerformanceSmallFile() throws {
         // Small screenplay ~10KB
         let smallScript = """
         Title: Small Test Script
@@ -111,7 +111,7 @@ final class PerformanceTests: XCTestCase {
         }
     }
 
-    func testFountainParsingPerformanceMediumFile() throws {
+    @Test func testFountainParsingPerformanceMediumFile() throws {
         // Medium screenplay ~50KB
         var mediumScript = """
         Title: Medium Test Script
@@ -157,7 +157,7 @@ final class PerformanceTests: XCTestCase {
         }
     }
 
-    func testMarkdownParsingPerformance() throws {
+    @Test func testMarkdownParsingPerformance() throws {
         let markdown = """
         ---
         title: Test Screenplay
@@ -205,7 +205,7 @@ final class PerformanceTests: XCTestCase {
     // MARK: - SwiftData Conversion Performance
 
     @MainActor
-    func testSwiftDataModelConversionPerformance() throws {
+    @Test func testSwiftDataModelConversionPerformance() throws {
         // Create a screenplay with multiple elements
         let script = """
         Title: Conversion Test
@@ -260,7 +260,7 @@ final class PerformanceTests: XCTestCase {
     // MARK: - Element Ordering Performance
 
     @MainActor
-    func testElementOrderingPerformance() throws {
+    @Test func testElementOrderingPerformance() throws {
         let config = ModelConfiguration(isStoredInMemoryOnly: true)
         let container = try! ModelContainer(
             for: GuionDocumentModel.self,
@@ -298,7 +298,7 @@ final class PerformanceTests: XCTestCase {
     }
 
     @MainActor
-    func testElementFilteringPerformance() throws {
+    @Test func testElementFilteringPerformance() throws {
         let config = ModelConfiguration(isStoredInMemoryOnly: true)
         let container = try! ModelContainer(
             for: GuionDocumentModel.self,
@@ -338,7 +338,7 @@ final class PerformanceTests: XCTestCase {
 
     // MARK: - Generated Content Performance
 
-    func testGeneratedContentStoragePerformance() throws {
+    @Test func testGeneratedContentStoragePerformance() throws {
         let config = ModelConfiguration(isStoredInMemoryOnly: true)
         let container = try! ModelContainer(
             for: TypedDataStorage.self,
@@ -380,7 +380,7 @@ final class PerformanceTests: XCTestCase {
     }
 
     @MainActor
-    func testGeneratedContentRetrievalPerformance() throws {
+    @Test func testGeneratedContentRetrievalPerformance() throws {
         let config = ModelConfiguration(isStoredInMemoryOnly: true)
         let container = try! ModelContainer(
             for: TypedDataStorage.self,
@@ -433,7 +433,7 @@ final class PerformanceTests: XCTestCase {
 
     // MARK: - File Reference Performance
 
-    func testFileReferenceCreationPerformance() {
+    @Test func testFileReferenceCreationPerformance() {
         let testURL = URL(fileURLWithPath: "/tmp/test.fountain")
 
         measure(metrics: [XCTClockMetric(), XCTMemoryMetric()]) {
@@ -448,7 +448,7 @@ final class PerformanceTests: XCTestCase {
         }
     }
 
-    func testStorageAreaReferencePerformance() {
+    @Test func testStorageAreaReferencePerformance() {
         let testBundleURL = URL(fileURLWithPath: "/tmp/test.guion")
         measure(metrics: [XCTClockMetric()]) {
             for _ in 0..<1000 {
@@ -465,7 +465,7 @@ final class PerformanceTests: XCTestCase {
 
     // MARK: - Concurrent Operations Performance
 
-    func testConcurrentParsingPerformance() throws {
+    @Test func testConcurrentParsingPerformance() throws {
         let script = """
         Title: Concurrent Test
 
@@ -497,7 +497,7 @@ final class PerformanceTests: XCTestCase {
                                 _ = try await GuionParsedElementCollection(string: script)
                                 expectation.fulfill()
                             } catch {
-                                XCTFail("Parsing failed: \(error)")
+                                Issue.record("Parsing failed: \(error)")
                             }
                         }
                     }
@@ -510,7 +510,7 @@ final class PerformanceTests: XCTestCase {
 
     // MARK: - Memory Footprint Tests
 
-    func testLargeDocumentMemoryFootprint() throws {
+    @Test func testLargeDocumentMemoryFootprint() throws {
         // Generate a large document with 10,000 elements
         var largeScript = "Title: Memory Test\n\n"
         for i in 0..<10000 {
@@ -533,7 +533,7 @@ final class PerformanceTests: XCTestCase {
         }
     }
 
-    func testSwiftDataMemoryFootprint() throws {
+    @Test func testSwiftDataMemoryFootprint() throws {
         let config = ModelConfiguration(isStoredInMemoryOnly: true)
         let container = try! ModelContainer(
             for: GuionDocumentModel.self,
@@ -571,7 +571,7 @@ final class PerformanceTests: XCTestCase {
     // MARK: - Baseline Recording & Comparison
 
     @MainActor
-    func testRecordPerformanceBaseline() throws {
+    @Test func testRecordPerformanceBaseline() throws {
         print("""
 
         ==========================================

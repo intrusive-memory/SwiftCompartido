@@ -5,7 +5,7 @@
 //  Tests for cross-platform TypedDataImageView
 //
 
-import XCTest
+import Testing
 import SwiftData
 @testable import SwiftCompartido
 
@@ -15,31 +15,32 @@ import UIKit
 import AppKit
 #endif
 
-final class TypedDataImageViewTests: XCTestCase {
+@MainActor
+struct TypedDataImageViewTests {
 
     // MARK: - Image Data Creation Tests
 
-    func testCreateValidImageData() throws {
+    @Test func testCreateValidImageData() throws {
         let imageData = createTestImageData()
-        XCTAssertFalse(imageData.isEmpty, "Test image data should not be empty")
-        XCTAssertGreaterThan(imageData.count, 100, "Image data should be substantial")
+        #expect(!imageData.isEmpty, "Test image data should not be empty")
+        #expect(imageData.count > 100, "Image data should be substantial")
     }
 
-    func testImageDataCanBeDecoded() throws {
+    @Test func testImageDataCanBeDecoded() throws {
         let imageData = createTestImageData()
 
         #if canImport(UIKit)
         let image = UIImage(data: imageData)
-        XCTAssertNotNil(image, "UIImage should be able to decode test data")
+        #expect(image, "UIImage should be able to decode test data" != nil)
         #elseif canImport(AppKit)
         let image = NSImage(data: imageData)
-        XCTAssertNotNil(image, "NSImage should be able to decode test data")
+        #expect(image, "NSImage should be able to decode test data" != nil)
         #endif
     }
 
     // MARK: - TypedDataStorage Tests
 
-    func testTypedDataStorageWithImageData() throws {
+    @Test func testTypedDataStorageWithImageData() throws {
         let imageData = createTestImageData()
 
         let storage = TypedDataStorage(
@@ -53,14 +54,14 @@ final class TypedDataImageViewTests: XCTestCase {
             height: 100
         )
 
-        XCTAssertEqual(storage.mimeType, "image/png")
-        XCTAssertEqual(storage.imageFormat, "png")
-        XCTAssertEqual(storage.width, 100)
-        XCTAssertEqual(storage.height, 100)
-        XCTAssertFalse(storage.binaryValue?.isEmpty ?? true, "Binary value should not be empty")
+        #expect(storage.mimeType == "image/png")
+        #expect(storage.imageFormat == "png")
+        #expect(storage.width == 100)
+        #expect(storage.height == 100)
+        #expect(!storage.binaryValue?.isEmpty ?? true, "Binary value should not be empty")
     }
 
-    func testTypedDataStorageGetBinary() throws {
+    @Test func testTypedDataStorageGetBinary() throws {
         let imageData = createTestImageData()
 
         let storage = TypedDataStorage(
@@ -71,22 +72,22 @@ final class TypedDataImageViewTests: XCTestCase {
         )
 
         let retrievedData = try storage.getBinary(from: nil)
-        XCTAssertEqual(retrievedData, imageData, "Retrieved data should match original")
+        #expect(retrievedData == imageData, "Retrieved data should match original")
     }
 
     // MARK: - Platform Image Type Tests
 
     #if canImport(UIKit)
-    func testUIImageCreation() throws {
+    @Test func testUIImageCreation() throws {
         let imageData = createTestImageData()
         let uiImage = UIImage(data: imageData)
 
-        XCTAssertNotNil(uiImage, "Should create UIImage from data")
-        XCTAssertGreaterThan(uiImage?.size.width ?? 0, 0, "Image should have width")
-        XCTAssertGreaterThan(uiImage?.size.height ?? 0, 0, "Image should have height")
+        #expect(uiImage, "Should create UIImage from data" != nil)
+        #expect(uiImage?.size.width ?? 0 > 0, "Image should have width")
+        #expect(uiImage?.size.height ?? 0 > 0, "Image should have height")
     }
 
-    func testUIImageRoundTrip() throws {
+    @Test func testUIImageRoundTrip() throws {
         // Create image
         let renderer = UIGraphicsImageRenderer(size: CGSize(width: 50, height: 50))
         let originalImage = renderer.image { context in
@@ -96,27 +97,27 @@ final class TypedDataImageViewTests: XCTestCase {
 
         // Convert to data
         guard let imageData = originalImage.pngData() else {
-            XCTFail("Should create PNG data")
+            Issue.record("Should create PNG data")
             return
         }
 
         // Recreate image
         let recreatedImage = UIImage(data: imageData)
-        XCTAssertNotNil(recreatedImage, "Should recreate image from data")
+        #expect(recreatedImage, "Should recreate image from data" != nil)
     }
     #endif
 
     #if canImport(AppKit)
-    func testNSImageCreation() throws {
+    @Test func testNSImageCreation() throws {
         let imageData = createTestImageData()
         let nsImage = NSImage(data: imageData)
 
-        XCTAssertNotNil(nsImage, "Should create NSImage from data")
-        XCTAssertGreaterThan(nsImage?.size.width ?? 0, 0, "Image should have width")
-        XCTAssertGreaterThan(nsImage?.size.height ?? 0, 0, "Image should have height")
+        #expect(nsImage, "Should create NSImage from data" != nil)
+        #expect(nsImage?.size.width ?? 0 > 0, "Image should have width")
+        #expect(nsImage?.size.height ?? 0 > 0, "Image should have height")
     }
 
-    func testNSImageRoundTrip() throws {
+    @Test func testNSImageRoundTrip() throws {
         // Create image
         let image = NSImage(size: NSSize(width: 50, height: 50))
         image.lockFocus()
@@ -128,65 +129,65 @@ final class TypedDataImageViewTests: XCTestCase {
         guard let tiffData = image.tiffRepresentation,
               let bitmap = NSBitmapImageRep(data: tiffData),
               let imageData = bitmap.representation(using: .png, properties: [:]) else {
-            XCTFail("Should create PNG data")
+            Issue.record("Should create PNG data")
             return
         }
 
         // Recreate image
         let recreatedImage = NSImage(data: imageData)
-        XCTAssertNotNil(recreatedImage, "Should recreate image from data")
+        #expect(recreatedImage, "Should recreate image from data" != nil)
     }
     #endif
 
     // MARK: - Image Format Tests
 
-    func testPNGFormat() throws {
+    @Test func testPNGFormat() throws {
         let imageData = createTestImageData(format: "png")
 
         #if canImport(UIKit)
         let image = UIImage(data: imageData)
-        XCTAssertNotNil(image, "Should decode PNG format")
+        #expect(image, "Should decode PNG format" != nil)
         #elseif canImport(AppKit)
         let image = NSImage(data: imageData)
-        XCTAssertNotNil(image, "Should decode PNG format")
+        #expect(image, "Should decode PNG format" != nil)
         #endif
     }
 
-    func testJPEGFormat() throws {
+    @Test func testJPEGFormat() throws {
         let imageData = createTestImageData(format: "jpeg")
 
         #if canImport(UIKit)
         let image = UIImage(data: imageData)
-        XCTAssertNotNil(image, "Should decode JPEG format")
+        #expect(image, "Should decode JPEG format" != nil)
         #elseif canImport(AppKit)
         let image = NSImage(data: imageData)
-        XCTAssertNotNil(image, "Should decode JPEG format")
+        #expect(image, "Should decode JPEG format" != nil)
         #endif
     }
 
     // MARK: - Error Cases
 
-    func testInvalidImageData() throws {
+    @Test func testInvalidImageData() throws {
         let invalidData = Data([0xFF, 0xFF, 0xFF, 0xFF]) // Invalid image data
 
         #if canImport(UIKit)
         let image = UIImage(data: invalidData)
-        XCTAssertNil(image, "Should not create image from invalid data")
+        #expect(image, "Should not create image from invalid data" == nil)
         #elseif canImport(AppKit)
         let image = NSImage(data: invalidData)
-        XCTAssertNil(image, "Should not create image from invalid data")
+        #expect(image, "Should not create image from invalid data" == nil)
         #endif
     }
 
-    func testEmptyImageData() throws {
+    @Test func testEmptyImageData() throws {
         let emptyData = Data()
 
         #if canImport(UIKit)
         let image = UIImage(data: emptyData)
-        XCTAssertNil(image, "Should not create image from empty data")
+        #expect(image, "Should not create image from empty data" == nil)
         #elseif canImport(AppKit)
         let image = NSImage(data: emptyData)
-        XCTAssertNil(image, "Should not create image from empty data")
+        #expect(image, "Should not create image from empty data" == nil)
         #endif
     }
 

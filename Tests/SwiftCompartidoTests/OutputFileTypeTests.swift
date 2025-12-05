@@ -5,15 +5,16 @@
 //  Phase 6A: Tests for OutputFileType struct
 //
 
-import XCTest
+import Testing
 import UniformTypeIdentifiers
 @testable import SwiftCompartido
 
-final class OutputFileTypeTests: XCTestCase {
+struct OutputFileTypeTests {
 
     // MARK: - Initialization Tests
 
-    func testCustomInitialization() {
+    @Test("Custom initialization")
+    func customInitialization() {
         let fileType = OutputFileType(
             mimeType: "application/json",
             fileExtension: "json",
@@ -23,152 +24,172 @@ final class OutputFileTypeTests: XCTestCase {
             storeAsFileThreshold: 50_000
         )
 
-        XCTAssertEqual(fileType.mimeType, "application/json")
-        XCTAssertEqual(fileType.fileExtension, "json")
-        XCTAssertEqual(fileType.utType, .json)
-        XCTAssertEqual(fileType.category, .text)
-        XCTAssertEqual(fileType.serializationFormat, .json)
-        XCTAssertEqual(fileType.storeAsFileThreshold, 50_000)
+        #expect(fileType.mimeType == "application/json")
+        #expect(fileType.fileExtension == "json")
+        #expect(fileType.utType == .json)
+        #expect(fileType.category == .text)
+        #expect(fileType.serializationFormat == .json)
+        #expect(fileType.storeAsFileThreshold == 50_000)
     }
 
     // MARK: - Common File Types Tests
 
-    func testPlainTextFileType() {
+    @Test("Plain text file type")
+    func plainTextFileType() {
         let fileType = OutputFileType.plainText()
-        XCTAssertEqual(fileType.mimeType, "text/plain")
-        XCTAssertEqual(fileType.fileExtension, "txt")
-        XCTAssertEqual(fileType.category, .text)
-        XCTAssertEqual(fileType.serializationFormat, .json)
+        #expect(fileType.mimeType == "text/plain")
+        #expect(fileType.fileExtension == "txt")
+        #expect(fileType.category == .text)
+        #expect(fileType.serializationFormat == .json)
     }
 
-    func testJSONFileType() {
+    @Test("JSON file type")
+    func jsonFileType() {
         let fileType = OutputFileType.json()
-        XCTAssertEqual(fileType.mimeType, "application/json")
-        XCTAssertEqual(fileType.fileExtension, "json")
-        XCTAssertEqual(fileType.category, .text)
-        XCTAssertEqual(fileType.serializationFormat, .json)
+        #expect(fileType.mimeType == "application/json")
+        #expect(fileType.fileExtension == "json")
+        #expect(fileType.category == .text)
+        #expect(fileType.serializationFormat == .json)
     }
 
-    func testMP3FileType() {
+    @Test("MP3 file type")
+    func mp3FileType() {
         let fileType = OutputFileType.mp3()
-        XCTAssertEqual(fileType.mimeType, "audio/mpeg")
-        XCTAssertEqual(fileType.fileExtension, "mp3")
-        XCTAssertEqual(fileType.category, .audio)
-        XCTAssertEqual(fileType.serializationFormat, .binary)
+        #expect(fileType.mimeType == "audio/mpeg")
+        #expect(fileType.fileExtension == "mp3")
+        #expect(fileType.category == .audio)
+        #expect(fileType.serializationFormat == .binary)
     }
 
-    func testWAVFileType() {
+    @Test("WAV file type")
+    func wavFileType() {
         let fileType = OutputFileType.wav()
-        XCTAssertEqual(fileType.mimeType, "audio/wav")
-        XCTAssertEqual(fileType.fileExtension, "wav")
-        XCTAssertEqual(fileType.category, .audio)
+        #expect(fileType.mimeType == "audio/wav")
+        #expect(fileType.fileExtension == "wav")
+        #expect(fileType.category == .audio)
     }
 
-    func testM4AFileType() {
+    @Test("M4A file type")
+    func m4aFileType() {
         let fileType = OutputFileType.m4a()
-        XCTAssertEqual(fileType.mimeType, "audio/mp4")
-        XCTAssertEqual(fileType.fileExtension, "m4a")
-        XCTAssertEqual(fileType.category, .audio)
+        #expect(fileType.mimeType == "audio/mp4")
+        #expect(fileType.fileExtension == "m4a")
+        #expect(fileType.category == .audio)
     }
 
-    func testPNGFileType() {
+    @Test("PNG file type")
+    func pngFileType() {
         let fileType = OutputFileType.png()
-        XCTAssertEqual(fileType.mimeType, "image/png")
-        XCTAssertEqual(fileType.fileExtension, "png")
-        XCTAssertEqual(fileType.category, .image)
+        #expect(fileType.mimeType == "image/png")
+        #expect(fileType.fileExtension == "png")
+        #expect(fileType.category == .image)
     }
 
-    func testJPEGFileType() {
+    @Test("JPEG file type")
+    func jpegFileType() {
         let fileType = OutputFileType.jpeg()
-        XCTAssertEqual(fileType.mimeType, "image/jpeg")
-        XCTAssertEqual(fileType.fileExtension, "jpg")
-        XCTAssertEqual(fileType.category, .image)
+        #expect(fileType.mimeType == "image/jpeg")
+        #expect(fileType.fileExtension == "jpg")
+        #expect(fileType.category == .image)
     }
 
-    func testMP4FileType() {
+    @Test("MP4 file type")
+    func mp4FileType() {
         let fileType = OutputFileType.mp4()
-        XCTAssertEqual(fileType.mimeType, "video/mp4")
-        XCTAssertEqual(fileType.fileExtension, "mp4")
-        XCTAssertEqual(fileType.category, .video)
+        #expect(fileType.mimeType == "video/mp4")
+        #expect(fileType.fileExtension == "mp4")
+        #expect(fileType.category == .video)
     }
 
-    func testMOVFileType() {
+    @Test("MOV file type")
+    func movFileType() {
         let fileType = OutputFileType.mov()
-        XCTAssertEqual(fileType.mimeType, "video/quicktime")
-        XCTAssertEqual(fileType.fileExtension, "mov")
-        XCTAssertEqual(fileType.category, .video)
+        #expect(fileType.mimeType == "video/quicktime")
+        #expect(fileType.fileExtension == "mov")
+        #expect(fileType.category == .video)
     }
 
-    func testPlistFileType() {
+    @Test("Plist file type")
+    func plistFileType() {
         let fileType = OutputFileType.plist()
-        XCTAssertEqual(fileType.mimeType, "application/x-plist")
-        XCTAssertEqual(fileType.fileExtension, "plist")
-        XCTAssertEqual(fileType.serializationFormat, .plist)
+        #expect(fileType.mimeType == "application/x-plist")
+        #expect(fileType.fileExtension == "plist")
+        #expect(fileType.serializationFormat == .plist)
     }
 
-    func testBinaryFileType() {
+    @Test("Binary file type")
+    func binaryFileType() {
         let fileType = OutputFileType.binary(category: .embedding)
-        XCTAssertEqual(fileType.mimeType, "application/octet-stream")
-        XCTAssertEqual(fileType.fileExtension, "bin")
-        XCTAssertEqual(fileType.category, .embedding)
-        XCTAssertEqual(fileType.serializationFormat, .binary)
+        #expect(fileType.mimeType == "application/octet-stream")
+        #expect(fileType.fileExtension == "bin")
+        #expect(fileType.category == .embedding)
+        #expect(fileType.serializationFormat == .binary)
     }
 
     // MARK: - Storage Decision Tests
 
-    func testShouldStoreAsFile_ExceedsThreshold() {
+    @Test("Should store as file when exceeds threshold")
+    func shouldStoreAsFileExceedsThreshold() {
         let fileType = OutputFileType.json(storeAsFileThreshold: 50_000)
-        XCTAssertTrue(fileType.shouldStoreAsFile(estimatedSize: 100_000))
+        #expect(fileType.shouldStoreAsFile(estimatedSize: 100_000))
     }
 
-    func testShouldStoreAsFile_BelowThreshold() {
+    @Test("Should not store as file when below threshold")
+    func shouldStoreAsFileBelowThreshold() {
         let fileType = OutputFileType.json(storeAsFileThreshold: 50_000)
-        XCTAssertFalse(fileType.shouldStoreAsFile(estimatedSize: 10_000))
+        #expect(!fileType.shouldStoreAsFile(estimatedSize: 10_000))
     }
 
-    func testShouldStoreAsFile_EqualToThreshold() {
+    @Test("Should store as file when equal to threshold")
+    func shouldStoreAsFileEqualToThreshold() {
         let fileType = OutputFileType.json(storeAsFileThreshold: 50_000)
-        XCTAssertTrue(fileType.shouldStoreAsFile(estimatedSize: 50_000))
+        #expect(fileType.shouldStoreAsFile(estimatedSize: 50_000))
     }
 
-    func testShouldStoreAsFile_NoThreshold() {
+    @Test("Should not store as file when no threshold")
+    func shouldStoreAsFileNoThreshold() {
         let fileType = OutputFileType.json(storeAsFileThreshold: nil)
-        XCTAssertFalse(fileType.shouldStoreAsFile(estimatedSize: 1_000_000))
+        #expect(!fileType.shouldStoreAsFile(estimatedSize: 1_000_000))
     }
 
-    func testShouldStoreAsFile_UnknownSize_Audio() {
+    @Test("Should store as file for audio with unknown size")
+    func shouldStoreAsFileUnknownSizeAudio() {
         let fileType = OutputFileType.mp3() // Audio typically needs storage
-        XCTAssertTrue(fileType.shouldStoreAsFile(estimatedSize: nil))
+        #expect(fileType.shouldStoreAsFile(estimatedSize: nil))
     }
 
-    func testShouldStoreAsFile_UnknownSize_Text() {
+    @Test("Should not store as file for text with unknown size")
+    func shouldStoreAsFileUnknownSizeText() {
         let fileType = OutputFileType.json() // Text typically doesn't need storage
-        XCTAssertFalse(fileType.shouldStoreAsFile(estimatedSize: nil))
+        #expect(!fileType.shouldStoreAsFile(estimatedSize: nil))
     }
 
     // MARK: - Custom Threshold Tests
 
-    func testCustomThreshold() {
+    @Test("Custom threshold")
+    func customThreshold() {
         let customThreshold: Int64 = 1_000_000 // 1MB
         let fileType = OutputFileType.json(storeAsFileThreshold: customThreshold)
-        XCTAssertEqual(fileType.storeAsFileThreshold, customThreshold)
+        #expect(fileType.storeAsFileThreshold == customThreshold)
     }
 
     // MARK: - Codable Tests
 
-    func testCodableRoundTrip() throws {
+    @Test("Codable round trip")
+    func codableRoundTrip() throws {
         let original = OutputFileType.json(category: .text, storeAsFileThreshold: 50_000)
         let encoded = try JSONEncoder().encode(original)
         let decoded = try JSONDecoder().decode(OutputFileType.self, from: encoded)
 
-        XCTAssertEqual(decoded.mimeType, original.mimeType)
-        XCTAssertEqual(decoded.fileExtension, original.fileExtension)
-        XCTAssertEqual(decoded.category, original.category)
-        XCTAssertEqual(decoded.serializationFormat, original.serializationFormat)
-        XCTAssertEqual(decoded.storeAsFileThreshold, original.storeAsFileThreshold)
+        #expect(decoded.mimeType == original.mimeType)
+        #expect(decoded.fileExtension == original.fileExtension)
+        #expect(decoded.category == original.category)
+        #expect(decoded.serializationFormat == original.serializationFormat)
+        #expect(decoded.storeAsFileThreshold == original.storeAsFileThreshold)
     }
 
-    func testCodableWithNilUTType() throws {
+    @Test("Codable with nil UTType")
+    func codableWithNilUTType() throws {
         let original = OutputFileType(
             mimeType: "application/x-custom",
             fileExtension: "custom",
@@ -181,27 +202,30 @@ final class OutputFileTypeTests: XCTestCase {
         let encoded = try JSONEncoder().encode(original)
         let decoded = try JSONDecoder().decode(OutputFileType.self, from: encoded)
 
-        XCTAssertEqual(decoded.mimeType, original.mimeType)
-        XCTAssertNil(decoded.utType)
+        #expect(decoded.mimeType == original.mimeType)
+        #expect(decoded.utType == nil)
     }
 
     // MARK: - Equatable Tests
 
-    func testEquality() {
+    @Test("Equality")
+    func equality() {
         let fileType1 = OutputFileType.json()
         let fileType2 = OutputFileType.json()
-        XCTAssertEqual(fileType1, fileType2)
+        #expect(fileType1 == fileType2)
     }
 
-    func testInequality_DifferentExtension() {
+    @Test("Inequality with different extension")
+    func inequalityDifferentExtension() {
         let fileType1 = OutputFileType.json()
         let fileType2 = OutputFileType.mp3()
-        XCTAssertNotEqual(fileType1, fileType2)
+        #expect(fileType1 != fileType2)
     }
 
     // MARK: - Hashable Tests
 
-    func testHashable() {
+    @Test("Hashable")
+    func hashable() {
         let fileType1 = OutputFileType.json()
         let fileType2 = OutputFileType.json()
         let fileType3 = OutputFileType.mp3()
@@ -211,17 +235,18 @@ final class OutputFileTypeTests: XCTestCase {
         set.insert(fileType2)
         set.insert(fileType3)
 
-        XCTAssertEqual(set.count, 2) // fileType1 and fileType2 are equal
+        #expect(set.count == 2) // fileType1 and fileType2 are equal
     }
 
     // MARK: - Sendable Conformance Tests
 
-    func testSendableConformance() async {
+    @Test("Sendable conformance")
+    func sendableConformance() async {
         // Should be able to pass across actor boundaries
         let fileType = OutputFileType.json()
 
         await Task {
-            XCTAssertEqual(fileType.mimeType, "application/json")
+            #expect(fileType.mimeType == "application/json")
         }.value
     }
 }

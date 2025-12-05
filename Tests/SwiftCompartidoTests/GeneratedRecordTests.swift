@@ -8,15 +8,15 @@
 //  The API has changed - use mimeType, textValue, binaryValue instead of old property names.
 //
 
-import XCTest
+import Testing
 import SwiftData
 @testable import SwiftCompartido
 
-final class GeneratedRecordTests: XCTestCase {
+struct GeneratedRecordTests {
 
     // MARK: - GeneratedAudioRecord Tests (Type Alias to TypedDataStorage)
 
-    func testGeneratedAudioRecordInitialization() {
+    @Test func testGeneratedAudioRecordInitialization() {
         // GIVEN
         let audioData = Data("test audio".utf8)
         let id = UUID()
@@ -39,22 +39,22 @@ final class GeneratedRecordTests: XCTestCase {
         )
 
         // THEN
-        XCTAssertEqual(record.id, id)
-        XCTAssertEqual(record.providerId, "elevenlabs")
-        XCTAssertEqual(record.requestorID, "elevenlabs.tts.rachel")
-        XCTAssertEqual(record.binaryValue, audioData)
-        XCTAssertEqual(record.audioFormat, "mp3")
-        XCTAssertEqual(record.durationSeconds, 2.5)
-        XCTAssertEqual(record.sampleRate, 44100)
-        XCTAssertEqual(record.bitRate, 128000)
-        XCTAssertEqual(record.channels, 2)
-        XCTAssertEqual(record.voiceID, "voice-123")
-        XCTAssertEqual(record.voiceName, "Rachel")
-        XCTAssertNotNil(record.generatedAt)
-        XCTAssertNotNil(record.modifiedAt)
+        #expect(record.id == id)
+        #expect(record.providerId == "elevenlabs")
+        #expect(record.requestorID == "elevenlabs.tts.rachel")
+        #expect(record.binaryValue == audioData)
+        #expect(record.audioFormat == "mp3")
+        #expect(record.durationSeconds == 2.5)
+        #expect(record.sampleRate == 44100)
+        #expect(record.bitRate == 128000)
+        #expect(record.channels == 2)
+        #expect(record.voiceID == "voice-123")
+        #expect(record.voiceName == "Rachel")
+        #expect(record.generatedAt != nil)
+        #expect(record.modifiedAt != nil)
     }
 
-    func testGeneratedAudioRecordFromTypedData() {
+    @Test func testGeneratedAudioRecordFromTypedData() {
         // GIVEN
         let audioData = Data("test audio".utf8)
         let typedData = GeneratedAudioData(
@@ -78,16 +78,16 @@ final class GeneratedRecordTests: XCTestCase {
         )
 
         // THEN
-        XCTAssertEqual(record.binaryValue, audioData)
-        XCTAssertEqual(record.audioFormat, "mp3")
-        XCTAssertEqual(record.durationSeconds, 3.0)
-        XCTAssertEqual(record.sampleRate, 48000)
-        XCTAssertEqual(record.voiceID, "voice-456")
-        XCTAssertEqual(record.voiceName, "John")
-        XCTAssertEqual(record.modelIdentifier, "eleven_multilingual_v2")
+        #expect(record.binaryValue == audioData)
+        #expect(record.audioFormat == "mp3")
+        #expect(record.durationSeconds == 3.0)
+        #expect(record.sampleRate == 48000)
+        #expect(record.voiceID == "voice-456")
+        #expect(record.voiceName == "John")
+        #expect(record.modelIdentifier == "eleven_multilingual_v2")
     }
 
-    func testGeneratedAudioRecordFileStored() {
+    @Test func testGeneratedAudioRecordFileStored() {
         // GIVEN
         let fileRef = TypedDataFileReference(
             requestID: UUID(),
@@ -111,11 +111,11 @@ final class GeneratedRecordTests: XCTestCase {
         )
 
         // THEN
-        XCTAssertTrue(record.isFileStored)
-        XCTAssertEqual(record.contentSize, 1024, "Content size comes from file reference")
+        #expect(record.isFileStored)
+        #expect(record.contentSize == 1024, "Content size comes from file reference")
     }
 
-    func testGeneratedAudioRecordTouch() {
+    @Test func testGeneratedAudioRecordTouch() {
         // GIVEN
         let record = GeneratedAudioRecord(
             providerId: "test",
@@ -135,12 +135,12 @@ final class GeneratedRecordTests: XCTestCase {
         record.touch()
 
         // THEN
-        XCTAssertGreaterThan(record.modifiedAt, originalModifiedAt)
+        #expect(record.modifiedAt > originalModifiedAt)
     }
 
     // MARK: - GeneratedTextRecord Tests (Type Alias to TypedDataStorage)
 
-    func testGeneratedTextRecordInitialization() {
+    @Test func testGeneratedTextRecordInitialization() {
         // GIVEN
         let id = UUID()
         let text = "This is generated text content."
@@ -163,20 +163,20 @@ final class GeneratedRecordTests: XCTestCase {
         )
 
         // THEN
-        XCTAssertEqual(record.id, id)
-        XCTAssertEqual(record.providerId, "openai")
-        XCTAssertEqual(record.requestorID, "openai.text.gpt4")
-        XCTAssertEqual(record.textValue, text)
-        XCTAssertEqual(record.wordCount, 5)
-        XCTAssertEqual(record.characterCount, text.count)
-        XCTAssertEqual(record.languageCode, "en")
-        XCTAssertEqual(record.modelIdentifier, "gpt-4")
-        XCTAssertEqual(record.tokenCount, 10)
-        XCTAssertNotNil(record.generatedAt)
-        XCTAssertNotNil(record.modifiedAt)
+        #expect(record.id == id)
+        #expect(record.providerId == "openai")
+        #expect(record.requestorID == "openai.text.gpt4")
+        #expect(record.textValue == text)
+        #expect(record.wordCount == 5)
+        #expect(record.characterCount == text.count)
+        #expect(record.languageCode == "en")
+        #expect(record.modelIdentifier == "gpt-4")
+        #expect(record.tokenCount == 10)
+        #expect(record.generatedAt != nil)
+        #expect(record.modifiedAt != nil)
     }
 
-    func testGeneratedTextRecordFromTypedData() {
+    @Test func testGeneratedTextRecordFromTypedData() {
         // GIVEN
         let typedData = GeneratedTextData(
             text: "Generated text content here.",
@@ -194,15 +194,15 @@ final class GeneratedRecordTests: XCTestCase {
         )
 
         // THEN
-        XCTAssertEqual(record.textValue, typedData.text)
-        XCTAssertEqual(record.wordCount, typedData.wordCount)
-        XCTAssertEqual(record.characterCount, typedData.characterCount)
-        XCTAssertEqual(record.modelIdentifier, "gpt-4-turbo")
-        XCTAssertEqual(record.promptTokens, 5)
-        XCTAssertEqual(record.completionTokens, 8)
+        #expect(record.textValue == typedData.text)
+        #expect(record.wordCount == typedData.wordCount)
+        #expect(record.characterCount == typedData.characterCount)
+        #expect(record.modelIdentifier == "gpt-4-turbo")
+        #expect(record.promptTokens == 5)
+        #expect(record.completionTokens == 8)
     }
 
-    func testGeneratedTextRecordFileStored() {
+    @Test func testGeneratedTextRecordFileStored() {
         // GIVEN
         let fileRef = TypedDataFileReference(
             requestID: UUID(),
@@ -224,11 +224,11 @@ final class GeneratedRecordTests: XCTestCase {
         )
 
         // THEN
-        XCTAssertTrue(record.isFileStored)
-        XCTAssertNil(record.textValue, "Text should be nil when file-stored")
+        #expect(record.isFileStored)
+        #expect(record.textValue, "Text should be nil when file-stored" == nil)
     }
 
-    func testGeneratedTextRecordGetTextFromMemory() throws {
+    @Test func testGeneratedTextRecordGetTextFromMemory() throws {
         // GIVEN
         let text = "In-memory text"
         let record = GeneratedTextRecord(
@@ -245,10 +245,10 @@ final class GeneratedRecordTests: XCTestCase {
         let retrievedText = try record.getText()
 
         // THEN
-        XCTAssertEqual(retrievedText, text)
+        #expect(retrievedText == text)
     }
 
-    func testGeneratedTextRecordGetTextNoContent() {
+    @Test func testGeneratedTextRecordGetTextNoContent() {
         // GIVEN - Record with no text and no file reference
         let record = GeneratedTextRecord(
             providerId: "test",
@@ -261,12 +261,12 @@ final class GeneratedRecordTests: XCTestCase {
         )
 
         // WHEN/THEN
-        XCTAssertThrowsError(try record.getText())
+        do { _ = try record.getText(); Issue.record("Expected error") } catch { /* Expected */ }
     }
 
     // MARK: - GeneratedImageRecord Tests (Type Alias to TypedDataStorage)
 
-    func testGeneratedImageRecordInitialization() {
+    @Test func testGeneratedImageRecordInitialization() {
         // GIVEN
         let imageData = Data("fake image data".utf8)
         let id = UUID()
@@ -287,21 +287,21 @@ final class GeneratedRecordTests: XCTestCase {
         )
 
         // THEN
-        XCTAssertEqual(record.id, id)
-        XCTAssertEqual(record.providerId, "openai")
-        XCTAssertEqual(record.requestorID, "openai.image.dalle3")
-        XCTAssertEqual(record.binaryValue, imageData)
-        XCTAssertEqual(record.imageFormat, "png")
-        XCTAssertEqual(record.width, 1024)
-        XCTAssertEqual(record.height, 1024)
-        XCTAssertEqual(record.prompt, "A beautiful sunset")
-        XCTAssertEqual(record.revisedPrompt, "A vivid beautiful sunset over mountains")
-        XCTAssertEqual(record.modelIdentifier, "dall-e-3")
-        XCTAssertNotNil(record.generatedAt)
-        XCTAssertNotNil(record.modifiedAt)
+        #expect(record.id == id)
+        #expect(record.providerId == "openai")
+        #expect(record.requestorID == "openai.image.dalle3")
+        #expect(record.binaryValue == imageData)
+        #expect(record.imageFormat == "png")
+        #expect(record.width == 1024)
+        #expect(record.height == 1024)
+        #expect(record.prompt == "A beautiful sunset")
+        #expect(record.revisedPrompt == "A vivid beautiful sunset over mountains")
+        #expect(record.modelIdentifier == "dall-e-3")
+        #expect(record.generatedAt != nil)
+        #expect(record.modifiedAt != nil)
     }
 
-    func testGeneratedImageRecordFromTypedData() {
+    @Test func testGeneratedImageRecordFromTypedData() {
         // GIVEN
         let imageData = Data("test image".utf8)
         let typedData = GeneratedImageData(
@@ -322,15 +322,15 @@ final class GeneratedRecordTests: XCTestCase {
         )
 
         // THEN
-        XCTAssertEqual(record.binaryValue, imageData)
-        XCTAssertEqual(record.imageFormat, "jpg")
-        XCTAssertEqual(record.width, 1920)
-        XCTAssertEqual(record.height, 1080)
-        XCTAssertEqual(record.modelIdentifier, "dall-e-2")
-        XCTAssertEqual(record.revisedPrompt, "Enhanced prompt")
+        #expect(record.binaryValue == imageData)
+        #expect(record.imageFormat == "jpg")
+        #expect(record.width == 1920)
+        #expect(record.height == 1080)
+        #expect(record.modelIdentifier == "dall-e-2")
+        #expect(record.revisedPrompt == "Enhanced prompt")
     }
 
-    func testGeneratedImageRecordFileStored() {
+    @Test func testGeneratedImageRecordFileStored() {
         // GIVEN
         let fileRef = TypedDataFileReference(
             requestID: UUID(),
@@ -353,11 +353,11 @@ final class GeneratedRecordTests: XCTestCase {
         )
 
         // THEN
-        XCTAssertTrue(record.isFileStored)
-        XCTAssertNil(record.binaryValue, "Image data should be nil when file-stored")
+        #expect(record.isFileStored)
+        #expect(record.binaryValue, "Image data should be nil when file-stored" == nil)
     }
 
-    func testGeneratedImageRecordFileSize() {
+    @Test func testGeneratedImageRecordFileSize() {
         // GIVEN
         let imageData = Data(repeating: 0xFF, count: 5000)
         let record = GeneratedImageRecord(
@@ -375,10 +375,10 @@ final class GeneratedRecordTests: XCTestCase {
         let fileSize = record.contentSize
 
         // THEN
-        XCTAssertEqual(fileSize, 5000)
+        #expect(fileSize == 5000)
     }
 
-    func testGeneratedImageRecordGetImageDataFromMemory() throws {
+    @Test func testGeneratedImageRecordGetImageDataFromMemory() throws {
         // GIVEN
         let imageData = Data("image bytes".utf8)
         let record = GeneratedImageRecord(
@@ -396,12 +396,12 @@ final class GeneratedRecordTests: XCTestCase {
         let retrievedData = try record.getBinary()
 
         // THEN
-        XCTAssertEqual(retrievedData, imageData)
+        #expect(retrievedData == imageData)
     }
 
     // MARK: - GeneratedEmbeddingRecord Tests (Type Alias to TypedDataStorage)
 
-    func testGeneratedEmbeddingRecordInitialization() {
+    @Test func testGeneratedEmbeddingRecordInitialization() {
         // GIVEN
         let embeddingData = Data([0x00, 0x00, 0x80, 0x3F, 0x00, 0x00, 0x00, 0x40]) // [1.0, 2.0] as floats
         let id = UUID()
@@ -421,19 +421,19 @@ final class GeneratedRecordTests: XCTestCase {
         )
 
         // THEN
-        XCTAssertEqual(record.id, id)
-        XCTAssertEqual(record.providerId, "openai")
-        XCTAssertEqual(record.requestorID, "openai.embedding.ada002")
-        XCTAssertEqual(record.binaryValue, embeddingData)
-        XCTAssertEqual(record.dimensions, 2)
-        XCTAssertEqual(record.inputText, "Test input")
-        XCTAssertEqual(record.tokenCount, 2)
-        XCTAssertEqual(record.modelIdentifier, "text-embedding-ada-002")
-        XCTAssertNotNil(record.generatedAt)
-        XCTAssertNotNil(record.modifiedAt)
+        #expect(record.id == id)
+        #expect(record.providerId == "openai")
+        #expect(record.requestorID == "openai.embedding.ada002")
+        #expect(record.binaryValue == embeddingData)
+        #expect(record.dimensions == 2)
+        #expect(record.inputText == "Test input")
+        #expect(record.tokenCount == 2)
+        #expect(record.modelIdentifier == "text-embedding-ada-002")
+        #expect(record.generatedAt != nil)
+        #expect(record.modifiedAt != nil)
     }
 
-    func testGeneratedEmbeddingRecordFromTypedData() throws {
+    @Test func testGeneratedEmbeddingRecordFromTypedData() throws {
         // GIVEN
         let vector: [Float] = [0.1, 0.2, 0.3, 0.4, 0.5]
         let typedData = GeneratedEmbeddingData(
@@ -453,14 +453,14 @@ final class GeneratedRecordTests: XCTestCase {
         )
 
         // THEN
-        XCTAssertEqual(record.dimensions, 5)
-        XCTAssertEqual(record.inputText, "Embed this")
-        XCTAssertEqual(record.tokenCount, 2)
-        XCTAssertEqual(record.modelIdentifier, "text-embedding-3-large")
-        XCTAssertNotNil(record.binaryValue)
+        #expect(record.dimensions == 5)
+        #expect(record.inputText == "Embed this")
+        #expect(record.tokenCount == 2)
+        #expect(record.modelIdentifier == "text-embedding-3-large")
+        #expect(record.binaryValue != nil)
     }
 
-    func testGeneratedEmbeddingRecordFileStored() {
+    @Test func testGeneratedEmbeddingRecordFileStored() {
         // GIVEN
         let fileRef = TypedDataFileReference(
             requestID: UUID(),
@@ -484,12 +484,12 @@ final class GeneratedRecordTests: XCTestCase {
         )
 
         // THEN
-        XCTAssertTrue(record.isFileStored)
-        XCTAssertNil(record.binaryValue, "Embedding data should be nil when file-stored")
-        XCTAssertEqual(record.contentSize, 6144, "Content size comes from file reference")
+        #expect(record.isFileStored)
+        #expect(record.binaryValue, "Embedding data should be nil when file-stored" == nil)
+        #expect(record.contentSize == 6144, "Content size comes from file reference")
     }
 
-    func testGeneratedEmbeddingRecordGetEmbeddingFromMemory() throws {
+    @Test func testGeneratedEmbeddingRecordGetEmbeddingFromMemory() throws {
         // GIVEN
         let vector: [Float] = [1.0, 2.0, 3.0]
         let embeddingData = vector.withUnsafeBufferPointer { buffer in
@@ -511,13 +511,13 @@ final class GeneratedRecordTests: XCTestCase {
         let retrievedVector = try record.getEmbedding()
 
         // THEN
-        XCTAssertEqual(retrievedVector.count, 3)
+        #expect(retrievedVector.count == 3)
         for (index, value) in retrievedVector.enumerated() {
-            XCTAssertEqual(value, vector[index], accuracy: 0.0001)
+            #expect(value == vector[index], accuracy: 0.0001)
         }
     }
 
-    func testGeneratedEmbeddingRecordDataSize() {
+    @Test func testGeneratedEmbeddingRecordDataSize() {
         // GIVEN
         let vector: [Float] = [1.0, 2.0, 3.0, 4.0, 5.0]
         let embeddingData = vector.withUnsafeBufferPointer { buffer in
@@ -539,12 +539,12 @@ final class GeneratedRecordTests: XCTestCase {
         let dataSize = record.contentSize
 
         // THEN
-        XCTAssertEqual(dataSize, 5 * MemoryLayout<Float>.size)
+        #expect(dataSize == 5 * MemoryLayout<Float>.size)
     }
 
     // MARK: - Edge Cases
 
-    func testRecordWithEstimatedCost() {
+    @Test func testRecordWithEstimatedCost() {
         // GIVEN
         let record = GeneratedTextRecord(
             providerId: "openai",
@@ -558,10 +558,10 @@ final class GeneratedRecordTests: XCTestCase {
         )
 
         // THEN
-        XCTAssertEqual(record.estimatedCost, 0.002)
+        #expect(record.estimatedCost == 0.002)
     }
 
-    func testMultipleRecordTypes() {
+    @Test func testMultipleRecordTypes() {
         // GIVEN - Create one of each record type
         let audioRecord = GeneratedAudioRecord(
             providerId: "test",
@@ -609,15 +609,15 @@ final class GeneratedRecordTests: XCTestCase {
         )
 
         // THEN - Verify all records were created successfully
-        XCTAssertNotNil(audioRecord.id)
-        XCTAssertNotNil(textRecord.id)
-        XCTAssertNotNil(imageRecord.id)
-        XCTAssertNotNil(embeddingRecord.id)
+        #expect(audioRecord.id != nil)
+        #expect(textRecord.id != nil)
+        #expect(imageRecord.id != nil)
+        #expect(embeddingRecord.id != nil)
     }
 
     // MARK: - Owner Reference Tests
 
-    func testTypedDataStorageWithOwningElement() {
+    @Test func testTypedDataStorageWithOwningElement() {
         // GIVEN
         let element = GuionElementModel(
             elementText: "INT. ROOM - DAY",
@@ -636,11 +636,11 @@ final class GeneratedRecordTests: XCTestCase {
         record.owningElement = element
 
         // THEN
-        XCTAssertNotNil(record.owningElement)
-        XCTAssertEqual(record.owningElement?.elementText, "INT. ROOM - DAY")
+        #expect(record.owningElement != nil)
+        #expect(record.owningElement?.elementText == "INT. ROOM - DAY")
     }
 
-    func testTypedDataStorageWithOwnerIdentifier() {
+    @Test func testTypedDataStorageWithOwnerIdentifier() {
         // GIVEN
         let record = TypedDataStorage(
             providerId: "test",
@@ -654,6 +654,6 @@ final class GeneratedRecordTests: XCTestCase {
         record.ownerIdentifier = "x-coredata://store-id/Model/p12345"
 
         // THEN
-        XCTAssertEqual(record.ownerIdentifier, "x-coredata://store-id/Model/p12345")
+        #expect(record.ownerIdentifier == "x-coredata://store-id/Model/p12345")
     }
 }

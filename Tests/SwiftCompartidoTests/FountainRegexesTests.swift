@@ -5,19 +5,19 @@
 //  Tests for Fountain regex patterns
 //
 
-import XCTest
+import Testing
 import Foundation
 @testable import SwiftCompartido
 
-final class FountainRegexesTests: XCTestCase {
+struct FountainRegexesTests {
 
-    func testSceneHeaderPatternCompiles() throws {
+    @Test func testSceneHeaderPatternCompiles() throws {
         let pattern = FountainRegexes.sceneHeaderPattern
         let regex = try NSRegularExpression(pattern: pattern)
-        XCTAssertGreaterThan(regex.numberOfCaptureGroups, 0)
+        #expect(regex.numberOfCaptureGroups > 0)
     }
 
-    func testSceneHeaderMatches() throws {
+    @Test func testSceneHeaderMatches() throws {
         let pattern = FountainRegexes.sceneHeaderPattern
         let regex = try NSRegularExpression(pattern: pattern)
 
@@ -30,47 +30,47 @@ final class FountainRegexesTests: XCTestCase {
 
         for testCase in testCases {
             let matches = regex.matches(in: testCase, range: NSRange(testCase.startIndex..., in: testCase))
-            XCTAssertGreaterThan(matches.count, 0, "Should match: \(testCase)")
+            #expect(matches.count > 0, "Should match: \(testCase)")
         }
     }
 
     
-    func testActionPatternCompiles() throws {
+    @Test func testActionPatternCompiles() throws {
         let pattern = FountainRegexes.actionPattern
         let regex = try NSRegularExpression(pattern: pattern)
-        XCTAssertGreaterThan(regex.numberOfCaptureGroups, 0)
+        #expect(regex.numberOfCaptureGroups > 0)
     }
 
     
-    func testCharacterCuePatternCompiles() throws {
+    @Test func testCharacterCuePatternCompiles() throws {
         let pattern = FountainRegexes.characterCuePattern
         let regex = try NSRegularExpression(pattern: pattern)
-        XCTAssertGreaterThan(regex.numberOfCaptureGroups, 0)
+        #expect(regex.numberOfCaptureGroups > 0)
     }
 
     
-    func testDialoguePatternCompiles() throws {
+    @Test func testDialoguePatternCompiles() throws {
         let pattern = FountainRegexes.dialoguePattern
         let regex = try NSRegularExpression(pattern: pattern)
-        XCTAssertGreaterThan(regex.numberOfCaptureGroups, 0)
+        #expect(regex.numberOfCaptureGroups > 0)
     }
 
     
-    func testParentheticalPatternCompiles() throws {
+    @Test func testParentheticalPatternCompiles() throws {
         let pattern = FountainRegexes.parentheticalPattern
         let regex = try NSRegularExpression(pattern: pattern)
-        XCTAssertGreaterThan(regex.numberOfCaptureGroups, 0)
+        #expect(regex.numberOfCaptureGroups > 0)
     }
 
     
-    func testTransitionPatternCompiles() throws {
+    @Test func testTransitionPatternCompiles() throws {
         let pattern = FountainRegexes.transitionPattern
         let regex = try NSRegularExpression(pattern: pattern)
-        XCTAssertGreaterThan(regex.numberOfCaptureGroups, 0)
+        #expect(regex.numberOfCaptureGroups > 0)
     }
 
     
-    func testTransitionMatches() throws {
+    @Test func testTransitionMatches() throws {
         let pattern = FountainRegexes.transitionPattern
         let regex = try NSRegularExpression(pattern: pattern)
 
@@ -82,26 +82,26 @@ final class FountainRegexesTests: XCTestCase {
 
         for testCase in testCases {
             let matches = regex.matches(in: testCase, range: NSRange(testCase.startIndex..., in: testCase))
-            XCTAssertGreaterThan(matches.count, 0, "Should match: \(testCase)")
+            #expect(matches.count > 0, "Should match: \(testCase)")
         }
     }
 
     
-    func testForcedTransitionPatternCompiles() throws {
+    @Test func testForcedTransitionPatternCompiles() throws {
         let pattern = FountainRegexes.forcedTransitionPattern
         let regex = try NSRegularExpression(pattern: pattern)
-        XCTAssertGreaterThan(regex.numberOfCaptureGroups, 0)
+        #expect(regex.numberOfCaptureGroups > 0)
     }
 
     
-    func testPageBreakPatternCompiles() throws {
+    @Test func testPageBreakPatternCompiles() throws {
         let pattern = FountainRegexes.pageBreakPattern
         let regex = try NSRegularExpression(pattern: pattern)
-        XCTAssertGreaterThan(regex.numberOfCaptureGroups, 0)
+        #expect(regex.numberOfCaptureGroups > 0)
     }
 
     
-    func testPageBreakMatches() throws {
+    @Test func testPageBreakMatches() throws {
         let pattern = FountainRegexes.pageBreakPattern
         let regex = try NSRegularExpression(pattern: pattern)
 
@@ -114,19 +114,19 @@ final class FountainRegexesTests: XCTestCase {
 
         for testCase in testCases {
             let matches = regex.matches(in: testCase, range: NSRange(testCase.startIndex..., in: testCase))
-            XCTAssertGreaterThan(matches.count, 0, "Should match: \(testCase)")
+            #expect(matches.count > 0, "Should match: \(testCase)")
         }
     }
 
     
-    func testSceneNumberPatternCompiles() throws {
+    @Test func testSceneNumberPatternCompiles() throws {
         let pattern = FountainRegexes.sceneNumberPattern
         let regex = try NSRegularExpression(pattern: pattern)
-        XCTAssertGreaterThan(regex.numberOfCaptureGroups, 0)
+        #expect(regex.numberOfCaptureGroups > 0)
     }
 
     
-    func testSceneNumberMatches() throws {
+    @Test func testSceneNumberMatches() throws {
         let pattern = FountainRegexes.sceneNumberPattern
         let regex = try NSRegularExpression(pattern: pattern)
 
@@ -139,19 +139,19 @@ final class FountainRegexesTests: XCTestCase {
 
         for testCase in testCases {
             let matches = regex.matches(in: testCase, range: NSRange(testCase.startIndex..., in: testCase))
-            XCTAssertGreaterThan(matches.count, 0, "Should match: \(testCase)")
+            #expect(matches.count > 0, "Should match: \(testCase)")
         }
     }
 
     
-    func testSectionHeaderPatternCompiles() throws {
+    @Test func testSectionHeaderPatternCompiles() throws {
         let pattern = FountainRegexes.sectionHeaderPattern
         let regex = try NSRegularExpression(pattern: pattern)
-        XCTAssertGreaterThan(regex.numberOfCaptureGroups, 0)
+        #expect(regex.numberOfCaptureGroups > 0)
     }
 
     
-    func testSectionHeaderMatches() throws {
+    @Test func testSectionHeaderMatches() throws {
         let pattern = FountainRegexes.sectionHeaderPattern
         let regex = try NSRegularExpression(pattern: pattern)
 
@@ -163,47 +163,47 @@ final class FountainRegexesTests: XCTestCase {
 
         for testCase in testCases {
             let matches = regex.matches(in: testCase, range: NSRange(testCase.startIndex..., in: testCase))
-            XCTAssertGreaterThan(matches.count, 0, "Should match: \(testCase)")
+            #expect(matches.count > 0, "Should match: \(testCase)")
         }
     }
 
     
-    func testBlockCommentPatternCompiles() throws {
+    @Test func testBlockCommentPatternCompiles() throws {
         let pattern = FountainRegexes.blockCommentPattern
         let regex = try NSRegularExpression(pattern: pattern)
-        XCTAssertGreaterThan(regex.numberOfCaptureGroups, 0)
+        #expect(regex.numberOfCaptureGroups > 0)
     }
 
     
-    func testBracketCommentPatternCompiles() throws {
+    @Test func testBracketCommentPatternCompiles() throws {
         let pattern = FountainRegexes.bracketCommentPattern
         let regex = try NSRegularExpression(pattern: pattern)
-        XCTAssertGreaterThan(regex.numberOfCaptureGroups, 0)
+        #expect(regex.numberOfCaptureGroups > 0)
     }
 
     
-    func testSynopsisPatternCompiles() throws {
+    @Test func testSynopsisPatternCompiles() throws {
         let pattern = FountainRegexes.synopsisPattern
         let regex = try NSRegularExpression(pattern: pattern)
-        XCTAssertGreaterThan(regex.numberOfCaptureGroups, 0)
+        #expect(regex.numberOfCaptureGroups > 0)
     }
 
     
-    func testTitlePagePatternCompiles() throws {
+    @Test func testTitlePagePatternCompiles() throws {
         let pattern = FountainRegexes.titlePagePattern
         let regex = try NSRegularExpression(pattern: pattern)
-        XCTAssertGreaterThan(regex.numberOfCaptureGroups, 0)
+        #expect(regex.numberOfCaptureGroups > 0)
     }
 
     
-    func testInlineDirectivePatternCompiles() throws {
+    @Test func testInlineDirectivePatternCompiles() throws {
         let pattern = FountainRegexes.inlineDirectivePattern
         let regex = try NSRegularExpression(pattern: pattern)
-        XCTAssertGreaterThan(regex.numberOfCaptureGroups, 0)
+        #expect(regex.numberOfCaptureGroups > 0)
     }
 
     
-    func testInlineDirectiveMatches() throws {
+    @Test func testInlineDirectiveMatches() throws {
         let pattern = FountainRegexes.inlineDirectivePattern
         let regex = try NSRegularExpression(pattern: pattern)
 
@@ -215,70 +215,70 @@ final class FountainRegexesTests: XCTestCase {
 
         for testCase in testCases {
             let matches = regex.matches(in: testCase, range: NSRange(testCase.startIndex..., in: testCase))
-            XCTAssertGreaterThan(matches.count, 0, "Should match: \(testCase)")
+            #expect(matches.count > 0, "Should match: \(testCase)")
         }
     }
 
     
-    func testBoldItalicUnderlinePatternCompiles() throws {
+    @Test func testBoldItalicUnderlinePatternCompiles() throws {
         let pattern = FountainRegexes.boldItalicUnderlinePattern
         let regex = try NSRegularExpression(pattern: pattern)
-        XCTAssertGreaterThan(regex.numberOfCaptureGroups, 0)
+        #expect(regex.numberOfCaptureGroups > 0)
     }
 
     
-    func testBoldPatternCompiles() throws {
+    @Test func testBoldPatternCompiles() throws {
         let pattern = FountainRegexes.boldPattern
         let regex = try NSRegularExpression(pattern: pattern)
-        XCTAssertGreaterThan(regex.numberOfCaptureGroups, 0)
+        #expect(regex.numberOfCaptureGroups > 0)
     }
 
     
-    func testItalicPatternCompiles() throws {
+    @Test func testItalicPatternCompiles() throws {
         let pattern = FountainRegexes.italicPattern
         let regex = try NSRegularExpression(pattern: pattern)
-        XCTAssertGreaterThan(regex.numberOfCaptureGroups, 0)
+        #expect(regex.numberOfCaptureGroups > 0)
     }
 
     
-    func testUnderlinePatternCompiles() throws {
+    @Test func testUnderlinePatternCompiles() throws {
         let pattern = FountainRegexes.underlinePattern
         let regex = try NSRegularExpression(pattern: pattern)
-        XCTAssertGreaterThan(regex.numberOfCaptureGroups, 0)
+        #expect(regex.numberOfCaptureGroups > 0)
     }
 
     
-    func testDualDialoguePatternCompiles() throws {
+    @Test func testDualDialoguePatternCompiles() throws {
         let pattern = FountainRegexes.dualDialoguePattern
         let regex = try NSRegularExpression(pattern: pattern)
-        XCTAssertGreaterThanOrEqual(regex.numberOfCaptureGroups, 0)
+        #expect(regex.numberOfCaptureGroups >= 0)
     }
 
     
-    func testCenteredTextPatternCompiles() throws {
+    @Test func testCenteredTextPatternCompiles() throws {
         let pattern = FountainRegexes.centeredTextPattern
         let regex = try NSRegularExpression(pattern: pattern)
-        XCTAssertGreaterThanOrEqual(regex.numberOfCaptureGroups, 0)
+        #expect(regex.numberOfCaptureGroups >= 0)
     }
 
     
-    func testUniversalLineBreaksPatternCompiles() throws {
+    @Test func testUniversalLineBreaksPatternCompiles() throws {
         let pattern = FountainRegexes.universalLineBreaksPattern
         let regex = try NSRegularExpression(pattern: pattern)
-        XCTAssertGreaterThanOrEqual(regex.numberOfCaptureGroups, 0)
+        #expect(regex.numberOfCaptureGroups >= 0)
     }
 
     
-    func testTemplateConstantsNonEmpty() {
-        XCTAssertFalse(FountainRegexes.sceneHeaderTemplate.isEmpty)
-        XCTAssertFalse(FountainRegexes.actionTemplate.isEmpty)
-        XCTAssertFalse(FountainRegexes.characterCueTemplate.isEmpty)
-        XCTAssertFalse(FountainRegexes.dialogueTemplate.isEmpty)
-        XCTAssertFalse(FountainRegexes.parentheticalTemplate.isEmpty)
-        XCTAssertFalse(FountainRegexes.transitionTemplate.isEmpty)
-        XCTAssertFalse(FountainRegexes.boldItalicUnderlineTemplate.isEmpty)
-        XCTAssertFalse(FountainRegexes.boldTemplate.isEmpty)
-        XCTAssertFalse(FountainRegexes.italicTemplate.isEmpty)
-        XCTAssertFalse(FountainRegexes.underlineTemplate.isEmpty)
+    @Test func testTemplateConstantsNonEmpty() {
+        #expect(!FountainRegexes.sceneHeaderTemplate.isEmpty)
+        #expect(!FountainRegexes.actionTemplate.isEmpty)
+        #expect(!FountainRegexes.characterCueTemplate.isEmpty)
+        #expect(!FountainRegexes.dialogueTemplate.isEmpty)
+        #expect(!FountainRegexes.parentheticalTemplate.isEmpty)
+        #expect(!FountainRegexes.transitionTemplate.isEmpty)
+        #expect(!FountainRegexes.boldItalicUnderlineTemplate.isEmpty)
+        #expect(!FountainRegexes.boldTemplate.isEmpty)
+        #expect(!FountainRegexes.italicTemplate.isEmpty)
+        #expect(!FountainRegexes.underlineTemplate.isEmpty)
     }
 }

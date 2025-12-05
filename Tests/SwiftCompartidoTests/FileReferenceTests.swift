@@ -5,10 +5,10 @@
 //  Phase 6A: Tests for StorageAreaReference and TypedDataFileReference
 //
 
-import XCTest
+import Testing
 @testable import SwiftCompartido
 
-final class StorageAreaReferenceTests: XCTestCase {
+struct StorageAreaReferenceTests {
 
     var tempDirectory: URL!
 
@@ -27,7 +27,7 @@ final class StorageAreaReferenceTests: XCTestCase {
 
     // MARK: - Initialization Tests
 
-    func testInitialization() {
+    @Test func testInitialization() {
         let requestID = UUID()
         let baseURL = tempDirectory.appendingPathComponent("test")
 
@@ -37,55 +37,55 @@ final class StorageAreaReferenceTests: XCTestCase {
             bundleIdentifier: "test-bundle"
         )
 
-        XCTAssertEqual(storage.requestID, requestID)
-        XCTAssertEqual(storage.baseURL, baseURL)
-        XCTAssertEqual(storage.bundleIdentifier, "test-bundle")
+        #expect(storage.requestID == requestID)
+        #expect(storage.baseURL == baseURL)
+        #expect(storage.bundleIdentifier == "test-bundle")
     }
 
     // MARK: - File URL Construction Tests
 
-    func testFileURL() {
+    @Test func testFileURL() {
         let requestID = UUID()
         let baseURL = tempDirectory.appendingPathComponent("test")
         let storage = StorageAreaReference(requestID: requestID, baseURL: baseURL)
 
         let fileURL = storage.fileURL(for: "data.json")
-        XCTAssertEqual(fileURL.lastPathComponent, "data.json")
-        XCTAssertTrue(fileURL.absoluteString.contains(baseURL.path))
+        #expect(fileURL.lastPathComponent == "data.json")
+        #expect(fileURL.absoluteString.contains(baseURL.path))
     }
 
-    func testFileURL_WithExtension() {
+    @Test func testFileURL_WithExtension() {
         let requestID = UUID()
         let baseURL = tempDirectory.appendingPathComponent("test")
         let storage = StorageAreaReference(requestID: requestID, baseURL: baseURL)
 
         let fileURL = storage.fileURL(baseName: "audio", fileExtension: "mp3")
-        XCTAssertEqual(fileURL.lastPathComponent, "audio.mp3")
+        #expect(fileURL.lastPathComponent == "audio.mp3")
     }
 
-    func testDefaultDataFileURL() {
+    @Test func testDefaultDataFileURL() {
         let requestID = UUID()
         let baseURL = tempDirectory.appendingPathComponent("test")
         let storage = StorageAreaReference(requestID: requestID, baseURL: baseURL)
 
         let fileURL = storage.defaultDataFileURL(extension: "json")
-        XCTAssertEqual(fileURL.lastPathComponent, "data.json")
+        #expect(fileURL.lastPathComponent == "data.json")
     }
 
     // MARK: - Directory Operations Tests
 
-    func testCreateDirectoryIfNeeded() throws {
+    @Test func testCreateDirectoryIfNeeded() throws {
         let requestID = UUID()
         let baseURL = tempDirectory.appendingPathComponent("test")
         let storage = StorageAreaReference(requestID: requestID, baseURL: baseURL)
 
-        XCTAssertFalse(storage.directoryExists())
+        #expect(!storage.directoryExists())
 
         try storage.createDirectoryIfNeeded()
-        XCTAssertTrue(storage.directoryExists())
+        #expect(storage.directoryExists())
     }
 
-    func testCreateDirectoryIfNeeded_Idempotent() throws {
+    @Test func testCreateDirectoryIfNeeded_Idempotent() throws {
         let requestID = UUID()
         let baseURL = tempDirectory.appendingPathComponent("test")
         let storage = StorageAreaReference(requestID: requestID, baseURL: baseURL)
@@ -93,10 +93,10 @@ final class StorageAreaReferenceTests: XCTestCase {
         try storage.createDirectoryIfNeeded()
         try storage.createDirectoryIfNeeded() // Should not throw
 
-        XCTAssertTrue(storage.directoryExists())
+        #expect(storage.directoryExists())
     }
 
-    func testListFiles() throws {
+    @Test func testListFiles() throws {
         let requestID = UUID()
         let baseURL = tempDirectory.appendingPathComponent("test")
         let storage = StorageAreaReference(requestID: requestID, baseURL: baseURL)
@@ -111,29 +111,29 @@ final class StorageAreaReferenceTests: XCTestCase {
 
         let files = try storage.listFiles()
         let filePaths = files.map { $0.lastPathComponent }.sorted()
-        XCTAssertEqual(filePaths.count, 2)
-        XCTAssertTrue(filePaths.contains("file1.txt"))
-        XCTAssertTrue(filePaths.contains("file2.txt"))
+        #expect(filePaths.count == 2)
+        #expect(filePaths.contains("file1.txt"))
+        #expect(filePaths.contains("file2.txt"))
     }
 
     // MARK: - Convenience Constructors Tests
 
-    func testTemporaryStorageArea() {
+    @Test func testTemporaryStorageArea() {
         let storage = StorageAreaReference.temporary()
 
-        XCTAssertNotNil(storage.requestID)
-        XCTAssertTrue(storage.baseURL.path.contains("SwiftHablare"))
-        XCTAssertNil(storage.bundleIdentifier)
+        #expect(storage.requestID != nil)
+        #expect(storage.baseURL.path.contains("SwiftHablare"))
+        #expect(storage.bundleIdentifier == nil)
     }
 
-    func testTemporaryStorageArea_WithRequestID() {
+    @Test func testTemporaryStorageArea_WithRequestID() {
         let requestID = UUID()
         let storage = StorageAreaReference.temporary(requestID: requestID)
 
-        XCTAssertEqual(storage.requestID, requestID)
+        #expect(storage.requestID == requestID)
     }
 
-    func testInBundleStorageArea() {
+    @Test func testInBundleStorageArea() {
         let requestID = UUID()
         let bundleURL = tempDirectory.appendingPathComponent("test.guion")
         let storage = StorageAreaReference.inBundle(
@@ -142,15 +142,15 @@ final class StorageAreaReferenceTests: XCTestCase {
             bundleIdentifier: "test-bundle"
         )
 
-        XCTAssertEqual(storage.requestID, requestID)
-        XCTAssertTrue(storage.baseURL.path.contains("assets"))
-        XCTAssertTrue(storage.baseURL.path.contains(requestID.uuidString))
-        XCTAssertEqual(storage.bundleIdentifier, "test-bundle")
+        #expect(storage.requestID == requestID)
+        #expect(storage.baseURL.path.contains("assets"))
+        #expect(storage.baseURL.path.contains(requestID.uuidString))
+        #expect(storage.bundleIdentifier == "test-bundle")
     }
 
     // MARK: - Codable Tests
 
-    func testCodableRoundTrip() throws {
+    @Test func testCodableRoundTrip() throws {
         let original = StorageAreaReference(
             requestID: UUID(),
             baseURL: tempDirectory.appendingPathComponent("test"),
@@ -160,45 +160,45 @@ final class StorageAreaReferenceTests: XCTestCase {
         let encoded = try JSONEncoder().encode(original)
         let decoded = try JSONDecoder().decode(StorageAreaReference.self, from: encoded)
 
-        XCTAssertEqual(decoded.requestID, original.requestID)
-        XCTAssertEqual(decoded.baseURL.path, original.baseURL.path)
-        XCTAssertEqual(decoded.bundleIdentifier, original.bundleIdentifier)
+        #expect(decoded.requestID == original.requestID)
+        #expect(decoded.baseURL.path == original.baseURL.path)
+        #expect(decoded.bundleIdentifier == original.bundleIdentifier)
     }
 
     // MARK: - Equatable Tests
 
-    func testEquality() {
+    @Test func testEquality() {
         let requestID = UUID()
         let baseURL = tempDirectory.appendingPathComponent("test")
 
         let storage1 = StorageAreaReference(requestID: requestID, baseURL: baseURL)
         let storage2 = StorageAreaReference(requestID: requestID, baseURL: baseURL)
 
-        XCTAssertEqual(storage1, storage2)
+        #expect(storage1 == storage2)
     }
 
-    func testInequality_DifferentRequestID() {
+    @Test func testInequality_DifferentRequestID() {
         let baseURL = tempDirectory.appendingPathComponent("test")
 
         let storage1 = StorageAreaReference(requestID: UUID(), baseURL: baseURL)
         let storage2 = StorageAreaReference(requestID: UUID(), baseURL: baseURL)
 
-        XCTAssertNotEqual(storage1, storage2)
+        #expect(storage1 != storage2)
     }
 
     // MARK: - Sendable Conformance Tests
 
-    func testSendableConformance() async {
+    @Test func testSendableConformance() async {
         let storage = StorageAreaReference.temporary()
 
         await Task {
-            XCTAssertNotNil(storage.requestID)
+            #expect(storage.requestID != nil)
         }.value
     }
 
     // MARK: - CustomStringConvertible Tests
 
-    func testDescription() {
+    @Test func testDescription() {
         let storage = StorageAreaReference(
             requestID: UUID(),
             baseURL: tempDirectory,
@@ -206,12 +206,12 @@ final class StorageAreaReferenceTests: XCTestCase {
         )
 
         let description = storage.description
-        XCTAssertTrue(description.contains("StorageAreaReference"))
-        XCTAssertTrue(description.contains("test-bundle"))
+        #expect(description.contains("StorageAreaReference"))
+        #expect(description.contains("test-bundle"))
     }
 }
 
-final class TypedDataFileReferenceTests: XCTestCase {
+struct TypedDataFileReferenceTests {
 
     var tempDirectory: URL!
     var storageArea: StorageAreaReference!
@@ -235,7 +235,7 @@ final class TypedDataFileReferenceTests: XCTestCase {
 
     // MARK: - Initialization Tests
 
-    func testInitialization() {
+    @Test func testInitialization() {
         let requestID = UUID()
         let createdAt = Date()
 
@@ -248,15 +248,15 @@ final class TypedDataFileReferenceTests: XCTestCase {
             checksum: "abc123"
         )
 
-        XCTAssertEqual(fileRef.requestID, requestID)
-        XCTAssertEqual(fileRef.fileName, "data.json")
-        XCTAssertEqual(fileRef.fileSize, 1024)
-        XCTAssertEqual(fileRef.mimeType, "application/json")
-        XCTAssertEqual(fileRef.createdAt, createdAt)
-        XCTAssertEqual(fileRef.checksum, "abc123")
+        #expect(fileRef.requestID == requestID)
+        #expect(fileRef.fileName == "data.json")
+        #expect(fileRef.fileSize == 1024)
+        #expect(fileRef.mimeType == "application/json")
+        #expect(fileRef.createdAt == createdAt)
+        #expect(fileRef.checksum == "abc123")
     }
 
-    func testFileExtension() {
+    @Test func testFileExtension() {
         let fileRef = TypedDataFileReference(
             requestID: UUID(),
             fileName: "audio.mp3",
@@ -264,12 +264,12 @@ final class TypedDataFileReferenceTests: XCTestCase {
             mimeType: "audio/mpeg"
         )
 
-        XCTAssertEqual(fileRef.fileExtension, "mp3")
+        #expect(fileRef.fileExtension == "mp3")
     }
 
     // MARK: - File Path Construction Tests
 
-    func testRelativePath() {
+    @Test func testRelativePath() {
         let requestID = UUID()
         let fileRef = TypedDataFileReference(
             requestID: requestID,
@@ -279,12 +279,12 @@ final class TypedDataFileReferenceTests: XCTestCase {
         )
 
         let relativePath = fileRef.relativePath
-        XCTAssertTrue(relativePath.contains("assets"))
-        XCTAssertTrue(relativePath.contains(requestID.uuidString))
-        XCTAssertTrue(relativePath.contains("data.json"))
+        #expect(relativePath.contains("assets"))
+        #expect(relativePath.contains(requestID.uuidString))
+        #expect(relativePath.contains("data.json"))
     }
 
-    func testFileURL_InStorageArea() {
+    @Test func testFileURL_InStorageArea() {
         let fileRef = TypedDataFileReference(
             requestID: storageArea.requestID,
             fileName: "data.json",
@@ -293,10 +293,10 @@ final class TypedDataFileReferenceTests: XCTestCase {
         )
 
         let fileURL = fileRef.fileURL(in: storageArea)
-        XCTAssertEqual(fileURL.lastPathComponent, "data.json")
+        #expect(fileURL.lastPathComponent == "data.json")
     }
 
-    func testFileURL_InBundle() {
+    @Test func testFileURL_InBundle() {
         let requestID = UUID()
         let bundleURL = tempDirectory.appendingPathComponent("test.guion")
 
@@ -308,14 +308,14 @@ final class TypedDataFileReferenceTests: XCTestCase {
         )
 
         let fileURL = fileRef.fileURL(in: bundleURL)
-        XCTAssertTrue(fileURL.path.contains("assets"))
-        XCTAssertTrue(fileURL.path.contains(requestID.uuidString))
-        XCTAssertEqual(fileURL.lastPathComponent, "data.json")
+        #expect(fileURL.path.contains("assets"))
+        #expect(fileURL.path.contains(requestID.uuidString))
+        #expect(fileURL.lastPathComponent == "data.json")
     }
 
     // MARK: - File Operations Tests
 
-    func testReadData() throws {
+    @Test func testReadData() throws {
         try storageArea.createDirectoryIfNeeded()
 
         let testData = "Test content".data(using: .utf8)!
@@ -330,10 +330,10 @@ final class TypedDataFileReferenceTests: XCTestCase {
         )
 
         let readData = try fileRef.readData(from: storageArea)
-        XCTAssertEqual(readData, testData)
+        #expect(readData == testData)
     }
 
-    func testFileExists() throws {
+    @Test func testFileExists() throws {
         try storageArea.createDirectoryIfNeeded()
 
         let fileRef = TypedDataFileReference(
@@ -343,15 +343,15 @@ final class TypedDataFileReferenceTests: XCTestCase {
             mimeType: "text/plain"
         )
 
-        XCTAssertFalse(fileRef.fileExists(in: storageArea))
+        #expect(!fileRef.fileExists(in: storageArea))
 
         let fileURL = storageArea.fileURL(for: "data.txt")
         try "Test".write(to: fileURL, atomically: true, encoding: .utf8)
 
-        XCTAssertTrue(fileRef.fileExists(in: storageArea))
+        #expect(fileRef.fileExists(in: storageArea))
     }
 
-    func testVerifySizeMatches() throws {
+    @Test func testVerifySizeMatches() throws {
         try storageArea.createDirectoryIfNeeded()
 
         let testData = "Test content".data(using: .utf8)!
@@ -365,10 +365,10 @@ final class TypedDataFileReferenceTests: XCTestCase {
             mimeType: "text/plain"
         )
 
-        XCTAssertTrue(try fileRef.verifySizeMatches(in: storageArea))
+        #expect(try fileRef.verifySizeMatches(in: storageArea))
     }
 
-    func testVerifySizeMatches_Mismatch() throws {
+    @Test func testVerifySizeMatches_Mismatch() throws {
         try storageArea.createDirectoryIfNeeded()
 
         let testData = "Test content".data(using: .utf8)!
@@ -382,12 +382,12 @@ final class TypedDataFileReferenceTests: XCTestCase {
             mimeType: "text/plain"
         )
 
-        XCTAssertFalse(try fileRef.verifySizeMatches(in: storageArea))
+        #expect(try !fileRef.verifySizeMatches(in: storageArea))
     }
 
     // MARK: - Convenience Constructors Tests
 
-    func testFromData() {
+    @Test func testFromData() {
         let requestID = UUID()
         let testData = "Test content".data(using: .utf8)!
 
@@ -399,14 +399,14 @@ final class TypedDataFileReferenceTests: XCTestCase {
             includeChecksum: false
         )
 
-        XCTAssertEqual(fileRef.requestID, requestID)
-        XCTAssertEqual(fileRef.fileName, "data.txt")
-        XCTAssertEqual(fileRef.fileSize, Int64(testData.count))
-        XCTAssertEqual(fileRef.mimeType, "text/plain")
-        XCTAssertNil(fileRef.checksum)
+        #expect(fileRef.requestID == requestID)
+        #expect(fileRef.fileName == "data.txt")
+        #expect(fileRef.fileSize == Int64(testData.count))
+        #expect(fileRef.mimeType == "text/plain")
+        #expect(fileRef.checksum == nil)
     }
 
-    func testFromData_WithChecksum() {
+    @Test func testFromData_WithChecksum() {
         let requestID = UUID()
         let testData = "Test content".data(using: .utf8)!
 
@@ -418,10 +418,10 @@ final class TypedDataFileReferenceTests: XCTestCase {
             includeChecksum: true
         )
 
-        XCTAssertNotNil(fileRef.checksum)
+        #expect(fileRef.checksum != nil)
     }
 
-    func testFromFileURL() throws {
+    @Test func testFromFileURL() throws {
         try storageArea.createDirectoryIfNeeded()
 
         let testData = "Test content".data(using: .utf8)!
@@ -435,13 +435,13 @@ final class TypedDataFileReferenceTests: XCTestCase {
             includeChecksum: false
         )
 
-        XCTAssertEqual(fileRef.fileName, "data.txt")
-        XCTAssertEqual(fileRef.fileSize, Int64(testData.count))
+        #expect(fileRef.fileName == "data.txt")
+        #expect(fileRef.fileSize == Int64(testData.count))
     }
 
     // MARK: - Codable Tests
 
-    func testCodableRoundTrip() throws {
+    @Test func testCodableRoundTrip() throws {
         let original = TypedDataFileReference(
             requestID: UUID(),
             fileName: "data.json",
@@ -453,16 +453,16 @@ final class TypedDataFileReferenceTests: XCTestCase {
         let encoded = try JSONEncoder().encode(original)
         let decoded = try JSONDecoder().decode(TypedDataFileReference.self, from: encoded)
 
-        XCTAssertEqual(decoded.requestID, original.requestID)
-        XCTAssertEqual(decoded.fileName, original.fileName)
-        XCTAssertEqual(decoded.fileSize, original.fileSize)
-        XCTAssertEqual(decoded.mimeType, original.mimeType)
-        XCTAssertEqual(decoded.checksum, original.checksum)
+        #expect(decoded.requestID == original.requestID)
+        #expect(decoded.fileName == original.fileName)
+        #expect(decoded.fileSize == original.fileSize)
+        #expect(decoded.mimeType == original.mimeType)
+        #expect(decoded.checksum == original.checksum)
     }
 
     // MARK: - Equatable Tests
 
-    func testEquality() {
+    @Test func testEquality() {
         let requestID = UUID()
         let createdAt = Date()
         let fileRef1 = TypedDataFileReference(
@@ -482,12 +482,12 @@ final class TypedDataFileReferenceTests: XCTestCase {
             checksum: "abc123"
         )
 
-        XCTAssertEqual(fileRef1, fileRef2)
+        #expect(fileRef1 == fileRef2)
     }
 
     // MARK: - Sendable Conformance Tests
 
-    func testSendableConformance() async {
+    @Test func testSendableConformance() async {
         let fileRef = TypedDataFileReference(
             requestID: UUID(),
             fileName: "data.json",
@@ -496,13 +496,13 @@ final class TypedDataFileReferenceTests: XCTestCase {
         )
 
         await Task {
-            XCTAssertEqual(fileRef.fileName, "data.json")
+            #expect(fileRef.fileName == "data.json")
         }.value
     }
 
     // MARK: - CustomStringConvertible Tests
 
-    func testDescription() {
+    @Test func testDescription() {
         let requestID = UUID()
         let fileRef = TypedDataFileReference(
             requestID: requestID,
@@ -512,8 +512,8 @@ final class TypedDataFileReferenceTests: XCTestCase {
         )
 
         let description = fileRef.description
-        XCTAssertTrue(description.contains("TypedDataFileReference"))
-        XCTAssertTrue(description.contains("data.json"))
-        XCTAssertTrue(description.contains("1024"))
+        #expect(description.contains("TypedDataFileReference"))
+        #expect(description.contains("data.json"))
+        #expect(description.contains("1024"))
     }
 }

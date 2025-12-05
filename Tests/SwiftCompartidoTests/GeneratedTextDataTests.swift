@@ -5,14 +5,14 @@
 //  Phase 5: Tests for GeneratedTextData and TextGenerationConfig
 //
 
-import XCTest
+import Testing
 @testable import SwiftCompartido
 
-final class GeneratedTextDataTests: XCTestCase {
+struct GeneratedTextDataTests {
 
     // MARK: - GeneratedTextData Initialization Tests
 
-    func testGeneratedTextDataInitialization() {
+    @Test func testGeneratedTextDataInitialization() {
         // GIVEN
         let text = "Hello world, this is a test."
         let model = "gpt-4"
@@ -28,13 +28,13 @@ final class GeneratedTextDataTests: XCTestCase {
         )
 
         // THEN
-        XCTAssertEqual(generated.text, text)
-        XCTAssertEqual(generated.model, model)
-        XCTAssertEqual(generated.completionTokens, completionTokens)
-        XCTAssertEqual(generated.promptTokens, promptTokens)
+        #expect(generated.text == text)
+        #expect(generated.model == model)
+        #expect(generated.completionTokens == completionTokens)
+        #expect(generated.promptTokens == promptTokens)
     }
 
-    func testGeneratedTextDataWithOptionalParameters() {
+    @Test func testGeneratedTextDataWithOptionalParameters() {
         // WHEN
         let generated = GeneratedTextData(
             text: "Test text",
@@ -42,15 +42,15 @@ final class GeneratedTextDataTests: XCTestCase {
         )
 
         // THEN
-        XCTAssertEqual(generated.text, "Test text")
-        XCTAssertEqual(generated.model, "gpt-3.5-turbo")
-        XCTAssertNil(generated.promptTokens)
-        XCTAssertNil(generated.completionTokens)
+        #expect(generated.text == "Test text")
+        #expect(generated.model == "gpt-3.5-turbo")
+        #expect(generated.promptTokens == nil)
+        #expect(generated.completionTokens == nil)
     }
 
     // MARK: - Word Count Tests
 
-    func testWordCount() {
+    @Test func testWordCount() {
         // GIVEN
         let text = "Hello world, this is a test."
         let generated = GeneratedTextData(text: text, model: "test-model")
@@ -59,10 +59,10 @@ final class GeneratedTextDataTests: XCTestCase {
         let wordCount = generated.wordCount
 
         // THEN
-        XCTAssertEqual(wordCount, 6, "Should count 6 words")
+        #expect(wordCount == 6, "Should count 6 words")
     }
 
-    func testWordCountWithEmptyText() {
+    @Test func testWordCountWithEmptyText() {
         // GIVEN
         let generated = GeneratedTextData(text: "", model: "test-model")
 
@@ -70,10 +70,10 @@ final class GeneratedTextDataTests: XCTestCase {
         let wordCount = generated.wordCount
 
         // THEN
-        XCTAssertEqual(wordCount, 0, "Empty text should have 0 words")
+        #expect(wordCount == 0, "Empty text should have 0 words")
     }
 
-    func testWordCountWithWhitespaceOnly() {
+    @Test func testWordCountWithWhitespaceOnly() {
         // GIVEN
         let generated = GeneratedTextData(text: "   \n\t  ", model: "test-model")
 
@@ -81,10 +81,10 @@ final class GeneratedTextDataTests: XCTestCase {
         let wordCount = generated.wordCount
 
         // THEN
-        XCTAssertEqual(wordCount, 0, "Whitespace-only text should have 0 words")
+        #expect(wordCount == 0, "Whitespace-only text should have 0 words")
     }
 
-    func testWordCountWithMultipleSpaces() {
+    @Test func testWordCountWithMultipleSpaces() {
         // GIVEN
         let text = "Hello    world   test"
         let generated = GeneratedTextData(text: text, model: "test-model")
@@ -93,10 +93,10 @@ final class GeneratedTextDataTests: XCTestCase {
         let wordCount = generated.wordCount
 
         // THEN
-        XCTAssertEqual(wordCount, 3, "Should handle multiple spaces between words")
+        #expect(wordCount == 3, "Should handle multiple spaces between words")
     }
 
-    func testWordCountWithNewlines() {
+    @Test func testWordCountWithNewlines() {
         // GIVEN
         let text = "Hello\nworld\ntest"
         let generated = GeneratedTextData(text: text, model: "test-model")
@@ -105,12 +105,12 @@ final class GeneratedTextDataTests: XCTestCase {
         let wordCount = generated.wordCount
 
         // THEN
-        XCTAssertEqual(wordCount, 3, "Should count words across newlines")
+        #expect(wordCount == 3, "Should count words across newlines")
     }
 
     // MARK: - Character Count Tests
 
-    func testCharacterCount() {
+    @Test func testCharacterCount() {
         // GIVEN
         let text = "Hello"
         let generated = GeneratedTextData(text: text, model: "test-model")
@@ -119,10 +119,10 @@ final class GeneratedTextDataTests: XCTestCase {
         let charCount = generated.characterCount
 
         // THEN
-        XCTAssertEqual(charCount, 5)
+        #expect(charCount == 5)
     }
 
-    func testCharacterCountWithWhitespace() {
+    @Test func testCharacterCountWithWhitespace() {
         // GIVEN
         let text = "Hello world"
         let generated = GeneratedTextData(text: text, model: "test-model")
@@ -131,10 +131,10 @@ final class GeneratedTextDataTests: XCTestCase {
         let charCount = generated.characterCount
 
         // THEN
-        XCTAssertEqual(charCount, 11, "Should include space in count")
+        #expect(charCount == 11, "Should include space in count")
     }
 
-    func testCharacterCountWithEmptyText() {
+    @Test func testCharacterCountWithEmptyText() {
         // GIVEN
         let generated = GeneratedTextData(text: "", model: "test-model")
 
@@ -142,12 +142,12 @@ final class GeneratedTextDataTests: XCTestCase {
         let charCount = generated.characterCount
 
         // THEN
-        XCTAssertEqual(charCount, 0)
+        #expect(charCount == 0)
     }
 
     // MARK: - Token Count Tests
 
-    func testTokenCounts() {
+    @Test func testTokenCounts() {
         // WHEN
         let generated = GeneratedTextData(
             text: "Test",
@@ -158,34 +158,34 @@ final class GeneratedTextDataTests: XCTestCase {
         )
 
         // THEN
-        XCTAssertEqual(generated.tokenCount, 30)
-        XCTAssertEqual(generated.completionTokens, 20)
-        XCTAssertEqual(generated.promptTokens, 10)
+        #expect(generated.tokenCount == 30)
+        #expect(generated.completionTokens == 20)
+        #expect(generated.promptTokens == 10)
     }
 
-    func testTokenCountsWithNilValues() {
+    @Test func testTokenCountsWithNilValues() {
         // WHEN
         let generated = GeneratedTextData(text: "Test", model: "gpt-4")
 
         // THEN
-        XCTAssertNil(generated.tokenCount)
-        XCTAssertNil(generated.completionTokens)
-        XCTAssertNil(generated.promptTokens)
+        #expect(generated.tokenCount == nil)
+        #expect(generated.completionTokens == nil)
+        #expect(generated.promptTokens == nil)
     }
 
     // MARK: - SerializableTypedData Conformance Tests
 
-    func testPreferredFormat() {
+    @Test func testPreferredFormat() {
         // GIVEN
         let generated = GeneratedTextData(text: "Test", model: "gpt-4")
 
         // THEN
-        XCTAssertEqual(generated.preferredFormat, .json)
+        #expect(generated.preferredFormat == .json)
     }
 
     // MARK: - Codable Tests
 
-    func testGeneratedTextDataCodable() throws {
+    @Test func testGeneratedTextDataCodable() throws {
         // GIVEN
         let original = GeneratedTextData(
             text: "Hello world",
@@ -203,14 +203,14 @@ final class GeneratedTextDataTests: XCTestCase {
         let decoder = JSONDecoder()
         let decoded = try decoder.decode(GeneratedTextData.self, from: data)
 
-        XCTAssertEqual(decoded.text, original.text)
-        XCTAssertEqual(decoded.model, original.model)
-        XCTAssertEqual(decoded.tokenCount, original.tokenCount)
-        XCTAssertEqual(decoded.completionTokens, original.completionTokens)
-        XCTAssertEqual(decoded.promptTokens, original.promptTokens)
+        #expect(decoded.text == original.text)
+        #expect(decoded.model == original.model)
+        #expect(decoded.tokenCount == original.tokenCount)
+        #expect(decoded.completionTokens == original.completionTokens)
+        #expect(decoded.promptTokens == original.promptTokens)
     }
 
-    func testGeneratedTextDataCodableWithNilValues() throws {
+    @Test func testGeneratedTextDataCodableWithNilValues() throws {
         // GIVEN
         let original = GeneratedTextData(text: "Test", model: "gpt-3.5-turbo")
 
@@ -221,16 +221,16 @@ final class GeneratedTextDataTests: XCTestCase {
         let decoded = try decoder.decode(GeneratedTextData.self, from: data)
 
         // THEN
-        XCTAssertEqual(decoded.text, original.text)
-        XCTAssertEqual(decoded.model, original.model)
-        XCTAssertNil(decoded.tokenCount)
-        XCTAssertNil(decoded.completionTokens)
-        XCTAssertNil(decoded.promptTokens)
+        #expect(decoded.text == original.text)
+        #expect(decoded.model == original.model)
+        #expect(decoded.tokenCount == nil)
+        #expect(decoded.completionTokens == nil)
+        #expect(decoded.promptTokens == nil)
     }
 
     // MARK: - TextGenerationConfig Tests
 
-    func testTextGenerationConfigInitialization() {
+    @Test func testTextGenerationConfigInitialization() {
         // WHEN
         let config = TextGenerationConfig(
             temperature: 0.8,
@@ -241,56 +241,56 @@ final class GeneratedTextDataTests: XCTestCase {
         )
 
         // THEN
-        XCTAssertEqual(config.temperature, 0.8)
-        XCTAssertEqual(config.maxTokens, 1000)
-        XCTAssertEqual(config.topP, 0.9)
-        XCTAssertEqual(config.frequencyPenalty, 0.5)
-        XCTAssertEqual(config.presencePenalty, 0.3)
+        #expect(config.temperature == 0.8)
+        #expect(config.maxTokens == 1000)
+        #expect(config.topP == 0.9)
+        #expect(config.frequencyPenalty == 0.5)
+        #expect(config.presencePenalty == 0.3)
     }
 
-    func testTextGenerationConfigDefaults() {
+    @Test func testTextGenerationConfigDefaults() {
         // WHEN
         let config = TextGenerationConfig()
 
         // THEN
-        XCTAssertEqual(config.temperature, 0.7)
-        XCTAssertEqual(config.maxTokens, 2048)
-        XCTAssertEqual(config.topP, 1.0)
-        XCTAssertEqual(config.frequencyPenalty, 0.0)
-        XCTAssertEqual(config.presencePenalty, 0.0)
+        #expect(config.temperature == 0.7)
+        #expect(config.maxTokens == 2048)
+        #expect(config.topP == 1.0)
+        #expect(config.frequencyPenalty == 0.0)
+        #expect(config.presencePenalty == 0.0)
     }
 
-    func testTextGenerationConfigDefault() {
+    @Test func testTextGenerationConfigDefault() {
         // WHEN
         let config = TextGenerationConfig.default
 
         // THEN
-        XCTAssertEqual(config.temperature, 0.7)
-        XCTAssertEqual(config.maxTokens, 2048)
+        #expect(config.temperature == 0.7)
+        #expect(config.maxTokens == 2048)
     }
 
-    func testTextGenerationConfigConservative() {
+    @Test func testTextGenerationConfigConservative() {
         // WHEN
         let config = TextGenerationConfig.conservative
 
         // THEN
-        XCTAssertEqual(config.temperature, 0.3, "Conservative should have low temperature")
-        XCTAssertEqual(config.maxTokens, 1024, "Conservative should have lower max tokens")
-        XCTAssertEqual(config.topP, 0.9)
+        #expect(config.temperature == 0.3, "Conservative should have low temperature")
+        #expect(config.maxTokens == 1024, "Conservative should have lower max tokens")
+        #expect(config.topP == 0.9)
     }
 
-    func testTextGenerationConfigCreative() {
+    @Test func testTextGenerationConfigCreative() {
         // WHEN
         let config = TextGenerationConfig.creative
 
         // THEN
-        XCTAssertEqual(config.temperature, 1.2, "Creative should have high temperature")
-        XCTAssertEqual(config.maxTokens, 4096, "Creative should have higher max tokens")
-        XCTAssertEqual(config.topP, 0.95)
-        XCTAssertEqual(config.presencePenalty, 0.6, "Creative should encourage diversity")
+        #expect(config.temperature == 1.2, "Creative should have high temperature")
+        #expect(config.maxTokens == 4096, "Creative should have higher max tokens")
+        #expect(config.topP == 0.95)
+        #expect(config.presencePenalty == 0.6, "Creative should encourage diversity")
     }
 
-    func testTextGenerationConfigCodable() throws {
+    @Test func testTextGenerationConfigCodable() throws {
         // GIVEN
         let original = TextGenerationConfig(
             temperature: 0.8,
@@ -307,27 +307,27 @@ final class GeneratedTextDataTests: XCTestCase {
         let decoded = try decoder.decode(TextGenerationConfig.self, from: data)
 
         // THEN
-        XCTAssertEqual(decoded.temperature, original.temperature)
-        XCTAssertEqual(decoded.maxTokens, original.maxTokens)
-        XCTAssertEqual(decoded.topP, original.topP)
-        XCTAssertEqual(decoded.frequencyPenalty, original.frequencyPenalty)
-        XCTAssertEqual(decoded.presencePenalty, original.presencePenalty)
+        #expect(decoded.temperature == original.temperature)
+        #expect(decoded.maxTokens == original.maxTokens)
+        #expect(decoded.topP == original.topP)
+        #expect(decoded.frequencyPenalty == original.frequencyPenalty)
+        #expect(decoded.presencePenalty == original.presencePenalty)
     }
 
     // MARK: - Edge Cases
 
-    func testGeneratedTextDataWithLongText() {
+    @Test func testGeneratedTextDataWithLongText() {
         // GIVEN
         let longText = String(repeating: "Hello world. ", count: 1000)
         let generated = GeneratedTextData(text: longText, model: "gpt-4")
 
         // THEN
-        XCTAssertEqual(generated.text, longText)
-        XCTAssertGreaterThan(generated.wordCount, 1000)
-        XCTAssertGreaterThan(generated.characterCount, 10000)
+        #expect(generated.text == longText)
+        #expect(generated.wordCount > 1000)
+        #expect(generated.characterCount > 10000)
     }
 
-    func testGeneratedTextDataWithUnicodeCharacters() {
+    @Test func testGeneratedTextDataWithUnicodeCharacters() {
         // GIVEN
         let text = "Hello 世界 🌍 Привет"
         let generated = GeneratedTextData(text: text, model: "gpt-4")
@@ -337,11 +337,11 @@ final class GeneratedTextDataTests: XCTestCase {
         let wordCount = generated.wordCount
 
         // THEN
-        XCTAssertEqual(charCount, text.count)
-        XCTAssertEqual(wordCount, 4, "Should count Unicode words correctly")
+        #expect(charCount == text.count)
+        #expect(wordCount == 4, "Should count Unicode words correctly")
     }
 
-    func testTextGenerationConfigBoundaryValues() {
+    @Test func testTextGenerationConfigBoundaryValues() {
         // Test boundary values for temperature and penalties
         let configMin = TextGenerationConfig(
             temperature: 0.0,
@@ -359,9 +359,9 @@ final class GeneratedTextDataTests: XCTestCase {
             presencePenalty: 2.0
         )
 
-        XCTAssertEqual(configMin.temperature, 0.0)
-        XCTAssertEqual(configMin.maxTokens, 1)
-        XCTAssertEqual(configMax.temperature, 2.0)
-        XCTAssertEqual(configMax.maxTokens, 8000)
+        #expect(configMin.temperature == 0.0)
+        #expect(configMin.maxTokens == 1)
+        #expect(configMax.temperature == 2.0)
+        #expect(configMax.maxTokens == 8000)
     }
 }

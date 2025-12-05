@@ -5,137 +5,137 @@
 //  Phase 6A: Tests for ProviderCategory enum
 //
 
-import XCTest
+import Testing
 @testable import SwiftCompartido
 
-final class ProviderCategoryTests: XCTestCase {
+struct ProviderCategoryTests {
 
     // MARK: - Basic Properties Tests
 
-    func testAllCasesArePresent() {
+    @Test func testAllCasesArePresent() {
         let categories = ProviderCategory.allCases
-        XCTAssertEqual(categories.count, 7, "Should have 7 provider categories")
-        XCTAssertTrue(categories.contains(.text))
-        XCTAssertTrue(categories.contains(.audio))
-        XCTAssertTrue(categories.contains(.image))
-        XCTAssertTrue(categories.contains(.video))
-        XCTAssertTrue(categories.contains(.embedding))
-        XCTAssertTrue(categories.contains(.code))
-        XCTAssertTrue(categories.contains(.structuredData))
+        #expect(categories.count == 7, "Should have 7 provider categories")
+        #expect(categories.contains(.text))
+        #expect(categories.contains(.audio))
+        #expect(categories.contains(.image))
+        #expect(categories.contains(.video))
+        #expect(categories.contains(.embedding))
+        #expect(categories.contains(.code))
+        #expect(categories.contains(.structuredData))
     }
 
-    func testRawValuesAreCorrect() {
-        XCTAssertEqual(ProviderCategory.text.rawValue, "text")
-        XCTAssertEqual(ProviderCategory.audio.rawValue, "audio")
-        XCTAssertEqual(ProviderCategory.image.rawValue, "image")
-        XCTAssertEqual(ProviderCategory.video.rawValue, "video")
-        XCTAssertEqual(ProviderCategory.embedding.rawValue, "embedding")
-        XCTAssertEqual(ProviderCategory.code.rawValue, "code")
-        XCTAssertEqual(ProviderCategory.structuredData.rawValue, "structuredData")
+    @Test func testRawValuesAreCorrect() {
+        #expect(ProviderCategory.text.rawValue == "text")
+        #expect(ProviderCategory.audio.rawValue == "audio")
+        #expect(ProviderCategory.image.rawValue == "image")
+        #expect(ProviderCategory.video.rawValue == "video")
+        #expect(ProviderCategory.embedding.rawValue == "embedding")
+        #expect(ProviderCategory.code.rawValue == "code")
+        #expect(ProviderCategory.structuredData.rawValue == "structuredData")
     }
 
-    func testIdentifiableConformance() {
+    @Test func testIdentifiableConformance() {
         let category = ProviderCategory.text
-        XCTAssertEqual(category.id, category.rawValue)
+        #expect(category.id == category.rawValue)
     }
 
     // MARK: - Display Properties Tests
 
-    func testDisplayNames() {
-        XCTAssertEqual(ProviderCategory.text.displayName, "Text Generation")
-        XCTAssertEqual(ProviderCategory.audio.displayName, "Audio Generation")
-        XCTAssertEqual(ProviderCategory.image.displayName, "Image Generation")
-        XCTAssertEqual(ProviderCategory.video.displayName, "Video Generation")
-        XCTAssertEqual(ProviderCategory.embedding.displayName, "Embeddings")
-        XCTAssertEqual(ProviderCategory.code.displayName, "Code Generation")
-        XCTAssertEqual(ProviderCategory.structuredData.displayName, "Structured Data")
+    @Test func testDisplayNames() {
+        #expect(ProviderCategory.text.displayName == "Text Generation")
+        #expect(ProviderCategory.audio.displayName == "Audio Generation")
+        #expect(ProviderCategory.image.displayName == "Image Generation")
+        #expect(ProviderCategory.video.displayName == "Video Generation")
+        #expect(ProviderCategory.embedding.displayName == "Embeddings")
+        #expect(ProviderCategory.code.displayName == "Code Generation")
+        #expect(ProviderCategory.structuredData.displayName == "Structured Data")
     }
 
-    func testSymbolNames() {
-        XCTAssertEqual(ProviderCategory.text.symbolName, "text.bubble")
-        XCTAssertEqual(ProviderCategory.audio.symbolName, "waveform")
-        XCTAssertEqual(ProviderCategory.image.symbolName, "photo")
-        XCTAssertEqual(ProviderCategory.video.symbolName, "video")
-        XCTAssertEqual(ProviderCategory.embedding.symbolName, "point.3.filled.connected.trianglepath.dotted")
-        XCTAssertEqual(ProviderCategory.code.symbolName, "chevron.left.forwardslash.chevron.right")
-        XCTAssertEqual(ProviderCategory.structuredData.symbolName, "tablecells")
+    @Test func testSymbolNames() {
+        #expect(ProviderCategory.text.symbolName == "text.bubble")
+        #expect(ProviderCategory.audio.symbolName == "waveform")
+        #expect(ProviderCategory.image.symbolName == "photo")
+        #expect(ProviderCategory.video.symbolName == "video")
+        #expect(ProviderCategory.embedding.symbolName == "point.3.filled.connected.trianglepath.dotted")
+        #expect(ProviderCategory.code.symbolName == "chevron.left.forwardslash.chevron.right")
+        #expect(ProviderCategory.structuredData.symbolName == "tablecells")
     }
 
-    func testDescriptions() {
-        XCTAssertFalse(ProviderCategory.text.description.isEmpty)
-        XCTAssertFalse(ProviderCategory.audio.description.isEmpty)
-        XCTAssertFalse(ProviderCategory.image.description.isEmpty)
-        XCTAssertFalse(ProviderCategory.video.description.isEmpty)
-        XCTAssertFalse(ProviderCategory.embedding.description.isEmpty)
-        XCTAssertFalse(ProviderCategory.code.description.isEmpty)
-        XCTAssertFalse(ProviderCategory.structuredData.description.isEmpty)
+    @Test func testDescriptions() {
+        #expect(!ProviderCategory.text.description.isEmpty)
+        #expect(!ProviderCategory.audio.description.isEmpty)
+        #expect(!ProviderCategory.image.description.isEmpty)
+        #expect(!ProviderCategory.video.description.isEmpty)
+        #expect(!ProviderCategory.embedding.description.isEmpty)
+        #expect(!ProviderCategory.code.description.isEmpty)
+        #expect(!ProviderCategory.structuredData.description.isEmpty)
     }
 
     // MARK: - File Storage Hints Tests
 
-    func testTypicalSizeRanges() {
+    @Test func testTypicalSizeRanges() {
         // Text is small
         if let textRange = ProviderCategory.text.typicalSizeRange {
-            XCTAssertGreaterThan(textRange.upperBound, textRange.lowerBound)
-            XCTAssertLessThan(textRange.upperBound, 1_000_000) // < 1MB
+            #expect(textRange.upperBound > textRange.lowerBound)
+            #expect(textRange.upperBound < 1_000_000) // < 1MB
         } else {
-            XCTFail("Text should have a typical size range")
+            Issue.record("Text should have a typical size range")
         }
 
         // Audio is large
         if let audioRange = ProviderCategory.audio.typicalSizeRange {
-            XCTAssertGreaterThan(audioRange.upperBound, 1_000_000) // > 1MB
+            #expect(audioRange.upperBound > 1_000_000) // > 1MB
         } else {
-            XCTFail("Audio should have a typical size range")
+            Issue.record("Audio should have a typical size range")
         }
 
         // Video is very large
         if let videoRange = ProviderCategory.video.typicalSizeRange {
-            XCTAssertGreaterThan(videoRange.upperBound, 100_000) // > 100KB
+            #expect(videoRange.upperBound > 100_000) // > 100KB
         } else {
-            XCTFail("Video should have a typical size range")
+            Issue.record("Video should have a typical size range")
         }
     }
 
-    func testTypicallyNeedsFileStorage() {
+    @Test func testTypicallyNeedsFileStorage() {
         // Small categories don't need file storage
-        XCTAssertFalse(ProviderCategory.text.typicallyNeedsFileStorage)
-        XCTAssertFalse(ProviderCategory.code.typicallyNeedsFileStorage)
+        #expect(!ProviderCategory.text.typicallyNeedsFileStorage)
+        #expect(!ProviderCategory.code.typicallyNeedsFileStorage)
 
         // Large categories need file storage
-        XCTAssertTrue(ProviderCategory.audio.typicallyNeedsFileStorage)
-        XCTAssertTrue(ProviderCategory.image.typicallyNeedsFileStorage)
-        XCTAssertTrue(ProviderCategory.video.typicallyNeedsFileStorage)
+        #expect(ProviderCategory.audio.typicallyNeedsFileStorage)
+        #expect(ProviderCategory.image.typicallyNeedsFileStorage)
+        #expect(ProviderCategory.video.typicallyNeedsFileStorage)
 
         // Variable-size categories depend on estimatedMaxSize
-        XCTAssertFalse(ProviderCategory.embedding.typicallyNeedsFileStorage)
-        XCTAssertFalse(ProviderCategory.structuredData.typicallyNeedsFileStorage)
+        #expect(!ProviderCategory.embedding.typicallyNeedsFileStorage)
+        #expect(!ProviderCategory.structuredData.typicallyNeedsFileStorage)
     }
 
     // MARK: - Codable Tests
 
-    func testCodableRoundTrip() throws {
+    @Test func testCodableRoundTrip() throws {
         for category in ProviderCategory.allCases {
             let encoded = try JSONEncoder().encode(category)
             let decoded = try JSONDecoder().decode(ProviderCategory.self, from: encoded)
-            XCTAssertEqual(decoded, category)
+            #expect(decoded == category)
         }
     }
 
-    func testDecodingFromRawValue() throws {
+    @Test func testDecodingFromRawValue() throws {
         let json = "\"text\"".data(using: .utf8)!
         let decoded = try JSONDecoder().decode(ProviderCategory.self, from: json)
-        XCTAssertEqual(decoded, .text)
+        #expect(decoded == .text)
     }
 
     // MARK: - Sendable Conformance Tests
 
-    func testSendableConformance() async {
+    @Test func testSendableConformance() async {
         // Should be able to pass across actor boundaries
         let category = ProviderCategory.text
 
         await Task {
-            XCTAssertEqual(category, .text)
+            #expect(category == .text)
         }.value
     }
 }

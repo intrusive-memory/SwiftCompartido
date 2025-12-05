@@ -5,43 +5,43 @@
 //  Phase 5: Tests for GeneratedImageData and ImageGenerationConfig
 //
 
-import XCTest
+import Testing
 @testable import SwiftCompartido
 
-final class GeneratedImageDataTests: XCTestCase {
+struct GeneratedImageDataTests {
 
     // MARK: - ImageFormat Tests
 
-    func testImageFormatMimeTypes() {
+    @Test func testImageFormatMimeTypes() {
         // THEN
-        XCTAssertEqual(GeneratedImageData.ImageFormat.png.mimeType, "image/png")
-        XCTAssertEqual(GeneratedImageData.ImageFormat.jpg.mimeType, "image/jpeg")
-        XCTAssertEqual(GeneratedImageData.ImageFormat.jpeg.mimeType, "image/jpeg")
-        XCTAssertEqual(GeneratedImageData.ImageFormat.webp.mimeType, "image/webp")
-        XCTAssertEqual(GeneratedImageData.ImageFormat.heic.mimeType, "image/heic")
+        #expect(GeneratedImageData.ImageFormat.png.mimeType == "image/png")
+        #expect(GeneratedImageData.ImageFormat.jpg.mimeType == "image/jpeg")
+        #expect(GeneratedImageData.ImageFormat.jpeg.mimeType == "image/jpeg")
+        #expect(GeneratedImageData.ImageFormat.webp.mimeType == "image/webp")
+        #expect(GeneratedImageData.ImageFormat.heic.mimeType == "image/heic")
     }
 
-    func testImageFormatFileExtensions() {
+    @Test func testImageFormatFileExtensions() {
         // THEN
-        XCTAssertEqual(GeneratedImageData.ImageFormat.png.fileExtension, "png")
-        XCTAssertEqual(GeneratedImageData.ImageFormat.jpg.fileExtension, "jpg")
-        XCTAssertEqual(GeneratedImageData.ImageFormat.jpeg.fileExtension, "jpeg")
-        XCTAssertEqual(GeneratedImageData.ImageFormat.webp.fileExtension, "webp")
-        XCTAssertEqual(GeneratedImageData.ImageFormat.heic.fileExtension, "heic")
+        #expect(GeneratedImageData.ImageFormat.png.fileExtension == "png")
+        #expect(GeneratedImageData.ImageFormat.jpg.fileExtension == "jpg")
+        #expect(GeneratedImageData.ImageFormat.jpeg.fileExtension == "jpeg")
+        #expect(GeneratedImageData.ImageFormat.webp.fileExtension == "webp")
+        #expect(GeneratedImageData.ImageFormat.heic.fileExtension == "heic")
     }
 
-    func testImageFormatRawValues() {
+    @Test func testImageFormatRawValues() {
         // THEN
-        XCTAssertEqual(GeneratedImageData.ImageFormat.png.rawValue, "png")
-        XCTAssertEqual(GeneratedImageData.ImageFormat.jpg.rawValue, "jpg")
-        XCTAssertEqual(GeneratedImageData.ImageFormat.jpeg.rawValue, "jpeg")
-        XCTAssertEqual(GeneratedImageData.ImageFormat.webp.rawValue, "webp")
-        XCTAssertEqual(GeneratedImageData.ImageFormat.heic.rawValue, "heic")
+        #expect(GeneratedImageData.ImageFormat.png.rawValue == "png")
+        #expect(GeneratedImageData.ImageFormat.jpg.rawValue == "jpg")
+        #expect(GeneratedImageData.ImageFormat.jpeg.rawValue == "jpeg")
+        #expect(GeneratedImageData.ImageFormat.webp.rawValue == "webp")
+        #expect(GeneratedImageData.ImageFormat.heic.rawValue == "heic")
     }
 
     // MARK: - GeneratedImageData Initialization Tests
 
-    func testGeneratedImageDataInitialization() {
+    @Test func testGeneratedImageDataInitialization() {
         // GIVEN
         let imageData = Data("test image".utf8)
         let model = "dall-e-3"
@@ -57,15 +57,15 @@ final class GeneratedImageDataTests: XCTestCase {
         )
 
         // THEN
-        XCTAssertEqual(generated.imageData, imageData)
-        XCTAssertEqual(generated.format, .png)
-        XCTAssertEqual(generated.width, 1024)
-        XCTAssertEqual(generated.height, 1024)
-        XCTAssertEqual(generated.model, model)
-        XCTAssertEqual(generated.revisedPrompt, "A test image")
+        #expect(generated.imageData == imageData)
+        #expect(generated.format == .png)
+        #expect(generated.width == 1024)
+        #expect(generated.height == 1024)
+        #expect(generated.model == model)
+        #expect(generated.revisedPrompt == "A test image")
     }
 
-    func testGeneratedImageDataWithOptionalParameters() {
+    @Test func testGeneratedImageDataWithOptionalParameters() {
         // WHEN
         let generated = GeneratedImageData(
             imageData: Data("test".utf8),
@@ -76,15 +76,15 @@ final class GeneratedImageDataTests: XCTestCase {
         )
 
         // THEN
-        XCTAssertEqual(generated.imageData, Data("test".utf8))
-        XCTAssertEqual(generated.format, .jpg)
-        XCTAssertEqual(generated.width, 512)
-        XCTAssertEqual(generated.height, 512)
-        XCTAssertEqual(generated.model, "test-model")
-        XCTAssertNil(generated.revisedPrompt)
+        #expect(generated.imageData == Data("test".utf8))
+        #expect(generated.format == .jpg)
+        #expect(generated.width == 512)
+        #expect(generated.height == 512)
+        #expect(generated.model == "test-model")
+        #expect(generated.revisedPrompt == nil)
     }
 
-    func testGeneratedImageDataFileSize() {
+    @Test func testGeneratedImageDataFileSize() {
         // GIVEN
         let imageData = Data("test image data with some length".utf8)
 
@@ -98,10 +98,10 @@ final class GeneratedImageDataTests: XCTestCase {
         )
 
         // THEN
-        XCTAssertEqual(generated.fileSize, imageData.count)
+        #expect(generated.fileSize == imageData.count)
     }
 
-    func testGeneratedImageDataWithNilImageData() {
+    @Test func testGeneratedImageDataWithNilImageData() {
         // WHEN
         let generated = GeneratedImageData(
             imageData: nil,
@@ -112,13 +112,13 @@ final class GeneratedImageDataTests: XCTestCase {
         )
 
         // THEN
-        XCTAssertNil(generated.imageData)
-        XCTAssertEqual(generated.fileSize, 0, "File size should be 0 when imageData is nil")
+        #expect(generated.imageData == nil)
+        #expect(generated.fileSize == 0, "File size should be 0 when imageData is nil")
     }
 
     // MARK: - SerializableTypedData Conformance Tests
 
-    func testPreferredFormat() {
+    @Test func testPreferredFormat() {
         // GIVEN
         let generated = GeneratedImageData(
             imageData: Data("test".utf8),
@@ -129,12 +129,12 @@ final class GeneratedImageDataTests: XCTestCase {
         )
 
         // THEN
-        XCTAssertEqual(generated.preferredFormat, .plist)
+        #expect(generated.preferredFormat == .plist)
     }
 
     // MARK: - Codable Tests
 
-    func testGeneratedImageDataCodable() throws {
+    @Test func testGeneratedImageDataCodable() throws {
         // GIVEN
         let imageData = Data("test image".utf8)
         let original = GeneratedImageData(
@@ -154,15 +154,15 @@ final class GeneratedImageDataTests: XCTestCase {
         let decoder = JSONDecoder()
         let decoded = try decoder.decode(GeneratedImageData.self, from: data)
 
-        XCTAssertEqual(decoded.imageData, original.imageData)
-        XCTAssertEqual(decoded.format, original.format)
-        XCTAssertEqual(decoded.width, original.width)
-        XCTAssertEqual(decoded.height, original.height)
-        XCTAssertEqual(decoded.model, original.model)
-        XCTAssertEqual(decoded.revisedPrompt, original.revisedPrompt)
+        #expect(decoded.imageData == original.imageData)
+        #expect(decoded.format == original.format)
+        #expect(decoded.width == original.width)
+        #expect(decoded.height == original.height)
+        #expect(decoded.model == original.model)
+        #expect(decoded.revisedPrompt == original.revisedPrompt)
     }
 
-    func testGeneratedImageDataCodableWithNilValues() throws {
+    @Test func testGeneratedImageDataCodableWithNilValues() throws {
         // GIVEN
         let original = GeneratedImageData(
             imageData: nil,
@@ -179,81 +179,81 @@ final class GeneratedImageDataTests: XCTestCase {
         let decoded = try decoder.decode(GeneratedImageData.self, from: data)
 
         // THEN
-        XCTAssertNil(decoded.imageData)
-        XCTAssertNil(decoded.revisedPrompt)
+        #expect(decoded.imageData == nil)
+        #expect(decoded.revisedPrompt == nil)
     }
 
     // MARK: - ImageGenerationConfig.ImageSize Tests
 
-    func testImageSizeSquare1024() {
+    @Test func testImageSizeSquare1024() {
         // WHEN
         let size = ImageGenerationConfig.ImageSize.square1024
 
         // THEN
-        XCTAssertEqual(size.width, 1024)
-        XCTAssertEqual(size.height, 1024)
-        XCTAssertEqual(size.aspectRatioDescription, "1:1 (Square)")
+        #expect(size.width == 1024)
+        #expect(size.height == 1024)
+        #expect(size.aspectRatioDescription == "1:1 (Square)")
     }
 
-    func testImageSizeSquare512() {
+    @Test func testImageSizeSquare512() {
         // WHEN
         let size = ImageGenerationConfig.ImageSize.square512
 
         // THEN
-        XCTAssertEqual(size.width, 512)
-        XCTAssertEqual(size.height, 512)
+        #expect(size.width == 512)
+        #expect(size.height == 512)
     }
 
-    func testImageSizeSquare256() {
+    @Test func testImageSizeSquare256() {
         // WHEN
         let size = ImageGenerationConfig.ImageSize.square256
 
         // THEN
-        XCTAssertEqual(size.width, 256)
-        XCTAssertEqual(size.height, 256)
+        #expect(size.width == 256)
+        #expect(size.height == 256)
     }
 
-    func testImageSizeWide16x9() {
+    @Test func testImageSizeWide16x9() {
         // WHEN
         let size = ImageGenerationConfig.ImageSize.wide16x9
 
         // THEN
-        XCTAssertEqual(size.width, 1792)
-        XCTAssertEqual(size.height, 1024)
-        XCTAssertEqual(size.aspectRatioDescription, "16:9 (Widescreen)")
+        #expect(size.width == 1792)
+        #expect(size.height == 1024)
+        #expect(size.aspectRatioDescription == "16:9 (Widescreen)")
     }
 
-    func testImageSizePortrait9x16() {
+    @Test func testImageSizePortrait9x16() {
         // WHEN
         let size = ImageGenerationConfig.ImageSize.portrait9x16
 
         // THEN
-        XCTAssertEqual(size.width, 1024)
-        XCTAssertEqual(size.height, 1792)
-        XCTAssertEqual(size.aspectRatioDescription, "9:16 (Portrait)")
+        #expect(size.width == 1024)
+        #expect(size.height == 1792)
+        #expect(size.aspectRatioDescription == "9:16 (Portrait)")
     }
 
-    func testImageSizeAspectRatio() {
+    @Test func testImageSizeAspectRatio() {
         // Test aspect ratio calculations
         let square = ImageGenerationConfig.ImageSize.square1024
         let wide = ImageGenerationConfig.ImageSize.wide16x9
         let portrait = ImageGenerationConfig.ImageSize.portrait9x16
 
-        XCTAssertEqual(square.aspectRatio, 1.0, accuracy: 0.01)
-        XCTAssertGreaterThan(wide.aspectRatio, 1.0, "Wide should be > 1.0")
-        XCTAssertLessThan(portrait.aspectRatio, 1.0, "Portrait should be < 1.0")
+        #expect(square.aspectRatio == 1.0, accuracy: 0.01)
+        #expect(wide.aspectRatio > 1.0, "Wide should be > 1.0")
+        #expect(portrait.aspectRatio < 1.0, "Portrait should be < 1.0")
     }
 
-    func testImageSizeUseCase() {
+    @Test func testImageSizeUseCase() {
         // THEN
-        XCTAssertFalse(ImageGenerationConfig.ImageSize.square1024.useCase.isEmpty)
-        XCTAssertFalse(ImageGenerationConfig.ImageSize.wide16x9.useCase.isEmpty)
-        XCTAssertFalse(ImageGenerationConfig.ImageSize.portrait9x16.useCase.isEmpty)
+        #expect(!ImageGenerationConfig.ImageSize.square1024.useCase.isEmpty)
+        #expect(!ImageGenerationConfig.ImageSize.wide16x9.useCase.isEmpty)
+        #expect(!ImageGenerationConfig.ImageSize.portrait9x16.useCase.isEmpty)
     }
 
     // MARK: - ImageGenerationConfig Tests
 
-    func testImageGenerationConfigInitialization() {
+    @Test func testImageGenerationConfigInitialization() {
         // WHEN
         let config = ImageGenerationConfig(
             size: .square1024,
@@ -263,36 +263,36 @@ final class GeneratedImageDataTests: XCTestCase {
         )
 
         // THEN
-        XCTAssertEqual(config.size, .square1024)
-        XCTAssertEqual(config.quality, .hd)
-        XCTAssertEqual(config.style, .vivid)
-        XCTAssertEqual(config.numberOfImages, 1)
+        #expect(config.size == .square1024)
+        #expect(config.quality == .hd)
+        #expect(config.style == .vivid)
+        #expect(config.numberOfImages == 1)
     }
 
-    func testImageGenerationConfigDefaults() {
+    @Test func testImageGenerationConfigDefaults() {
         // WHEN
         let config = ImageGenerationConfig()
 
         // THEN
-        XCTAssertEqual(config.size, .square1024)
-        XCTAssertEqual(config.quality, .standard)
-        XCTAssertEqual(config.style, .vivid)
-        XCTAssertEqual(config.numberOfImages, 1)
+        #expect(config.size == .square1024)
+        #expect(config.quality == .standard)
+        #expect(config.style == .vivid)
+        #expect(config.numberOfImages == 1)
     }
 
-    func testImageGenerationConfigQuality() {
+    @Test func testImageGenerationConfigQuality() {
         // Test quality options
-        XCTAssertEqual(ImageGenerationConfig.Quality.standard.rawValue, "standard")
-        XCTAssertEqual(ImageGenerationConfig.Quality.hd.rawValue, "hd")
+        #expect(ImageGenerationConfig.Quality.standard.rawValue == "standard")
+        #expect(ImageGenerationConfig.Quality.hd.rawValue == "hd")
     }
 
-    func testImageGenerationConfigStyle() {
+    @Test func testImageGenerationConfigStyle() {
         // Test style options
-        XCTAssertEqual(ImageGenerationConfig.Style.vivid.rawValue, "vivid")
-        XCTAssertEqual(ImageGenerationConfig.Style.natural.rawValue, "natural")
+        #expect(ImageGenerationConfig.Style.vivid.rawValue == "vivid")
+        #expect(ImageGenerationConfig.Style.natural.rawValue == "natural")
     }
 
-    func testImageGenerationConfigCodable() throws {
+    @Test func testImageGenerationConfigCodable() throws {
         // GIVEN
         let original = ImageGenerationConfig(
             size: .wide16x9,
@@ -308,15 +308,15 @@ final class GeneratedImageDataTests: XCTestCase {
         let decoded = try decoder.decode(ImageGenerationConfig.self, from: data)
 
         // THEN
-        XCTAssertEqual(decoded.size, original.size)
-        XCTAssertEqual(decoded.quality, original.quality)
-        XCTAssertEqual(decoded.style, original.style)
-        XCTAssertEqual(decoded.numberOfImages, original.numberOfImages)
+        #expect(decoded.size == original.size)
+        #expect(decoded.quality == original.quality)
+        #expect(decoded.style == original.style)
+        #expect(decoded.numberOfImages == original.numberOfImages)
     }
 
     // MARK: - Edge Cases
 
-    func testGeneratedImageDataWithAllFormats() {
+    @Test func testGeneratedImageDataWithAllFormats() {
         // Test each format
         let formats: [GeneratedImageData.ImageFormat] = [.png, .jpg, .jpeg, .webp, .heic]
 
@@ -328,11 +328,11 @@ final class GeneratedImageDataTests: XCTestCase {
                 height: 1024,
                 model: "test-model"
             )
-            XCTAssertEqual(generated.format, format)
+            #expect(generated.format == format)
         }
     }
 
-    func testGeneratedImageDataCustomDimensions() {
+    @Test func testGeneratedImageDataCustomDimensions() {
         // Test various custom dimensions
         let dimensions = [
             (width: 512, height: 512),
@@ -349,12 +349,12 @@ final class GeneratedImageDataTests: XCTestCase {
                 height: height,
                 model: "test-model"
             )
-            XCTAssertEqual(generated.width, width)
-            XCTAssertEqual(generated.height, height)
+            #expect(generated.width == width)
+            #expect(generated.height == height)
         }
     }
 
-    func testAllImageSizes() {
+    @Test func testAllImageSizes() {
         // Test all available image sizes
         let sizes: [ImageGenerationConfig.ImageSize] = [
             .square256,
@@ -365,15 +365,15 @@ final class GeneratedImageDataTests: XCTestCase {
         ]
 
         for size in sizes {
-            XCTAssertGreaterThan(size.width, 0)
-            XCTAssertGreaterThan(size.height, 0)
-            XCTAssertGreaterThan(size.aspectRatio, 0)
-            XCTAssertFalse(size.aspectRatioDescription.isEmpty)
-            XCTAssertFalse(size.useCase.isEmpty)
+            #expect(size.width > 0)
+            #expect(size.height > 0)
+            #expect(size.aspectRatio > 0)
+            #expect(!size.aspectRatioDescription.isEmpty)
+            #expect(!size.useCase.isEmpty)
         }
     }
 
-    func testImageGenerationConfigWithDifferentSizes() {
+    @Test func testImageGenerationConfigWithDifferentSizes() {
         // Test with different sizes
         let sizes: [ImageGenerationConfig.ImageSize] = [
             .square256,
@@ -385,11 +385,11 @@ final class GeneratedImageDataTests: XCTestCase {
 
         for size in sizes {
             let config = ImageGenerationConfig(size: size)
-            XCTAssertEqual(config.size, size)
+            #expect(config.size == size)
         }
     }
 
-    func testImageGenerationConfigWithQualityAndStyle() {
+    @Test func testImageGenerationConfigWithQualityAndStyle() {
         // Test combinations of quality and style
         let qualityStyleCombos: [(ImageGenerationConfig.Quality, ImageGenerationConfig.Style)] = [
             (.standard, .vivid),
@@ -403,12 +403,12 @@ final class GeneratedImageDataTests: XCTestCase {
                 quality: quality,
                 style: style
             )
-            XCTAssertEqual(config.quality, quality)
-            XCTAssertEqual(config.style, style)
+            #expect(config.quality == quality)
+            #expect(config.style == style)
         }
     }
 
-    func testLargeImageData() {
+    @Test func testLargeImageData() {
         // GIVEN - Simulate a large image
         let largeData = Data(repeating: 0xFF, count: 1024 * 1024) // 1MB
 
@@ -422,6 +422,6 @@ final class GeneratedImageDataTests: XCTestCase {
         )
 
         // THEN
-        XCTAssertEqual(generated.fileSize, 1024 * 1024)
+        #expect(generated.fileSize == 1024 * 1024)
     }
 }

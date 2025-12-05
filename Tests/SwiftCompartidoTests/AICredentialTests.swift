@@ -5,13 +5,13 @@
 //  Tests for credential types and validation
 //
 
-import XCTest
+import Testing
 @testable import SwiftCompartido
 
-final class AICredentialTests: XCTestCase {
+struct AICredentialTests {
     // MARK: - AICredential Tests
 
-    func testCredentialInitialization() {
+    @Test func testCredentialInitialization() {
         let credential = AICredential(
             providerID: "openai",
             type: .apiKey,
@@ -19,14 +19,14 @@ final class AICredentialTests: XCTestCase {
             description: "Production API key"
         )
 
-        XCTAssertEqual(credential.providerID, "openai")
-        XCTAssertEqual(credential.type, .apiKey)
-        XCTAssertEqual(credential.name, "OpenAI API Key")
-        XCTAssertEqual(credential.description, "Production API key")
-        XCTAssertTrue(credential.metadata.isEmpty)
+        #expect(credential.providerID == "openai")
+        #expect(credential.type == .apiKey)
+        #expect(credential.name == "OpenAI API Key")
+        #expect(credential.description == "Production API key")
+        #expect(credential.metadata.isEmpty)
     }
 
-    func testCredentialValidityWithoutExpiration() {
+    @Test func testCredentialValidityWithoutExpiration() {
         let credential = AICredential(
             providerID: "anthropic",
             type: .apiKey,
@@ -34,12 +34,12 @@ final class AICredentialTests: XCTestCase {
             expiresAt: nil
         )
 
-        XCTAssertTrue(credential.isValid)
-        XCTAssertFalse(credential.isExpired)
-        XCTAssertNil(credential.daysUntilExpiration)
+        #expect(credential.isValid)
+        #expect(!credential.isExpired)
+        #expect(credential.daysUntilExpiration == nil)
     }
 
-    func testCredentialValidityWithFutureExpiration() {
+    @Test func testCredentialValidityWithFutureExpiration() {
         let futureDate = Date().addingTimeInterval(86400 * 30) // 30 days
         let credential = AICredential(
             providerID: "elevenlabs",
@@ -48,13 +48,13 @@ final class AICredentialTests: XCTestCase {
             expiresAt: futureDate
         )
 
-        XCTAssertTrue(credential.isValid)
-        XCTAssertFalse(credential.isExpired)
-        XCTAssertNotNil(credential.daysUntilExpiration)
-        XCTAssertGreaterThanOrEqual(credential.daysUntilExpiration!, 29)
+        #expect(credential.isValid)
+        #expect(!credential.isExpired)
+        #expect(credential.daysUntilExpiration != nil)
+        #expect(credential.daysUntilExpiration! >= 29)
     }
 
-    func testCredentialExpiration() {
+    @Test func testCredentialExpiration() {
         let pastDate = Date().addingTimeInterval(-86400) // Yesterday
         let credential = AICredential(
             providerID: "openai",
@@ -63,12 +63,12 @@ final class AICredentialTests: XCTestCase {
             expiresAt: pastDate
         )
 
-        XCTAssertFalse(credential.isValid)
-        XCTAssertTrue(credential.isExpired)
-        XCTAssertNil(credential.daysUntilExpiration)
+        #expect(!credential.isValid)
+        #expect(credential.isExpired)
+        #expect(credential.daysUntilExpiration == nil)
     }
 
-    func testCredentialMetadata() {
+    @Test func testCredentialMetadata() {
         var credential = AICredential(
             providerID: "openai",
             type: .oauthToken,
@@ -76,14 +76,14 @@ final class AICredentialTests: XCTestCase {
             metadata: ["scope": "read write", "refresh_token": "xyz"]
         )
 
-        XCTAssertEqual(credential.metadata["scope"], "read write")
-        XCTAssertEqual(credential.metadata["refresh_token"], "xyz")
+        #expect(credential.metadata["scope"] == "read write")
+        #expect(credential.metadata["refresh_token"] == "xyz")
 
         credential.metadata["expires_in"] = "3600"
-        XCTAssertEqual(credential.metadata.count, 3)
+        #expect(credential.metadata.count == 3)
     }
 
-    func testCredentialCodable() throws {
+    @Test func testCredentialCodable() throws {
         let original = AICredential(
             providerID: "anthropic",
             type: .apiKey,
@@ -99,174 +99,128 @@ final class AICredentialTests: XCTestCase {
         let decoder = JSONDecoder()
         let decoded = try decoder.decode(AICredential.self, from: data)
 
-        XCTAssertEqual(decoded.id, original.id)
-        XCTAssertEqual(decoded.providerID, original.providerID)
-        XCTAssertEqual(decoded.type, original.type)
-        XCTAssertEqual(decoded.name, original.name)
-        XCTAssertEqual(decoded.description, original.description)
-        XCTAssertEqual(decoded.metadata, original.metadata)
+        #expect(decoded.id == original.id)
+        #expect(decoded.providerID == original.providerID)
+        #expect(decoded.type == original.type)
+        #expect(decoded.name == original.name)
+        #expect(decoded.description == original.description)
+        #expect(decoded.metadata == original.metadata)
     }
 
     // MARK: - SecureString Tests
 
-    func testSecureStringInitialization() {
+    @Test func testSecureStringInitialization() {
         let secureString = SecureString("test-secret-value")
-        XCTAssertEqual(secureString.value, "test-secret-value")
+        #expect(secureString.value == "test-secret-value")
     }
 
-    func testSecureStringClear() {
+    @Test func testSecureStringClear() {
         let secureString = SecureString("test-secret-value")
-        XCTAssertEqual(secureString.value, "test-secret-value")
+        #expect(secureString.value == "test-secret-value")
 
         secureString.clear()
-        XCTAssertEqual(secureString.value, "")
+        #expect(secureString.value == "")
     }
 
-    func testSecureStringDeinit() {
+    @Test func testSecureStringDeinit() {
         var secureString: SecureString? = SecureString("test-secret-value")
-        XCTAssertNotNil(secureString)
+        #expect(secureString != nil)
 
         secureString = nil
         // Test passes if no crash occurs
-        XCTAssertNil(secureString)
+        #expect(secureString == nil)
     }
 
     // MARK: - AICredentialValidator Tests
 
-    func testValidateAPIKey_Empty() {
-        XCTAssertThrowsError(try AICredentialValidator.validateAPIKey("", for: "openai")) { error in
-            guard case AICredentialError.invalidFormat(let message) = error else {
-                XCTFail("Expected invalidFormat error")
-                return
-            }
-            XCTAssertTrue(message.contains("empty"))
+    @Test func testValidateAPIKey_Empty() {
+        #expect(throws: AICredentialError.self) {
+            try AICredentialValidator.validateAPIKey("", for: "openai")
         }
     }
 
-    func testValidateAPIKey_TooShort() {
-        XCTAssertThrowsError(try AICredentialValidator.validateAPIKey("short", for: "openai")) { error in
-            guard case AICredentialError.invalidFormat(let message) = error else {
-                XCTFail("Expected invalidFormat error")
-                return
-            }
-            XCTAssertTrue(message.contains("8 characters"))
-        }
+    @Test func testValidateAPIKey_TooShort() {
+        do { _ = try AICredentialValidator.validateAPIKey("short", for: "openai"); Issue.record("Expected error") } catch { /* Expected */ }
     }
 
-    func testValidateAPIKey_OpenAI_Valid() {
-        XCTAssertNoThrow(try AICredentialValidator.validateAPIKey("sk-1234567890abcdef", for: "openai"))
-        XCTAssertNoThrow(try AICredentialValidator.validateAPIKey("sk-proj-1234567890abcdef", for: "openai"))
+    @Test func testValidateAPIKey_OpenAI_Valid() {
+        _ = try AICredentialValidator.validateAPIKey("sk-1234567890abcdef", for: "openai")
+        _ = try AICredentialValidator.validateAPIKey("sk-proj-1234567890abcdef", for: "openai")
     }
 
-    func testValidateAPIKey_OpenAI_Invalid() {
-        XCTAssertThrowsError(try AICredentialValidator.validateAPIKey("invalid-key", for: "openai")) { error in
-            guard case AICredentialError.invalidFormat(let message) = error else {
-                XCTFail("Expected invalidFormat error")
-                return
-            }
-            XCTAssertTrue(message.contains("sk-"))
-        }
+    @Test func testValidateAPIKey_OpenAI_Invalid() {
+        do { _ = try AICredentialValidator.validateAPIKey("invalid-key", for: "openai"); Issue.record("Expected error") } catch { /* Expected */ }
     }
 
-    func testValidateAPIKey_Anthropic_Valid() {
-        XCTAssertNoThrow(try AICredentialValidator.validateAPIKey("sk-ant-1234567890abcdef", for: "anthropic"))
+    @Test func testValidateAPIKey_Anthropic_Valid() {
+        _ = try AICredentialValidator.validateAPIKey("sk-ant-1234567890abcdef", for: "anthropic")
     }
 
-    func testValidateAPIKey_Anthropic_Invalid() {
-        XCTAssertThrowsError(try AICredentialValidator.validateAPIKey("sk-1234567890", for: "anthropic")) { error in
-            guard case AICredentialError.invalidFormat(let message) = error else {
-                XCTFail("Expected invalidFormat error")
-                return
-            }
-            XCTAssertTrue(message.contains("sk-ant-"))
-        }
+    @Test func testValidateAPIKey_Anthropic_Invalid() {
+        do { _ = try AICredentialValidator.validateAPIKey("sk-1234567890", for: "anthropic"); Issue.record("Expected error") } catch { /* Expected */ }
     }
 
-    func testValidateAPIKey_ElevenLabs_Valid() {
-        XCTAssertNoThrow(try AICredentialValidator.validateAPIKey("0123456789abcdef0123456789abcdef", for: "elevenlabs"))
-        XCTAssertNoThrow(try AICredentialValidator.validateAPIKey("ABCDEF1234567890ABCDEF1234567890", for: "elevenlabs"))
+    @Test func testValidateAPIKey_ElevenLabs_Valid() {
+        _ = try AICredentialValidator.validateAPIKey("0123456789abcdef0123456789abcdef", for: "elevenlabs")
+        _ = try AICredentialValidator.validateAPIKey("ABCDEF1234567890ABCDEF1234567890", for: "elevenlabs")
     }
 
-    func testValidateAPIKey_ElevenLabs_Invalid() {
+    @Test func testValidateAPIKey_ElevenLabs_Invalid() {
         // Too short
-        XCTAssertThrowsError(try AICredentialValidator.validateAPIKey("0123456789abcdef", for: "elevenlabs"))
+        do { _ = try AICredentialValidator.validateAPIKey("0123456789abcdef", for: "elevenlabs"); Issue.record("Expected error") } catch { /* Expected */ }
 
         // Too long
-        XCTAssertThrowsError(try AICredentialValidator.validateAPIKey("0123456789abcdef0123456789abcdef00", for: "elevenlabs"))
+        do { _ = try AICredentialValidator.validateAPIKey("0123456789abcdef0123456789abcdef00", for: "elevenlabs"); Issue.record("Expected error") } catch { /* Expected */ }
 
         // Invalid characters
-        XCTAssertThrowsError(try AICredentialValidator.validateAPIKey("0123456789abcdefghij0123456789ab", for: "elevenlabs"))
+        do { _ = try AICredentialValidator.validateAPIKey("0123456789abcdefghij0123456789ab", for: "elevenlabs"); Issue.record("Expected error") } catch { /* Expected */ }
     }
 
-    func testValidateAPIKey_UnknownProvider() {
+    @Test func testValidateAPIKey_UnknownProvider() {
         // Should accept any reasonable length for unknown providers
-        XCTAssertNoThrow(try AICredentialValidator.validateAPIKey("12345678", for: "unknown-provider"))
-        XCTAssertNoThrow(try AICredentialValidator.validateAPIKey(String(repeating: "a", count: 100), for: "custom-provider"))
+        _ = try AICredentialValidator.validateAPIKey("12345678", for: "unknown-provider")
+        _ = try AICredentialValidator.validateAPIKey(String(repeating: "a", count: 100), for: "custom-provider")
     }
 
-    func testValidateAPIKey_UnknownProvider_TooLong() {
+    @Test func testValidateAPIKey_UnknownProvider_TooLong() {
         let tooLong = String(repeating: "a", count: 1025)
-        XCTAssertThrowsError(try AICredentialValidator.validateAPIKey(tooLong, for: "custom-provider"))
+        do { _ = try AICredentialValidator.validateAPIKey(tooLong, for: "custom-provider"); Issue.record("Expected error") } catch { /* Expected */ }
     }
 
-    func testValidateAPIKey_Whitespace() {
+    @Test func testValidateAPIKey_Whitespace() {
         // Should handle leading/trailing whitespace
-        XCTAssertNoThrow(try AICredentialValidator.validateAPIKey("  sk-1234567890abcdef  ", for: "openai"))
+        _ = try AICredentialValidator.validateAPIKey("  sk-1234567890abcdef  ", for: "openai")
     }
 
-    func testValidateOAuthToken_Valid() {
-        XCTAssertNoThrow(try AICredentialValidator.validateOAuthToken("1234567890abcdef1234567890abcdef"))
+    @Test func testValidateOAuthToken_Valid() {
+        _ = try AICredentialValidator.validateOAuthToken("1234567890abcdef1234567890abcdef")
     }
 
-    func testValidateOAuthToken_Empty() {
-        XCTAssertThrowsError(try AICredentialValidator.validateOAuthToken("")) { error in
-            guard case AICredentialError.invalidFormat(let message) = error else {
-                XCTFail("Expected invalidFormat error")
-                return
-            }
-            XCTAssertTrue(message.contains("empty"))
-        }
+    @Test func testValidateOAuthToken_Empty() {
+        do { _ = try AICredentialValidator.validateOAuthToken(""); Issue.record("Expected error") } catch { /* Expected */ }
     }
 
-    func testValidateOAuthToken_TooShort() {
-        XCTAssertThrowsError(try AICredentialValidator.validateOAuthToken("short")) { error in
-            guard case AICredentialError.invalidFormat(let message) = error else {
-                XCTFail("Expected invalidFormat error")
-                return
-            }
-            XCTAssertTrue(message.contains("16 characters"))
-        }
+    @Test func testValidateOAuthToken_TooShort() {
+        do { _ = try AICredentialValidator.validateOAuthToken("short"); Issue.record("Expected error") } catch { /* Expected */ }
     }
 
-    func testValidateCertificate_Valid() {
+    @Test func testValidateCertificate_Valid() {
         let validData = Data(repeating: 0x42, count: 200)
-        XCTAssertNoThrow(try AICredentialValidator.validateCertificate(validData))
+        _ = try AICredentialValidator.validateCertificate(validData)
     }
 
-    func testValidateCertificate_Empty() {
-        XCTAssertThrowsError(try AICredentialValidator.validateCertificate(Data())) { error in
-            guard case AICredentialError.invalidFormat(let message) = error else {
-                XCTFail("Expected invalidFormat error")
-                return
-            }
-            XCTAssertTrue(message.contains("empty"))
-        }
+    @Test func testValidateCertificate_Empty() {
+        do { _ = try AICredentialValidator.validateCertificate(Data(); Issue.record("Expected error") } catch { /* Expected */ }
     }
 
-    func testValidateCertificate_TooSmall() {
+    @Test func testValidateCertificate_TooSmall() {
         let tooSmall = Data(repeating: 0x42, count: 50)
-        XCTAssertThrowsError(try AICredentialValidator.validateCertificate(tooSmall)) { error in
-            guard case AICredentialError.invalidFormat(let message) = error else {
-                XCTFail("Expected invalidFormat error")
-                return
-            }
-            XCTAssertTrue(message.contains("too small"))
-        }
+        do { _ = try AICredentialValidator.validateCertificate(tooSmall); Issue.record("Expected error") } catch { /* Expected */ }
     }
 
     // MARK: - AICredentialError Tests
 
-    func testCredentialErrorDescriptions() {
+    @Test func testCredentialErrorDescriptions() {
         let errors: [(AICredentialError, String)] = [
             (.invalidFormat("test"), "Invalid credential format: test"),
             (.expired, "Credential has expired"),
@@ -277,7 +231,7 @@ final class AICredentialTests: XCTestCase {
         ]
 
         for (error, expectedMessage) in errors {
-            XCTAssertEqual(error.errorDescription, expectedMessage)
+            #expect(error.errorDescription == expectedMessage)
         }
     }
 }

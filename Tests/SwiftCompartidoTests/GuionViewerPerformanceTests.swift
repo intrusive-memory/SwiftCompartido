@@ -6,7 +6,7 @@
 //  Measures parse + render + scroll performance on large screenplays.
 //
 
-import XCTest
+import Testing
 import SwiftUI
 import SwiftData
 @testable import SwiftCompartido
@@ -42,7 +42,7 @@ import AppKit
 ///   -only-testing:SwiftCompartidoTests/GuionViewerPerformanceTests
 /// ```
 @MainActor
-final class GuionViewerPerformanceTests: XCTestCase {
+struct GuionViewerPerformanceTests {
 
     // MARK: - Test Configuration
 
@@ -118,7 +118,7 @@ final class GuionViewerPerformanceTests: XCTestCase {
 
     // MARK: - Parse Performance Tests
 
-    func testParsePerformance_100Elements() throws {
+    @Test func testParsePerformance_100Elements() throws {
         let screenplay = generateLargeScreenplay(elementCount: 100)
 
         let metrics: [XCTMetric] = [XCTClockMetric(), XCTMemoryMetric()]
@@ -136,7 +136,7 @@ final class GuionViewerPerformanceTests: XCTestCase {
         }
     }
 
-    func testParsePerformance_500Elements() throws {
+    @Test func testParsePerformance_500Elements() throws {
         let screenplay = generateLargeScreenplay(elementCount: 500)
 
         let metrics: [XCTMetric] = [XCTClockMetric(), XCTMemoryMetric()]
@@ -154,7 +154,7 @@ final class GuionViewerPerformanceTests: XCTestCase {
         }
     }
 
-    func testParsePerformance_1000Elements() throws {
+    @Test func testParsePerformance_1000Elements() throws {
         let screenplay = generateLargeScreenplay(elementCount: 1000)
 
         let metrics: [XCTMetric] = [XCTClockMetric(), XCTMemoryMetric()]
@@ -172,7 +172,7 @@ final class GuionViewerPerformanceTests: XCTestCase {
         }
     }
 
-    func testParsePerformance_5000Elements() throws {
+    @Test func testParsePerformance_5000Elements() throws {
         let screenplay = generateLargeScreenplay(elementCount: 5000)
 
         let metrics: [XCTMetric] = [XCTClockMetric(), XCTMemoryMetric()]
@@ -192,7 +192,7 @@ final class GuionViewerPerformanceTests: XCTestCase {
 
     // MARK: - SwiftData Conversion Performance
 
-    func testSwiftDataConversion_100Elements() throws {
+    @Test func testSwiftDataConversion_100Elements() throws {
         let screenplay = generateLargeScreenplay(elementCount: 100)
         let config = ModelConfiguration(isStoredInMemoryOnly: true)
         let container = try ModelContainer(
@@ -217,7 +217,7 @@ final class GuionViewerPerformanceTests: XCTestCase {
         }
     }
 
-    func testSwiftDataConversion_1000Elements() throws {
+    @Test func testSwiftDataConversion_1000Elements() throws {
         let screenplay = generateLargeScreenplay(elementCount: 1000)
         let config = ModelConfiguration(isStoredInMemoryOnly: true)
         let container = try ModelContainer(
@@ -242,7 +242,7 @@ final class GuionViewerPerformanceTests: XCTestCase {
         }
     }
 
-    func testSwiftDataConversion_5000Elements() throws {
+    @Test func testSwiftDataConversion_5000Elements() throws {
         let screenplay = generateLargeScreenplay(elementCount: 5000)
         let config = ModelConfiguration(isStoredInMemoryOnly: true)
         let container = try ModelContainer(
@@ -270,7 +270,7 @@ final class GuionViewerPerformanceTests: XCTestCase {
 
     // MARK: - Element Access Performance
 
-    func testSortedElementsAccess_1000Elements() throws {
+    @Test func testSortedElementsAccess_1000Elements() throws {
         let screenplay = generateLargeScreenplay(elementCount: 1000)
         let config = ModelConfiguration(isStoredInMemoryOnly: true)
         let container = try ModelContainer(
@@ -287,7 +287,7 @@ final class GuionViewerPerformanceTests: XCTestCase {
         wait(for: [expectation], timeout: asyncTimeout)
 
         guard let doc = document else {
-            XCTFail("Failed to create document")
+            Issue.record("Failed to create document")
             return
         }
 
@@ -297,7 +297,7 @@ final class GuionViewerPerformanceTests: XCTestCase {
         }
     }
 
-    func testSortedElementsIteration_1000Elements() throws {
+    @Test func testSortedElementsIteration_1000Elements() throws {
         let screenplay = generateLargeScreenplay(elementCount: 1000)
         let config = ModelConfiguration(isStoredInMemoryOnly: true)
         let container = try ModelContainer(
@@ -314,7 +314,7 @@ final class GuionViewerPerformanceTests: XCTestCase {
         wait(for: [expectation], timeout: asyncTimeout)
 
         guard let doc = document else {
-            XCTFail("Failed to create document")
+            Issue.record("Failed to create document")
             return
         }
 
@@ -333,7 +333,7 @@ final class GuionViewerPerformanceTests: XCTestCase {
 
     // MARK: - Text Formatting Performance
 
-    func testFountainTextFormatting_1000Elements() throws {
+    @Test func testFountainTextFormatting_1000Elements() throws {
         let screenplay = generateLargeScreenplay(elementCount: 1000)
         let config = ModelConfiguration(isStoredInMemoryOnly: true)
         let container = try ModelContainer(
@@ -350,7 +350,7 @@ final class GuionViewerPerformanceTests: XCTestCase {
         wait(for: [expectation], timeout: asyncTimeout)
 
         guard let doc = document else {
-            XCTFail("Failed to create document")
+            Issue.record("Failed to create document")
             return
         }
 
@@ -367,7 +367,7 @@ final class GuionViewerPerformanceTests: XCTestCase {
 
     // MARK: - End-to-End Performance Tests
 
-    func testEndToEnd_ParseAndRender_1000Elements() async throws {
+    @Test func testEndToEnd_ParseAndRender_1000Elements() async throws {
         let screenplay = generateLargeScreenplay(elementCount: 1000)
 
         print("\n📊 PERFORMANCE BASELINE - 1000 Elements")
@@ -434,11 +434,11 @@ final class GuionViewerPerformanceTests: XCTestCase {
         )
 
         // Assert reasonable performance thresholds
-        XCTAssertGreaterThan(elements.count, 0, "Should have parsed elements")
-        XCTAssertLessThan(totalTime, 30.0, "Total time should be less than 30 seconds for 1000 elements")
+        #expect(elements.count > 0, "Should have parsed elements")
+        #expect(totalTime < 30.0, "Total time should be less than 30 seconds for 1000 elements")
     }
 
-    func testEndToEnd_ParseAndRender_5000Elements() async throws {
+    @Test func testEndToEnd_ParseAndRender_5000Elements() async throws {
         let screenplay = generateLargeScreenplay(elementCount: 5000)
 
         print("\n📊 PERFORMANCE BASELINE - 5000 Elements")
@@ -505,8 +505,8 @@ final class GuionViewerPerformanceTests: XCTestCase {
         )
 
         // Assert reasonable performance thresholds (more lenient for larger dataset)
-        XCTAssertGreaterThan(elements.count, 0, "Should have parsed elements")
-        XCTAssertLessThan(totalTime, 150.0, "Total time should be less than 150 seconds for 5000 elements")
+        #expect(elements.count > 0, "Should have parsed elements")
+        #expect(totalTime < 150.0, "Total time should be less than 150 seconds for 5000 elements")
     }
 
     // MARK: - Test Suite Lifecycle
@@ -525,7 +525,7 @@ final class GuionViewerPerformanceTests: XCTestCase {
 
     // MARK: - Memory Pressure Tests
 
-    func testMemoryFootprint_1000Elements() throws {
+    @Test func testMemoryFootprint_1000Elements() throws {
         let screenplay = generateLargeScreenplay(elementCount: 1000)
         let config = ModelConfiguration(isStoredInMemoryOnly: true)
         let container = try ModelContainer(

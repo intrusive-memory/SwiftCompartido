@@ -5,14 +5,14 @@
 //  Phase 5: Tests for GeneratedEmbeddingData and EmbeddingConfig
 //
 
-import XCTest
+import Testing
 @testable import SwiftCompartido
 
-final class GeneratedEmbeddingDataTests: XCTestCase {
+struct GeneratedEmbeddingDataTests {
 
     // MARK: - GeneratedEmbeddingData Initialization Tests
 
-    func testGeneratedEmbeddingDataInitialization() {
+    @Test func testGeneratedEmbeddingDataInitialization() {
         // GIVEN
         let vector: [Float] = [0.1, 0.2, 0.3, 0.4, 0.5]
         let model = "text-embedding-ada-002"
@@ -28,14 +28,14 @@ final class GeneratedEmbeddingDataTests: XCTestCase {
         )
 
         // THEN
-        XCTAssertEqual(embedding.embedding, vector)
-        XCTAssertEqual(embedding.dimensions, vector.count)
-        XCTAssertEqual(embedding.model, model)
-        XCTAssertEqual(embedding.inputText, inputText)
-        XCTAssertEqual(embedding.tokenCount, 2)
+        #expect(embedding.embedding == vector)
+        #expect(embedding.dimensions == vector.count)
+        #expect(embedding.model == model)
+        #expect(embedding.inputText == inputText)
+        #expect(embedding.tokenCount == 2)
     }
 
-    func testGeneratedEmbeddingDataWithOptionalParameters() {
+    @Test func testGeneratedEmbeddingDataWithOptionalParameters() {
         // WHEN
         let vector: [Float] = [0.1, 0.2, 0.3]
         let embedding = GeneratedEmbeddingData(
@@ -45,14 +45,14 @@ final class GeneratedEmbeddingDataTests: XCTestCase {
         )
 
         // THEN
-        XCTAssertEqual(embedding.embedding, vector)
-        XCTAssertEqual(embedding.dimensions, vector.count)
-        XCTAssertEqual(embedding.model, "test-model")
-        XCTAssertNil(embedding.inputText)
-        XCTAssertNil(embedding.tokenCount)
+        #expect(embedding.embedding == vector)
+        #expect(embedding.dimensions == vector.count)
+        #expect(embedding.model == "test-model")
+        #expect(embedding.inputText == nil)
+        #expect(embedding.tokenCount == nil)
     }
 
-    func testGeneratedEmbeddingDataEmptyVector() {
+    @Test func testGeneratedEmbeddingDataEmptyVector() {
         // WHEN
         let embedding = GeneratedEmbeddingData(
             embedding: [],
@@ -61,11 +61,11 @@ final class GeneratedEmbeddingDataTests: XCTestCase {
         )
 
         // THEN
-        XCTAssertTrue(embedding.embedding?.isEmpty ?? false)
-        XCTAssertEqual(embedding.dimensions, 0)
+        #expect(embedding.embedding?.isEmpty ?? false)
+        #expect(embedding.dimensions == 0)
     }
 
-    func testGeneratedEmbeddingDataLargeVector() {
+    @Test func testGeneratedEmbeddingDataLargeVector() {
         // GIVEN - Typical embedding dimensions (1536 for OpenAI ada-002)
         let vector = (0..<1536).map { _ in Float.random(in: -1...1) }
 
@@ -77,11 +77,11 @@ final class GeneratedEmbeddingDataTests: XCTestCase {
         )
 
         // THEN
-        XCTAssertEqual(embedding.embedding?.count, 1536)
-        XCTAssertEqual(embedding.dimensions, 1536)
+        #expect(embedding.embedding?.count == 1536)
+        #expect(embedding.dimensions == 1536)
     }
 
-    func testGeneratedEmbeddingDataWithNilEmbedding() {
+    @Test func testGeneratedEmbeddingDataWithNilEmbedding() {
         // WHEN
         let embedding = GeneratedEmbeddingData(
             embedding: nil,
@@ -90,14 +90,14 @@ final class GeneratedEmbeddingDataTests: XCTestCase {
         )
 
         // THEN
-        XCTAssertNil(embedding.embedding)
-        XCTAssertEqual(embedding.dimensions, 1536)
-        XCTAssertEqual(embedding.dataSize, 0)
+        #expect(embedding.embedding == nil)
+        #expect(embedding.dimensions == 1536)
+        #expect(embedding.dataSize == 0)
     }
 
     // MARK: - Serialization Tests
 
-    func testSerializeToBinary() throws {
+    @Test func testSerializeToBinary() throws {
         // GIVEN
         let vector: [Float] = [1.0, 2.0, 3.0, 4.0, 5.0]
         let embedding = GeneratedEmbeddingData(
@@ -110,12 +110,12 @@ final class GeneratedEmbeddingDataTests: XCTestCase {
         let binaryData = try embedding.serialize()
 
         // THEN
-        XCTAssertFalse(binaryData.isEmpty)
+        #expect(!binaryData.isEmpty)
         // Binary data should contain header + vector
-        XCTAssertGreaterThan(binaryData.count, vector.count * MemoryLayout<Float>.size)
+        #expect(binaryData.count > vector.count * MemoryLayout<Float>.size)
     }
 
-    func testSerializeNilEmbeddingThrows() {
+    @Test func testSerializeNilEmbeddingThrows() {
         // GIVEN
         let embedding = GeneratedEmbeddingData(
             embedding: nil,
@@ -124,10 +124,10 @@ final class GeneratedEmbeddingDataTests: XCTestCase {
         )
 
         // WHEN/THEN
-        XCTAssertThrowsError(try embedding.serialize())
+        do { _ = try embedding.serialize(); Issue.record("Expected error") } catch { /* Expected */ }
     }
 
-    func testDeserializeFromBinary() throws {
+    @Test func testDeserializeFromBinary() throws {
         // GIVEN
         let originalVector: [Float] = [1.0, 2.5, 3.75, 4.25, 5.125]
         let original = GeneratedEmbeddingData(
@@ -143,19 +143,19 @@ final class GeneratedEmbeddingDataTests: XCTestCase {
         let reconstructed = try GeneratedEmbeddingData.deserialize(from: binaryData, format: .binary)
 
         // THEN
-        XCTAssertEqual(reconstructed.embedding?.count, originalVector.count)
-        XCTAssertEqual(reconstructed.dimensions, originalVector.count)
-        XCTAssertEqual(reconstructed.model, "test-model")
+        #expect(reconstructed.embedding?.count == originalVector.count)
+        #expect(reconstructed.dimensions == originalVector.count)
+        #expect(reconstructed.model == "test-model")
         if let reVector = reconstructed.embedding {
             for (index, value) in reVector.enumerated() {
-                XCTAssertEqual(value, originalVector[index], accuracy: 0.0001)
+                #expect(value == originalVector[index], accuracy: 0.0001)
             }
         } else {
-            XCTFail("Reconstructed embedding should not be nil")
+            Issue.record("Reconstructed embedding should not be nil")
         }
     }
 
-    func testBinaryFormatRoundTrip() throws {
+    @Test func testBinaryFormatRoundTrip() throws {
         // GIVEN
         let originalVector: [Float] = [-1.5, 0.0, 1.5, 2.25, -3.75, 4.125]
         let original = GeneratedEmbeddingData(
@@ -169,16 +169,16 @@ final class GeneratedEmbeddingDataTests: XCTestCase {
         let reconstructed = try GeneratedEmbeddingData.deserialize(from: binaryData, format: .binary)
 
         // THEN
-        XCTAssertEqual(reconstructed.embedding?.count, originalVector.count)
+        #expect(reconstructed.embedding?.count == originalVector.count)
         if let reVector = reconstructed.embedding {
             for (index, value) in reVector.enumerated() {
-                XCTAssertEqual(value, originalVector[index], accuracy: 0.0001,
+                #expect(value == originalVector[index], accuracy: 0.0001,
                               "Value at index \(index) should match")
             }
         }
     }
 
-    func testSerializeLargeVector() throws {
+    @Test func testSerializeLargeVector() throws {
         // GIVEN - Large vector typical of embeddings
         let originalVector = (0..<1536).map { Float($0) / 1536.0 }
         let embedding = GeneratedEmbeddingData(
@@ -192,12 +192,12 @@ final class GeneratedEmbeddingDataTests: XCTestCase {
 
         // THEN
         // Binary data should include header + vector data
-        XCTAssertGreaterThan(binaryData.count, originalVector.count * 4)
+        #expect(binaryData.count > originalVector.count * 4)
     }
 
     // MARK: - SerializableTypedData Conformance Tests
 
-    func testPreferredFormat() {
+    @Test func testPreferredFormat() {
         // GIVEN
         let embedding = GeneratedEmbeddingData(
             embedding: [0.1, 0.2],
@@ -206,12 +206,12 @@ final class GeneratedEmbeddingDataTests: XCTestCase {
         )
 
         // THEN
-        XCTAssertEqual(embedding.preferredFormat, .binary)
+        #expect(embedding.preferredFormat == .binary)
     }
 
     // MARK: - Codable Tests
 
-    func testGeneratedEmbeddingDataCodable() throws {
+    @Test func testGeneratedEmbeddingDataCodable() throws {
         // GIVEN
         let vector: [Float] = [0.1, 0.2, 0.3, 0.4, 0.5]
         let original = GeneratedEmbeddingData(
@@ -230,14 +230,14 @@ final class GeneratedEmbeddingDataTests: XCTestCase {
         let decoder = JSONDecoder()
         let decoded = try decoder.decode(GeneratedEmbeddingData.self, from: data)
 
-        XCTAssertEqual(decoded.embedding, original.embedding)
-        XCTAssertEqual(decoded.dimensions, original.dimensions)
-        XCTAssertEqual(decoded.model, original.model)
-        XCTAssertEqual(decoded.inputText, original.inputText)
-        XCTAssertEqual(decoded.tokenCount, original.tokenCount)
+        #expect(decoded.embedding == original.embedding)
+        #expect(decoded.dimensions == original.dimensions)
+        #expect(decoded.model == original.model)
+        #expect(decoded.inputText == original.inputText)
+        #expect(decoded.tokenCount == original.tokenCount)
     }
 
-    func testGeneratedEmbeddingDataCodableWithNilValues() throws {
+    @Test func testGeneratedEmbeddingDataCodableWithNilValues() throws {
         // GIVEN
         let original = GeneratedEmbeddingData(
             embedding: [0.1, 0.2],
@@ -252,14 +252,14 @@ final class GeneratedEmbeddingDataTests: XCTestCase {
         let decoded = try decoder.decode(GeneratedEmbeddingData.self, from: data)
 
         // THEN
-        XCTAssertEqual(decoded.embedding, original.embedding)
-        XCTAssertNil(decoded.inputText)
-        XCTAssertNil(decoded.tokenCount)
+        #expect(decoded.embedding == original.embedding)
+        #expect(decoded.inputText == nil)
+        #expect(decoded.tokenCount == nil)
     }
 
     // MARK: - Data Size Tests
 
-    func testDataSize() {
+    @Test func testDataSize() {
         // GIVEN
         let vector: [Float] = [1.0, 2.0, 3.0, 4.0, 5.0]
         let embedding = GeneratedEmbeddingData(
@@ -272,10 +272,10 @@ final class GeneratedEmbeddingDataTests: XCTestCase {
         let dataSize = embedding.dataSize
 
         // THEN
-        XCTAssertEqual(dataSize, vector.count * MemoryLayout<Float>.size)
+        #expect(dataSize == vector.count * MemoryLayout<Float>.size)
     }
 
-    func testDataSizeWithNilEmbedding() {
+    @Test func testDataSizeWithNilEmbedding() {
         // GIVEN
         let embedding = GeneratedEmbeddingData(
             embedding: nil,
@@ -287,12 +287,12 @@ final class GeneratedEmbeddingDataTests: XCTestCase {
         let dataSize = embedding.dataSize
 
         // THEN
-        XCTAssertEqual(dataSize, 0)
+        #expect(dataSize == 0)
     }
 
     // MARK: - EmbeddingConfig Tests
 
-    func testEmbeddingConfigInitialization() {
+    @Test func testEmbeddingConfigInitialization() {
         // WHEN
         let config = EmbeddingConfig(
             model: .textEmbedding3Large,
@@ -300,54 +300,54 @@ final class GeneratedEmbeddingDataTests: XCTestCase {
         )
 
         // THEN
-        XCTAssertEqual(config.model, .textEmbedding3Large)
-        XCTAssertEqual(config.dimensions, 3072)
+        #expect(config.model == .textEmbedding3Large)
+        #expect(config.dimensions == 3072)
     }
 
-    func testEmbeddingConfigDefaults() {
+    @Test func testEmbeddingConfigDefaults() {
         // WHEN
         let config = EmbeddingConfig()
 
         // THEN
-        XCTAssertEqual(config.model, .textEmbedding3Small)
-        XCTAssertNil(config.dimensions, "Dimensions should be nil by default (uses model default)")
+        #expect(config.model == .textEmbedding3Small)
+        #expect(config.dimensions, "Dimensions should be nil by default (uses model default == nil)")
     }
 
-    func testEmbeddingConfigDefault() {
+    @Test func testEmbeddingConfigDefault() {
         // WHEN
         let config = EmbeddingConfig.default
 
         // THEN
-        XCTAssertEqual(config.model, .textEmbedding3Small)
-        XCTAssertNil(config.dimensions)
+        #expect(config.model == .textEmbedding3Small)
+        #expect(config.dimensions == nil)
     }
 
-    func testEmbeddingConfigHighQuality() {
+    @Test func testEmbeddingConfigHighQuality() {
         // WHEN
         let config = EmbeddingConfig.highQuality
 
         // THEN
-        XCTAssertEqual(config.model, .textEmbedding3Large)
+        #expect(config.model == .textEmbedding3Large)
     }
 
-    func testEmbeddingConfigPerformance() {
+    @Test func testEmbeddingConfigPerformance() {
         // WHEN
         let config = EmbeddingConfig.performance
 
         // THEN
-        XCTAssertEqual(config.model, .textEmbedding3Small)
-        XCTAssertEqual(config.dimensions, 512, "Performance should use reduced dimensions")
+        #expect(config.model == .textEmbedding3Small)
+        #expect(config.dimensions == 512, "Performance should use reduced dimensions")
     }
 
-    func testEmbeddingConfigLegacy() {
+    @Test func testEmbeddingConfigLegacy() {
         // WHEN
         let config = EmbeddingConfig.legacy
 
         // THEN
-        XCTAssertEqual(config.model, .textEmbeddingAda002)
+        #expect(config.model == .textEmbeddingAda002)
     }
 
-    func testEmbeddingConfigCodable() throws {
+    @Test func testEmbeddingConfigCodable() throws {
         // GIVEN
         let original = EmbeddingConfig(
             model: .textEmbedding3Large,
@@ -361,34 +361,34 @@ final class GeneratedEmbeddingDataTests: XCTestCase {
         let decoded = try decoder.decode(EmbeddingConfig.self, from: data)
 
         // THEN
-        XCTAssertEqual(decoded.model, original.model)
-        XCTAssertEqual(decoded.dimensions, original.dimensions)
+        #expect(decoded.model == original.model)
+        #expect(decoded.dimensions == original.dimensions)
     }
 
-    func testEmbeddingConfigModelDisplayNames() {
+    @Test func testEmbeddingConfigModelDisplayNames() {
         // THEN
-        XCTAssertEqual(EmbeddingConfig.Model.textEmbedding3Small.displayName, "Text Embedding 3 Small")
-        XCTAssertEqual(EmbeddingConfig.Model.textEmbedding3Large.displayName, "Text Embedding 3 Large")
-        XCTAssertEqual(EmbeddingConfig.Model.textEmbeddingAda002.displayName, "Ada 002 (Legacy)")
+        #expect(EmbeddingConfig.Model.textEmbedding3Small.displayName == "Text Embedding 3 Small")
+        #expect(EmbeddingConfig.Model.textEmbedding3Large.displayName == "Text Embedding 3 Large")
+        #expect(EmbeddingConfig.Model.textEmbeddingAda002.displayName == "Ada 002 (Legacy)")
     }
 
-    func testEmbeddingConfigModelDefaultDimensions() {
+    @Test func testEmbeddingConfigModelDefaultDimensions() {
         // THEN
-        XCTAssertEqual(EmbeddingConfig.Model.textEmbedding3Small.defaultDimensions, 1536)
-        XCTAssertEqual(EmbeddingConfig.Model.textEmbedding3Large.defaultDimensions, 3072)
-        XCTAssertEqual(EmbeddingConfig.Model.textEmbeddingAda002.defaultDimensions, 1536)
+        #expect(EmbeddingConfig.Model.textEmbedding3Small.defaultDimensions == 1536)
+        #expect(EmbeddingConfig.Model.textEmbedding3Large.defaultDimensions == 3072)
+        #expect(EmbeddingConfig.Model.textEmbeddingAda002.defaultDimensions == 1536)
     }
 
-    func testEmbeddingConfigModelSupportsCustomDimensions() {
+    @Test func testEmbeddingConfigModelSupportsCustomDimensions() {
         // THEN
-        XCTAssertTrue(EmbeddingConfig.Model.textEmbedding3Small.supportsCustomDimensions)
-        XCTAssertTrue(EmbeddingConfig.Model.textEmbedding3Large.supportsCustomDimensions)
-        XCTAssertFalse(EmbeddingConfig.Model.textEmbeddingAda002.supportsCustomDimensions)
+        #expect(EmbeddingConfig.Model.textEmbedding3Small.supportsCustomDimensions)
+        #expect(EmbeddingConfig.Model.textEmbedding3Large.supportsCustomDimensions)
+        #expect(!EmbeddingConfig.Model.textEmbeddingAda002.supportsCustomDimensions)
     }
 
     // MARK: - Edge Cases
 
-    func testGeneratedEmbeddingDataWithNegativeValues() {
+    @Test func testGeneratedEmbeddingDataWithNegativeValues() {
         // GIVEN
         let vector: [Float] = [-1.0, -0.5, 0.0, 0.5, 1.0]
         let embedding = GeneratedEmbeddingData(
@@ -398,11 +398,11 @@ final class GeneratedEmbeddingDataTests: XCTestCase {
         )
 
         // THEN
-        XCTAssertEqual(embedding.embedding, vector)
-        XCTAssertTrue(embedding.embedding?.contains { $0 < 0 } ?? false)
+        #expect(embedding.embedding == vector)
+        #expect(embedding.embedding?.contains { $0 < 0 } ?? false)
     }
 
-    func testGeneratedEmbeddingDataWithExtremeValues() {
+    @Test func testGeneratedEmbeddingDataWithExtremeValues() {
         // GIVEN
         let vector: [Float] = [Float.greatestFiniteMagnitude, Float.leastNormalMagnitude, -Float.greatestFiniteMagnitude]
         let embedding = GeneratedEmbeddingData(
@@ -412,10 +412,10 @@ final class GeneratedEmbeddingDataTests: XCTestCase {
         )
 
         // THEN
-        XCTAssertEqual(embedding.embedding?.count, 3)
+        #expect(embedding.embedding?.count == 3)
     }
 
-    func testSerializePreservesFloatPrecision() throws {
+    @Test func testSerializePreservesFloatPrecision() throws {
         // GIVEN - Test precision preservation
         let originalVector: [Float] = [1.123456, 2.234567, 3.345678, 4.456789, 5.567890]
         let original = GeneratedEmbeddingData(
@@ -431,14 +431,14 @@ final class GeneratedEmbeddingDataTests: XCTestCase {
         // THEN - Should preserve Float precision (not full decimal precision)
         if let reVector = reconstructed.embedding {
             for (index, value) in reVector.enumerated() {
-                XCTAssertEqual(value, originalVector[index], accuracy: 0.000001)
+                #expect(value == originalVector[index], accuracy: 0.000001)
             }
         } else {
-            XCTFail("Reconstructed embedding should not be nil")
+            Issue.record("Reconstructed embedding should not be nil")
         }
     }
 
-    func testInputTextTruncation() {
+    @Test func testInputTextTruncation() {
         // GIVEN - Input text longer than 1000 characters
         let longText = String(repeating: "a", count: 1500)
         let embedding = GeneratedEmbeddingData(
@@ -449,12 +449,12 @@ final class GeneratedEmbeddingDataTests: XCTestCase {
         )
 
         // THEN - Should be truncated to 1000 characters + "..."
-        XCTAssertNotNil(embedding.inputText)
-        XCTAssertLessThanOrEqual(embedding.inputText?.count ?? 0, 1003)
-        XCTAssertTrue(embedding.inputText?.hasSuffix("...") ?? false)
+        #expect(embedding.inputText != nil)
+        #expect(embedding.inputText?.count ?? 0 <= 1003)
+        #expect(embedding.inputText?.hasSuffix("...") ?? false)
     }
 
-    func testBatchIndex() {
+    @Test func testBatchIndex() {
         // GIVEN
         let embedding = GeneratedEmbeddingData(
             embedding: [0.1, 0.2],
@@ -466,6 +466,6 @@ final class GeneratedEmbeddingDataTests: XCTestCase {
         )
 
         // THEN
-        XCTAssertEqual(embedding.index, 5)
+        #expect(embedding.index == 5)
     }
 }
