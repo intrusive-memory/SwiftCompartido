@@ -648,12 +648,18 @@ extension GuionParsedElementCollection {
 
         // Try document-specific file first
         let specificURL = directory.appendingPathComponent("\(basename)-custom-pages.json")
+        #if DEBUG
+        print("🔍 Looking for custom pages at: \(specificURL.path(percentEncoded: false))")
+        #endif
         if let pages = tryLoadCustomPagesJSON(from: specificURL) {
             return pages
         }
 
         // Fall back to shared file
         let sharedURL = directory.appendingPathComponent("custom-pages.json")
+        #if DEBUG
+        print("🔍 Looking for shared custom pages at: \(sharedURL.path(percentEncoded: false))")
+        #endif
         if let pages = tryLoadCustomPagesJSON(from: sharedURL) {
             return pages
         }
@@ -663,16 +669,20 @@ extension GuionParsedElementCollection {
 
     /// Try to load custom pages from a JSON file
     private static func tryLoadCustomPagesJSON(from url: URL) -> [CustomPageContainer]? {
-        guard FileManager.default.fileExists(atPath: url.path) else {
+        // Use path(percentEncoded:) for better compatibility
+        let filePath = url.path(percentEncoded: false)
+        guard FileManager.default.fileExists(atPath: filePath) else {
             return nil
         }
 
         do {
             let data = try Data(contentsOf: url)
             let jsonArray = try JSONSerialization.jsonObject(with: data) as? [[String: Any]] ?? []
-            return try jsonArray.compactMap { try CustomPageContainer(from: $0) }
+            let containers = try jsonArray.compactMap { try CustomPageContainer(from: $0) }
+            return containers.isEmpty ? nil : containers
         } catch {
-            print("Warning: Failed to load \(url.lastPathComponent): \(error)")
+            // Log error for debugging - this should be visible in CI logs
+            print("⚠️ CustomPages load error for \(url.lastPathComponent): \(error.localizedDescription)")
             return nil
         }
     }
