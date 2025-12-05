@@ -5,21 +5,20 @@
 //  Phase 4: Export Functionality Separation Tests
 //
 
-import XCTest
+import Foundation
+import Testing
 import SwiftData
 import UniformTypeIdentifiers
 @testable import SwiftCompartido
 
 @MainActor
-final class DocumentExportTests: XCTestCase {
+struct DocumentExportTests {
 
     var modelContext: ModelContext!
     var modelContainer: ModelContainer!
     var fixturesPath: URL!
 
-    override func setUp() async throws {
-        try await super.setUp()
-
+    init() throws {
         // Create in-memory model context
         let schema = Schema([
             GuionDocumentModel.self,
@@ -81,17 +80,9 @@ final class DocumentExportTests: XCTestCase {
         // Return original path even if it doesn't exist (let test handle the error)
         return url
     }
+// MARK: - GATE 4.1: Export to Fountain
 
-    override func tearDown() async throws {
-        modelContext = nil
-        modelContainer = nil
-        fixturesPath = nil
-        try await super.tearDown()
-    }
-
-    // MARK: - GATE 4.1: Export to Fountain
-
-    func testExportToFountain() async throws {
+    @Test func testExportToFountain() async throws {
         // Create a test document
         let document = createTestDocument()
         modelContext.insert(document)
@@ -101,17 +92,17 @@ final class DocumentExportTests: XCTestCase {
         let fountainText = script.stringFromDocument()
 
         // Verify output is valid Fountain
-        XCTAssertFalse(fountainText.isEmpty, "Fountain output should not be empty")
-        XCTAssertTrue(fountainText.contains("INT. TEST LOCATION - DAY"), "Should contain scene heading")
-        XCTAssertTrue(fountainText.contains("Test action."), "Should contain action")
-        XCTAssertTrue(fountainText.contains("JOHN"), "Should contain character")
-        XCTAssertTrue(fountainText.contains("Hello, world!"), "Should contain dialogue")
+        #expect(!fountainText.isEmpty, "Fountain output should not be empty")
+        #expect(fountainText.contains("INT. TEST LOCATION - DAY"), "Should contain scene heading")
+        #expect(fountainText.contains("Test action."), "Should contain action")
+        #expect(fountainText.contains("JOHN"), "Should contain character")
+        #expect(fountainText.contains("Hello, world!"), "Should contain dialogue")
 
         // Verify original document is unchanged
-        XCTAssertEqual(document.elements.count, 4, "Original document should be unchanged")
+        #expect(document.elements.count == 4, "Original document should be unchanged")
     }
 
-    func testExportToFountainWithTitlePage() async throws {
+    @Test func testExportToFountainWithTitlePage() async throws {
         // Create document with title page
         let document = GuionDocumentModel(filename: "test-with-title.guion")
 
@@ -137,13 +128,13 @@ final class DocumentExportTests: XCTestCase {
         let fountainText = script.stringFromDocument()
 
         // Verify title page is included
-        XCTAssertTrue(fountainText.contains("Title:"), "Should contain title key")
-        XCTAssertTrue(fountainText.contains("Test Screenplay"), "Should contain title value")
-        XCTAssertTrue(fountainText.contains("Author:"), "Should contain author key")
-        XCTAssertTrue(fountainText.contains("John Doe"), "Should contain author value")
+        #expect(fountainText.contains("Title:"), "Should contain title key")
+        #expect(fountainText.contains("Test Screenplay"), "Should contain title value")
+        #expect(fountainText.contains("Author:"), "Should contain author key")
+        #expect(fountainText.contains("John Doe"), "Should contain author value")
     }
 
-    func testExportEmptyDocument() async throws {
+    @Test func testExportEmptyDocument() async throws {
         // Create empty document
         let document = GuionDocumentModel(filename: "empty.guion")
         modelContext.insert(document)
@@ -153,10 +144,10 @@ final class DocumentExportTests: XCTestCase {
         let fountainText = script.stringFromDocument()
 
         // Should not crash, may be empty or have minimal content
-        XCTAssertNotNil(fountainText, "Should return a string (even if empty)")
+        #expect(fountainText != nil, "Should return a string (even if empty)")
     }
 
-    func testExportPreservesElementOrder() async throws {
+    @Test func testExportPreservesElementOrder() async throws {
         // Create document with specific order
         let document = GuionDocumentModel(filename: "order-test.guion")
 
@@ -186,19 +177,19 @@ final class DocumentExportTests: XCTestCase {
         let secondRange = fountainText.range(of: "LOCATION 2")
         let janeRange = fountainText.range(of: "JANE")
 
-        XCTAssertNotNil(firstRange, "Should contain first scene")
-        XCTAssertNotNil(secondRange, "Should contain second scene")
-        XCTAssertNotNil(janeRange, "Should contain character")
+        #expect(firstRange != nil, "Should contain first scene")
+        #expect(secondRange != nil, "Should contain second scene")
+        #expect(janeRange != nil, "Should contain character")
 
         if let first = firstRange, let second = secondRange, let jane = janeRange {
-            XCTAssertLessThan(first.lowerBound, second.lowerBound, "First scene should come before second")
-            XCTAssertLessThan(second.lowerBound, jane.lowerBound, "Second scene should come before character")
+            #expect(first.lowerBound < second.lowerBound, "First scene should come before second")
+            #expect(second.lowerBound < jane.lowerBound, "Second scene should come before character")
         }
     }
 
     // MARK: - GATE 4.2: Export to FDX
 
-    func testExportToFDX() async throws {
+    @Test func testExportToFDX() async throws {
         // Create a test document
         let document = createTestDocument()
         modelContext.insert(document)
@@ -207,24 +198,24 @@ final class DocumentExportTests: XCTestCase {
         let fdxData = GuionDocumentParserSwiftData.toFDXData(from: document)
 
         // Verify output is valid XML
-        XCTAssertFalse(fdxData.isEmpty, "FDX output should not be empty")
+        #expect(!fdxData.isEmpty, "FDX output should not be empty")
 
         let fdxString = String(data: fdxData, encoding: .utf8)
-        XCTAssertNotNil(fdxString, "FDX data should be valid UTF-8")
+        #expect(fdxString != nil, "FDX data should be valid UTF-8")
 
         if let xml = fdxString {
-            XCTAssertTrue(xml.contains("<?xml"), "Should contain XML declaration")
-            XCTAssertTrue(xml.contains("<FinalDraft"), "Should contain FinalDraft root element")
-            XCTAssertTrue(xml.contains("INT. TEST LOCATION - DAY"), "Should contain scene heading")
-            XCTAssertTrue(xml.contains("JOHN"), "Should contain character")
-            XCTAssertTrue(xml.contains("Hello, world!"), "Should contain dialogue")
+            #expect(xml.contains("<?xml"), "Should contain XML declaration")
+            #expect(xml.contains("<FinalDraft"), "Should contain FinalDraft root element")
+            #expect(xml.contains("INT. TEST LOCATION - DAY"), "Should contain scene heading")
+            #expect(xml.contains("JOHN"), "Should contain character")
+            #expect(xml.contains("Hello, world!"), "Should contain dialogue")
         }
 
         // Verify original document is unchanged
-        XCTAssertEqual(document.elements.count, 4, "Original document should be unchanged")
+        #expect(document.elements.count == 4, "Original document should be unchanged")
     }
 
-    func testExportToFDXWithSpecialCharacters() async throws {
+    @Test func testExportToFDXWithSpecialCharacters() async throws {
         // Create document with special characters
         let document = GuionDocumentModel(filename: "special.guion")
 
@@ -246,18 +237,18 @@ final class DocumentExportTests: XCTestCase {
         let fdxData = GuionDocumentParserSwiftData.toFDXData(from: document)
         let fdxString = String(data: fdxData, encoding: .utf8)
 
-        XCTAssertNotNil(fdxString, "Should handle special characters")
+        #expect(fdxString != nil, "Should handle special characters")
 
         // XML entities should be properly escaped
         if let xml = fdxString {
             // The exact escaping depends on implementation, but it should be valid XML
-            XCTAssertTrue(xml.contains("<?xml"), "Should be valid XML")
+            #expect(xml.contains("<?xml"), "Should be valid XML")
         }
     }
 
     // MARK: - GATE 4.3: Export filename defaults
 
-    func testExportFilenameDefaults() {
+    @Test func testExportFilenameDefaults() {
         // Test filename transformation for export
         let testCases: [(input: String, expectedFountain: String, expectedFDX: String)] = [
             ("MyScript.guion", "MyScript.fountain", "MyScript.fdx"),
@@ -272,32 +263,32 @@ final class DocumentExportTests: XCTestCase {
             let fountainName = "\(baseName).fountain"
             let fdxName = "\(baseName).fdx"
 
-            XCTAssertEqual(fountainName, expectedFountain, "Fountain filename should match")
-            XCTAssertEqual(fdxName, expectedFDX, "FDX filename should match")
+            #expect(fountainName == expectedFountain, "Fountain filename should match")
+            #expect(fdxName == expectedFDX, "FDX filename should match")
         }
     }
 
-    func testExportFilenameWithoutExtension() {
+    @Test func testExportFilenameWithoutExtension() {
         // Test when document has no extension
         let input = "Untitled"
         let baseName = (input as NSString).deletingPathExtension
 
-        XCTAssertEqual("\(baseName).fountain", "Untitled.fountain")
-        XCTAssertEqual("\(baseName).fdx", "Untitled.fdx")
+        #expect("\(baseName).fountain" == "Untitled.fountain")
+        #expect("\(baseName).fdx" == "Untitled.fdx")
     }
 
-    func testExportFilenameWithMultipleDots() {
+    @Test func testExportFilenameWithMultipleDots() {
         // Test filename with multiple dots
         let input = "my.script.v2.guion"
         let baseName = (input as NSString).deletingPathExtension
 
-        XCTAssertEqual("\(baseName).fountain", "my.script.v2.fountain")
-        XCTAssertEqual("\(baseName).fdx", "my.script.v2.fdx")
+        #expect("\(baseName).fountain" == "my.script.v2.fountain")
+        #expect("\(baseName).fdx" == "my.script.v2.fdx")
     }
 
     // MARK: - GATE 4.4: Round-trip import/export fidelity
 
-    func testImportExportFidelity() async throws {
+    @Test func testImportExportFidelity() async throws {
         // Test if we have BigFish.fountain available
         let bigFishURL = fixtureURL(for: "BigFish.fountain")
 
@@ -334,16 +325,16 @@ final class DocumentExportTests: XCTestCase {
 
         // Verify element count is preserved (some whitespace variations are acceptable)
         let countDifference = abs(reImported.elements.count - originalElementCount)
-        XCTAssertLessThan(countDifference, 5, "Element count should be approximately preserved (within 5)")
+        #expect(countDifference < 5, "Element count should be approximately preserved (within 5)")
 
         // Verify title page is preserved
-        XCTAssertEqual(reImported.titlePage.count, originalTitlePageCount, "Title page entries should be preserved")
+        #expect(reImported.titlePage.count == originalTitlePageCount, "Title page entries should be preserved")
 
         // Cleanup
         try? FileManager.default.removeItem(at: tempURL)
     }
 
-    func testSyntheticImportExportFidelity() async throws {
+    @Test func testSyntheticImportExportFidelity() async throws {
         // Create a synthetic document
         let original = createCompleteTestDocument()
         modelContext.insert(original)
@@ -368,19 +359,19 @@ final class DocumentExportTests: XCTestCase {
         )
 
         // Verify fidelity
-        XCTAssertEqual(reImported.elements.count, originalElementCount, "Element count should match")
-        XCTAssertEqual(reImported.titlePage.count, originalTitlePageCount, "Title page count should match")
+        #expect(reImported.elements.count == originalElementCount, "Element count should match")
+        #expect(reImported.titlePage.count == originalTitlePageCount, "Title page count should match")
 
         // Verify specific elements
         let originalScenes = original.elements.filter { $0.elementType == .sceneHeading }
         let reImportedScenes = reImported.elements.filter { $0.elementType == .sceneHeading }
-        XCTAssertEqual(reImportedScenes.count, originalScenes.count, "Scene count should match")
+        #expect(reImportedScenes.count == originalScenes.count, "Scene count should match")
 
         // Cleanup
         try? FileManager.default.removeItem(at: tempURL)
     }
 
-    func testFDXImportExportFidelity() async throws {
+    @Test func testFDXImportExportFidelity() async throws {
         // Create a test document
         let original = createCompleteTestDocument()
         modelContext.insert(original)
@@ -405,7 +396,7 @@ final class DocumentExportTests: XCTestCase {
         // Verify element count is approximately preserved
         // Note: FDX conversion may have slight variations
         let countDifference = abs(reImported.elements.count - originalElementCount)
-        XCTAssertLessThan(countDifference, 10, "Element count should be approximately preserved")
+        #expect(countDifference < 10, "Element count should be approximately preserved")
 
         // Cleanup
         try? FileManager.default.removeItem(at: tempURL)
@@ -413,7 +404,7 @@ final class DocumentExportTests: XCTestCase {
 
     // MARK: - Additional Coverage Tests
 
-    func testExportWithSceneNumbers() async throws {
+    @Test func testExportWithSceneNumbers() async throws {
         // Create document with scene numbers
         let document = GuionDocumentModel(filename: "numbered.guion")
 
@@ -435,11 +426,11 @@ final class DocumentExportTests: XCTestCase {
 
         // Verify scene numbers are included
         for i in 1...5 {
-            XCTAssertTrue(fountainText.contains("#\(i)#"), "Should contain scene number \(i)")
+            #expect(fountainText.contains("#\(i)#"), "Should contain scene number \(i)")
         }
     }
 
-    func testExportWithTransitions() async throws {
+    @Test func testExportWithTransitions() async throws {
         // Create document with transitions
         let document = GuionDocumentModel(filename: "transitions.guion")
 
@@ -465,11 +456,11 @@ final class DocumentExportTests: XCTestCase {
         let fountainText = script.stringFromDocument()
 
         // Verify transitions are formatted correctly
-        XCTAssertTrue(fountainText.contains("CUT TO:"), "Should contain CUT TO transition")
-        XCTAssertTrue(fountainText.contains("FADE OUT"), "Should contain FADE OUT transition")
+        #expect(fountainText.contains("CUT TO:"), "Should contain CUT TO transition")
+        #expect(fountainText.contains("FADE OUT"), "Should contain FADE OUT transition")
     }
 
-    func testExportWithCenteredText() async throws {
+    @Test func testExportWithCenteredText() async throws {
         // Create document with centered elements
         let document = GuionDocumentModel(filename: "centered.guion")
 
@@ -488,11 +479,11 @@ final class DocumentExportTests: XCTestCase {
         let fountainText = script.stringFromDocument()
 
         // Centered text in Fountain uses > <
-        XCTAssertTrue(fountainText.contains(">") && fountainText.contains("<") || fountainText.contains("THE END"),
+        #expect(fountainText.contains(">") && fountainText.contains("<") || fountainText.contains("THE END"),
                       "Should contain centered text markers or the text itself")
     }
 
-    func testExportPerformance() async throws {
+    @Test func testExportPerformance() async throws {
         // Create large document
         let document = GuionDocumentModel(filename: "large-export.guion")
 

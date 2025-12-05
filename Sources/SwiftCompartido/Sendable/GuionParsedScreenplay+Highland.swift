@@ -75,15 +75,15 @@ extension GuionParsedElementCollection {
         // Parse as Fountain (Highland's .md files are actually Fountain format)
         let fountainParser = try FountainParser(file: contentURL.path)
 
-        // Load custom pages from resources/custom-pages.json if present
-        let customPages = Self.loadCustomPages(from: textBundleURL)
+        // DISABLED: Custom pages loading is temporarily disabled
+        // let customPages = Self.loadCustomPages(from: textBundleURL)
 
         self.init(
             filename: url.lastPathComponent,
             elements: fountainParser.elements,
             titlePage: fountainParser.titlePage,
             suppressSceneNumbers: false,
-            customPages: customPages
+            customPages: [] // DISABLED
         )
     }
 
@@ -117,7 +117,6 @@ extension GuionParsedElementCollection {
     ///   - destinationURL: The directory where the Highland file should be created
     ///   - name: The base name for the Highland file (without extension)
     ///   - includeResources: Whether to include derived metadata files (characters.json and outline.json).
-    ///                       User-authored content like custom-pages.json is always written regardless of this setting.
     /// - Returns: The URL of the created Highland file
     /// - Throws: Writing errors
     @discardableResult

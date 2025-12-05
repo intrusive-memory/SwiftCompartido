@@ -128,8 +128,7 @@ public final class GuionParsedElementCollection {
         // Detect markdown files
         if ext == "md" || ext == "markdown" {
             let contents = try String(contentsOfFile: path, encoding: .utf8)
-            let (elements, titlePage) = try MarkdownParser.parse(contents)
-            let customPages = Self.loadCustomPagesForFile(url: url)
+            let (elements, titlePage, customPages) = try MarkdownParser.parse(contents)
             self.init(
                 filename: filename,
                 elements: elements,
@@ -157,13 +156,13 @@ public final class GuionParsedElementCollection {
         } else {
             // Default to Fountain parser
             let fountainParser = try FountainParser(file: path)
-            let customPages = Self.loadCustomPagesForFile(url: url)
+            // REMOVED: Automatic sidecar loading - customPages must be loaded manually if needed
             self.init(
                 filename: filename,
                 elements: fountainParser.elements,
                 titlePage: fountainParser.titlePage,
                 suppressSceneNumbers: false,
-                customPages: customPages
+                customPages: []
             )
         }
     }
@@ -242,12 +241,13 @@ public final class GuionParsedElementCollection {
         case "md", "markdown":
             // Parse markdown files
             let contents = try String(contentsOfFile: path, encoding: .utf8)
-            let (elements, titlePage) = try MarkdownParser.parse(contents)
+            let (elements, titlePage, customPages) = try MarkdownParser.parse(contents)
             self.init(
                 filename: filename,
                 elements: elements,
                 titlePage: titlePage,
-                suppressSceneNumbers: false
+                suppressSceneNumbers: false,
+                customPages: customPages
             )
 
         case "highland":
@@ -427,17 +427,14 @@ public final class GuionParsedElementCollection {
         let document = FountainWriter.document(from: self)
         try document.write(toFile: path, atomically: true, encoding: .utf8)
 
-        // Write custom pages sidecar if present
-        let url = URL(fileURLWithPath: path)
-        try? writeCustomPagesSidecar(for: url)
+        // REMOVED: Automatic sidecar writing - write customPages manually if needed
     }
 
     public func write(to url: URL) throws {
         let document = FountainWriter.document(from: self)
         try document.write(to: url, atomically: true, encoding: .utf8)
 
-        // Write custom pages sidecar if present
-        try? writeCustomPagesSidecar(for: url)
+        // REMOVED: Automatic sidecar writing - write customPages manually if needed
     }
 
     /// Get guión elements from this screenplay
@@ -643,36 +640,52 @@ extension GuionParsedElementCollection {
     /// - Parameter url: URL to the screenplay file
     /// - Returns: Array of CustomPageContainer objects
     static func loadCustomPagesForFile(url: URL) -> [CustomPageContainer] {
+        // DISABLED: Sidecar JSON file loading is temporarily disabled
+        // Will be re-implemented with a different approach
+        return []
+
+        /* DISABLED CODE:
         let directory = url.deletingLastPathComponent()
         let basename = url.deletingPathExtension().lastPathComponent
 
         // Try document-specific file first
         let specificURL = directory.appendingPathComponent("\(basename)-custom-pages.json")
+        #if DEBUG
+        print("🔍 Looking for custom pages at: \(specificURL.path(percentEncoded: false))")
+        #endif
         if let pages = tryLoadCustomPagesJSON(from: specificURL) {
             return pages
         }
 
         // Fall back to shared file
         let sharedURL = directory.appendingPathComponent("custom-pages.json")
+        #if DEBUG
+        print("🔍 Looking for shared custom pages at: \(sharedURL.path(percentEncoded: false))")
+        #endif
         if let pages = tryLoadCustomPagesJSON(from: sharedURL) {
             return pages
         }
 
         return []
+        */
     }
 
     /// Try to load custom pages from a JSON file
     private static func tryLoadCustomPagesJSON(from url: URL) -> [CustomPageContainer]? {
-        guard FileManager.default.fileExists(atPath: url.path) else {
+        // Use path(percentEncoded:) for better compatibility
+        let filePath = url.path(percentEncoded: false)
+        guard FileManager.default.fileExists(atPath: filePath) else {
             return nil
         }
 
         do {
             let data = try Data(contentsOf: url)
             let jsonArray = try JSONSerialization.jsonObject(with: data) as? [[String: Any]] ?? []
-            return try jsonArray.compactMap { try CustomPageContainer(from: $0) }
+            let containers = try jsonArray.compactMap { try CustomPageContainer(from: $0) }
+            return containers.isEmpty ? nil : containers
         } catch {
-            print("Warning: Failed to load \(url.lastPathComponent): \(error)")
+            // Log error for debugging - this should be visible in CI logs
+            print("⚠️ CustomPages load error for \(url.lastPathComponent): \(error.localizedDescription)")
             return nil
         }
     }
@@ -684,6 +697,11 @@ extension GuionParsedElementCollection {
     /// - Parameters:
     ///   - url: URL to the screenplay file (e.g., `script.fountain`)
     func writeCustomPagesSidecar(for url: URL) throws {
+        // DISABLED: Sidecar JSON file writing is temporarily disabled
+        // Will be re-implemented with a different approach
+        return
+
+        /* DISABLED CODE:
         guard !customPages.isEmpty else { return }
 
         let directory = url.deletingLastPathComponent()
@@ -693,6 +711,7 @@ extension GuionParsedElementCollection {
         let jsonArray = try customPages.map { try $0.toDictionary() }
         let jsonData = try JSONSerialization.data(withJSONObject: jsonArray, options: [.prettyPrinted, .sortedKeys])
         try jsonData.write(to: sidecarURL)
+        */
     }
 }
 

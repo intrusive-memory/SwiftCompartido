@@ -5,6 +5,7 @@
 //  Comprehensive tests for all screenplay element views
 //
 
+import Foundation
 import Testing
 import SwiftUI
 @testable import SwiftCompartido

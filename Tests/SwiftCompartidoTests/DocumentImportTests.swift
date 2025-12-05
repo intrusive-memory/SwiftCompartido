@@ -5,21 +5,20 @@
 //  Copyright (c) 2025
 //
 
-import XCTest
+import Foundation
+import Testing
 import SwiftData
 import UniformTypeIdentifiers
 @testable import SwiftCompartido
 
 @MainActor
-final class DocumentImportTests: XCTestCase {
+struct DocumentImportTests {
 
     var modelContext: ModelContext!
     var modelContainer: ModelContainer!
     var fixturesPath: URL!
 
-    override func setUp() async throws {
-        try await super.setUp()
-
+    init() throws {
         // Create in-memory model context
         let schema = Schema([
             GuionDocumentModel.self,
@@ -81,17 +80,9 @@ final class DocumentImportTests: XCTestCase {
         // Return original path even if it doesn't exist (let test handle the error)
         return url
     }
+// MARK: - GATE 2.1: Open native .guion file
 
-    override func tearDown() async throws {
-        modelContext = nil
-        modelContainer = nil
-        fixturesPath = nil
-        try await super.tearDown()
-    }
-
-    // MARK: - GATE 2.1: Open native .guion file
-
-    func testOpenNativeGuionFile() async throws {
+    @Test func testOpenNativeGuionFile() async throws {
         // Step 1: Create and save a .guion file
         let original = GuionDocumentModel(filename: "test-native.guion", rawContent: "Test content")
 
@@ -126,10 +117,10 @@ final class DocumentImportTests: XCTestCase {
         let loaded = try GuionDocumentModel.decodeFromBinaryData(fileData, in: modelContext)
 
         // Step 4: Verify
-        XCTAssertEqual(loaded.filename, "test-native.guion", "Filename should be unchanged")
-        XCTAssertEqual(loaded.elements.count, 2, "Should have 2 elements")
-        XCTAssertEqual(loaded.elements[0].elementType, .sceneHeading, "First element should be Scene Heading")
-        XCTAssertEqual(loaded.elements[1].elementType, .action, "Second element should be Action")
+        #expect(loaded.filename == "test-native.guion", "Filename should be unchanged")
+        #expect(loaded.elements.count == 2, "Should have 2 elements")
+        #expect(loaded.elements[0].elementType == .sceneHeading, "First element should be Scene Heading")
+        #expect(loaded.elements[1].elementType == .action, "Second element should be Action")
 
         // Cleanup
         try? FileManager.default.removeItem(at: tempURL)
@@ -137,39 +128,39 @@ final class DocumentImportTests: XCTestCase {
 
     // MARK: - GATE 2.2: Import .fountain file
 
-    func testImportFountainFile() throws {
+    @Test func testImportFountainFile() throws {
         // Test filename transformation logic for .fountain files
         // (Actual BigFish.fountain file may not be available in test bundle)
 
         let originalFilename = "BigFish.fountain"
         let transformedFilename = transformFilename(originalFilename)
 
-        XCTAssertEqual(transformedFilename, "BigFish.guion", "Fountain file should transform to .guion extension")
+        #expect(transformedFilename == "BigFish.guion", "Fountain file should transform to .guion extension")
 
         // Verify the transformation preserves base name
-        XCTAssertTrue(transformedFilename?.hasPrefix("BigFish") ?? false, "Should preserve base name")
-        XCTAssertTrue(transformedFilename?.hasSuffix(".guion") ?? false, "Should have .guion extension")
+        #expect(transformedFilename?.hasPrefix("BigFish") ?? false, "Should preserve base name")
+        #expect(transformedFilename?.hasSuffix(".guion") ?? false, "Should have .guion extension")
 
         // Test with other fountain filenames
-        XCTAssertEqual(transformFilename("screenplay.fountain"), "screenplay.guion")
-        XCTAssertEqual(transformFilename("MyScript.FOUNTAIN"), "MyScript.guion")
+        #expect(transformFilename("screenplay.fountain") == "screenplay.guion")
+        #expect(transformFilename("MyScript.FOUNTAIN") == "MyScript.guion")
     }
 
     // MARK: - GATE 2.3: Import .fdx file
 
-    func testImportFDXFile() throws {
+    @Test func testImportFDXFile() throws {
         // Note: We need to create or find an FDX test file
         // For now, test the transformation logic
 
         let originalFilename = "TestScript.fdx"
         let transformedFilename = transformFilename(originalFilename)
 
-        XCTAssertEqual(transformedFilename, "TestScript.guion", "FDX file should transform to .guion extension")
+        #expect(transformedFilename == "TestScript.guion", "FDX file should transform to .guion extension")
     }
 
     // MARK: - GATE 2.4: Import .highland file
 
-    func testImportHighlandFile() throws {
+    @Test func testImportHighlandFile() throws {
         // Check if we have Highland test files
         let highlandURL = fixtureURL(for: "bigfish.highland")
 
@@ -178,40 +169,40 @@ final class DocumentImportTests: XCTestCase {
             let originalFilename = "bigfish.highland"
             let transformedFilename = transformFilename(originalFilename)
 
-            XCTAssertEqual(transformedFilename, "bigfish.guion", "Highland file should transform to .guion extension")
+            #expect(transformedFilename == "bigfish.guion", "Highland file should transform to .guion extension")
         } else {
             // Just test the transformation logic
             let originalFilename = "TestScript.highland"
             let transformedFilename = transformFilename(originalFilename)
 
-            XCTAssertEqual(transformedFilename, "TestScript.guion", "Highland file should transform to .guion extension")
+            #expect(transformedFilename == "TestScript.guion", "Highland file should transform to .guion extension")
         }
     }
 
     // MARK: - GATE 2.5: Filename transformation
 
-    func testFilenameTransformation() {
+    @Test func testFilenameTransformation() {
         // Test various filename transformations
-        XCTAssertEqual(transformFilename("script.fountain"), "script.guion")
-        XCTAssertEqual(transformFilename("test.fdx"), "test.guion")
-        XCTAssertEqual(transformFilename("movie.highland"), "movie.guion")
-        XCTAssertEqual(transformFilename("already.guion"), "already.guion")
+        #expect(transformFilename("script.fountain") == "script.guion")
+        #expect(transformFilename("test.fdx") == "test.guion")
+        #expect(transformFilename("movie.highland") == "movie.guion")
+        #expect(transformFilename("already.guion") == "already.guion")
 
         // Test edge cases
-        XCTAssertEqual(transformFilename("no-extension"), "no-extension.guion")
-        XCTAssertEqual(transformFilename("multiple.dots.in.name.fountain"), "multiple.dots.in.name.guion")
-        XCTAssertEqual(transformFilename("UPPERCASE.FOUNTAIN"), "UPPERCASE.guion")
+        #expect(transformFilename("no-extension") == "no-extension.guion")
+        #expect(transformFilename("multiple.dots.in.name.fountain") == "multiple.dots.in.name.guion")
+        #expect(transformFilename("UPPERCASE.FOUNTAIN") == "UPPERCASE.guion")
 
         // Test nil
-        XCTAssertNil(transformFilename(nil))
+        #expect(transformFilename(nil) == nil, "Nil should return nil")
 
         // Test empty string
-        XCTAssertEqual(transformFilename(""), ".guion")
+        #expect(transformFilename("") == ".guion")
     }
 
     // MARK: - Additional Coverage Tests
 
-    func testNativeGuionFileNoReparsing() async throws {
+    @Test func testNativeGuionFileNoReparsing() async throws {
         // Create a .guion file with pre-parsed content
         let document = GuionDocumentModel(filename: "no-reparse.guion")
 
@@ -241,14 +232,14 @@ final class DocumentImportTests: XCTestCase {
         let loadTime = Date().timeIntervalSince(loadStart)
 
         // Verify no re-parsing occurred (should be very fast)
-        XCTAssertLessThan(loadTime, 0.1, "Native .guion load should be fast (no parsing)")
-        XCTAssertEqual(loaded.elements.count, 100, "All elements should be loaded")
+        #expect(loadTime < 0.1, "Native .guion load should be fast (no parsing)")
+        #expect(loaded.elements.count == 100, "All elements should be loaded")
 
         // Verify scene locations are already cached
         let sceneElements = loaded.elements.filter { $0.elementType == .sceneHeading }
         for sceneElement in sceneElements {
-            XCTAssertNotNil(sceneElement.locationLighting, "Scene location should be cached")
-            XCTAssertNotNil(sceneElement.locationScene, "Scene location should be cached")
+            #expect(sceneElement.locationLighting != nil, "Scene location should be cached")
+            #expect(sceneElement.locationScene != nil, "Scene location should be cached")
         }
 
         print("💾 Native .guion save time: \(saveTime)s, load time: \(loadTime)s")
@@ -257,7 +248,7 @@ final class DocumentImportTests: XCTestCase {
         try? FileManager.default.removeItem(at: tempURL)
     }
 
-    func testImportVsNativePerformance() async throws {
+    @Test func testImportVsNativePerformance() async throws {
         // This test compares import workflow vs native .guion loading
 
         // Create a document and save as .guion
@@ -299,7 +290,7 @@ final class DocumentImportTests: XCTestCase {
         try? FileManager.default.removeItem(at: tempURL)
     }
 
-    func testFilenamePreservation() async throws {
+    @Test func testFilenamePreservation() async throws {
         // Test that native .guion files preserve their original filename
         let originalFilename = "MyGreatScreenplay.guion"
         let document = GuionDocumentModel(filename: originalFilename)
@@ -316,13 +307,13 @@ final class DocumentImportTests: XCTestCase {
         try document.save(to: tempURL)
         let loaded = try GuionDocumentModel.load(from: tempURL, in: modelContext)
 
-        XCTAssertEqual(loaded.filename, originalFilename, "Filename should be preserved")
+        #expect(loaded.filename == originalFilename, "Filename should be preserved")
 
         // Cleanup
         try? FileManager.default.removeItem(at: tempURL)
     }
 
-    func testImportedFilenameTransformation() {
+    @Test func testImportedFilenameTransformation() {
         // Test transformation of various screenplay formats
         let testCases: [(input: String, expected: String)] = [
             ("screenplay.fountain", "screenplay.guion"),
@@ -336,29 +327,29 @@ final class DocumentImportTests: XCTestCase {
 
         for (input, expected) in testCases {
             let result = transformFilename(input)
-            XCTAssertEqual(result, expected, "Filename transformation failed for: \(input)")
+            #expect(result == expected, "Filename transformation failed for: \(input)")
         }
     }
 
-    func testGuionFileAlreadyGuionExtension() {
+    @Test func testGuionFileAlreadyGuionExtension() {
         // Test that .guion files don't get double-extension
         let input = "already.guion"
         let result = transformFilename(input)
 
-        XCTAssertEqual(result, "already.guion", "Should not add .guion to already .guion files")
-        XCTAssertFalse(result?.hasSuffix(".guion.guion") ?? true, "Should not double the extension")
+        #expect(result == "already.guion", "Should not add .guion to already .guion files")
+        #expect(!(result?.hasSuffix(".guion.guion") ?? false), "Should not double the extension")
     }
 
-    func testEmptyAndNilFilenames() {
+    @Test func testEmptyAndNilFilenames() {
         // Test edge cases
-        XCTAssertNil(transformFilename(nil), "Nil should return nil")
-        XCTAssertEqual(transformFilename(""), ".guion", "Empty string should add .guion")
+        #expect(transformFilename(nil) == nil, "Nil should return nil")
+        #expect(transformFilename("") == ".guion", "Empty string should add .guion")
         // Note: "." transforms to "..guion" because deletingPathExtension on "." returns "."
         // This is expected behavior from NSString.deletingPathExtension
-        XCTAssertEqual(transformFilename("."), "..guion", "Just a dot becomes ..guion")
+        #expect(transformFilename(".") == "..guion", "Just a dot becomes ..guion")
     }
 
-    func testSpecialCharactersInFilename() {
+    @Test func testSpecialCharactersInFilename() {
         // Test filenames with special characters
         let testCases: [(input: String, expected: String)] = [
             ("script@v1.fountain", "script@v1.guion"),
@@ -370,43 +361,43 @@ final class DocumentImportTests: XCTestCase {
 
         for (input, expected) in testCases {
             let result = transformFilename(input)
-            XCTAssertEqual(result, expected, "Special character handling failed for: \(input)")
+            #expect(result == expected, "Special character handling failed for: \(input)")
         }
     }
 
-    func testMultipleDotsInFilename() {
+    @Test func testMultipleDotsInFilename() {
         // Test filename with multiple dots
         let input = "my.script.v2.fountain"
         let result = transformFilename(input)
 
-        XCTAssertEqual(result, "my.script.v2.guion", "Should preserve all dots except the extension")
+        #expect(result == "my.script.v2.guion", "Should preserve all dots except the extension")
     }
 
     // MARK: - Outline Elements Tests
 
-    func testHighlandFileWithOutlineElements() async throws {
+    @Test func testHighlandFileWithOutlineElements() async throws {
         // Test parsing of Highland file that contains only outline elements (synopsis)
         let highlandURL = fixtureURL(for: "a fool in the desert.highland")
 
         // Verify file exists
         guard FileManager.default.fileExists(atPath: highlandURL.path) else {
-            XCTFail("Highland test file 'a fool in the desert.highland' not found at \(highlandURL.path)")
+            Issue.record("Highland test file 'a fool in the desert.highland' not found at \(highlandURL.path)")
             return
         }
 
         // Parse the Highland file
-        let screenplay = try GuionParsedElementCollection(highland: highlandURL)
+        let screenplay = try await GuionParsedElementCollection(highland: highlandURL)
 
         // Verify we have elements
-        XCTAssertGreaterThan(screenplay.elements.count, 0, "Should have parsed elements from Highland file")
+        #expect(screenplay.elements.count > 0, "Should have parsed elements from Highland file")
 
         // Verify we have section headings (## markers)
         let sectionHeadings = screenplay.elements.filter { $0.elementType.isSectionHeading }
-        XCTAssertGreaterThan(sectionHeadings.count, 0, "Should have section heading elements")
+        #expect(sectionHeadings.count > 0, "Should have section heading elements")
 
         // Verify we have synopsis/outline elements (= markers)
         let synopsisElements = screenplay.elements.filter { $0.elementType == .synopsis }
-        XCTAssertGreaterThan(synopsisElements.count, 0, "Should have synopsis/outline elements")
+        #expect(synopsisElements.count > 0, "Should have synopsis/outline elements")
 
         print("📝 Highland file parsing results:")
         print("   Total elements: \(screenplay.elements.count)")
@@ -422,27 +413,27 @@ final class DocumentImportTests: XCTestCase {
         let hasThemeStated = sectionTitles.contains(where: { $0.localizedCaseInsensitiveContains("Theme Stated") })
         let hasCatalyst = sectionTitles.contains(where: { $0.localizedCaseInsensitiveContains("Catalyst") })
 
-        XCTAssertTrue(hasOpeningImage, "Should find 'Opening Image' section. Found: \(sectionTitles.prefix(5))")
-        XCTAssertTrue(hasThemeStated, "Should find 'Theme Stated' section")
-        XCTAssertTrue(hasCatalyst, "Should find 'Catalyst' section")
+        #expect(hasOpeningImage, "Should find 'Opening Image' section. Found: \(sectionTitles.prefix(5))")
+        #expect(hasThemeStated, "Should find 'Theme Stated' section")
+        #expect(hasCatalyst, "Should find 'Catalyst' section")
 
         // Verify at least one synopsis element has content
         let firstSynopsis = synopsisElements.first
-        XCTAssertNotNil(firstSynopsis, "Should have at least one synopsis element")
-        XCTAssertFalse(firstSynopsis?.elementText.isEmpty ?? true, "Synopsis element should have text content")
+        #expect(firstSynopsis != nil, "Should have at least one synopsis element")
+        #expect(!(firstSynopsis?.elementText.isEmpty ?? true), "Synopsis element should have text content")
     }
 
-    func testHighlandToSwiftDataConversion() async throws {
+    @Test func testHighlandToSwiftDataConversion() async throws {
         // Test converting Highland file with outline elements to SwiftData
         let highlandURL = fixtureURL(for: "a fool in the desert.highland")
 
         guard FileManager.default.fileExists(atPath: highlandURL.path) else {
-            XCTFail("Highland test file 'a fool in the desert.highland' not found")
+            Issue.record("Highland test file 'a fool in the desert.highland' not found")
             return
         }
 
         // Parse the Highland file
-        let screenplay = try GuionParsedElementCollection(highland: highlandURL)
+        let screenplay = try await GuionParsedElementCollection(highland: highlandURL)
 
         // Convert to SwiftData
         let document = await GuionDocumentParserSwiftData.parse(
@@ -452,18 +443,18 @@ final class DocumentImportTests: XCTestCase {
         )
 
         // Verify document was created
-        XCTAssertNotNil(document, "Document should be created")
+        #expect(document != nil, "Document should be created")
 
         // Verify elements were converted to SwiftData models
         let sortedElements = document.sortedElements
-        XCTAssertGreaterThan(sortedElements.count, 0, "Should have converted elements to SwiftData")
+        #expect(sortedElements.count > 0, "Should have converted elements to SwiftData")
 
         // Count element types in SwiftData
         let sectionHeadingModels = sortedElements.filter { $0.elementType.isSectionHeading }
         let synopsisModels = sortedElements.filter { $0.elementType == .synopsis }
 
-        XCTAssertGreaterThan(sectionHeadingModels.count, 0, "Should have section heading models in SwiftData")
-        XCTAssertGreaterThan(synopsisModels.count, 0, "Should have synopsis models in SwiftData")
+        #expect(sectionHeadingModels.count > 0, "Should have section heading models in SwiftData")
+        #expect(synopsisModels.count > 0, "Should have synopsis models in SwiftData")
 
         print("📊 SwiftData conversion results:")
         print("   Total element models: \(sortedElements.count)")
@@ -482,7 +473,7 @@ final class DocumentImportTests: XCTestCase {
                 previousOrderInChapter = element.orderIndex
             } else if element.chapterIndex == previousChapter {
                 // Same chapter - orderIndex should not decrease
-                XCTAssertGreaterThanOrEqual(element.orderIndex, previousOrderInChapter,
+                #expect(element.orderIndex >= previousOrderInChapter,
                     "Elements within chapter \(element.chapterIndex) should be in ascending order")
                 previousOrderInChapter = element.orderIndex
             }
@@ -490,8 +481,8 @@ final class DocumentImportTests: XCTestCase {
 
         // Verify specific content is preserved
         let firstSynopsis = synopsisModels.first
-        XCTAssertNotNil(firstSynopsis, "Should have at least one synopsis model")
-        XCTAssertFalse(firstSynopsis?.elementText.isEmpty ?? true, "Synopsis model should preserve text content")
+        #expect(firstSynopsis != nil, "Should have at least one synopsis model")
+        #expect(!(firstSynopsis?.elementText.isEmpty ?? true), "Synopsis model should preserve text content")
     }
 
     // MARK: - Helper Methods

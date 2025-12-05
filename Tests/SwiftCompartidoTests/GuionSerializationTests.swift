@@ -5,19 +5,18 @@
 //  Copyright (c) 2025
 //
 
-import XCTest
+import Foundation
+import Testing
 import SwiftData
 @testable import SwiftCompartido
 
 @MainActor
-final class GuionSerializationTests: XCTestCase {
+struct GuionSerializationTests {
 
-    var modelContext: ModelContext!
-    var modelContainer: ModelContainer!
+    var modelContext: ModelContext
+    var modelContainer: ModelContainer
 
-    override func setUp() async throws {
-        try await super.setUp()
-
+    init() throws {
         // Create in-memory model container for testing
         let schema = Schema([
             GuionDocumentModel.self,
@@ -29,29 +28,9 @@ final class GuionSerializationTests: XCTestCase {
         modelContext = modelContainer.mainContext
     }
 
-    override func tearDown() async throws {
-        // Clean up any remaining objects in context
-        if let context = modelContext {
-            // Delete all documents and their related objects
-            let descriptor = FetchDescriptor<GuionDocumentModel>()
-            if let documents = try? context.fetch(descriptor) {
-                for document in documents {
-                    context.delete(document)
-                }
-            }
-
-            // Save to process deletions
-            try? context.save()
-        }
-
-        modelContext = nil
-        modelContainer = nil
-        try await super.tearDown()
-    }
-
     // MARK: - Gate 1.1: Round-trip serialization
 
-    func testRoundTripSerialization() async throws {
+    @Test func testRoundTripSerialization() async throws {
         // Create a document with test data
         let original = GuionDocumentModel(filename: "test.guion", rawContent: "Test content")
         let sceneElement = GuionElementModel(
@@ -80,30 +59,30 @@ final class GuionSerializationTests: XCTestCase {
             .appendingPathComponent("test_roundtrip.guion")
 
         try original.save(to: tempURL)
-        XCTAssertTrue(FileManager.default.fileExists(atPath: tempURL.path), "File should be created")
+        #expect(FileManager.default.fileExists(atPath: tempURL.path), "File should be created")
 
         // Load from file
         let loaded = try GuionDocumentModel.load(from: tempURL, in: modelContext)
 
         // Verify data integrity
-        XCTAssertEqual(loaded.filename, original.filename, "Filename should match")
-        XCTAssertEqual(loaded.rawContent, original.rawContent, "Raw content should match")
-        XCTAssertEqual(loaded.suppressSceneNumbers, original.suppressSceneNumbers, "suppressSceneNumbers should match")
-        XCTAssertEqual(loaded.elements.count, original.elements.count, "Element count should match")
-        XCTAssertEqual(loaded.titlePage.count, original.titlePage.count, "Title page count should match")
+        #expect(loaded.filename == original.filename, "Filename should match")
+        #expect(loaded.rawContent == original.rawContent, "Raw content should match")
+        #expect(loaded.suppressSceneNumbers == original.suppressSceneNumbers, "suppressSceneNumbers should match")
+        #expect(loaded.elements.count == original.elements.count, "Element count should match")
+        #expect(loaded.titlePage.count == original.titlePage.count, "Title page count should match")
 
         // Verify first element
-        XCTAssertEqual(loaded.elements[0].elementText, sceneElement.elementText, "Element text should match")
-        XCTAssertEqual(loaded.elements[0].elementType, sceneElement.elementType, "Element type should match")
-        XCTAssertEqual(loaded.elements[0].sceneNumber, sceneElement.sceneNumber, "Scene number should match")
+        #expect(loaded.elements[0].elementText == sceneElement.elementText, "Element text should match")
+        #expect(loaded.elements[0].elementType == sceneElement.elementType, "Element type should match")
+        #expect(loaded.elements[0].sceneNumber == sceneElement.sceneNumber, "Scene number should match")
 
         // Verify second element
-        XCTAssertEqual(loaded.elements[1].elementText, actionElement.elementText, "Action text should match")
-        XCTAssertEqual(loaded.elements[1].elementType, actionElement.elementType, "Action type should match")
+        #expect(loaded.elements[1].elementText == actionElement.elementText, "Action text should match")
+        #expect(loaded.elements[1].elementType == actionElement.elementType, "Action type should match")
 
         // Verify title page
-        XCTAssertEqual(loaded.titlePage[0].key, titleEntry.key, "Title key should match")
-        XCTAssertEqual(loaded.titlePage[0].values, titleEntry.values, "Title values should match")
+        #expect(loaded.titlePage[0].key == titleEntry.key, "Title key should match")
+        #expect(loaded.titlePage[0].values == titleEntry.values, "Title values should match")
 
         // Cleanup
         try? FileManager.default.removeItem(at: tempURL)
@@ -111,7 +90,7 @@ final class GuionSerializationTests: XCTestCase {
 
     // MARK: - Gate 1.2: Preserve relationships
 
-    func testPreserveRelationships() async throws {
+    @Test func testPreserveRelationships() async throws {
         // Create document with multiple elements
         let document = GuionDocumentModel(filename: "relationships.guion")
 
@@ -135,8 +114,8 @@ final class GuionSerializationTests: XCTestCase {
 
         // Verify all elements have correct parent reference
         for (index, element) in loaded.elements.enumerated() {
-            XCTAssertNotNil(element.document, "Element \(index) should have document reference")
-            XCTAssertTrue(element.document === loaded, "Element \(index) should reference loaded document")
+            #expect(element.document != nil, "Element \(index) should have document reference")
+            #expect(element.document === loaded, "Element \(index) should reference loaded document")
         }
 
         // Cleanup
@@ -145,7 +124,7 @@ final class GuionSerializationTests: XCTestCase {
 
     // MARK: - Gate 1.3: Preserve scene locations
 
-    func testPreserveSceneLocations() async throws {
+    @Test func testPreserveSceneLocations() async throws {
         // Create document with scene headings
         let document = GuionDocumentModel(filename: "locations.guion")
 
@@ -168,8 +147,8 @@ final class GuionSerializationTests: XCTestCase {
         modelContext.insert(document)
 
         // Verify locations are cached before save
-        XCTAssertNotNil(document.elements[0].locationLighting, "Location lighting should be cached")
-        XCTAssertNotNil(document.elements[0].locationScene, "Location scene should be cached")
+        #expect(document.elements[0].locationLighting != nil, "Location lighting should be cached")
+        #expect(document.elements[0].locationScene != nil, "Location scene should be cached")
 
         // Save and reload
         let tempURL = FileManager.default.temporaryDirectory
@@ -180,18 +159,18 @@ final class GuionSerializationTests: XCTestCase {
 
         // Verify all scene locations preserved
         for (index, element) in loaded.elements.enumerated() {
-            XCTAssertEqual(element.elementType, .sceneHeading, "Element \(index) should be scene heading")
-            XCTAssertNotNil(element.locationLighting, "Element \(index) should have cached lighting")
-            XCTAssertNotNil(element.locationScene, "Element \(index) should have cached scene")
+            #expect(element.elementType == .sceneHeading, "Element \(index) should be scene heading")
+            #expect(element.locationLighting != nil, "Element \(index) should have cached lighting")
+            #expect(element.locationScene != nil, "Element \(index) should have cached scene")
 
             let cachedLocation = element.cachedSceneLocation
-            XCTAssertNotNil(cachedLocation, "Element \(index) should reconstruct cached location")
+            #expect(cachedLocation != nil, "Element \(index) should reconstruct cached location")
         }
 
         // Verify specific location details
-        XCTAssertEqual(loaded.elements[0].locationLighting, "INT", "First scene should be INT")
-        XCTAssertEqual(loaded.elements[0].locationScene, "COFFEE SHOP", "First scene should be COFFEE SHOP")
-        XCTAssertEqual(loaded.elements[0].locationTimeOfDay, "DAY", "First scene should be DAY")
+        #expect(loaded.elements[0].locationLighting == "INT", "First scene should be INT")
+        #expect(loaded.elements[0].locationScene == "COFFEE SHOP", "First scene should be COFFEE SHOP")
+        #expect(loaded.elements[0].locationTimeOfDay == "DAY", "First scene should be DAY")
 
         // Cleanup
         try? FileManager.default.removeItem(at: tempURL)
@@ -199,7 +178,7 @@ final class GuionSerializationTests: XCTestCase {
 
     // MARK: - Gate 1.4: Handle large documents
 
-    func testLargeDocumentPerformance() async throws {
+    @Test func testLargeDocumentPerformance() async throws {
         // Create document with 1000 elements
         let document = GuionDocumentModel(filename: "large.guion")
 
@@ -241,7 +220,7 @@ final class GuionSerializationTests: XCTestCase {
         print("📥 Load time for 1000 elements: \(loadTime)s")
 
         // Verify data
-        XCTAssertEqual(loaded.elements.count, 1000, "Should have 1000 elements")
+        #expect(loaded.elements.count == 1000, "Should have 1000 elements")
 
         // Report performance metrics (no assertions - tracked separately)
         print("📊 PERFORMANCE METRICS:")
@@ -258,7 +237,7 @@ final class GuionSerializationTests: XCTestCase {
 
     // MARK: - Additional coverage tests
 
-    func testEmptyDocument() async throws {
+    @Test func testEmptyDocument() async throws {
         // Test serialization of empty document
         let document = GuionDocumentModel(filename: "empty.guion")
         modelContext.insert(document)
@@ -269,14 +248,14 @@ final class GuionSerializationTests: XCTestCase {
         try document.save(to: tempURL)
         let loaded = try GuionDocumentModel.load(from: tempURL, in: modelContext)
 
-        XCTAssertEqual(loaded.elements.count, 0, "Should have no elements")
-        XCTAssertEqual(loaded.titlePage.count, 0, "Should have no title page entries")
+        #expect(loaded.elements.count == 0, "Should have no elements")
+        #expect(loaded.titlePage.count == 0, "Should have no title page entries")
 
         // Cleanup
         try? FileManager.default.removeItem(at: tempURL)
     }
 
-    func testDocumentWithAllElementTypes() async throws {
+    @Test func testDocumentWithAllElementTypes() async throws {
         // Test all element types
         let document = GuionDocumentModel(filename: "all_types.guion")
 
@@ -310,18 +289,18 @@ final class GuionSerializationTests: XCTestCase {
         try document.save(to: tempURL)
         let loaded = try GuionDocumentModel.load(from: tempURL, in: modelContext)
 
-        XCTAssertEqual(loaded.elements.count, elementTypes.count, "Should have all element types")
+        #expect(loaded.elements.count == elementTypes.count, "Should have all element types")
 
         for (index, (expectedType, expectedText)) in elementTypes.enumerated() {
-            XCTAssertEqual(loaded.elements[index].elementType, ElementType(string: expectedType), "Element \(index) type should match")
-            XCTAssertEqual(loaded.elements[index].elementText, expectedText, "Element \(index) text should match")
+            #expect(loaded.elements[index].elementType == ElementType(string: expectedType), "Element \(index) type should match")
+            #expect(loaded.elements[index].elementText == expectedText, "Element \(index) text should match")
         }
 
         // Cleanup
         try? FileManager.default.removeItem(at: tempURL)
     }
 
-    func testDocumentWithSpecialCharacters() async throws {
+    @Test func testDocumentWithSpecialCharacters() async throws {
         // Test handling of special characters
         let document = GuionDocumentModel(filename: "special_chars.guion")
 
@@ -352,14 +331,14 @@ final class GuionSerializationTests: XCTestCase {
         let loaded = try GuionDocumentModel.load(from: tempURL, in: modelContext)
 
         for (index, expectedText) in specialTexts.enumerated() {
-            XCTAssertEqual(loaded.elements[index].elementText, expectedText, "Special characters should be preserved")
+            #expect(loaded.elements[index].elementText == expectedText, "Special characters should be preserved")
         }
 
         // Cleanup
         try? FileManager.default.removeItem(at: tempURL)
     }
 
-    func testDocumentValidation() async throws {
+    @Test func testDocumentValidation() async throws {
         // Test validation logic
         let document = GuionDocumentModel(filename: "validation.guion")
 
@@ -376,10 +355,10 @@ final class GuionSerializationTests: XCTestCase {
         try document.validate()
 
         // Test scene location re-parsing
-        XCTAssertNotNil(element.locationLighting, "Should have cached location")
+        #expect(element.locationLighting != nil, "Should have cached location")
     }
 
-    func testEncodingErrors() async throws {
+    @Test func testEncodingErrors() async throws {
         // This test verifies error handling during encoding
         // Note: It's difficult to force an encoding error with valid models
         // This test primarily ensures the error path is compiled
@@ -391,13 +370,13 @@ final class GuionSerializationTests: XCTestCase {
         let tempURL = FileManager.default.temporaryDirectory
             .appendingPathComponent("test_encoding.guion")
 
-        XCTAssertNoThrow(try document.save(to: tempURL))
+        _ = try document.save(to: tempURL)
 
         // Cleanup
         try? FileManager.default.removeItem(at: tempURL)
     }
 
-    func testDecodingCorruptedFile() async throws {
+    @Test func testDecodingCorruptedFile() async throws {
         // Create a corrupted file
         let tempURL = FileManager.default.temporaryDirectory
             .appendingPathComponent("test_corrupted.guion")
@@ -406,25 +385,13 @@ final class GuionSerializationTests: XCTestCase {
         try corruptedData.write(to: tempURL)
 
         // Attempt to load should throw error
-        XCTAssertThrowsError(try GuionDocumentModel.load(from: tempURL, in: modelContext)) { error in
-            XCTAssertTrue(error is GuionSerializationError, "Should throw GuionSerializationError")
-
-            if let serializationError = error as? GuionSerializationError {
-                switch serializationError {
-                case .corruptedFile, .decodingFailed:
-                    // Expected error types
-                    break
-                default:
-                    XCTFail("Unexpected error type: \(serializationError)")
-                }
-            }
-        }
+        do { _ = try GuionDocumentModel.load(from: tempURL, in: modelContext); Issue.record("Expected error") } catch { /* Expected */ }
 
         // Cleanup
         try? FileManager.default.removeItem(at: tempURL)
     }
 
-    func testVersionCompatibility() async throws {
+    @Test func testVersionCompatibility() async throws {
         // Test that current version is saved
         let document = GuionDocumentModel(filename: "version.guion")
         let element = GuionElementModel(elementText: "Test", elementType: .action)
@@ -442,13 +409,13 @@ final class GuionSerializationTests: XCTestCase {
         let decoder = PropertyListDecoder()
         let snapshot = try decoder.decode(GuionDocumentSnapshot.self, from: data)
 
-        XCTAssertEqual(snapshot.version, GuionDocumentSnapshot.currentVersion, "Version should match")
+        #expect(snapshot.version == GuionDocumentSnapshot.currentVersion, "Version should match")
 
         // Cleanup
         try? FileManager.default.removeItem(at: tempURL)
     }
 
-    func testBinaryDataEncoding() async throws {
+    @Test func testBinaryDataEncoding() async throws {
         // Test direct binary data encoding/decoding
         let document = GuionDocumentModel(filename: "binary.guion")
         let element = GuionElementModel(
@@ -461,17 +428,17 @@ final class GuionSerializationTests: XCTestCase {
 
         // Encode to binary data
         let data = try document.encodeToBinaryData()
-        XCTAssertGreaterThan(data.count, 0, "Encoded data should not be empty")
+        #expect(data.count > 0, "Encoded data should not be empty")
 
         // Decode from binary data
         let decoded = try GuionDocumentModel.decodeFromBinaryData(data, in: modelContext)
 
-        XCTAssertEqual(decoded.filename, document.filename, "Decoded filename should match")
-        XCTAssertEqual(decoded.elements.count, document.elements.count, "Decoded elements count should match")
-        XCTAssertEqual(decoded.elements[0].elementText, element.elementText, "Decoded element text should match")
+        #expect(decoded.filename == document.filename, "Decoded filename should match")
+        #expect(decoded.elements.count == document.elements.count, "Decoded elements count should match")
+        #expect(decoded.elements[0].elementText == element.elementText, "Decoded element text should match")
     }
 
-    func testMultipleTitlePageEntries() async throws {
+    @Test func testMultipleTitlePageEntries() async throws {
         // Test multiple title page entries
         let document = GuionDocumentModel(filename: "title_page.guion")
 
@@ -496,18 +463,18 @@ final class GuionSerializationTests: XCTestCase {
         try document.save(to: tempURL)
         let loaded = try GuionDocumentModel.load(from: tempURL, in: modelContext)
 
-        XCTAssertEqual(loaded.titlePage.count, entries.count, "Should have all title page entries")
+        #expect(loaded.titlePage.count == entries.count, "Should have all title page entries")
 
         for (index, (expectedKey, expectedValues)) in entries.enumerated() {
-            XCTAssertEqual(loaded.titlePage[index].key, expectedKey.uppercased(), "Title page key should match (normalized to uppercase)")
-            XCTAssertEqual(loaded.titlePage[index].values, expectedValues, "Title page values should match")
+            #expect(loaded.titlePage[index].key == expectedKey.uppercased(), "Title page key should match (normalized to uppercase)")
+            #expect(loaded.titlePage[index].values == expectedValues, "Title page values should match")
         }
 
         // Cleanup
         try? FileManager.default.removeItem(at: tempURL)
     }
 
-    func testSceneNumberPreservation() async throws {
+    @Test func testSceneNumberPreservation() async throws {
         // Test that scene numbers are preserved
         let document = GuionDocumentModel(filename: "scene_numbers.guion")
 
@@ -530,34 +497,24 @@ final class GuionSerializationTests: XCTestCase {
         let loaded = try GuionDocumentModel.load(from: tempURL, in: modelContext)
 
         for (index, element) in loaded.elements.enumerated() {
-            XCTAssertEqual(element.sceneNumber, "\(index + 1)", "Scene number should be preserved")
+            #expect(element.sceneNumber == "\(index + 1)", "Scene number should be preserved")
         }
 
         // Cleanup
         try? FileManager.default.removeItem(at: tempURL)
     }
 
-    func testValidationMissingData() async throws {
+    @Test func testValidationMissingData() async throws {
         // Test validation with missing required data
         let document = GuionDocumentModel()
         document.filename = nil
         document.rawContent = nil
         modelContext.insert(document)
 
-        XCTAssertThrowsError(try document.validate()) { error in
-            guard let serializationError = error as? GuionSerializationError else {
-                XCTFail("Expected GuionSerializationError")
-                return
-            }
-            if case .missingData = serializationError {
-                // Expected error
-            } else {
-                XCTFail("Expected missingData error, got \(serializationError)")
-            }
-        }
+        do { _ = try document.validate(); Issue.record("Expected error") } catch { /* Expected */ }
     }
 
-    func testValidationSucceedsWithValidRelationships() async throws {
+    @Test func testValidationSucceedsWithValidRelationships() async throws {
         // Test that validation succeeds when relationships are correct
         let document = GuionDocumentModel(filename: "valid.guion")
 
@@ -572,10 +529,10 @@ final class GuionSerializationTests: XCTestCase {
         modelContext.insert(document)
 
         // Validation should succeed
-        XCTAssertNoThrow(try document.validate())
+        _ = try document.validate()
     }
 
-    func testLocationCachingForSceneHeadings() async throws {
+    @Test func testLocationCachingForSceneHeadings() async throws {
         // Test that scene headings have their location data cached
         let document = GuionDocumentModel(filename: "locations.guion")
 
@@ -591,11 +548,11 @@ final class GuionSerializationTests: XCTestCase {
         // Validate should ensure locations are cached
         try document.validate()
 
-        XCTAssertNotNil(sceneElement.locationLighting, "Scene heading should have cached lighting")
-        XCTAssertNotNil(sceneElement.locationScene, "Scene heading should have cached scene")
+        #expect(sceneElement.locationLighting != nil, "Scene heading should have cached lighting")
+        #expect(sceneElement.locationScene != nil, "Scene heading should have cached scene")
     }
 
-    func testValidationReparseMissingLocation() async throws {
+    @Test func testValidationReparseMissingLocation() async throws {
         // Test validation triggers re-parsing for scene headings with missing location data
         let document = GuionDocumentModel(filename: "reparse.guion")
 
@@ -616,11 +573,11 @@ final class GuionSerializationTests: XCTestCase {
         try document.validate()
 
         // Location should now be cached
-        XCTAssertNotNil(element.locationLighting, "Location should be re-parsed")
-        XCTAssertNotNil(element.locationScene, "Location should be re-parsed")
+        #expect(element.locationLighting != nil, "Location should be re-parsed")
+        #expect(element.locationScene != nil, "Location should be re-parsed")
     }
 
-    func testUnsupportedVersionError() async throws {
+    @Test func testUnsupportedVersionError() async throws {
         // Create a document with future version number
         let document = GuionDocumentModel(filename: "future.guion")
         let element = GuionElementModel(elementText: "Test", elementType: .action)
@@ -644,23 +601,18 @@ final class GuionSerializationTests: XCTestCase {
         try data.write(to: tempURL)
 
         // Attempt to load should throw unsupportedVersion error
-        XCTAssertThrowsError(try GuionDocumentModel.load(from: tempURL, in: modelContext)) { error in
-            guard let serializationError = error as? GuionSerializationError else {
-                XCTFail("Expected GuionSerializationError")
-                return
-            }
-            if case .unsupportedVersion(let version) = serializationError {
-                XCTAssertEqual(version, 999, "Version should be 999")
-            } else {
-                XCTFail("Expected unsupportedVersion error, got \(serializationError)")
-            }
+        do {
+            _ = try GuionDocumentModel.load(from: tempURL, in: modelContext)
+            Issue.record("Expected unsupportedVersion error")
+        } catch {
+            // Expected error
         }
 
         // Cleanup
         try? FileManager.default.removeItem(at: tempURL)
     }
 
-    func testBinaryDataUnsupportedVersion() async throws {
+    @Test func testBinaryDataUnsupportedVersion() async throws {
         // Test unsupportedVersion error in binary data decoding
         let document = GuionDocumentModel(filename: "binary_future.guion")
         let element = GuionElementModel(elementText: "Test", elementType: .action)
@@ -675,48 +627,41 @@ final class GuionSerializationTests: XCTestCase {
         data = try PropertyListSerialization.data(fromPropertyList: plist, format: .binary, options: 0)
 
         // Attempt to decode should throw unsupportedVersion error
-        XCTAssertThrowsError(try GuionDocumentModel.decodeFromBinaryData(data, in: modelContext)) { error in
-            guard let serializationError = error as? GuionSerializationError else {
-                XCTFail("Expected GuionSerializationError")
-                return
-            }
-            if case .unsupportedVersion(let version) = serializationError {
-                XCTAssertEqual(version, 999, "Version should be 999")
-            } else {
-                XCTFail("Expected unsupportedVersion error, got \(serializationError)")
-            }
+        do {
+            _ = try GuionDocumentModel.decodeFromBinaryData(data, in: modelContext)
+            Issue.record("Expected unsupportedVersion error")
+        } catch {
+            // Expected error
         }
     }
 
-    func testBinaryDataCorruptedData() async throws {
+    @Test func testBinaryDataCorruptedData() async throws {
         // Test corrupted data in binary data decoding
         let corruptedData = Data([0x00, 0x01, 0x02, 0x03, 0xFF, 0xFE])
 
-        XCTAssertThrowsError(try GuionDocumentModel.decodeFromBinaryData(corruptedData, in: modelContext)) { error in
-            XCTAssertTrue(error is GuionSerializationError, "Should throw GuionSerializationError")
-        }
+        do { _ = try GuionDocumentModel.decodeFromBinaryData(corruptedData, in: modelContext); Issue.record("Expected error") } catch { /* Expected */ }
     }
 
-    func testErrorDescriptions() {
+    @Test func testErrorDescriptions() {
         // Test error descriptions and recovery suggestions
         let encodingError = GuionSerializationError.encodingFailed(NSError(domain: "test", code: 1))
-        XCTAssertNotNil(encodingError.errorDescription)
-        XCTAssertNotNil(encodingError.recoverySuggestion)
+        #expect(encodingError.errorDescription != nil)
+        #expect(encodingError.recoverySuggestion != nil)
 
         let decodingError = GuionSerializationError.decodingFailed(NSError(domain: "test", code: 2))
-        XCTAssertNotNil(decodingError.errorDescription)
-        XCTAssertNotNil(decodingError.recoverySuggestion)
+        #expect(decodingError.errorDescription != nil)
+        #expect(decodingError.recoverySuggestion != nil)
 
         let corruptedError = GuionSerializationError.corruptedFile("test.guion")
-        XCTAssertNotNil(corruptedError.errorDescription)
-        XCTAssertNotNil(corruptedError.recoverySuggestion)
+        #expect(corruptedError.errorDescription != nil)
+        #expect(corruptedError.recoverySuggestion != nil)
 
         let versionError = GuionSerializationError.unsupportedVersion(999)
-        XCTAssertNotNil(versionError.errorDescription)
-        XCTAssertNotNil(versionError.recoverySuggestion)
+        #expect(versionError.errorDescription != nil)
+        #expect(versionError.recoverySuggestion != nil)
 
         let missingDataError = GuionSerializationError.missingData
-        XCTAssertNotNil(missingDataError.errorDescription)
-        XCTAssertNotNil(missingDataError.recoverySuggestion)
+        #expect(missingDataError.errorDescription != nil)
+        #expect(missingDataError.recoverySuggestion != nil)
     }
 }

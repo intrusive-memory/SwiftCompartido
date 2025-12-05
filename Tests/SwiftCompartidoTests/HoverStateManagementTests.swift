@@ -5,6 +5,7 @@
 //  Tests for hover state management in GuionElementRow
 //
 
+import Foundation
 import Testing
 import SwiftUI
 import SwiftData

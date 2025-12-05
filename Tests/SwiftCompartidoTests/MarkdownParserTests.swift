@@ -24,7 +24,7 @@ struct MarkdownParserTests {
         More action here.
         """
 
-        let (elements, titlePage) = try MarkdownParser.parse(markdown)
+        let (elements, titlePage, _) = try MarkdownParser.parse(markdown)
 
         #expect(elements.count >= 2)
         #expect(titlePage.isEmpty)
@@ -47,7 +47,7 @@ struct MarkdownParserTests {
         - Third item
         """
 
-        let (elements, _) = try MarkdownParser.parse(markdown)
+        let (elements, _, _) = try MarkdownParser.parse(markdown)
 
         // List items should now be parsed as unorderedListItem elements
         let listItems = elements.filter {
@@ -80,7 +80,7 @@ struct MarkdownParserTests {
         Some content here.
         """
 
-        let (elements, titlePage) = try MarkdownParser.parse(markdown)
+        let (elements, titlePage, _) = try MarkdownParser.parse(markdown)
 
         #expect(titlePage.count == 3)
 
@@ -120,7 +120,7 @@ struct MarkdownParserTests {
         # Opening Scene
         """
 
-        let (elements, titlePage) = try MarkdownParser.parse(markdown)
+        let (elements, titlePage, _) = try MarkdownParser.parse(markdown)
 
         // Check authors
         let authorDict = titlePage.first(where: { $0.keys.contains("authors") })
@@ -146,7 +146,7 @@ struct MarkdownParserTests {
         # Scene
         """
 
-        let (elements, titlePage) = try MarkdownParser.parse(markdown)
+        let (elements, titlePage, _) = try MarkdownParser.parse(markdown)
 
         // Title should have value
         let titleDict = titlePage.first(where: { $0.keys.contains("title") })
@@ -169,7 +169,7 @@ struct MarkdownParserTests {
         This markdown doesn't have front matter.
         """
 
-        let (elements, titlePage) = try MarkdownParser.parse(markdown)
+        let (elements, titlePage, _) = try MarkdownParser.parse(markdown)
 
         #expect(titlePage.isEmpty)
         #expect(elements.count > 0)
@@ -187,7 +187,7 @@ struct MarkdownParserTests {
         # Scene
         """
 
-        let (elements, titlePage) = try MarkdownParser.parse(markdown)
+        let (elements, titlePage, _) = try MarkdownParser.parse(markdown)
 
         let titleDict = titlePage.first(where: { $0.keys.contains("title") })
         #expect(titleDict?["title"]?.first == "A Story: The Beginning")
@@ -206,7 +206,7 @@ struct MarkdownParserTests {
         # Scene without closing front matter delimiter
         """
 
-        let (elements, _) = try MarkdownParser.parse(markdown)
+        let (elements, _, _) = try MarkdownParser.parse(markdown)
 
         // Without closing ---, it should be treated as regular content
         // The parser should handle this gracefully
@@ -225,7 +225,7 @@ struct MarkdownParserTests {
         # Scene
         """
 
-        let (elements, titlePage) = try MarkdownParser.parse(markdown)
+        let (elements, titlePage, _) = try MarkdownParser.parse(markdown)
 
         // Keys should be normalized to lowercase
         let titleDict = titlePage.first(where: { $0.keys.contains("title") })
@@ -249,7 +249,7 @@ struct MarkdownParserTests {
         # Scene
         """
 
-        let (_, titlePage) = try MarkdownParser.parse(markdown)
+        let (_, titlePage, _) = try MarkdownParser.parse(markdown)
 
         // "author" should be normalized to "authors"
         let authorDict = titlePage.first(where: { $0.keys.contains("authors") })
@@ -306,7 +306,7 @@ struct MarkdownParserTests {
         The story begins...
         """
 
-        let (elements, titlePage) = try MarkdownParser.parse(markdown)
+        let (elements, titlePage, _) = try MarkdownParser.parse(markdown)
 
         #expect(titlePage.count == 7) // All 7 fields
 

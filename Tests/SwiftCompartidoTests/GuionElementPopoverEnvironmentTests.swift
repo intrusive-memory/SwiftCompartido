@@ -5,6 +5,7 @@
 //  Tests for GuionElementPopover environment key and propagation
 //
 
+import Foundation
 import Testing
 import SwiftUI
 import SwiftData

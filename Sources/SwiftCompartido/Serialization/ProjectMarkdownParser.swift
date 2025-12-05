@@ -143,7 +143,7 @@ public struct ProjectMarkdownParser {
     /// ```
     public func parse(markdown: String) throws -> (frontMatter: ProjectFrontMatter, body: String) {
         // Use existing MarkdownParser to extract YAML front matter
-        let (elements, titlePageData) = try MarkdownParser.parse(markdown)
+        let (elements, titlePageData, _) = try MarkdownParser.parse(markdown)
 
         // Extract body content from elements
         let body = elements.map { $0.elementText }.joined(separator: "\n\n")

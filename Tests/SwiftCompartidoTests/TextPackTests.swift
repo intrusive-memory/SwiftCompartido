@@ -329,7 +329,7 @@ struct TextPackTests {
 
     @Test func testTextPackWithBigFishFixture() async throws {
         // Load Big Fish screenplay
-        let bigfishURL = try Fijos.getFixture("bigfish", extension: "fountain")
+        let bigfishURL = try await FixtureManager.shared.withExclusiveAccess(to: "bigfish.fountain") { $0 }
         let screenplay = try await GuionParsedElementCollection(file: bigfishURL.path)
 
         // Create TextPack

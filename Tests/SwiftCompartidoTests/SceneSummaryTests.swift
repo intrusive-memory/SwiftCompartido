@@ -6,6 +6,7 @@
 //
 //  Tests for scene summarization functionality
 
+import Foundation
 import Testing
 import SwiftFijos
 @testable import SwiftCompartido
@@ -18,7 +19,7 @@ struct SceneSummaryTests {
 
     @Test("SceneSummarizer extracts basic scene information")
     func testSceneSummarizerBasicExtraction() async throws {
-        let fountainURL = try Fijos.getFixture("bigfish", extension: "fountain")
+        let fountainURL = try await FixtureManager.shared.withExclusiveAccess(to: "bigfish.fountain") { $0 }
         let script = try await GuionParsedElementCollection(file: fountainURL.path)
         let outline = script.extractOutline()
 
@@ -49,7 +50,7 @@ struct SceneSummaryTests {
 
     @Test("SceneSummarizer handles scene with minimal dialogue")
     func testSceneSummarizerMinimalDialogue() async throws {
-        let fountainURL = try Fijos.getFixture("bigfish", extension: "fountain")
+        let fountainURL = try await FixtureManager.shared.withExclusiveAccess(to: "bigfish.fountain") { $0 }
         let script = try await GuionParsedElementCollection(file: fountainURL.path)
         let outline = script.extractOutline()
 
@@ -66,7 +67,7 @@ struct SceneSummaryTests {
     @Test("Scene text extraction and summarization integration")
     @MainActor
     func testSceneTextWithSummarization() async throws {
-        let fountainURL = try Fijos.getFixture("bigfish", extension: "fountain")
+        let fountainURL = try await FixtureManager.shared.withExclusiveAccess(to: "bigfish.fountain") { $0 }
         let script = try await GuionParsedElementCollection(file: fountainURL.path)
         let outline = script.extractOutline()
 

@@ -5,15 +5,16 @@
 //  Tests for Scene Browser data extraction and hierarchy
 //
 
-import XCTest
+import Foundation
+import Testing
 import SwiftFijos
 @testable import SwiftCompartido
 
-final class SceneBrowserTests: XCTestCase {
+struct SceneBrowserTests {
 
     // MARK: - Test Data Model Initialization
 
-    func testSceneBrowserDataInitialization() {
+    @Test func testSceneBrowserDataInitialization() {
         let title = OutlineElement(
             id: "title-1",
             index: 0,
@@ -27,12 +28,12 @@ final class SceneBrowserTests: XCTestCase {
         let chapters: [ChapterData] = []
         let browserData = SceneBrowserData(title: title, chapters: chapters)
 
-        XCTAssertNotNil(browserData.title)
-        XCTAssertEqual(browserData.title?.string, "Test Title")
-        XCTAssertEqual(browserData.chapters.count, 0)
+        #expect(browserData.title != nil)
+        #expect(browserData.title?.string == "Test Title")
+        #expect(browserData.chapters.count == 0)
     }
 
-    func testChapterDataInitialization() {
+    @Test func testChapterDataInitialization() {
         let chapterElement = OutlineElement(
             id: "chapter-1",
             index: 1,
@@ -45,12 +46,12 @@ final class SceneBrowserTests: XCTestCase {
 
         let chapterData = ChapterData(element: chapterElement, sceneGroups: [])
 
-        XCTAssertEqual(chapterData.id, "chapter-1")
-        XCTAssertEqual(chapterData.title, "CHAPTER 1")
-        XCTAssertEqual(chapterData.sceneGroups.count, 0)
+        #expect(chapterData.id == "chapter-1")
+        #expect(chapterData.title == "CHAPTER 1")
+        #expect(chapterData.sceneGroups.count == 0)
     }
 
-    func testSceneGroupDataInitialization() {
+    @Test func testSceneGroupDataInitialization() {
         let sceneGroupElement = OutlineElement(
             id: "group-1",
             index: 2,
@@ -65,14 +66,14 @@ final class SceneBrowserTests: XCTestCase {
 
         let sceneGroupData = SceneGroupData(element: sceneGroupElement, scenes: [])
 
-        XCTAssertEqual(sceneGroupData.id, "group-1")
-        XCTAssertEqual(sceneGroupData.title, "PROLOGUE")
-        XCTAssertEqual(sceneGroupData.directive, "PROLOGUE")
-        XCTAssertEqual(sceneGroupData.directiveDescription, "S#{{SERIES: 1001}}")
-        XCTAssertEqual(sceneGroupData.scenes.count, 0)
+        #expect(sceneGroupData.id == "group-1")
+        #expect(sceneGroupData.title == "PROLOGUE")
+        #expect(sceneGroupData.directive == "PROLOGUE")
+        #expect(sceneGroupData.directiveDescription == "S#{{SERIES: 1001}}")
+        #expect(sceneGroupData.scenes.count == 0)
     }
 
-    func testSceneDataInitialization() {
+    @Test func testSceneDataInitialization() {
         let sceneElement = OutlineElement(
             id: "scene-1",
             index: 3,
@@ -93,15 +94,15 @@ final class SceneBrowserTests: XCTestCase {
             sceneElements: sceneElements
         )
 
-        XCTAssertEqual(sceneData.id, "scene-1")
-        XCTAssertEqual(sceneData.slugline, "INT. STEAM ROOM - DAY")
-        XCTAssertEqual(sceneData.sceneId, "uuid-123")
-        XCTAssertEqual(sceneData.sceneElements?.count, 1)
-        XCTAssertFalse(sceneData.hasPreScene)
-        XCTAssertFalse(sceneData.isOverBlack)
+        #expect(sceneData.id == "scene-1")
+        #expect(sceneData.slugline == "INT. STEAM ROOM - DAY")
+        #expect(sceneData.sceneId == "uuid-123")
+        #expect(sceneData.sceneElements?.count == 1)
+        #expect(!sceneData.hasPreScene)
+        #expect(!sceneData.isOverBlack)
     }
 
-    func testSceneDataWithPreScene() {
+    @Test func testSceneDataWithPreScene() {
         let sceneElement = OutlineElement(
             id: "scene-1",
             index: 3,
@@ -127,13 +128,13 @@ final class SceneBrowserTests: XCTestCase {
             preSceneElements: preSceneElements
         )
 
-        XCTAssertTrue(sceneData.hasPreScene)
-        XCTAssertEqual(sceneData.preSceneElements?.count, 2)
-        XCTAssertTrue(sceneData.preSceneText.contains("CHAPTER 1"))
-        XCTAssertTrue(sceneData.preSceneText.contains("BERNARD"))
+        #expect(sceneData.hasPreScene)
+        #expect(sceneData.preSceneElements?.count == 2)
+        #expect(sceneData.preSceneText.contains("CHAPTER 1"))
+        #expect(sceneData.preSceneText.contains("BERNARD"))
     }
 
-    func testOverBlackDetection() {
+    @Test func testOverBlackDetection() {
         let overBlackElement = OutlineElement(
             id: "scene-over-black",
             index: 1,
@@ -149,80 +150,80 @@ final class SceneBrowserTests: XCTestCase {
             sceneElements: []
         )
 
-        XCTAssertTrue(sceneData.isOverBlack)
+        #expect(sceneData.isOverBlack)
     }
 
     // MARK: - Test Hierarchy Extraction
 
-    func testExtractSceneBrowserDataWithTestFixture() throws {
+    @Test func testExtractSceneBrowserDataWithTestFixture() async throws {
         // Load test.fountain fixture
-        let fountainPath = try Fijos.getFixture("test", extension: "fountain").path
+        let fountainPath = try await FixtureManager.shared.withExclusiveAccess(to: "test.fountain") { $0 }.path
 
-        let script = try GuionParsedElementCollection(file: fountainPath)
+        let script = try await GuionParsedElementCollection(file: fountainPath)
         let browserData = script.extractSceneBrowserData()
 
         // Verify title exists
-        XCTAssertNotNil(browserData.title, "Should have a title element")
+        #expect(browserData.title != nil, "Should have a title element")
 
         // Verify chapters exist
-        XCTAssertGreaterThan(browserData.chapters.count, 0, "Should have at least one chapter")
+        #expect(browserData.chapters.count > 0, "Should have at least one chapter")
 
         // Verify first chapter structure
         if let firstChapter = browserData.chapters.first {
-            XCTAssertNotNil(firstChapter.element)
-            XCTAssertTrue(firstChapter.element.isChapter)
-            XCTAssertGreaterThan(firstChapter.sceneGroups.count, 0, "Chapter should have scene groups")
+            #expect(firstChapter.element != nil)
+            #expect(firstChapter.element.isChapter)
+            #expect(firstChapter.sceneGroups.count > 0, "Chapter should have scene groups")
         }
     }
 
-    func testSceneGroupsInChapter() throws {
-        let fountainPath = try Fijos.getFixture("test", extension: "fountain").path
+    @Test func testSceneGroupsInChapter() async throws {
+        let fountainPath = try await FixtureManager.shared.withExclusiveAccess(to: "test.fountain") { $0 }.path
 
-        let script = try GuionParsedElementCollection(file: fountainPath)
+        let script = try await GuionParsedElementCollection(file: fountainPath)
         let browserData = script.extractSceneBrowserData()
 
         guard let firstChapter = browserData.chapters.first else {
-            XCTFail("Should have at least one chapter")
+            Issue.record("Should have at least one chapter")
             return
         }
 
         // Verify scene groups exist
-        XCTAssertGreaterThan(firstChapter.sceneGroups.count, 0, "Should have scene groups")
+        #expect(firstChapter.sceneGroups.count > 0, "Should have scene groups")
 
         // Verify scene group structure
         if let firstGroup = firstChapter.sceneGroups.first {
-            XCTAssertEqual(firstGroup.element.level, 3)
-            XCTAssertGreaterThan(firstGroup.scenes.count, 0, "Scene group should have scenes")
+            #expect(firstGroup.element.level == 3)
+            #expect(firstGroup.scenes.count > 0, "Scene group should have scenes")
         }
     }
 
-    func testScenesInSceneGroup() throws {
-        let fountainPath = try Fijos.getFixture("test", extension: "fountain").path
+    @Test func testScenesInSceneGroup() async throws {
+        let fountainPath = try await FixtureManager.shared.withExclusiveAccess(to: "test.fountain") { $0 }.path
 
-        let script = try GuionParsedElementCollection(file: fountainPath)
+        let script = try await GuionParsedElementCollection(file: fountainPath)
         let browserData = script.extractSceneBrowserData()
 
         guard let firstChapter = browserData.chapters.first,
               let firstGroup = firstChapter.sceneGroups.first else {
-            XCTFail("Should have chapter and scene group")
+            Issue.record("Should have chapter and scene group")
             return
         }
 
         // Verify scenes exist
-        XCTAssertGreaterThan(firstGroup.scenes.count, 0, "Should have scenes")
+        #expect(firstGroup.scenes.count > 0, "Should have scenes")
 
         // Verify scene structure
         if let firstScene = firstGroup.scenes.first {
-            XCTAssertFalse(firstScene.slugline.isEmpty, "Scene should have slugline")
-            XCTAssertNotNil(firstScene.element)
-            XCTAssertEqual(firstScene.element?.type, "sceneHeader")
+            #expect(!firstScene.slugline.isEmpty, "Scene should have slugline")
+            #expect(firstScene.element != nil)
+            #expect(firstScene.element?.type == "sceneHeader")
         }
     }
 
-    func testOverBlackAttachmentToNextScene() throws {
-        let fountainPath = try Fijos.getFixture("test", extension: "fountain").path
+    @Test func testOverBlackAttachmentToNextScene() async throws {
+        let fountainPath = try await FixtureManager.shared.withExclusiveAccess(to: "test.fountain") { $0 }.path
 
-        let script = try GuionParsedElementCollection(file: fountainPath)
+        let script = try await GuionParsedElementCollection(file: fountainPath)
         let browserData = script.extractSceneBrowserData()
 
         // Find a scene with preScene content
@@ -232,8 +233,8 @@ final class SceneBrowserTests: XCTestCase {
                 for scene in sceneGroup.scenes {
                     if scene.hasPreScene {
                         foundPreScene = true
-                        XCTAssertNotNil(scene.preSceneElements)
-                        XCTAssertGreaterThan(scene.preSceneElements!.count, 0)
+                        #expect(scene.preSceneElements != nil)
+                        #expect(scene.preSceneElements!.count > 0)
                         break
                     }
                 }
@@ -246,10 +247,10 @@ final class SceneBrowserTests: XCTestCase {
         // If it doesn't exist, the test will just verify the structure works
     }
 
-    func testSceneDirectiveMetadata() throws {
-        let fountainPath = try Fijos.getFixture("test", extension: "fountain").path
+    @Test func testSceneDirectiveMetadata() async throws {
+        let fountainPath = try await FixtureManager.shared.withExclusiveAccess(to: "test.fountain") { $0 }.path
 
-        let script = try GuionParsedElementCollection(file: fountainPath)
+        let script = try await GuionParsedElementCollection(file: fountainPath)
         let browserData = script.extractSceneBrowserData()
 
         // Look for scene groups with directives
@@ -258,7 +259,7 @@ final class SceneBrowserTests: XCTestCase {
             for sceneGroup in chapter.sceneGroups {
                 if sceneGroup.directive != nil {
                     foundDirective = true
-                    XCTAssertFalse(sceneGroup.directive!.isEmpty)
+                    #expect(!sceneGroup.directive!.isEmpty)
                     // Directive description might be nil or might have metadata
                     break
                 }
@@ -275,29 +276,29 @@ final class SceneBrowserTests: XCTestCase {
 
     // MARK: - Edge Cases
 
-    func testEmptyScript() {
+    @Test func testEmptyScript() {
         let script = GuionParsedElementCollection()
         let browserData = script.extractSceneBrowserData()
 
         // Empty script may have a default "Untitled Script" title from outline generation
         // This is expected behavior
-        XCTAssertEqual(browserData.chapters.count, 0)
+        #expect(browserData.chapters.count == 0)
     }
 
-    func testScriptWithOnlyTitle() throws {
+    @Test func testScriptWithOnlyTitle() async throws {
         let content = "# Test Title\n"
-        let script = try GuionParsedElementCollection(string: content)
+        let script = try await GuionParsedElementCollection(string: content)
         let browserData = script.extractSceneBrowserData()
 
-        XCTAssertNotNil(browserData.title)
-        XCTAssertEqual(browserData.chapters.count, 0)
+        #expect(browserData.title != nil)
+        #expect(browserData.chapters.count == 0)
     }
 
-    func testMultipleChapters() throws {
-        let fountainPath = try Fijos.getFixture("test", extension: "fountain").path
+    @Test func testMultipleChapters() async throws {
+        let fountainPath = try await FixtureManager.shared.withExclusiveAccess(to: "test.fountain") { $0 }.path
         print("\n=== DEBUG: Loading file from: \(fountainPath) ===")
 
-        let script = try GuionParsedElementCollection(file: fountainPath)
+        let script = try await GuionParsedElementCollection(file: fountainPath)
         print("Loaded \(script.elements.count) elements")
 
         // Debug: Check for Section Headings
@@ -326,12 +327,12 @@ final class SceneBrowserTests: XCTestCase {
 
         // test.fountain should have at least one chapter
         // Note: Some test fixtures may only have a single chapter depending on content
-        XCTAssertGreaterThanOrEqual(browserData.chapters.count, 1, "Should have at least one chapter")
+        #expect(browserData.chapters.count >= 1, "Should have at least one chapter")
 
         // Verify each chapter has an ID
         for chapter in browserData.chapters {
-            XCTAssertFalse(chapter.id.isEmpty)
-            XCTAssertTrue(chapter.element.isChapter)
+            #expect(!chapter.id.isEmpty)
+            #expect(chapter.element.isChapter)
         }
     }
 }

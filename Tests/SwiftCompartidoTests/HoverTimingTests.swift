@@ -5,6 +5,7 @@
 //  Tests for hover timing and delay behavior
 //
 
+import Foundation
 import Testing
 import SwiftUI
 @testable import SwiftCompartido

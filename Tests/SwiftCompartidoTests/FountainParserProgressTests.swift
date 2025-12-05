@@ -1,3 +1,4 @@
+import Foundation
 import Testing
 import SwiftFijos
 @testable import SwiftCompartido
@@ -15,8 +16,12 @@ struct FountainParserProgressTests {
 
     // MARK: - Helper Methods
 
-    private func loadFixtureString(_ name: String) throws -> String {
-        let url = try Fijos.getFixture(name, extension: "fountain")
+    private func loadFixtureString(_ name: String) async throws -> String {
+        let url = try await FixtureManager.shared.withExclusiveAccess(
+            to: "\(name).fountain"
+        ) { url in
+            return url
+        }
         return try String(contentsOf: url, encoding: .utf8)
     }
 
@@ -44,7 +49,7 @@ struct FountainParserProgressTests {
         }
 
         // Use bigfish.fountain fixture - large real-world screenplay
-        let screenplay = try loadFixtureString("bigfish")
+        let screenplay = try await loadFixtureString("bigfish")
         let parser = try await FountainParser(string: screenplay, progress: progress)
 
         // Wait for async updates to propagate
@@ -81,7 +86,7 @@ struct FountainParserProgressTests {
         }
 
         // Use test.fountain fixture - smaller screenplay for quick completion test
-        let screenplay = try loadFixtureString("test")
+        let screenplay = try await loadFixtureString("test")
         _ = try await FountainParser(string: screenplay, progress: progress)
 
         // Wait a bit for async updates to propagate
@@ -125,7 +130,7 @@ struct FountainParserProgressTests {
         }
 
         // Use bigfish.fountain fixture
-        let screenplay = try loadFixtureString("bigfish")
+        let screenplay = try await loadFixtureString("bigfish")
         _ = try await FountainParser(string: screenplay, progress: progress)
 
         // Wait for async updates to propagate
@@ -142,7 +147,7 @@ struct FountainParserProgressTests {
 
     @Test("Cancellation stops parsing mid-operation")
     func testCancellation() async throws {
-        let screenplay = try loadFixtureString("bigfish")
+        let screenplay = try await loadFixtureString("bigfish")
 
         let task = Task {
             let progress = OperationProgress(totalUnits: nil)
@@ -166,7 +171,7 @@ struct FountainParserProgressTests {
 
     @Test("Parser works with nil progress handler")
     func testNilProgressHandler() async throws {
-        let screenplay = try loadFixtureString("test")
+        let screenplay = try await loadFixtureString("test")
 
         // Explicitly pass nil progress to use async init
         let nilProgress: OperationProgress? = nil
@@ -181,7 +186,7 @@ struct FountainParserProgressTests {
     @Test("Title page parsing reports progress")
     func testTitlePageProgress() async throws {
         // Use bigfish.fountain which has a complete title page
-        let screenplay = try loadFixtureString("bigfish")
+        let screenplay = try await loadFixtureString("bigfish")
 
         actor ProgressCollector {
             var descriptions: [String] = []
@@ -230,7 +235,7 @@ struct FountainParserProgressTests {
     @Test("Multi-line action blocks are counted correctly")
     func testMultiLineElements() async throws {
         // Use test.fountain which has multi-line elements
-        let screenplay = try loadFixtureString("test")
+        let screenplay = try await loadFixtureString("test")
 
         let nilProgress: OperationProgress? = nil
         let parser = try await FountainParser(string: screenplay, progress: nilProgress)
@@ -242,7 +247,17 @@ struct FountainParserProgressTests {
 
     @Test("Synchronous init still works")
     func testBackwardCompatibility() throws {
-        let screenplay = try loadFixtureString("test")
+        let screenplay = """
+        Title: Test Screenplay
+        Author: Test Author
+
+        INT. TEST LOCATION - DAY
+
+        Action text.
+
+        CHARACTER
+        Dialogue.
+        """
 
         // Call in non-async context to ensure sync init is used
         let parser = FountainParser(string: screenplay)
@@ -253,7 +268,7 @@ struct FountainParserProgressTests {
 
     @Test("Async and sync parsers produce identical results")
     func testAsyncSyncEquivalence() async throws {
-        let screenplay = try loadFixtureString("test")
+        let screenplay = try await loadFixtureString("test")
 
         // Create sync parser in a non-async closure to force synchronous init
         let syncParser = { FountainParser(string: screenplay) }()
@@ -296,7 +311,7 @@ struct FountainParserProgressTests {
             }
         }
 
-        let screenplay = try loadFixtureString("test")
+        let screenplay = try await loadFixtureString("test")
         _ = try await FountainParser(string: screenplay, progress: progress)
 
         // Wait for async updates to propagate
@@ -314,7 +329,7 @@ struct FountainParserProgressTests {
     @Test("Large screenplay parsing works with progress")
     func testLargeScreenplayParsing() async throws {
         // Use bigfish.fountain - real large screenplay
-        let veryLargeScreenplay = try loadFixtureString("bigfish")
+        let veryLargeScreenplay = try await loadFixtureString("bigfish")
 
         actor ProgressCollector {
             var updateCount: Int = 0

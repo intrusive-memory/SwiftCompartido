@@ -16,9 +16,13 @@ struct TextPackWriterProgressTests {
 
     // MARK: - Helper Methods
 
-    private func loadFixtureScreenplay(_ name: String) throws -> GuionParsedElementCollection {
-        let url = try Fijos.getFixture(name, extension: "fountain")
-        return try GuionParsedElementCollection(file: url.path)
+    private func loadFixtureScreenplay(_ name: String) async throws -> GuionParsedElementCollection {
+        let url = try await FixtureManager.shared.withExclusiveAccess(
+            to: "\(name).fountain"
+        ) { url in
+            return url
+        }
+        return try await GuionParsedElementCollection(file: url.path)
     }
 
     private func createSimpleScreenplay() throws -> GuionParsedElementCollection {
@@ -144,7 +148,7 @@ struct TextPackWriterProgressTests {
         }
 
         // Use bigfish.fountain which has many characters
-        let screenplay = try loadFixtureScreenplay("bigfish")
+        let screenplay = try await loadFixtureScreenplay("bigfish")
         let bundle = try await TextPackWriter.createTextPack(from: screenplay, progress: progress)
 
         // Wait for async updates
@@ -187,7 +191,7 @@ struct TextPackWriterProgressTests {
         }
 
         // Use bigfish.fountain which has many locations
-        let screenplay = try loadFixtureScreenplay("bigfish")
+        let screenplay = try await loadFixtureScreenplay("bigfish")
         let bundle = try await TextPackWriter.createTextPack(from: screenplay, progress: progress)
 
         // Wait for async updates
@@ -230,7 +234,7 @@ struct TextPackWriterProgressTests {
         }
 
         // Use bigfish.fountain - large real screenplay
-        let screenplay = try loadFixtureScreenplay("bigfish")
+        let screenplay = try await loadFixtureScreenplay("bigfish")
         let bundle = try await TextPackWriter.createTextPack(from: screenplay, progress: progress)
 
         // Wait for async updates
@@ -258,7 +262,7 @@ struct TextPackWriterProgressTests {
             }
         }
 
-        let screenplay = try loadFixtureScreenplay("bigfish")
+        let screenplay = try await loadFixtureScreenplay("bigfish")
         let exportActor = ExportActor()
 
         let task = Task {
@@ -287,7 +291,7 @@ struct TextPackWriterProgressTests {
             }
         }
 
-        let screenplay = try loadFixtureScreenplay("bigfish")
+        let screenplay = try await loadFixtureScreenplay("bigfish")
         let exportActor = ExportActor()
 
         let task = Task {
@@ -448,7 +452,7 @@ struct TextPackWriterProgressTests {
 
     @Test("Resources directory contains all expected files")
     func testResourcesDirectoryContents() async throws {
-        let screenplay = try loadFixtureScreenplay("bigfish")
+        let screenplay = try await loadFixtureScreenplay("bigfish")
 
         let bundle = try await TextPackWriter.createTextPack(from: screenplay, progress: nil)
 

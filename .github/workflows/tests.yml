@@ -7,6 +7,10 @@ on:
     branches: [main]
   workflow_dispatch:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   # Step 1: Code Quality (runs first)
   code-quality:
@@ -58,7 +62,7 @@ jobs:
           xcodebuild build \
             -scheme SwiftCompartido \
             -sdk iphonesimulator \
-            -destination 'platform=iOS Simulator,name=iPhone 17 Pro' \
+            -destination 'platform=iOS Simulator,name=iPhone 17,OS=26.1' \
             -quiet \
             CODE_SIGNING_ALLOWED=NO
 
@@ -110,7 +114,7 @@ jobs:
           xcodebuild test \
             -scheme SwiftCompartido \
             -sdk iphonesimulator \
-            -destination 'platform=iOS Simulator,name=iPhone 17 Pro' \
+            -destination 'platform=iOS Simulator,name=iPhone 17,OS=26.1' \
             -enableCodeCoverage YES \
             -parallel-testing-enabled NO \
             $SKIP_ARGS \
@@ -247,7 +251,7 @@ jobs:
           xcodebuild build \
             -scheme SwiftCompartido \
             -sdk iphonesimulator \
-            -destination 'platform=iOS Simulator,name=iPhone 17 Pro' \
+            -destination 'platform=iOS Simulator,name=iPhone 17,OS=26.1' \
             -configuration Release \
             -quiet \
             CODE_SIGNING_ALLOWED=NO
@@ -260,7 +264,7 @@ jobs:
           xcodebuild test \
             -scheme SwiftCompartido \
             -sdk iphonesimulator \
-            -destination 'platform=iOS Simulator,name=iPhone 17 Pro' \
+            -destination 'platform=iOS Simulator,name=iPhone 17,OS=26.1' \
             -configuration Release \
             -only-testing:SwiftCompartidoTests/PerformanceTests \
             -only-testing:SwiftCompartidoTests/GuionViewerPerformanceTests \
