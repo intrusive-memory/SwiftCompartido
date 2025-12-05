@@ -627,7 +627,7 @@ When adding new tests, you **MUST** evaluate whether they belong in short or lon
 
 ## Common Patterns
 
-### App Intents & Shortcuts Integration (NEW in 6.0.0)
+### App Intents & Shortcuts Integration (NEW in 6.1.0)
 
 SwiftCompartido provides comprehensive App Intents support for Apple Shortcuts integration:
 
@@ -688,7 +688,7 @@ struct ContentView: View {
 }
 ```
 
-**Or use ParsedFileService (NEW in 6.0.0):**
+**Or use ParsedFileService (NEW in 6.1.0):**
 ```swift
 @MainActor
 func parseAndQuery(url: URL) async throws {
@@ -817,13 +817,13 @@ EOF
 
 ### User Guides
 - `README.md` - User-facing overview
-- `Docs/APP_INTENTS_GUIDE.md` - Complete guide to Shortcuts integration (NEW in 6.0.0)
+- `Docs/APP_INTENTS_GUIDE.md` - Complete guide to Shortcuts integration (NEW in 6.1.0)
 - `AI-REFERENCE.md` - Comprehensive API reference
 - `USAGE-SUMMARY.md` - Quick reference and common patterns
 - `CHANGELOG.md` - Version history
 
 ### API Documentation
-- `Docs/PARSED_FILE_SERVICE_API.md` - Complete API reference for ParsedFileService (NEW in 6.0.0)
+- `Docs/PARSED_FILE_SERVICE_API.md` - Complete API reference for ParsedFileService (NEW in 6.1.0)
 - `Docs/PDF_CAPABILITIES.md` - PDF reading capabilities
 - `SOURCE_FILE_TRACKING.md` - Source file tracking guide
 

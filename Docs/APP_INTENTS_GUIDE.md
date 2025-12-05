@@ -14,7 +14,7 @@ Both intents return a `ScreenplayElementsReference` that can be chained to downs
 ## Requirements
 
 - iOS 26.0+ or macOS 26.0+
-- SwiftCompartido 6.0+
+- SwiftCompartido 6.1+
 - Shortcuts app (included with iOS/macOS)
 
 ## Quick Start
@@ -469,7 +469,7 @@ For issues or questions:
 
 ## Version History
 
-- **6.0.0**: Initial App Intents implementation
+- **6.1.0**: Initial App Intents implementation
   - ParseScreenplayFileIntent
   - QueryScreenplayElementsIntent
   - ScreenplayElementsReference
