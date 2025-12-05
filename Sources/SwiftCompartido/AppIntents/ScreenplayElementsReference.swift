@@ -273,8 +273,12 @@ public struct ElementReference: Codable, Sendable, Hashable, Identifiable {
 extension ElementReference {
     /// Creates an ElementReference from a GuionElementModel.
     ///
+    /// **Note**: This initializer cannot populate `characterName` because it lacks context
+    /// of preceding CHARACTER elements. Use `ScreenplayElementsReference.init(from:elements:)`
+    /// instead, which properly tracks character names across the element sequence.
+    ///
     /// - Parameter element: The source element model
-    /// - Returns: A new ElementReference
+    /// - Returns: A new ElementReference (with characterName always nil)
     public init(from element: GuionElementModel) {
         self.init(
             id: element.persistentModelID,
@@ -282,7 +286,7 @@ extension ElementReference {
             elementText: element.elementText,
             chapterIndex: element.chapterIndex,
             orderIndex: element.orderIndex,
-            characterName: nil // TODO: Extract from preceding CHARACTER element
+            characterName: nil // Cannot extract without full element context
         )
     }
 }
@@ -298,11 +302,40 @@ extension ScreenplayElementsReference {
     public init(from document: GuionDocumentModel, elements: [GuionElementModel]? = nil) {
         let sourceElements = elements ?? document.sortedElements
 
+        // Extract character names by tracking preceding CHARACTER elements
+        var elementRefs: [ElementReference] = []
+        var currentCharacter: String? = nil
+
+        for element in sourceElements {
+            // Update current character when we encounter a CHARACTER element
+            if element.elementType == .character {
+                currentCharacter = element.elementText.trimmingCharacters(in: .whitespacesAndNewlines)
+            }
+
+            // Create reference with character name for dialogue/parenthetical/lyrics
+            let characterName: String?
+            switch element.elementType {
+            case .dialogue, .parenthetical, .lyrics:
+                characterName = currentCharacter
+            default:
+                characterName = nil
+            }
+
+            elementRefs.append(ElementReference(
+                id: element.persistentModelID,
+                elementType: element.elementType,
+                elementText: element.elementText,
+                chapterIndex: element.chapterIndex,
+                orderIndex: element.orderIndex,
+                characterName: characterName
+            ))
+        }
+
         self.init(
             documentID: document.persistentModelID,
             documentTitle: document.title,
             documentFilename: document.filename,
-            elements: sourceElements.map { ElementReference(from: $0) }
+            elements: elementRefs
         )
     }
 }

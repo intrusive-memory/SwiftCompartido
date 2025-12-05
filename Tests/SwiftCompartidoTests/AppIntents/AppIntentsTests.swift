@@ -138,6 +138,39 @@ struct AppIntentsTests {
         #expect(reference.sceneCount == expectedSceneCount)
     }
 
+    @Test("ScreenplayElementsReference character name population")
+    func testScreenplayElementsReferenceCharacterNamePopulation() async throws {
+        let container = try makeTestContainer()
+        let service = ParsedFileService(modelContainer: container)
+
+        let fileURL = try fixtureURL(named: "bigfish.fountain")
+        let documentID = try await service.parseFile(at: fileURL)
+        let document = try await service.document(id: documentID)
+
+        let reference = ScreenplayElementsReference(from: document)
+
+        // Verify dialogue elements have character names
+        let dialogueElements = reference.elements.filter { $0.isDialogue }
+        #expect(dialogueElements.count > 0, "Should have dialogue elements")
+
+        // At least some dialogue should have character names
+        let dialogueWithNames = dialogueElements.filter { $0.characterName != nil }
+        #expect(dialogueWithNames.count > 0, "Dialogue elements should have character names")
+
+        // Verify dialogueCount(for:) works
+        if let firstCharacter = reference.characterNames.first {
+            let count = reference.dialogueCount(for: firstCharacter)
+            #expect(count > 0, "Should have dialogue for character: \(firstCharacter)")
+        }
+
+        // Verify character names are uppercase (standard Fountain format)
+        for element in dialogueElements {
+            if let name = element.characterName {
+                #expect(name.count > 0, "Character name should not be empty")
+            }
+        }
+    }
+
 
     // MARK: - ParseScreenplayFileIntent Tests
     // NOTE: Actual intent execution tests are disabled because they require a singleton
