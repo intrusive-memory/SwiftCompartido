@@ -21,9 +21,13 @@ struct SwiftDataProgressTests {
 
     // MARK: - Helper Methods
 
-    private func loadFixtureScreenplay(_ name: String) throws -> GuionParsedElementCollection {
-        let url = try Fijos.getFixture(name, extension: "fountain")
-        return try GuionParsedElementCollection(file: url.path)
+    private func loadFixtureScreenplay(_ name: String) async throws -> GuionParsedElementCollection {
+        let url = try await FixtureManager.shared.withExclusiveAccess(
+            to: "\(name).fountain"
+        ) { url in
+            return url
+        }
+        return try await GuionParsedElementCollection(file: url.path)
     }
 
     private func createSimpleScreenplay() throws -> GuionParsedElementCollection {
@@ -86,7 +90,7 @@ struct SwiftDataProgressTests {
             }
         }
 
-        let screenplay = try loadFixtureScreenplay("bigfish")
+        let screenplay = try await loadFixtureScreenplay("bigfish")
         let context = try createInMemoryModelContext()
 
         let document = await GuionDocumentParserSwiftData.parse(
@@ -138,7 +142,7 @@ struct SwiftDataProgressTests {
             }
         }
 
-        let screenplay = try loadFixtureScreenplay("bigfish")
+        let screenplay = try await loadFixtureScreenplay("bigfish")
         let context = try createInMemoryModelContext()
 
         let document = await GuionDocumentParserSwiftData.parse(
@@ -268,7 +272,7 @@ struct SwiftDataProgressTests {
             }
         }
 
-        let screenplay = try loadFixtureScreenplay("bigfish")
+        let screenplay = try await loadFixtureScreenplay("bigfish")
         let context = try createInMemoryModelContext()
 
         _ = await GuionDocumentParserSwiftData.parse(

@@ -15,8 +15,12 @@ struct FDXParserProgressTests {
 
     // MARK: - Helper Methods
 
-    private func loadFixtureData(_ name: String) throws -> Data {
-        let url = try Fijos.getFixture(name, extension: "fdx")
+    private func loadFixtureData(_ name: String) async throws -> Data {
+        let url = try await FixtureManager.shared.withExclusiveAccess(
+            to: "\(name).fdx"
+        ) { url in
+            return url
+        }
         return try Data(contentsOf: url)
     }
 
@@ -66,7 +70,7 @@ struct FDXParserProgressTests {
 
         let parser = FDXParser()
         // Use bigfish.fdx fixture - real large FDX screenplay
-        let data = try loadFixtureData("bigfish")
+        let data = try await loadFixtureData("bigfish")
 
         let document = try await parser.parse(data: data, filename: "bigfish.fdx", progress: progress)
 
@@ -146,7 +150,7 @@ struct FDXParserProgressTests {
 
         let parser = FDXParser()
         // Use bigfish.fdx fixture
-        let data = try loadFixtureData("bigfish")
+        let data = try await loadFixtureData("bigfish")
 
         let document = try await parser.parse(data: data, filename: "bigfish.fdx", progress: progress)
 
@@ -165,7 +169,7 @@ struct FDXParserProgressTests {
     @Test("FDXParser cancellation stops parsing")
     func testCancellation() async throws {
         // Use bigfish.fdx for cancellation test
-        let data = try loadFixtureData("bigfish")
+        let data = try await loadFixtureData("bigfish")
 
         let task = Task {
             let parser = FDXParser()
@@ -309,7 +313,7 @@ struct FDXParserProgressTests {
 
         let parser = FDXParser()
         // Use bigfish.fdx - real large FDX file
-        let data = try loadFixtureData("bigfish")
+        let data = try await loadFixtureData("bigfish")
 
         let document = try await parser.parse(data: data, filename: "bigfish.fdx", progress: progress)
 
