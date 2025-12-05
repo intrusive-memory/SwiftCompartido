@@ -698,9 +698,227 @@ No feature flags needed - App Intents are opt-in by design. Apps that don't use 
 
 ## Testing Strategy
 
-### Unit Tests
+### Three-Layer Testing Approach
 
-**ParsedFileService Tests (20 tests)**
+**Architecture**: Tests follow a pyramid pattern with fast unit tests at the base and comprehensive integration tests at the top.
+
+```
+┌─────────────────────────────────────────────────────────┐
+│ Layer 3: Integration Tests (8 tests)                   │
+│ - End-to-end via App Intents                           │
+│ - Real file → parse → database → query                 │
+│ - Use test fixtures from Fixtures/ directory           │
+└─────────────────────────────────────────────────────────┘
+                         ↑
+┌─────────────────────────────────────────────────────────┐
+│ Layer 2: App Intent Unit Tests (15 tests)              │
+│ - Test intent parameter handling                       │
+│ - Test entity serialization/Codable                    │
+│ - Verify computed properties (isDialogue, etc.)        │
+└─────────────────────────────────────────────────────────┘
+                         ↑
+┌─────────────────────────────────────────────────────────┐
+│ Layer 1: ParsedFileService Unit Tests (20 tests)       │
+│ - Direct service calls (no App Intents)                │
+│ - Fast, isolated, easy to debug                        │
+│ - Tests core parsing/query logic                       │
+└─────────────────────────────────────────────────────────┘
+```
+
+### Dependency Injection for Testability
+
+**Pattern**: Inject `ParsedFileService` into App Intents for testing
+
+```swift
+// Production use
+public struct ParseScreenplayFileIntent: AppIntent {
+    var service: ParsedFileService = .shared // Default to shared instance
+
+    public func perform() async throws -> ... {
+        let documentID = try await service.parseFile(at: fileURL)
+        // ...
+    }
+}
+
+// Test use
+var parseIntent = ParseScreenplayFileIntent()
+parseIntent.service = ParsedFileService(modelContainer: testContainer) // Inject test service
+let result = try await parseIntent.perform()
+```
+
+### Test Fixtures
+
+Use existing fixtures from `Fixtures/` directory:
+- `test_screenplay.fountain` (existing)
+- `test_screenplay.fdx` (existing)
+- `test_screenplay.pdf` (existing or create)
+- `dialogue_only.fountain` (small fixture for dialogue tests)
+- `multi_character.fountain` (fixture with multiple characters)
+
+### Layer 1: ParsedFileService Unit Tests (20 tests)
+
+**Goal**: Test service logic directly (no App Intents involved)
+
+**File**: `Tests/SwiftCompartidoTests/Services/ParsedFileServiceTests.swift`
+
+```swift
+import XCTest
+import SwiftData
+@testable import SwiftCompartido
+
+final class ParsedFileServiceTests: XCTestCase {
+    var container: ModelContainer!
+    var service: ParsedFileService!
+
+    override func setUp() async throws {
+        container = try ModelContainer(
+            for: GuionDocumentModel.self,
+            configurations: ModelConfiguration(isStoredInMemoryOnly: true)
+        )
+        service = ParsedFileService(modelContainer: container)
+    }
+
+    @Test("Parse Fountain file returns valid document ID")
+    func testParseFountainFile() async throws {
+        let fixtureURL = Bundle.module.url(
+            forResource: "test_screenplay",
+            withExtension: "fountain",
+            subdirectory: "Fixtures"
+        )!
+
+        let documentID = try await service.parseFile(at: fixtureURL)
+        let document = try await service.document(id: documentID)
+
+        #expect(document.title != nil)
+        #expect(document.sortedElements.count > 0)
+    }
+
+    @Test("Query elements with dialogue filter")
+    func testQueryDialogueFilter() async throws {
+        let fixtureURL = Bundle.module.url(
+            forResource: "test_screenplay",
+            withExtension: "fountain",
+            subdirectory: "Fixtures"
+        )!
+
+        let documentID = try await service.parseFile(at: fixtureURL)
+        let filter = ElementFilter(elementTypes: [.dialogue])
+        let elements = try await service.elements(documentID: documentID, filter: filter)
+
+        #expect(elements.allSatisfy { $0.elementType == .dialogue })
+    }
+}
+```
+
+### Layer 2: App Intent Unit Tests (15 tests)
+
+**Goal**: Test intent parameter handling, entity serialization, computed properties
+
+**File**: `Tests/SwiftCompartidoTests/AppIntents/ParseScreenplayFileIntentTests.swift`
+
+```swift
+import XCTest
+import AppIntents
+@testable import SwiftCompartido
+
+final class ParseScreenplayFileIntentTests: XCTestCase {
+
+    @Test("ScreenplayElementsReference is Codable")
+    func testElementsReferenceCodable() throws {
+        let reference = ScreenplayElementsReference(/* ... */)
+
+        let encoder = JSONEncoder()
+        let data = try encoder.encode(reference)
+
+        let decoder = JSONDecoder()
+        let decoded = try decoder.decode(ScreenplayElementsReference.self, from: data)
+
+        #expect(decoded.documentTitle == reference.documentTitle)
+    }
+
+    @Test("ElementReference.isDialogue identifies dialogue types")
+    func testIsDialogueProperty() {
+        let dialogue = ElementReference(elementType: .dialogue, /* ... */)
+        #expect(dialogue.isDialogue == true)
+
+        let action = ElementReference(elementType: .action, /* ... */)
+        #expect(action.isDialogue == false)
+    }
+}
+```
+
+### Layer 3: Integration Tests (8 tests)
+
+**Goal**: Test real workflows through App Intents programmatically
+
+**File**: `Tests/SwiftCompartidoTests/Integration/ScreenplayWorkflowIntegrationTests.swift`
+
+```swift
+import XCTest
+import AppIntents
+import SwiftData
+@testable import SwiftCompartido
+
+final class ScreenplayWorkflowIntegrationTests: XCTestCase {
+    var container: ModelContainer!
+
+    override func setUp() async throws {
+        container = try ModelContainer(
+            for: GuionDocumentModel.self,
+            configurations: ModelConfiguration(isStoredInMemoryOnly: true)
+        )
+    }
+
+    @Test("Full workflow: Parse → Query → Verify")
+    func testParseAndQueryWorkflow() async throws {
+        let fixtureURL = Bundle.module.url(
+            forResource: "test_screenplay",
+            withExtension: "fountain",
+            subdirectory: "Fixtures"
+        )!
+
+        let fileData = try Data(contentsOf: fixtureURL)
+        let intentFile = IntentFile(
+            data: fileData,
+            filename: "test_screenplay.fountain",
+            type: .plainText
+        )
+
+        var parseIntent = ParseScreenplayFileIntent()
+        parseIntent.file = intentFile
+        parseIntent.service = ParsedFileService(modelContainer: container)
+
+        let result = try await parseIntent.perform()
+        let reference = result.value
+
+        #expect(reference.elementCount > 0)
+        #expect(reference.characterNames.count > 0)
+    }
+}
+```
+
+### Running Tests
+
+```bash
+# All tests
+./build.sh --action test
+
+# Just service tests (fast)
+xcodebuild test \
+  -scheme SwiftCompartido \
+  -only-testing:SwiftCompartidoTests/ParsedFileServiceTests
+
+# Integration tests
+xcodebuild test \
+  -scheme SwiftCompartido \
+  -only-testing:SwiftCompartidoTests/ScreenplayWorkflowIntegrationTests
+```
+
+---
+
+## Unit Tests (Original Section)
+
+### ParsedFileService Tests (20 tests)
 - ✅ Parse Fountain file → Returns valid document ID
 - ✅ Parse FDX file → Returns valid document ID
 - ✅ Parse PDF file → Returns valid document ID
