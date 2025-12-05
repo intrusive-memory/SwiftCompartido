@@ -185,10 +185,10 @@ struct TypedDataImageViewTests {
 
         #if canImport(UIKit)
         let image = UIImage(data: emptyData)
-        #expect(image == nil, "Should not create image from empty data")
+        #expect(image == nil, Comment("Should not create image from empty data"))
         #elseif canImport(AppKit)
         let image = NSImage(data: emptyData)
-        #expect(image == nil, "Should not create image from empty data")
+        #expect(image == nil, Comment("Should not create image from empty data"))
         #endif
     }
 

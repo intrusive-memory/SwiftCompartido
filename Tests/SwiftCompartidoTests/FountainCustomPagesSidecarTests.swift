@@ -83,6 +83,7 @@ struct FountainCustomPagesSidecarTests {
         let screenplay = try await GuionParsedElementCollection(file: fountainURL.path)
 
         #expect(screenplay.customPages.count == 1)
+        guard screenplay.customPages.count == 1 else { return }
         #expect(screenplay.customPages[0].type == .castList)
         #expect(screenplay.customPages[0].title == "Test Cast List")
     }
@@ -154,6 +155,7 @@ struct FountainCustomPagesSidecarTests {
         let screenplay = try await GuionParsedElementCollection(file: fountainURL.path)
 
         #expect(screenplay.customPages.count == 1)
+        guard screenplay.customPages.count == 1 else { return }
         let castList = try screenplay.customPages[0].asCastList()
         #expect(castList?.title == "Document-Specific Cast")
     }
@@ -270,6 +272,7 @@ struct FountainCustomPagesSidecarTests {
 
         // Verify custom pages preserved
         #expect(reloaded.customPages.count == 1)
+        guard reloaded.customPages.count == 1 else { return }
         let reloadedCastList = try reloaded.customPages[0].asCastList()
 
         #expect(reloadedCastList?.id == "cast-id")
