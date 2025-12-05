@@ -10,8 +10,12 @@ import SwiftData
 
 /// Unified service for parsing screenplay files and querying elements.
 ///
-/// This actor provides thread-safe access to screenplay parsing and database operations.
+/// This class provides @MainActor-isolated access to screenplay parsing and database operations.
 /// It serves as the single source of truth for both UI code and App Intents.
+///
+/// All methods run on the main actor to align with SwiftData's isolation requirements.
+/// SwiftData models (`GuionDocumentModel`, `GuionElementModel`) are not Sendable and must
+/// remain on a single isolation domain.
 ///
 /// **Architecture**: Thin wrapper around existing SwiftCompartido APIs
 /// - Delegates to `GuionParsedElementCollection` for parsing (automatic format detection)
@@ -31,7 +35,8 @@ import SwiftData
 /// let elements = try await service.elements(documentID: documentID, filter: filter)
 /// ```
 @available(iOS 26.0, macOS 26.0, *)
-public actor ParsedFileService {
+@MainActor
+public final class ParsedFileService {
 
     /// The ModelContainer for SwiftData persistence.
     private let modelContainer: ModelContainer
@@ -54,7 +59,6 @@ public actor ParsedFileService {
     ///   - progress: Optional progress tracker for monitoring parsing progress
     /// - Returns: The persistent identifier of the created document
     /// - Throws: `ParsedFileServiceError` if parsing fails or file is invalid
-    @MainActor
     public func parseFile(
         at url: URL,
         progress: OperationProgress? = nil
