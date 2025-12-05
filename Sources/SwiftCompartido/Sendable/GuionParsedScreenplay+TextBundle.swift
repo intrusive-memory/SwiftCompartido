@@ -110,7 +110,6 @@ extension GuionParsedElementCollection {
     ///   - destinationURL: The URL where the TextBundle should be created
     ///   - name: The base name for the TextBundle (without extension)
     ///   - includeResources: Whether to include derived metadata files (characters.json and outline.json).
-    ///                       User-authored content like custom-pages.json is always written regardless of this setting.
     /// - Returns: The URL of the created TextBundle
     /// - Throws: Writing errors
     @discardableResult
@@ -146,19 +145,8 @@ extension GuionParsedElementCollection {
             fountainFilename: "\(name).fountain"
         )
 
-        // Always write custom-pages.json if present (user-authored content)
-        // This must happen regardless of includeResources setting
-        if !customPages.isEmpty {
-            let resourcesDir = textBundleURL.appendingPathComponent("resources")
-
-            // Create resources directory if it doesn't exist
-            if !fileManager.fileExists(atPath: resourcesDir.path) {
-                try fileManager.createDirectory(at: resourcesDir, withIntermediateDirectories: true)
-            }
-
-            let customPagesURL = resourcesDir.appendingPathComponent("custom-pages.json")
-            try writeCustomPagesJSON(to: customPagesURL)
-        }
+        // REMOVED: Automatic custom-pages.json writing
+        // Custom pages must be written manually if needed
 
         // Add derived metadata files if requested
         if includeResources {

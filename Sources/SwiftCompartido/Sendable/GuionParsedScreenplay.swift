@@ -156,13 +156,13 @@ public final class GuionParsedElementCollection {
         } else {
             // Default to Fountain parser
             let fountainParser = try FountainParser(file: path)
-            let customPages = Self.loadCustomPagesForFile(url: url)
+            // REMOVED: Automatic sidecar loading - customPages must be loaded manually if needed
             self.init(
                 filename: filename,
                 elements: fountainParser.elements,
                 titlePage: fountainParser.titlePage,
                 suppressSceneNumbers: false,
-                customPages: customPages
+                customPages: []
             )
         }
     }
@@ -427,17 +427,14 @@ public final class GuionParsedElementCollection {
         let document = FountainWriter.document(from: self)
         try document.write(toFile: path, atomically: true, encoding: .utf8)
 
-        // Write custom pages sidecar if present
-        let url = URL(fileURLWithPath: path)
-        try? writeCustomPagesSidecar(for: url)
+        // REMOVED: Automatic sidecar writing - write customPages manually if needed
     }
 
     public func write(to url: URL) throws {
         let document = FountainWriter.document(from: self)
         try document.write(to: url, atomically: true, encoding: .utf8)
 
-        // Write custom pages sidecar if present
-        try? writeCustomPagesSidecar(for: url)
+        // REMOVED: Automatic sidecar writing - write customPages manually if needed
     }
 
     /// Get guión elements from this screenplay
@@ -643,6 +640,11 @@ extension GuionParsedElementCollection {
     /// - Parameter url: URL to the screenplay file
     /// - Returns: Array of CustomPageContainer objects
     static func loadCustomPagesForFile(url: URL) -> [CustomPageContainer] {
+        // DISABLED: Sidecar JSON file loading is temporarily disabled
+        // Will be re-implemented with a different approach
+        return []
+
+        /* DISABLED CODE:
         let directory = url.deletingLastPathComponent()
         let basename = url.deletingPathExtension().lastPathComponent
 
@@ -665,6 +667,7 @@ extension GuionParsedElementCollection {
         }
 
         return []
+        */
     }
 
     /// Try to load custom pages from a JSON file
@@ -694,6 +697,11 @@ extension GuionParsedElementCollection {
     /// - Parameters:
     ///   - url: URL to the screenplay file (e.g., `script.fountain`)
     func writeCustomPagesSidecar(for url: URL) throws {
+        // DISABLED: Sidecar JSON file writing is temporarily disabled
+        // Will be re-implemented with a different approach
+        return
+
+        /* DISABLED CODE:
         guard !customPages.isEmpty else { return }
 
         let directory = url.deletingLastPathComponent()
@@ -703,6 +711,7 @@ extension GuionParsedElementCollection {
         let jsonArray = try customPages.map { try $0.toDictionary() }
         let jsonData = try JSONSerialization.data(withJSONObject: jsonArray, options: [.prettyPrinted, .sortedKeys])
         try jsonData.write(to: sidecarURL)
+        */
     }
 }
 
