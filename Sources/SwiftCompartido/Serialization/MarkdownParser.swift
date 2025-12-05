@@ -269,7 +269,12 @@ public enum MarkdownParser {
         }
 
         // Remove front matter from content
-        let remainingLines = Array(lines[(endIndex + 1)...])
+        let remainingLines: [String]
+        if endIndex + 1 < lines.count {
+            remainingLines = Array(lines[(endIndex + 1)...])
+        } else {
+            remainingLines = []
+        }
         let contentWithoutFrontMatter = remainingLines.joined(separator: "\n")
 
         return (contentWithoutFrontMatter, titlePage, customPages)
