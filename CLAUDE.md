@@ -8,6 +8,49 @@ SwiftCompartido is a Swift package for screenplay management, AI-generated conte
 
 **Platforms**: iOS 26.0+, macOS 26.0+
 
+## ⚠️ CRITICAL: Platform Version Enforcement
+
+**This library ONLY supports iOS 26.0+ and macOS 26.0+. NEVER add code that supports older platforms.**
+
+### Rules for Platform Versions
+
+1. **NEVER add `@available` attributes** for versions below iOS 26.0 or macOS 26.0
+   - ❌ WRONG: `@available(iOS 15.0, macOS 12.0, *)`
+   - ✅ CORRECT: No `@available` needed (package enforces iOS 26/macOS 26)
+
+2. **NEVER add `#available` runtime checks** for versions below iOS 26.0 or macOS 26.0
+   - ❌ WRONG: `if #available(iOS 15.0, *) { ... }`
+   - ✅ CORRECT: No runtime checks needed (package enforces minimum versions)
+
+3. **Platform-specific code is OK** (macOS vs iOS differences)
+   - ✅ CORRECT: `#if os(macOS)` or `#if canImport(AppKit)`
+   - ✅ CORRECT: `#if canImport(FoundationModels)` (framework availability)
+   - ❌ WRONG: Checking for specific OS versions below 26
+
+4. **Package.swift must always specify iOS 26 and macOS 26**
+   ```swift
+   platforms: [
+       .iOS(.v26),
+       .macOS(.v26)
+   ]
+   ```
+
+5. **User-facing messages** must reflect iOS 26/macOS 26 requirements
+   - ❌ WRONG: "Requires macOS 15 or iOS 18"
+   - ✅ CORRECT: "Requires macOS 26 or iOS 26"
+
+### Why This Matters
+
+When this library is imported into apps that support older platforms (e.g., iOS 12), Xcode will show:
+```
+The package product 'SwiftCompartido' requires minimum platform version 26.0
+for the iOS platform, but this target supports 12.0
+```
+
+This is **intentional and correct**. Apps using this library **must** update their deployment targets to iOS 26+ and macOS 26+.
+
+**DO NOT lower the platform requirements to fix this error. Instead, consumers must raise their deployment targets.**
+
 ## ⚠️ Breaking Changes in 4.0.0
 
 ### Removed `parser` Parameter - Automatic Format Detection
