@@ -27,6 +27,9 @@ let package = Package(
                 .product(name: "TextBundle", package: "TextBundle"),
                 .product(name: "ZIPFoundation", package: "ZIPFoundation"),
                 .product(name: "Markdown", package: "swift-markdown")
+            ],
+            swiftSettings: [
+                .enableUpcomingFeature("StrictConcurrency"),
             ]
         ),
         .testTarget(
@@ -38,6 +41,9 @@ let package = Package(
             path: "Tests/SwiftCompartidoTests",
             resources: [
                 .copy("../../Fixtures")
+            ],
+            swiftSettings: [
+                .enableUpcomingFeature("StrictConcurrency"),
             ]
         ),
     ]
