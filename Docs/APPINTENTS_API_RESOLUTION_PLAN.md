@@ -62,7 +62,7 @@ public struct ParseScreenplayFileIntent: AppIntent {
 - ❌ No dialog/confirmation message
 - ❌ Cannot customize result presentation
 
-### Pattern 2: Use `@Resul` Property Wrapper (iOS 17+, Recommended)
+### Pattern 2: Use `@Result` Property Wrapper (iOS 17+, Recommended)
 
 For returning value with dialog:
 
