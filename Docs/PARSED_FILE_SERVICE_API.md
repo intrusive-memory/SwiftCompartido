@@ -718,13 +718,19 @@ let filtered = document.sortedElements.filter { $0.elementType == .dialogue }
 ### 3. Cache Document IDs
 
 ```swift
-// ✅ Good - Parse once, query many times
+// ✅ Good - Parse once, cache ID, query many times
 let documentID = try await service.parseFile(at: url)
-UserDefaults.standard.set(documentID.description, forKey: "lastDocID")
 
-// Later...
-if let idString = UserDefaults.standard.string(forKey: "lastDocID") {
-    let elements = try await service.elements(documentID: parsedID, filter: filter)
+// Encode PersistentIdentifier to Data (it's Codable)
+let encoder = JSONEncoder()
+let idData = try encoder.encode(documentID)
+UserDefaults.standard.set(idData, forKey: "lastDocID")
+
+// Later... decode back to PersistentIdentifier
+if let idData = UserDefaults.standard.data(forKey: "lastDocID") {
+    let decoder = JSONDecoder()
+    let documentID = try decoder.decode(PersistentIdentifier.self, from: idData)
+    let elements = try await service.elements(documentID: documentID, filter: filter)
 }
 
 // ❌ Bad - Re-parse for each query
