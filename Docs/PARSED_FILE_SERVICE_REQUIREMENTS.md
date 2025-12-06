@@ -1346,7 +1346,6 @@ No changes needed - `AppIntents` is a first-party framework included with iOS/ma
 - **App Intents Integration**: Import and query screenplays via Apple Shortcuts
   - `ParseScreenplayFileIntent`: Import screenplay files
   - `QueryScreenplayElementsIntent`: Query elements with filters
-  - `ExportScreenplayIntent`: Export to Fountain/FDX/Markdown
 - **Element Filtering**: New `ElementFilter` for querying elements by type, character, or chapter
 - **Shortcuts Support**: Pre-configured App Shortcuts for common workflows
 
