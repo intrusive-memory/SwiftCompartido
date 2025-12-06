@@ -47,7 +47,14 @@ public struct ScreenplayElementsReference: Codable, Sendable, Hashable, Transfer
     // MARK: - Document Metadata
 
     /// Unique identifier for AppEntity conformance (using documentID's string representation).
-    public var id: String { String(describing: documentID) }
+    public var id: String {
+        // JSON encoding provides a more stable string representation than `describing`.
+        guard let data = try? JSONEncoder().encode(documentID), let idString = String(data: data, encoding: .utf8) else {
+            // This should ideally not happen. Fallback to a description, but logging this failure would be wise.
+            return String(describing: documentID)
+        }
+        return idString
+    }
 
     /// The persistent identifier of the source document.
     public let documentID: PersistentIdentifier
