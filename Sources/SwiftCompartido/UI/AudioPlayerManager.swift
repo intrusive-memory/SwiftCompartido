@@ -9,6 +9,17 @@ import AVFoundation
 import Combine
 import Foundation
 
+/// Lightweight structure for tracking currently playing audio metadata
+public struct PlayingAudioMetadata {
+    public let format: String
+    public let duration: TimeInterval
+
+    public init(format: String, duration: TimeInterval) {
+        self.format = format
+        self.duration = duration
+    }
+}
+
 /// Manages audio playback from database-stored audio files
 @MainActor
 public final class AudioPlayerManager: NSObject, ObservableObject {
@@ -16,7 +27,7 @@ public final class AudioPlayerManager: NSObject, ObservableObject {
     @Published public var currentTime: TimeInterval = 0
     @Published public var duration: TimeInterval = 0
     @Published public var audioLevels: [Float] = []
-    @Published public var currentAudioFile: AudioFile?
+    @Published public var currentAudioMetadata: PlayingAudioMetadata?
 
     private var audioPlayer: AVAudioPlayer?
     private var audioEngine: AVAudioEngine?
@@ -38,19 +49,29 @@ public final class AudioPlayerManager: NSObject, ObservableObject {
         // macOS doesn't require AVAudioSession setup
     }
 
-    /// Play audio from an AudioFile model
-    public func play(_ audioFile: AudioFile) throws {
+    /// Play audio from raw audio data
+    ///
+    /// - Parameters:
+    ///   - audioData: The audio data to play
+    ///   - format: The audio format (e.g., "mp3", "wav")
+    ///   - duration: Optional duration in seconds (if known)
+    /// - Throws: Audio player initialization errors
+    public func play(audioData: Data, format: String, duration: TimeInterval? = nil) throws {
         // Stop any current playback
         stop()
-
-        currentAudioFile = audioFile
 
         // Create temporary file URL for the audio data
         let tempURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString)
-            .appendingPathExtension(audioFile.audioFormat)
+            .appendingPathExtension(format)
 
-        try audioFile.audioData.write(to: tempURL)
+        try audioData.write(to: tempURL)
+
+        // Track metadata
+        currentAudioMetadata = PlayingAudioMetadata(
+            format: format,
+            duration: duration ?? 0
+        )
 
         // Initialize audio player
         audioPlayer = try AVAudioPlayer(contentsOf: tempURL)
@@ -58,7 +79,7 @@ public final class AudioPlayerManager: NSObject, ObservableObject {
         audioPlayer?.prepareToPlay()
         audioPlayer?.isMeteringEnabled = true
 
-        duration = audioPlayer?.duration ?? audioFile.duration ?? 0
+        self.duration = audioPlayer?.duration ?? duration ?? 0
 
         // Start playback
         audioPlayer?.play()
@@ -85,13 +106,9 @@ public final class AudioPlayerManager: NSObject, ObservableObject {
         // Stop any current playback
         stop()
 
-        // Create AudioFile model for tracking (with default values for unused fields)
-        currentAudioFile = AudioFile(
-            text: "",
-            voiceId: "",
-            providerId: "",
-            audioData: Data(), // Empty since we're playing from URL
-            audioFormat: format,
+        // Track metadata
+        currentAudioMetadata = PlayingAudioMetadata(
+            format: format,
             duration: duration ?? 0
         )
 
@@ -148,7 +165,7 @@ public final class AudioPlayerManager: NSObject, ObservableObject {
         isPlaying = false
         currentTime = 0
         audioLevels = []
-        currentAudioFile = nil
+        currentAudioMetadata = nil
         progressTimer?.invalidate()
         progressTimer = nil
         levelTimer?.invalidate()
@@ -222,18 +239,8 @@ public final class AudioPlayerManager: NSObject, ObservableObject {
 
         // Fallback to in-memory data
         if let audioData = record.binaryValue {
-            let audioFile = AudioFile(
-                text: record.prompt,
-                voiceId: record.voiceID ?? "",
-                providerId: record.providerId,
-                audioData: audioData,
-                audioFormat: record.audioFormat ?? "mp3",
-                duration: record.durationSeconds,
-                sampleRate: record.sampleRate,
-                bitRate: record.bitRate,
-                channels: record.channels
-            )
-            try play(audioFile)
+            let format = record.audioFormat ?? "mp3"
+            try play(audioData: audioData, format: format, duration: record.durationSeconds)
             return
         }
 

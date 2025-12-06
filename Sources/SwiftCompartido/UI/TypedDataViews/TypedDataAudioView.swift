@@ -136,7 +136,7 @@ public struct TypedDataAudioView: View {
                 error = nil
             } else {
                 // Start or resume playing
-                if playerManager.currentAudioFile != nil {
+                if playerManager.currentAudioMetadata != nil {
                     playerManager.resume()
                     error = nil
                 } else {
