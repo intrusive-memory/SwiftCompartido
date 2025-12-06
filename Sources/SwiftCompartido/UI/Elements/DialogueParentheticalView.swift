@@ -8,11 +8,15 @@
 import SwiftUI
 
 /// Parenthetical view with proper screenplay formatting (32% left margin, 30% right margin)
-public struct DialogueParentheticalView: View {
-    let element: GuionElementModel
+///
+/// This view works with any type conforming to `DisplayableElement`,
+/// allowing it to be used with both `GuionElementModel` and `ElementReference`.
+@available(iOS 26.0, macOS 26.0, *)
+public struct DialogueParentheticalView<Element: DisplayableElement>: View {
+    let element: Element
     @Environment(\.screenplayFontSize) var fontSize
 
-    public init(element: GuionElementModel) {
+    public init(element: Element) {
         self.element = element
     }
 

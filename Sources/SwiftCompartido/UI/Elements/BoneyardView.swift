@@ -8,12 +8,19 @@
 import SwiftUI
 
 /// Boneyard view for omitted/commented-out content
+///
+/// This view works with any type conforming to `DisplayableElement`,
+/// allowing it to be used with both `GuionElementModel` and `ElementReference`.
 /// Content that has been commented out using /* ... */ block syntax
-public struct BoneyardView: View {
-    let element: GuionElementModel
+///
+/// This view works with any type conforming to `DisplayableElement`,
+/// allowing it to be used with both `GuionElementModel` and `ElementReference`.
+@available(iOS 26.0, macOS 26.0, *)
+public struct BoneyardView<Element: DisplayableElement>: View {
+    let element: Element
     @Environment(\.screenplayFontSize) var fontSize
 
-    public init(element: GuionElementModel) {
+    public init(element: Element) {
         self.element = element
     }
 

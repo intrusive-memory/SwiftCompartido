@@ -4,7 +4,7 @@
     <img src="https://img.shields.io/badge/Swift-6.2+-orange.svg" />
     <img src="https://img.shields.io/badge/Platform-iOS%2026.0+%20|%20macOS%2026.0+-lightgrey.svg" />
     <img src="https://img.shields.io/badge/License-MIT-blue.svg" />
-    <img src="https://img.shields.io/badge/Version-5.3.0-blue.svg" />
+    <img src="https://img.shields.io/badge/Version-6.1.0-blue.svg" />
 </p>
 
 **SwiftCompartido** is a comprehensive Swift package for screenplay management, AI-generated content storage, and document serialization. Built with SwiftData, SwiftUI, and modern Swift concurrency.
@@ -160,14 +160,14 @@ Add to your `Package.swift`:
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/intrusive-memory/SwiftCompartido.git", from: "5.3.0")
+    .package(url: "https://github.com/intrusive-memory/SwiftCompartido.git", from: "6.1.0")
 ]
 ```
 
 Or in Xcode:
 1. **File → Add Package Dependencies**
 2. Enter: `https://github.com/intrusive-memory/SwiftCompartido.git`
-3. Select version: **5.3.0** or later
+3. Select version: **6.1.0** or later
 
 ### Usage Examples
 
@@ -590,10 +590,22 @@ Task {
 
 ## Documentation
 
+### User Guides
 - **[Quick Usage Summary](./USAGE-SUMMARY.md)** - Fast reference and common patterns
+- **[App Intents Guide](./Docs/APP_INTENTS_GUIDE.md)** - Complete guide to Shortcuts integration (NEW in 6.1.0)
 - **[AI Reference Guide](./AI-REFERENCE.md)** - Comprehensive guide for AI assistants
 - **[Contributing Guide](./CONTRIBUTING.md)** - How to contribute
 - **[Changelog](./CHANGELOG.md)** - Version history
+
+### API Documentation
+- **[ParsedFileService API](./Docs/PARSED_FILE_SERVICE_API.md)** - Complete API reference for screenplay parsing and querying (NEW in 6.1.0)
+- **[Source File Tracking](./SOURCE_FILE_TRACKING.md)** - Automatic external file change detection
+- **[PDF Capabilities](./Docs/PDF_CAPABILITIES.md)** - AI-powered PDF screenplay parsing (iOS 26+)
+
+### Developer Documentation
+- **[CLAUDE.md](./CLAUDE.md)** - Architecture guide and development patterns
+- **[Workflow Guide](./.claude/WORKFLOW.md)** - Branch strategy, commits, PRs, and releases
+- **[Migration Guide](./Docs/old/PRODUCIESTA_MIGRATION_GUIDE.md)** - Migrating existing apps to SwiftCompartido
 
 ## Requirements
 

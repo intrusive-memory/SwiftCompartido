@@ -11,6 +11,10 @@ import SwiftUI
 ///
 /// Renders ordered and unordered list items with proper indentation
 /// based on nesting level, matching GitHub's markdown display.
+///
+/// **Note**: This view requires GuionElementModel because it needs access to
+/// the document relationship to compute ordered list numbering. For ElementReference,
+/// use the simplified MarkdownListItemReferenceView instead.
 public struct MarkdownListItemView: View {
     let element: GuionElementModel
     let document: GuionDocumentModel?

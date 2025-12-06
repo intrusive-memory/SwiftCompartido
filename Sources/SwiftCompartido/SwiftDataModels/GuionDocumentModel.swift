@@ -206,39 +206,6 @@ public final class GuionDocumentModel {
     @Relationship(deleteRule: .cascade)
     public var generatedContent: [TypedDataStorage]?
 
-    // MARK: - Git Integration (NEW in 4.0.0)
-
-    /// Associated Git repository (optional)
-    ///
-    /// Links this document to a Git repository for version control.
-    /// When set, the document can be exported to Git format and pushed to remote.
-    ///
-    /// **Delete Rule**: `.nullify` - Deleting the document does NOT delete
-    /// the repository. The repository remains available for other operations.
-    ///
-    /// ## Example
-    ///
-    /// ```swift
-    /// let service = GitProjectService(modelContext: modelContext)
-    /// let repository = try await service.clone(
-    ///     remoteURL: "https://github.com/user/screenplay.git",
-    ///     localPath: "/path/to/repo"
-    /// )
-    ///
-    /// let document = try await service.importDocument(repository: repository)
-    /// document.gitRepository = repository
-    /// try modelContext.save()
-    ///
-    /// // Later: check if Git-tracked
-    /// if document.gitRepository != nil {
-    ///     print("This document is version-controlled")
-    /// }
-    /// ```
-    ///
-    /// - SeeAlso: `GitRepositoryModel`, `GitProjectService`
-    @Relationship(deleteRule: .nullify)
-    public var gitRepository: GitRepositoryModel?
-
     // MARK: - Source File Tracking (NEW in 1.4.3)
 
     /// Security-scoped bookmark to the original source file

@@ -8,12 +8,19 @@
 import SwiftUI
 
 /// Comment view for inline screenplay notes
+///
+/// This view works with any type conforming to `DisplayableElement`,
+/// allowing it to be used with both `GuionElementModel` and `ElementReference`.
 /// Notes that appear in source but not in formatted output
-public struct CommentView: View {
-    let element: GuionElementModel
+///
+/// This view works with any type conforming to `DisplayableElement`,
+/// allowing it to be used with both `GuionElementModel` and `ElementReference`.
+@available(iOS 26.0, macOS 26.0, *)
+public struct CommentView<Element: DisplayableElement>: View {
+    let element: Element
     @Environment(\.screenplayFontSize) var fontSize
 
-    public init(element: GuionElementModel) {
+    public init(element: Element) {
         self.element = element
     }
 

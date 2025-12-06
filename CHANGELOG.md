@@ -5,6 +5,111 @@ All notable changes to SwiftCompartido will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.1.0] - 2025-12-05
+
+### ✨ New Features
+
+**App Intents & Shortcuts Integration**
+- **ParsedFileService**: New `@MainActor` service for unified screenplay parsing and querying
+  - Single code path for both UI and App Intents (eliminates duplicate logic)
+  - Supports all screenplay formats (Fountain, FDX, PDF, Markdown, Highland, TextBundle)
+  - Thread-safe with SwiftData integration
+  - Dependency injection support for testing
+
+- **ParseScreenplayFileIntent**: Import screenplays via Apple Shortcuts
+  - Parse files with optional filtering (element types, chapter, character, search text)
+  - Returns `ScreenplayElementsReference` for workflow chaining
+  - Automatic format detection
+
+- **QueryScreenplayElementsIntent**: Re-query existing documents with new filters
+  - Filter by element type, chapter index, character name, or search text
+  - Case-insensitive character name matching
+  - Supports workflow composition
+
+- **ScreenplayElementsReference**: Transferable reference type for cross-process data
+  - AppEntity conformance for Shortcuts UI integration
+  - Character-aware metadata (character names, dialogue counts)
+  - Lightweight element references with full screenplay data
+
+- **SwiftCompartidoShortcuts**: Pre-configured Siri voice commands
+  - "Import screenplay with SwiftCompartido"
+  - "Query screenplay elements in SwiftCompartido"
+
+- **ElementFilter**: Composable filtering for screenplay queries
+  - Filter by element types (dialogue, action, scene headings, etc.)
+  - Filter by chapter index (0-based)
+  - Filter by character name (case-insensitive)
+  - Filter by search text (case-insensitive substring match)
+  - Context-aware character tracking for accurate filtering
+
+### 🐛 Bug Fixes
+
+**Critical Fixes**
+- **Fixed character name population**: ElementReference now correctly populates `characterName` from preceding CHARACTER elements
+  - Enables character-aware features in Shortcuts workflows
+  - `characterNames` property now returns actual character list
+  - `dialogueCount(for:)` now works correctly
+
+- **Fixed character name filtering**: ElementFilter now properly filters by character name
+  - Tracks CHARACTER elements during iteration for context-aware filtering
+  - Case-insensitive character name matching
+  - `QueryScreenplayElementsIntent.characterName` parameter now functional
+
+- **Fixed iOS test crashes**: Removed PersistentIdentifier direct comparison in tests
+  - Prevents NSSecureCoding crashes in test environment
+  - Tests now verify reference data without comparing identifiers
+
+### 🏗️ Code Quality
+
+**Eliminated Code Duplication**
+- **DisplayableElement protocol**: Unified element display across GuionElementModel and ElementReference
+  - Made 11 element views generic (SceneHeadingView, ActionView, DialogueTextView, etc.)
+  - Removed ~200 lines of duplicate view code
+  - Single source of truth for element rendering
+  - Style changes now apply uniformly across UI and App Intents
+
+- **Removed dead code**: Deleted unused `ParsedScreenplayIntentResult.swift`
+
+### 📚 Documentation
+
+- **APP_INTENTS_GUIDE.md**: Complete user guide for Shortcuts integration
+  - Quick start examples
+  - Voice command reference
+  - Common workflow patterns
+  - Error handling guide
+
+- **PARSED_FILE_SERVICE_API.md**: Complete API reference
+  - Method signatures and examples
+  - ElementFilter usage patterns
+  - Performance characteristics
+  - Best practices
+
+- **PARSED_FILE_SERVICE_IMPLEMENTATION_SUMMARY.md**: Implementation history
+  - Architecture diagrams
+  - Key design decisions
+  - Known limitations
+
+### 🧪 Testing
+
+- 34 new tests across 3 layers:
+  - 20 ParsedFileService unit tests
+  - 10 App Intents component tests
+  - 4 integration tests
+
+### 📦 Statistics
+
+- **12 new files** created
+- **~3,800 lines of code** added
+- **~1,300 lines of documentation** added
+- **~200 lines of duplicate code** removed
+- **Net addition**: ~4,900 lines
+
+### ⚠️ Deferred Features
+
+Export functionality deferred to v6.2.0+:
+- `ExportScreenplayIntent` - Export to Fountain/FDX/Markdown
+- `ScreenplayWriterService` - Unified write service
+
 ## [5.0.1] - 2025-11-30
 
 ### 🐛 Bug Fixes
