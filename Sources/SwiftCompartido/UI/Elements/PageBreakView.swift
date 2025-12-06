@@ -8,7 +8,8 @@
 import SwiftUI
 
 /// Page break view for forced page breaks in screenplay
-/// Displays as a visual divider
+///
+/// Displays as a visual divider. Doesn't need element data.
 public struct PageBreakView: View {
     @Environment(\.screenplayFontSize) var fontSize
 

@@ -51,35 +51,39 @@ private struct ElementReferenceRow<TrailingContent: View>: View {
 
     @ViewBuilder
     private var elementView: some View {
+        // Uses shared element views via DisplayableElement protocol
+        // Reduces code duplication from ~200 lines to ~20 lines!
         switch elementRef.elementType {
         case .sceneHeading:
-            SceneHeadingReferenceView(elementRef: elementRef)
+            SceneHeadingView(element: elementRef)
         case .action:
-            ActionReferenceView(elementRef: elementRef)
+            ActionView(element: elementRef)
         case .character:
-            DialogueCharacterReferenceView(elementRef: elementRef)
+            DialogueCharacterView(element: elementRef)
         case .dialogue:
-            DialogueTextReferenceView(elementRef: elementRef)
+            DialogueTextView(element: elementRef)
         case .parenthetical:
-            DialogueParentheticalReferenceView(elementRef: elementRef)
+            DialogueParentheticalView(element: elementRef)
         case .transition:
-            TransitionReferenceView(elementRef: elementRef)
+            TransitionView(element: elementRef)
         case .lyrics:
-            DialogueLyricsReferenceView(elementRef: elementRef)
+            DialogueLyricsView(element: elementRef)
         case .pageBreak:
-            PageBreakReferenceView(elementRef: elementRef)
+            PageBreakView() // Doesn't need element parameter
         case .sectionHeading:
-            SectionHeadingReferenceView(elementRef: elementRef)
+            SectionHeadingView(element: elementRef)
         case .synopsis:
-            SynopsisReferenceView(elementRef: elementRef)
+            SynopsisView(element: elementRef)
         case .boneyard:
-            BoneyardReferenceView(elementRef: elementRef)
+            BoneyardView(element: elementRef)
         case .comment:
-            CommentReferenceView(elementRef: elementRef)
+            CommentView(element: elementRef)
         case .unorderedListItem:
-            MarkdownListItemReferenceView(elementRef: elementRef)
+            // Simplified version for ElementReference (no document context)
+            MarkdownListItemReferenceView(element: elementRef)
         case .orderedListItem:
-            MarkdownListItemReferenceView(elementRef: elementRef)
+            // Simplified version for ElementReference (no document context)
+            MarkdownListItemReferenceView(element: elementRef)
         }
     }
 }
@@ -219,207 +223,13 @@ public struct GuionElementsListFromReference<TrailingContent: View>: View {
     }
 }
 
-// MARK: - Element Reference Views
-
-/// These views mirror the existing element views but work with ElementReference instead of GuionElementModel
-
-@available(iOS 26.0, macOS 26.0, *)
-private struct SceneHeadingReferenceView: View {
-    let elementRef: ElementReference
-    @Environment(\.screenplayFontSize) var fontSize
-
-    var body: some View {
-        Text(elementRef.elementText)
-            .font(.custom("Courier New", size: fontSize * 1.2))
-            .fontWeight(.bold)
-            .foregroundColor(.primary)
-            .frame(maxWidth: .infinity, alignment: .leading)
-    }
-}
-
-@available(iOS 26.0, macOS 26.0, *)
-private struct ActionReferenceView: View {
-    let elementRef: ElementReference
-    @Environment(\.screenplayFontSize) var fontSize
-
-    var body: some View {
-        Text(elementRef.elementText)
-            .font(.custom("Courier New", size: fontSize))
-            .foregroundColor(.primary)
-            .frame(maxWidth: .infinity, alignment: .leading)
-    }
-}
-
-@available(iOS 26.0, macOS 26.0, *)
-private struct DialogueCharacterReferenceView: View {
-    let elementRef: ElementReference
-    @Environment(\.screenplayFontSize) var fontSize
-
-    var body: some View {
-        Text(elementRef.elementText)
-            .font(.custom("Courier New", size: fontSize))
-            .fontWeight(.bold)
-            .foregroundColor(.primary)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.leading, fontSize * 20) // Character indent
-    }
-}
-
-@available(iOS 26.0, macOS 26.0, *)
-private struct DialogueTextReferenceView: View {
-    let elementRef: ElementReference
-    @Environment(\.screenplayFontSize) var fontSize
-
-    var body: some View {
-        Text(elementRef.elementText)
-            .font(.custom("Courier New", size: fontSize))
-            .foregroundColor(.primary)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.leading, fontSize * 10) // Dialogue indent
-            .padding(.trailing, fontSize * 10)
-    }
-}
-
-@available(iOS 26.0, macOS 26.0, *)
-private struct DialogueParentheticalReferenceView: View {
-    let elementRef: ElementReference
-    @Environment(\.screenplayFontSize) var fontSize
-
-    var body: some View {
-        Text(elementRef.elementText)
-            .font(.custom("Courier New", size: fontSize))
-            .foregroundColor(.secondary)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.leading, fontSize * 12) // Parenthetical indent
-    }
-}
-
-@available(iOS 26.0, macOS 26.0, *)
-private struct TransitionReferenceView: View {
-    let elementRef: ElementReference
-    @Environment(\.screenplayFontSize) var fontSize
-
-    var body: some View {
-        Text(elementRef.elementText)
-            .font(.custom("Courier New", size: fontSize))
-            .fontWeight(.bold)
-            .foregroundColor(.primary)
-            .frame(maxWidth: .infinity, alignment: .trailing)
-    }
-}
-
-@available(iOS 26.0, macOS 26.0, *)
-private struct DialogueLyricsReferenceView: View {
-    let elementRef: ElementReference
-    @Environment(\.screenplayFontSize) var fontSize
-
-    var body: some View {
-        Text(elementRef.elementText)
-            .font(.custom("Courier New", size: fontSize))
-            .italic()
-            .foregroundColor(.primary)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.leading, fontSize * 10)
-            .padding(.trailing, fontSize * 10)
-    }
-}
-
-@available(iOS 26.0, macOS 26.0, *)
-private struct PageBreakReferenceView: View {
-    let elementRef: ElementReference
-    @Environment(\.screenplayFontSize) var fontSize
-
-    var body: some View {
-        HStack {
-            Rectangle()
-                .fill(Color.secondary.opacity(0.3))
-                .frame(height: 1)
-
-            Text("PAGE BREAK")
-                .font(.custom("Courier New", size: fontSize * 0.8))
-                .foregroundColor(.secondary)
-                .padding(.horizontal, 8)
-
-            Rectangle()
-                .fill(Color.secondary.opacity(0.3))
-                .frame(height: 1)
-        }
-        .padding(.vertical, 8)
-    }
-}
-
-@available(iOS 26.0, macOS 26.0, *)
-private struct SectionHeadingReferenceView: View {
-    let elementRef: ElementReference
-    @Environment(\.screenplayFontSize) var fontSize
-
-    var body: some View {
-        Text(elementRef.elementText)
-            .font(.custom("Courier New", size: fontSize * 1.4))
-            .fontWeight(.bold)
-            .foregroundColor(.primary)
-            .frame(maxWidth: .infinity, alignment: .leading)
-    }
-}
-
-@available(iOS 26.0, macOS 26.0, *)
-private struct SynopsisReferenceView: View {
-    let elementRef: ElementReference
-    @Environment(\.screenplayFontSize) var fontSize
-
-    var body: some View {
-        Text(elementRef.elementText)
-            .font(.custom("Courier New", size: fontSize * 0.9))
-            .italic()
-            .foregroundColor(.secondary)
-            .frame(maxWidth: .infinity, alignment: .leading)
-    }
-}
-
-@available(iOS 26.0, macOS 26.0, *)
-private struct BoneyardReferenceView: View {
-    let elementRef: ElementReference
-    @Environment(\.screenplayFontSize) var fontSize
-
-    var body: some View {
-        Text(elementRef.elementText)
-            .font(.custom("Courier New", size: fontSize * 0.9))
-            .foregroundColor(.secondary.opacity(0.5))
-            .frame(maxWidth: .infinity, alignment: .leading)
-    }
-}
-
-@available(iOS 26.0, macOS 26.0, *)
-private struct CommentReferenceView: View {
-    let elementRef: ElementReference
-    @Environment(\.screenplayFontSize) var fontSize
-
-    var body: some View {
-        Text(elementRef.elementText)
-            .font(.custom("Courier New", size: fontSize * 0.9))
-            .italic()
-            .foregroundColor(.secondary)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.leading, fontSize * 5)
-    }
-}
-
-@available(iOS 26.0, macOS 26.0, *)
-private struct MarkdownListItemReferenceView: View {
-    let elementRef: ElementReference
-    @Environment(\.screenplayFontSize) var fontSize
-
-    var body: some View {
-        HStack(alignment: .top, spacing: 4) {
-            Text("•")
-                .font(.custom("Courier New", size: fontSize))
-                .foregroundColor(.primary)
-
-            Text(elementRef.elementText)
-                .font(.custom("Courier New", size: fontSize))
-                .foregroundColor(.primary)
-                .frame(maxWidth: .infinity, alignment: .leading)
-        }
-        .padding(.leading, fontSize * 2)
-    }
-}
+// MARK: - No More Duplicate Views!
+//
+// Previously, this file contained ~200 lines of duplicate view code (SceneHeadingReferenceView,
+// ActionReferenceView, etc.). This has been eliminated by making all element views generic
+// via the DisplayableElement protocol.
+//
+// Both GuionElementModel and ElementReference now conform to DisplayableElement, allowing
+// them to share the same view code in Sources/SwiftCompartido/UI/Elements/*.
+//
+// This reduces maintenance burden and ensures consistent styling across all use cases.
