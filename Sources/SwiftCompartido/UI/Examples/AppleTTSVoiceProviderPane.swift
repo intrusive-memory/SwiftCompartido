@@ -84,7 +84,7 @@ public struct AppleTTSVoiceProviderPane: View {
             }
 
             VStack(alignment: .leading, spacing: 6) {
-                Label("Requires macOS 15 or iOS 18 with Apple Intelligence enabled", systemImage: "info.circle")
+                Label("Requires macOS 26 or iOS 26 with Apple Intelligence enabled", systemImage: "info.circle")
                     .font(.subheadline)
                 Label("Download high-quality voices from System Settings ▸ Accessibility ▸ Spoken Content", systemImage: "waveform")
                     .font(.subheadline)

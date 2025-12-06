@@ -285,17 +285,13 @@ public final class GuionParsedElementCollection {
         case "pdf":
             // Parse PDF files using PDFScreenplayParser
             #if canImport(FoundationModels)
-            if #available(iOS 26.0, macCatalyst 26.0, macOS 26.0, *) {
-                let screenplay = try await PDFScreenplayParser.parse(from: url, progress: progress)
-                self.init(
-                    filename: filename,
-                    elements: screenplay.elements,
-                    titlePage: screenplay.titlePage,
-                    suppressSceneNumbers: screenplay.suppressSceneNumbers
-                )
-            } else {
-                throw PDFScreenplayParserError.foundationModelsUnavailable
-            }
+            let screenplay = try await PDFScreenplayParser.parse(from: url, progress: progress)
+            self.init(
+                filename: filename,
+                elements: screenplay.elements,
+                titlePage: screenplay.titlePage,
+                suppressSceneNumbers: screenplay.suppressSceneNumbers
+            )
             #else
             throw PDFScreenplayParserError.foundationModelsUnavailable
             #endif
