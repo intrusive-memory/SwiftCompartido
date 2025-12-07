@@ -50,7 +50,7 @@ struct AudioPlayerManagerTests {
         #expect(manager.currentTime == 0)
         #expect(manager.duration == 0)
         #expect(manager.audioLevels.isEmpty)
-        #expect(manager.currentAudioFile == nil)
+        #expect(manager.currentAudioMetadata == nil)
     }
 
     // MARK: - URL-Based Playback Tests
@@ -70,8 +70,8 @@ struct AudioPlayerManagerTests {
 
             #expect(manager.isPlaying)
             #expect(manager.duration > 0 || manager.duration == 5.0)
-            #expect(manager.currentAudioFile != nil)
-            #expect(manager.currentAudioFile?.audioFormat == "mp3")
+            #expect(manager.currentAudioMetadata != nil)
+            #expect(manager.currentAudioMetadata?.format == "mp3")
 
             manager.stop()
         } catch {
@@ -92,8 +92,8 @@ struct AudioPlayerManagerTests {
         do {
             try manager.play(from: audioURL, format: "mp3")
 
-            #expect(manager.currentAudioFile != nil)
-            #expect(manager.currentAudioFile?.audioFormat == "mp3")
+            #expect(manager.currentAudioMetadata != nil)
+            #expect(manager.currentAudioMetadata?.format == "mp3")
 
             manager.stop()
         } catch {
@@ -134,7 +134,7 @@ struct AudioPlayerManagerTests {
             try manager.play(record: record)
 
             #expect(manager.isPlaying)
-            #expect(manager.currentAudioFile != nil)
+            #expect(manager.currentAudioMetadata != nil)
 
             manager.stop()
         } catch {
@@ -188,7 +188,7 @@ struct AudioPlayerManagerTests {
             try manager.play(record: record, storageArea: storage)
 
             #expect(manager.isPlaying)
-            #expect(manager.currentAudioFile != nil)
+            #expect(manager.currentAudioMetadata != nil)
             #expect(manager.duration > 0 || manager.duration == 3.0)
 
             manager.stop()
@@ -292,7 +292,7 @@ struct AudioPlayerManagerTests {
             #expect(!manager.isPlaying)
             #expect(manager.currentTime == 0)
             #expect(manager.audioLevels.isEmpty)
-            #expect(manager.currentAudioFile == nil)
+            #expect(manager.currentAudioMetadata == nil)
         } catch {
             print("Audio playback not available in test environment")
         }
