@@ -33,28 +33,29 @@ import AppIntents
 public struct SwiftCompartidoShortcuts: AppShortcutsProvider {
 
     public static var appShortcuts: [AppShortcut] {
-        AppShortcut(
-            intent: ParseScreenplayFileIntent(),
-            phrases: [
-                "Import screenplay with \(.applicationName)",
-                "Parse screenplay file in \(.applicationName)",
-                "Parse a screenplay in \(.applicationName)",
-                "Import a script with \(.applicationName)"
-            ],
-            shortTitle: "Parse Screenplay",
-            systemImageName: "doc.text"
-        )
-
-        AppShortcut(
-            intent: QueryScreenplayElementsIntent(),
-            phrases: [
-                "Query screenplay elements in \(.applicationName)",
-                "Get screenplay dialogue in \(.applicationName)",
-                "Search screenplay in \(.applicationName)",
-                "Find screenplay elements in \(.applicationName)"
-            ],
-            shortTitle: "Query Elements",
-            systemImageName: "doc.text.magnifyingglass"
-        )
+        [
+            AppShortcut(
+                intent: ParseScreenplayFileIntent(),
+                phrases: [
+                    "Import screenplay with \(.applicationName)",
+                    "Parse screenplay file in \(.applicationName)",
+                    "Parse a screenplay in \(.applicationName)",
+                    "Import a script with \(.applicationName)"
+                ],
+                shortTitle: "Parse Screenplay",
+                systemImageName: "doc.text"
+            ),
+            AppShortcut(
+                intent: QueryScreenplayElementsIntent(),
+                phrases: [
+                    "Query screenplay elements in \(.applicationName)",
+                    "Get screenplay dialogue in \(.applicationName)",
+                    "Search screenplay in \(.applicationName)",
+                    "Find screenplay elements in \(.applicationName)"
+                ],
+                shortTitle: "Query Elements",
+                systemImageName: "doc.text.magnifyingglass"
+            )
+        ]
     }
 }
