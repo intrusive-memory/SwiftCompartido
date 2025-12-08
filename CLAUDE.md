@@ -637,7 +637,7 @@ EOF
 
 ## Project Metadata
 
-- **Version**: 6.1.0
+- **Version**: 6.2.0
 - **Swift**: 6.2+
 - **Platforms**: iOS 26.0+, macOS 26.0+
 - **Dependencies**: TextBundle, ZIPFoundation, swift-markdown, SwiftFijos (test-only)

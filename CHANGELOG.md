@@ -5,6 +5,11 @@ All notable changes to SwiftCompartido will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+- Version bumped to 6.2.0 for next development cycle
+
 ## [6.1.0] - 2025-12-05
 
 ### ✨ New Features
