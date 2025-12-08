@@ -103,6 +103,11 @@ jobs:
             "HoverTimingTests"
             "HoverStateManagementTests"
             "PerformanceTests"
+            "PopoverAccessibilityTests"
+            "SerializationFormatTests"
+            "PandocIntegrationTests"
+            "GuionTextEditorPerformanceTests"
+            "SceneLocationTests"
           )
 
           SKIP_ARGS=""
