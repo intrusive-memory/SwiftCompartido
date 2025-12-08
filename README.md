@@ -9,13 +9,36 @@
 
 **SwiftCompartido** is a comprehensive Swift package for screenplay management, AI-generated content storage, and document serialization. Built with SwiftData, SwiftUI, and modern Swift concurrency.
 
-> **⚠️ Breaking Change in 4.0.0**: The `parser` parameter has been removed from `GuionParsedElementCollection` initializers. Parser selection is now automatic based on file extension. Simply remove the `parser:` argument from your code. See [CHANGELOG.md](./CHANGELOG.md) for migration guide.
-
-> **⚠️ Breaking Change in 3.0.0**: Voice provider models (`Voice`, `VoiceModel`) have been removed and moved to a separate library. Audio metadata fields (`voiceID`, `voiceName`) remain available in `TypedDataStorage`. See [CHANGELOG.md](./CHANGELOG.md) for migration guide.
-
 ## Features
 
 ### 📝 Screenplay Management
+
+#### 🤖 App Intents & Shortcuts Integration (NEW in 6.1.0)
+
+Complete Apple Shortcuts integration for screenplay automation:
+
+- **ParseScreenplayFileIntent** - Parse screenplay files via Shortcuts
+- **QueryScreenplayElementsIntent** - Query and filter screenplay elements
+- **ScreenplayElementsReference** - Transferable reference for workflow chaining
+- **SwiftCompartidoShortcuts** - Pre-configured Siri voice commands
+- **ParsedFileService** - Unified service layer (single code path for UI and Intents)
+- **ElementFilter** - Composable filtering by element type, chapter, character, or search text
+
+```swift
+// Use Shortcuts to parse and filter dialogue
+var intent = ParseScreenplayFileIntent()
+intent.fileURL = url
+intent.elementTypes = [ElementTypeEntity(id: "Dialogue", elementType: .dialogue)]
+let result = try await intent.perform()
+
+// Or use programmatically via ParsedFileService
+let service = ParsedFileService.shared
+let documentID = try await service.parseFile(at: url)
+let elements = try await service.elements(documentID: documentID,
+                                         filter: ElementFilter(elementTypes: [.dialogue]))
+```
+
+See [App Intents Guide](./Docs/APP_INTENTS_GUIDE.md) for complete documentation.
 
 #### ⚡ GuionTextEditor - High-Performance Viewer (NEW in 5.5.0)
 

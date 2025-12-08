@@ -8,34 +8,50 @@ SwiftCompartido is a Swift package for screenplay management, AI-generated conte
 
 **Platforms**: iOS 26.0+, macOS 26.0+
 
-## ⚠️ Breaking Changes in 4.0.0
+## ⚠️ CRITICAL: Platform Version Enforcement
 
-### Removed `parser` Parameter - Automatic Format Detection
+**This library ONLY supports iOS 26.0+ and macOS 26.0+. NEVER add code that supports older platforms.**
 
-The `parser` parameter has been **removed** from all `GuionParsedElementCollection` initializers. Parser selection is now automatic based on file extension:
+### Rules for Platform Versions
 
-- **Removed**: `ParserType` enum (`.fast` and `.regex` were redundant)
-- **Changed**: All `GuionParsedElementCollection` initializers no longer accept `parser:` parameter
-- **Auto-detection**: Parser automatically selected by file extension:
-  - `.md` or `.markdown` → Markdown parser (supports YAML front matter)
-  - `.highland` → Highland bundle handler → **Always Fountain parser**
-  - `.textbundle` → TextBundle handler → Recursive format detection
-  - `.fdx` → Final Draft FDX parser
-  - `.pdf` → PDF parser (iOS 26.0+)
-  - `.fountain` or default → Fountain parser
+1. **NEVER add `@available` attributes** for versions below iOS 26.0 or macOS 26.0
+   - ❌ WRONG: `@available(iOS 15.0, macOS 12.0, *)`
+   - ✅ CORRECT: No `@available` needed (package enforces iOS 26/macOS 26)
 
-**Migration:**
-```swift
-// ❌ OLD (3.x)
-let screenplay = try GuionParsedElementCollection(file: path, parser: .fast)
-let screenplay2 = try await GuionParsedElementCollection(string: text, parser: .fast)
+2. **NEVER add `#available` runtime checks** for versions below iOS 26.0 or macOS 26.0
+   - ❌ WRONG: `if #available(iOS 15.0, *) { ... }`
+   - ✅ CORRECT: No runtime checks needed (package enforces minimum versions)
 
-// ✅ NEW (4.0+)
-let screenplay = try GuionParsedElementCollection(file: path)
-let screenplay2 = try await GuionParsedElementCollection(string: text)
+3. **Platform-specific code is OK** (macOS vs iOS differences)
+   - ✅ CORRECT: `#if os(macOS)` or `#if canImport(AppKit)`
+   - ✅ CORRECT: `#if canImport(FoundationModels)` (framework availability)
+   - ❌ WRONG: Checking for specific OS versions below 26
+
+4. **Package.swift must always specify iOS 26 and macOS 26**
+   ```swift
+   platforms: [
+       .iOS(.v26),
+       .macOS(.v26)
+   ]
+   ```
+
+5. **User-facing messages** must reflect iOS 26/macOS 26 requirements
+   - ❌ WRONG: "Requires macOS 15 or iOS 18"
+   - ✅ CORRECT: "Requires macOS 26 or iOS 26"
+
+### Why This Matters
+
+When this library is imported into apps that support older platforms (e.g., iOS 12), Xcode will show:
+```
+The package product 'SwiftCompartido' requires minimum platform version 26.0
+for the iOS platform, but this target supports 12.0
 ```
 
-### File Format Parsing Flow
+This is **intentional and correct**. Apps using this library **must** update their deployment targets to iOS 26+ and macOS 26+.
+
+**DO NOT lower the platform requirements to fix this error. Instead, consumers must raise their deployment targets.**
+
+## File Format Parsing Flow
 
 ```mermaid
 flowchart TD
@@ -88,22 +104,6 @@ flowchart TD
 2. **Highland .md files** → **Always Fountain parser** (Highland uses Fountain syntax)
 3. **TextBundle .md files** → Markdown parser (recursive detection)
 4. **TextBundle .fountain files** → Fountain parser (recursive detection)
-
-## ⚠️ Breaking Changes in 3.0.0
-
-### Removed Functionality
-
-The following voice provider models have been **removed** and moved to a separate library:
-- ❌ `Voice` struct (Sendable DTO for TTS voice data)
-- ❌ `VoiceModel` class (SwiftData model for caching voice information)
-- ❌ `AppleTTSProvider` and related tests
-
-### Migration Path
-
-If your code uses `Voice` or `VoiceModel`:
-1. Import the separate voice provider library (TBD - contact maintainers)
-2. Remove direct references to `Voice` and `VoiceModel` from SwiftCompartido imports
-3. Continue using audio metadata fields (`voiceID`, `voiceName`) in `TypedDataStorage`
 
 ## Performance Testing & Benchmarking
 
@@ -374,7 +374,6 @@ class GuionElementModel {
 
 - **Minimum coverage**: 90% (current: 95%+)
 - **Test framework**: Swift Testing for new tests, XCTest for legacy
-- **Test count**: 437 tests across 28 suites
 - Use `@Test("description")` macro, not `func test...`
 - All tests must pass before merging PRs
 
@@ -641,9 +640,9 @@ EOF
 - **Version**: 6.1.0
 - **Swift**: 6.2+
 - **Platforms**: iOS 26.0+, macOS 26.0+
-- **Dependencies**: TextBundle, SwiftFijos (test-only)
+- **Dependencies**: TextBundle, ZIPFoundation, swift-markdown, SwiftFijos (test-only)
 - **License**: MIT
-- **Test Coverage**: 95%+ across 471 tests in 31 suites
+- **Test Coverage**: 95%+
 
 ## Important Reminders
 

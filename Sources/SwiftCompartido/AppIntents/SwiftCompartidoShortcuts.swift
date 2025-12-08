@@ -32,6 +32,7 @@ import AppIntents
 @available(iOS 26.0, macOS 26.0, *)
 public struct SwiftCompartidoShortcuts: AppShortcutsProvider {
 
+    @AppShortcutsBuilder
     public static var appShortcuts: [AppShortcut] {
         AppShortcut(
             intent: ParseScreenplayFileIntent(),
