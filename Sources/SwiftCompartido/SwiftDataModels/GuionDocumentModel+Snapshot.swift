@@ -185,10 +185,11 @@ extension GuionElementModel {
             sectionDepth: snapshot.sectionDepth,
             summary: snapshot.summary,
             sceneId: snapshot.sceneId,
-            orderIndex: snapshot.orderIndex
+            chapterIndex: snapshot.chapterIndex,
+            orderIndex: snapshot.orderIndex,
+            uuid: snapshot.id  // Preserve stable UUID from snapshot
         )
 
-        element.chapterIndex = snapshot.chapterIndex
         element.document = document
 
         // Note: cachedSceneLocation is a computed property in GuionElementModel,

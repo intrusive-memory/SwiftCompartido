@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import os.log
 
 /// Codable snapshot representing a complete screenplay document.
 ///
@@ -134,15 +135,33 @@ public struct GuionDocumentSnapshot: Codable, Identifiable, Sendable {
     /// Custom pages as typed snapshots
     ///
     /// This computed property converts raw JSON to/from `CustomPageContainer`.
+    ///
+    /// **Warning**: If deserialization fails for any custom page, a warning will be logged.
+    /// This helps detect data corruption or incompatible formats during development.
     public var customPages: [CustomPageSnapshot]? {
         get {
             guard let data = customPagesData else { return nil }
-            return data.compactMap { rawJSON in
+
+            let logger = Logger(subsystem: "com.swiftcompartido", category: "GuionDocumentSnapshot")
+            var deserializedPages: [CustomPageSnapshot] = []
+
+            for (index, rawJSON) in data.enumerated() {
+                // Attempt JSON deserialization
                 guard let dict = try? JSONSerialization.jsonObject(with: rawJSON) as? [String: Any] else {
-                    return nil
+                    logger.warning("Failed to deserialize custom page at index \(index): Invalid JSON data (size: \(rawJSON.count) bytes). This page will be lost if the document is saved.")
+                    continue
                 }
-                return try? CustomPageContainer(from: dict)
+
+                // Attempt CustomPageContainer initialization
+                do {
+                    let container = try CustomPageContainer(from: dict)
+                    deserializedPages.append(container)
+                } catch {
+                    logger.warning("Failed to deserialize custom page at index \(index): \(error.localizedDescription). This page will be lost if the document is saved.")
+                }
             }
+
+            return deserializedPages.isEmpty ? nil : deserializedPages
         }
         set {
             if let pages = newValue {
