@@ -287,6 +287,66 @@ public struct GuionDocumentSnapshot: Codable, Identifiable, Sendable {
     }
 }
 
+// MARK: - Conversion from GuionParsedElementCollection
+
+extension GuionDocumentSnapshot {
+    /// Create snapshot from parsed screenplay (P1.3: Import Pipeline Integration)
+    ///
+    /// Converts a `GuionParsedElementCollection` (the result of parsing .fountain, .fdx, .pdf, etc.)
+    /// into a `GuionDocumentSnapshot` suitable for JSON serialization.
+    ///
+    /// ## Example
+    ///
+    /// ```swift
+    /// // Parse screenplay from file
+    /// let screenplay = try await GuionParsedElementCollection(file: path)
+    ///
+    /// // Convert to snapshot
+    /// let snapshot = GuionDocumentSnapshot(from: screenplay)
+    ///
+    /// // Serialize to .guion JSON
+    /// let data = try GuionJSONSerializer.encode(snapshot)
+    /// try data.write(to: guionURL)
+    /// ```
+    ///
+    /// - Parameter screenplay: Parsed screenplay from any supported format
+    /// - Returns: Document snapshot ready for JSON serialization
+    public init(from screenplay: GuionParsedElementCollection) {
+        // Convert elements with proper ordering
+        let elements = screenplay.elements.enumerated().map { (index, element) in
+            GuionElementSnapshot(from: element, orderIndex: index)
+        }
+
+        // Convert title page from [[String: [String]]] to [TitlePageEntrySnapshot]
+        let titlePage = screenplay.titlePage.flatMap { dict in
+            dict.map { (key, values) in
+                TitlePageEntrySnapshot(key: key, values: values)
+            }
+        }
+
+        // Convert custom pages (already CustomPageContainer/CustomPageSnapshot)
+        let customPages = screenplay.customPages.isEmpty ? nil : screenplay.customPages
+
+        self.init(
+            id: UUID(),
+            filename: screenplay.filename,
+            title: nil, // Extract from titlePage if needed
+            created: Date(),
+            modified: Date(),
+            suppressSceneNumbers: screenplay.suppressSceneNumbers,
+            elements: elements,
+            titlePage: titlePage,
+            customPages: customPages,
+            generatedContent: nil,
+            casting: nil,
+            sourceFileBookmark: nil,
+            lastImportDate: Date(),
+            sourceFileModificationDate: nil,
+            lastOpenedDate: nil
+        )
+    }
+}
+
 // MARK: - Helpers
 
 extension Array where Element: Hashable {
