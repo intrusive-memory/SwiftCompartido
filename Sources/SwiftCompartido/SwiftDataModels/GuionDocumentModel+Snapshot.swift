@@ -38,7 +38,7 @@ extension GuionDocumentModel {
             titlePage: titlePage.map { $0.toSnapshot() },
             customPages: customPages.isEmpty ? nil : customPages.map { $0.toSnapshot() },
             generatedContent: generatedContentSnapshot(),
-            casting: castingSnapshot(),
+            casting: nil, // TODO: Add casting support
             sourceFileBookmark: sourceFileBookmark,
             lastImportDate: lastImportDate,
             sourceFileModificationDate: sourceFileModificationDate,
@@ -57,21 +57,6 @@ extension GuionDocumentModel {
         var result: [UUID: TypedDataStorageSnapshot] = [:]
         for item in content {
             result[item.id] = item.toSnapshot()
-        }
-        return result
-    }
-
-    /// Convert casting to snapshot dictionary
-    ///
-    /// - Returns: Dictionary mapping character name to voice mapping snapshot, or nil if no casting
-    private func castingSnapshot() -> [String: CharacterVoiceMappingSnapshot]? {
-        guard let mappings = casting, !mappings.isEmpty else {
-            return nil
-        }
-
-        var result: [String: CharacterVoiceMappingSnapshot] = [:]
-        for mapping in mappings {
-            result[mapping.characterName] = mapping.toSnapshot()
         }
         return result
     }
@@ -135,12 +120,7 @@ extension GuionDocumentModel {
             }
         }
 
-        // Convert casting
-        if let castingSnapshot = snapshot.casting {
-            document.casting = castingSnapshot.map { (characterName, voiceSnapshot) in
-                CharacterVoiceMapping.from(characterName: characterName, voiceSnapshot, document: document)
-            }
-        }
+        // TODO: Convert casting when added to model
 
         return document
     }
@@ -205,11 +185,10 @@ extension GuionElementModel {
             sectionDepth: snapshot.sectionDepth,
             summary: snapshot.summary,
             sceneId: snapshot.sceneId,
-            chapterIndex: snapshot.chapterIndex,
-            orderIndex: snapshot.orderIndex,
-            uuid: snapshot.id  // Preserve stable UUID from snapshot
+            orderIndex: snapshot.orderIndex
         )
 
+        element.chapterIndex = snapshot.chapterIndex
         element.document = document
 
         // Note: cachedSceneLocation is a computed property in GuionElementModel,

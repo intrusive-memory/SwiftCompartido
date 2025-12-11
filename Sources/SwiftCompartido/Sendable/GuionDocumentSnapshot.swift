@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import os.log
 
 /// Codable snapshot representing a complete screenplay document.
 ///
@@ -135,33 +134,15 @@ public struct GuionDocumentSnapshot: Codable, Identifiable, Sendable {
     /// Custom pages as typed snapshots
     ///
     /// This computed property converts raw JSON to/from `CustomPageContainer`.
-    ///
-    /// **Warning**: If deserialization fails for any custom page, a warning will be logged.
-    /// This helps detect data corruption or incompatible formats during development.
     public var customPages: [CustomPageSnapshot]? {
         get {
             guard let data = customPagesData else { return nil }
-
-            let logger = Logger(subsystem: "com.swiftcompartido", category: "GuionDocumentSnapshot")
-            var deserializedPages: [CustomPageSnapshot] = []
-
-            for (index, rawJSON) in data.enumerated() {
-                // Attempt JSON deserialization
+            return data.compactMap { rawJSON in
                 guard let dict = try? JSONSerialization.jsonObject(with: rawJSON) as? [String: Any] else {
-                    logger.warning("Failed to deserialize custom page at index \(index): Invalid JSON data (size: \(rawJSON.count) bytes). This page will be lost if the document is saved.")
-                    continue
+                    return nil
                 }
-
-                // Attempt CustomPageContainer initialization
-                do {
-                    let container = try CustomPageContainer(from: dict)
-                    deserializedPages.append(container)
-                } catch {
-                    logger.warning("Failed to deserialize custom page at index \(index): \(error.localizedDescription). This page will be lost if the document is saved.")
-                }
+                return try? CustomPageContainer(from: dict)
             }
-
-            return deserializedPages.isEmpty ? nil : deserializedPages
         }
         set {
             if let pages = newValue {
@@ -303,66 +284,6 @@ public struct GuionDocumentSnapshot: Codable, Identifiable, Sendable {
             casting = [:]
         }
         casting?[character] = mapping
-    }
-}
-
-// MARK: - Conversion from GuionParsedElementCollection
-
-extension GuionDocumentSnapshot {
-    /// Create snapshot from parsed screenplay (P1.3: Import Pipeline Integration)
-    ///
-    /// Converts a `GuionParsedElementCollection` (the result of parsing .fountain, .fdx, .pdf, etc.)
-    /// into a `GuionDocumentSnapshot` suitable for JSON serialization.
-    ///
-    /// ## Example
-    ///
-    /// ```swift
-    /// // Parse screenplay from file
-    /// let screenplay = try await GuionParsedElementCollection(file: path)
-    ///
-    /// // Convert to snapshot
-    /// let snapshot = GuionDocumentSnapshot(from: screenplay)
-    ///
-    /// // Serialize to .guion JSON
-    /// let data = try GuionJSONSerializer.encode(snapshot)
-    /// try data.write(to: guionURL)
-    /// ```
-    ///
-    /// - Parameter screenplay: Parsed screenplay from any supported format
-    /// - Returns: Document snapshot ready for JSON serialization
-    public init(from screenplay: GuionParsedElementCollection) {
-        // Convert elements with proper ordering
-        let elements = screenplay.elements.enumerated().map { (index, element) in
-            GuionElementSnapshot(from: element, orderIndex: index)
-        }
-
-        // Convert title page from [[String: [String]]] to [TitlePageEntrySnapshot]
-        let titlePage = screenplay.titlePage.flatMap { dict in
-            dict.map { (key, values) in
-                TitlePageEntrySnapshot(key: key, values: values)
-            }
-        }
-
-        // Convert custom pages (already CustomPageContainer/CustomPageSnapshot)
-        let customPages = screenplay.customPages.isEmpty ? nil : screenplay.customPages
-
-        self.init(
-            id: UUID(),
-            filename: screenplay.filename,
-            title: nil, // Extract from titlePage if needed
-            created: Date(),
-            modified: Date(),
-            suppressSceneNumbers: screenplay.suppressSceneNumbers,
-            elements: elements,
-            titlePage: titlePage,
-            customPages: customPages,
-            generatedContent: nil,
-            casting: nil,
-            sourceFileBookmark: nil,
-            lastImportDate: Date(),
-            sourceFileModificationDate: nil,
-            lastOpenedDate: nil
-        )
     }
 }
 

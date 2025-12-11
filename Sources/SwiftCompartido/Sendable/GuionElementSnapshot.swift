@@ -191,13 +191,13 @@ public struct GuionElementSnapshot: Codable, Identifiable, Sendable {
     /// print(element.speakableText) // "Hello  world"
     /// ```
     public var speakableText: String {
-        // Remove {{stage directions}} from text using a regular expression for efficiency.
-        guard let regex = try? NSRegularExpression(pattern: "\\{\\{.*?\\}\\}") else {
-            return elementText.trimmingCharacters(in: .whitespacesAndNewlines)
+        // Remove {{stage directions}} from text
+        var text = elementText
+        while let startRange = text.range(of: "{{"),
+              let endRange = text.range(of: "}}", range: startRange.upperBound..<text.endIndex) {
+            text.removeSubrange(startRange.lowerBound..<endRange.upperBound)
         }
-        let range = NSRange(elementText.startIndex..., in: elementText)
-        let cleanedText = regex.stringByReplacingMatches(in: elementText, options: [], range: range, withTemplate: "")
-        return cleanedText.trimmingCharacters(in: .whitespacesAndNewlines)
+        return text.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
     /// Get character name for voice assignment (if dialogue/lyrics)
