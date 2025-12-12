@@ -14,6 +14,7 @@ NC='\033[0m' # No Color
 # Default values
 TARGET="ios"
 ACTION="build"
+TESTPLAN=""
 
 # Parse arguments
 while [[ $# -gt 0 ]]; do
@@ -26,17 +27,23 @@ while [[ $# -gt 0 ]]; do
       ACTION="$2"
       shift 2
       ;;
+    --testplan)
+      TESTPLAN="$2"
+      shift 2
+      ;;
     --help)
       echo "Usage: ./build.sh [options]"
       echo ""
       echo "Options:"
       echo "  --target <ios|catalyst-arm64|catalyst-x86>  Target platform (default: ios)"
       echo "  --action <build|test|clean>                 Action to perform (default: build)"
+      echo "  --testplan <UnitTests|LongTests|UITests|PerformanceTests>  Test plan to run (optional)"
       echo "  --help                                      Show this help message"
       echo ""
       echo "Examples:"
       echo "  ./build.sh                                  Build for iOS Simulator"
-      echo "  ./build.sh --action test                    Run tests on iOS Simulator"
+      echo "  ./build.sh --action test                    Run all tests on iOS Simulator"
+      echo "  ./build.sh --action test --testplan UnitTests  Run unit tests only"
       echo "  ./build.sh --target catalyst-arm64          Build for Mac Catalyst (arm64)"
       echo "  ./build.sh --action clean                   Clean build artifacts"
       exit 0
@@ -63,13 +70,26 @@ case $TARGET in
   ios)
     echo -e "${BLUE}🔨 Building for iOS Simulator (arm64)${NC}"
     if [ "$ACTION" == "test" ]; then
-      xcodebuild test \
+      # Build test command with optional test plan
+      TEST_CMD="xcodebuild test \
         -scheme SwiftCompartido \
         -sdk iphonesimulator \
         -destination 'platform=iOS Simulator,name=iPhone 17 Pro' \
         -enableCodeCoverage YES \
-        -parallel-testing-enabled YES \
-        CODE_SIGNING_ALLOWED=NO
+        -parallel-testing-enabled YES"
+
+      # Add test plan if specified
+      if [ -n "$TESTPLAN" ]; then
+        TEST_CMD="$TEST_CMD -testPlan $TESTPLAN"
+        echo -e "${BLUE}📋 Using test plan: $TESTPLAN${NC}"
+      else
+        echo -e "${BLUE}📋 Running all tests${NC}"
+      fi
+
+      TEST_CMD="$TEST_CMD CODE_SIGNING_ALLOWED=NO"
+
+      # Execute the test command
+      eval $TEST_CMD
     else
       xcodebuild build \
         -scheme SwiftCompartido \
