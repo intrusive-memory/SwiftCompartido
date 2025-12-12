@@ -8,6 +8,103 @@ SwiftCompartido is a Swift package for screenplay management, AI-generated conte
 
 **Platforms**: iOS 26.0+, macOS 26.0+
 
+## ⚠️ CRITICAL: Library Scope and Focus
+
+**SwiftCompartido has exactly TWO core missions. Every file, class, and function must directly support one of these:**
+
+### Mission 1: Parsing & Storage
+**Parse and store screenplay documents and AI-generated content**
+
+✅ **BELONGS IN THIS LIBRARY:**
+- Screenplay parsers (Fountain, FDX, PDF, Markdown, Highland, TextBundle, Pandoc)
+- SwiftData models (GuionDocumentModel, GuionElementModel, TypedDataStorage, CharacterVoiceMapping)
+- Storage infrastructure (TypedDataFileReference, StorageAreaReference, Phase 6 architecture)
+- Serialization (JSON .guion format, TextPack, snapshots)
+- MIME type routing and content type handling
+- File I/O with progress reporting
+
+### Mission 2: UI Display
+**Display screenplay documents and AI-generated content with SwiftUI widgets**
+
+✅ **BELONGS IN THIS LIBRARY:**
+- Screenplay viewers (GuionTextEditor, GuionViewer, GuionElementsList)
+- TypedDataStorage display (GeneratedContentListView, TypedDataDetailView, TypedDataRowView)
+- Element widgets (ElementProgressBar, ElementProgressState, ElementProgressTracker)
+- Audio playback UI (AudioPlayerManager with waveform visualization)
+- Configuration UI (AppleTTSVoiceProviderPane, TextConfigurationView)
+- Query-based list widgets with filtering and grouping
+
+### ❌ DOES NOT BELONG IN THIS LIBRARY
+
+If a file, class, or function does any of the following, it should be **deprecated, removed, or spun off into a separate library**:
+
+- **AI Content Generation**: Text generation, TTS synthesis, image generation, embedding generation
+  - ❌ OpenAI/Anthropic API clients
+  - ❌ ElevenLabs TTS integration
+  - ❌ DALL-E image generation
+  - ❌ Foundation Models prompts
+  - ✅ **Storing** generated content (TypedDataStorage) is OK
+  - ✅ **Displaying** generated content (GeneratedContentListView) is OK
+  - ❌ **Generating** content does NOT belong here
+
+- **Cloud Sync**: CloudKit, Firebase, iCloud sync
+  - ❌ Already removed in 6.2.1
+
+- **External Service Integration**: API clients, service wrappers
+  - ❌ These belong in consumer apps or separate service libraries
+
+- **Business Logic**: Workflow orchestration, state machines, complex automation
+  - ❌ App-specific logic belongs in consumer apps
+  - ✅ Library-specific logic (parsing workflows, storage routing) is OK
+
+### Decision Framework
+
+**When adding or modifying code, ask:**
+
+1. **Does this parse or store screenplay/content data?**
+   - YES → Belongs in Mission 1 ✅
+   - NO → Continue to question 2
+
+2. **Does this display screenplay/content data in SwiftUI?**
+   - YES → Belongs in Mission 2 ✅
+   - NO → Continue to question 3
+
+3. **Does this support parsing, storage, or display?**
+   - YES (file I/O, MIME routing, progress reporting) → OK ✅
+   - NO → **REMOVE IT** ❌
+
+**Examples:**
+
+| Feature | Mission | Belongs? |
+|---------|---------|----------|
+| Fountain parser | Mission 1 (Parsing) | ✅ YES |
+| TypedDataStorage model | Mission 1 (Storage) | ✅ YES |
+| GuionTextEditor | Mission 2 (Display) | ✅ YES |
+| GeneratedContentListView | Mission 2 (Display) | ✅ YES |
+| File I/O with progress | Support (Mission 1) | ✅ YES |
+| OpenAI API client | Generation | ❌ NO - Spin off |
+| ElevenLabs TTS | Generation | ❌ NO - Spin off |
+| CloudKit sync | Cloud Sync | ❌ NO - Removed in 6.2.1 |
+| Foundation Models prompts | Generation | ❌ NO - Removed in 6.2.1 |
+
+### Enforcement
+
+**When reviewing code:**
+- If a file/class doesn't clearly map to Mission 1 or Mission 2, flag it for removal
+- If a feature involves external services (API calls, cloud sync), it doesn't belong here
+- If a feature generates content (vs. storing/displaying it), it doesn't belong here
+
+**This library is NOT:**
+- An AI service wrapper
+- A cloud sync framework
+- A TTS/image generation toolkit
+- A workflow orchestration engine
+
+**This library IS:**
+- A screenplay parser and storage system
+- A TypedDataStorage system for AI-generated content
+- A SwiftUI widget library for displaying screenplays and content
+
 ## ⚠️ CRITICAL: Platform Version Enforcement
 
 **This library ONLY supports iOS 26.0+ and macOS 26.0+. NEVER add code that supports older platforms.**
@@ -305,15 +402,23 @@ Elements use composite key ordering: `(chapterIndex, orderIndex)`
 GuionDocumentModel (parent)
     ├─→ elements: [GuionElementModel] (@Relationship deleteRule: .cascade)
     ├─→ titlePage: [TitlePageEntryModel] (@Relationship deleteRule: .cascade)
+    ├─→ customPages: [CustomPageModel] (@Relationship deleteRule: .cascade)
+    ├─→ casting: [CharacterVoiceMapping] (@Relationship deleteRule: .cascade) [NEW in 6.2.0]
     └─→ generatedContent: [TypedDataStorage] (@Relationship deleteRule: .cascade)
 
 GuionElementModel
     ├─→ document: GuionDocumentModel? (@Relationship deleteRule: .nullify)
     └─→ generatedContent: [TypedDataStorage] (@Relationship deleteRule: .cascade)
 
+CharacterVoiceMapping (leaf node) [NEW in 6.2.0]
+    └─→ document: GuionDocumentModel? (@Relationship deleteRule: .nullify)
+
 TypedDataStorage (leaf node)
     ├─→ owningElement: GuionElementModel? (@Relationship deleteRule: .nullify)
     └─→ owningDocument: GuionDocumentModel? (@Relationship deleteRule: .nullify)
+
+CustomPageModel (leaf node)
+    └─→ document: GuionDocumentModel? (no @Relationship decorator)
 
 TitlePageEntryModel (leaf node)
     └─→ document: GuionDocumentModel? (no @Relationship decorator)
@@ -377,55 +482,123 @@ class GuionElementModel {
 - Use `@Test("description")` macro, not `func test...`
 - All tests must pass before merging PRs
 
-### Test Execution Strategy
+### Test Plans Organization
 
-Tests are split into **short** and **long** cycles to optimize CI performance:
+SwiftCompartido uses **test plans** (.xctestplan files) to organize tests into four categories:
 
-**Short Tests (runs on every PR/push):**
-- Timeout: 10 minutes
-- Excludes 13 long-running test suites
-- Expected completion: 2-5 minutes
-- Purpose: Fast feedback for developers
+#### 1. **UnitTests.xctestplan** (Runs on every PR)
+- **Fast unit tests** for basic functionality
+- Tests models, enums, parsers (small inputs), serialization
+- **Non-UI tests** focused on testing classes and structs
+- Target: < 1 second per test, < 5 minutes total
+- **Excludes**: UI tests, integration tests, performance tests
 
-**Long Tests (runs on weekend schedule):**
+**Examples:**
+- `CharacterInfoTests`, `ElementTypeEnumTests`, `FountainRegexesTests`
+- `GeneratedAudioDataTests`, `GeneratedTextDataTests`
+- `MarkdownParserTests`, `OutlineLevelParsingTests`
+- `SerializationFormatTests`, `ProviderCategoryTests`
+
+#### 2. **LongTests.xctestplan** (Runs on weekends)
+- **Integration tests** with file I/O and complex workflows
+- Tests with **large data sets** or **multiple iterations**
+- **Progress callback tests** with delays
+- Parser tests on large/real documents
 - Runs: Saturdays and Sundays at 2 AM UTC
-- Timeout: 15 minutes
-- Only runs these 13 suites:
-  - `IntegrationTests`, `ElementViewTests`, `AudioPlayerManagerTests`
-  - `TruncationDebugTests`, `GeneratedContentSortingTests`
-  - `FountainParserProgressTests`, `FDXParserProgressTests`
-  - `SwiftDataProgressTests`, `PDFScreenplayParserTests`
-  - `DocumentImportTests`, `DocumentExportTests`
-  - `FileIOProgressTests`, `TextPackWriterProgressTests`
+
+**Examples:**
+- `IntegrationTests`, `FountainParserTests` (comprehensive)
+- `PDFScreenplayParserTests`, `PandocIntegrationTests`
+- `FountainParserProgressTests`, `FDXParserProgressTests`
+- `SwiftDataProgressTests`, `FileIOProgressTests`
+- `TypedDataStorageTests`, `TextPackTests`
+
+#### 3. **UITests.xctestplan** (Optional, run manually or on weekends)
+- **SwiftUI view tests** and UI component tests
+- Gesture handling, hover states, popovers
+- Accessibility tests
+
+**Examples:**
+- `ElementViewTests`, `SceneBrowserUITests`
+- `TextConfigurationViewTests`, `TypedDataImageViewTests`
+- `GuionElementPopoverProviderTests`, `InteractivePopoverTests`
+- `LongPressGestureTests`, `HoverTimingTests`
+
+#### 4. **PerformanceTests.xctestplan** (Runs after unit tests, non-blocking)
+- **Performance benchmarks only**
+- Tests in files with "Performance" in the class/struct name
+- Runs in Release configuration for accurate measurements
+- Results uploaded as CI artifacts (don't block PRs)
+
+**Examples:**
+- `GuionViewerPerformanceTests`, `GuionTextEditorPerformanceTests`
+- `Phase2PerformanceTests`
+
+### Running Tests Locally
+
+```bash
+# Run unit tests (default for PRs)
+xcodebuild test -scheme SwiftCompartido -testPlan UnitTests \
+  -destination 'platform=iOS Simulator,name=iPhone 17 Pro'
+
+# Run long tests
+xcodebuild test -scheme SwiftCompartido -testPlan LongTests \
+  -destination 'platform=iOS Simulator,name=iPhone 17 Pro'
+
+# Run UI tests
+xcodebuild test -scheme SwiftCompartido -testPlan UITests \
+  -destination 'platform=iOS Simulator,name=iPhone 17 Pro'
+
+# Run performance tests
+xcodebuild test -scheme SwiftCompartido -testPlan PerformanceTests \
+  -configuration Release \
+  -destination 'platform=iOS Simulator,name=iPhone 17 Pro'
+```
 
 ### ⚠️ Adding New Tests - IMPORTANT
 
-When adding new tests, you **MUST** evaluate whether they belong in short or long tests:
+When adding new tests, you **MUST** categorize them into the correct test plan:
 
-**Short tests should be:**
-- Fast (< 1 second per test typically)
-- Unit tests for individual functions/methods
-- Model tests (Codable, initialization, validation)
-- Simple integration tests without heavy I/O
+#### Unit Tests (UnitTests.xctestplan)
+- ✅ Fast (< 1 second per test)
+- ✅ Tests basic functionality of non-UI classes/structs
+- ✅ Model tests (Codable, initialization, validation)
+- ✅ Small parser inputs (< 100 lines)
+- ❌ NO file I/O or heavy operations
+- ❌ NO SwiftUI view tests
+- ❌ NO performance benchmarks
 
-**Long tests should be:**
-- Integration tests with file I/O or complex workflows
-- UI rendering tests (SwiftUI views)
-- Progress callback tests with delays
-- Parser tests on large documents
-- End-to-end workflow tests
+#### Long Tests (LongTests.xctestplan)
+- ✅ Integration tests with file I/O
+- ✅ Large data sets or many iterations
+- ✅ Progress callback tests with delays
+- ✅ Parser tests on realistic documents (1000+ lines)
+- ✅ End-to-end workflow tests
+- ❌ NO UI tests (move to UITests.xctestplan)
+- ❌ NO performance tests (move to PerformanceTests.xctestplan)
 
-**Decision criteria:**
-1. Run the test suite locally with timing
-2. If a test suite averages > 5 seconds total, consider it for long tests
-3. If individual tests take > 1 second, they likely belong in long tests
-4. **Default to short tests** unless there's a clear reason for long tests
+#### UI Tests (UITests.xctestplan)
+- ✅ SwiftUI view rendering tests
+- ✅ Gesture handlers, hover states
+- ✅ Accessibility tests
+- ✅ Any test that imports SwiftUI for view testing
 
-**To add a test suite to long tests:**
-1. Add the suite name to `SKIP_TESTS` array in `.github/workflows/tests.yml`
-2. Add the suite name to `LONG_TESTS` array in `.github/workflows/long-tests.yml`
+#### Performance Tests (PerformanceTests.xctestplan)
+- ✅ **MUST** be in a separate file
+- ✅ **MUST** have "Performance" in class/struct name
+- ✅ Benchmarking parse/render/serialize operations
+- ✅ Timing measurements and metrics
 
-**Goal:** Keep short tests completing in under 5 minutes to maintain fast PR feedback
+**To add a test suite to a test plan:**
+Edit the corresponding `.xctestplan` file and add the test suite name to `selectedTests` or `skippedTests`
+
+**Decision tree:**
+1. Is it a performance benchmark? → `PerformanceTests.xctestplan`
+2. Does it test SwiftUI views? → `UITests.xctestplan`
+3. Does it do heavy I/O or take > 1 second? → `LongTests.xctestplan`
+4. Otherwise → `UnitTests.xctestplan`
+
+**Goal:** Keep unit tests under 5 minutes for fast PR feedback
 
 ## Common Patterns
 
@@ -530,7 +703,7 @@ let record = TypedDataStorage(
 )
 
 // Save to file (automatic file reference creation)
-try record.saveBinary(audioData, to: storage, fileName: "speech.mp3", mode: .local)
+try await record.saveBinary(audioData, to: storage, fileName: "speech.mp3")
 
 modelContext.insert(record)
 try modelContext.save()
@@ -620,7 +793,6 @@ EOF
 ### User Guides
 - `README.md` - User-facing overview
 - `Docs/APP_INTENTS_GUIDE.md` - Complete guide to Shortcuts integration (NEW in 6.1.0)
-- `AI-REFERENCE.md` - Comprehensive API reference
 - `USAGE-SUMMARY.md` - Quick reference and common patterns
 - `CHANGELOG.md` - Version history
 
@@ -637,7 +809,7 @@ EOF
 
 ## Project Metadata
 
-- **Version**: 6.1.0
+- **Version**: 6.2.1
 - **Swift**: 6.2+
 - **Platforms**: iOS 26.0+, macOS 26.0+
 - **Dependencies**: TextBundle, ZIPFoundation, swift-markdown, SwiftFijos (test-only)

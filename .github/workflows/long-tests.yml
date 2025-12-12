@@ -43,54 +43,17 @@ jobs:
 
           TOTAL_CPUS=$(sysctl -n hw.ncpu)
           echo "🖥️  Total CPUs: $TOTAL_CPUS"
-          echo "🧪 Running long tests on iOS Simulator"
+          echo "🧪 Running long tests on iOS Simulator (using LongTests.xctestplan)"
 
-          # Only run long-running test suites
-          LONG_TESTS=(
-            "IntegrationTests"
-            "ElementViewTests"
-            "AudioPlayerManagerTests"
-            "TruncationDebugTests"
-            "GeneratedContentSortingTests"
-            "FountainParserProgressTests"
-            "FDXParserProgressTests"
-            "SwiftDataProgressTests"
-            "PDFScreenplayParserTests"
-            "DocumentImportTests"
-            "DocumentExportTests"
-            "FileIOProgressTests"
-            "TextPackWriterProgressTests"
-            "FountainParserTests"
-            "GuionSerializationTests"
-            "GuionParsedElementCollectionParsingTests"
-            "TextPackTests"
-            "TypedDataStorageTests"
-            "CloudKitSupportTests"
-            "UIOrderingRegressionTests"
-            "ElementProgressStateTests"
-            "ElementOrderingTests"
-            "LongPressGestureTests"
-            "FountainTextFormatterTests"
-            "TitlePageTests"
-            "OperationProgressTests"
-            "HoverTimingTests"
-            "HoverStateManagementTests"
-          )
-
-          ONLY_ARGS=""
-          for test in "${LONG_TESTS[@]}"; do
-            ONLY_ARGS="$ONLY_ARGS -only-testing:SwiftCompartidoTests/$test"
-          done
-
-          # Run tests with xcodebuild for iOS Simulator
+          # Run tests with xcodebuild for iOS Simulator using LongTests test plan
           xcodebuild test \
             -scheme SwiftCompartido \
             -sdk iphonesimulator \
             -destination 'platform=iOS Simulator,name=iPhone 17,OS=26.1' \
+            -testPlan LongTests \
             -enableCodeCoverage YES \
             -parallel-testing-enabled YES \
             -maximum-parallel-testing-workers $TOTAL_CPUS \
-            $ONLY_ARGS \
             CODE_SIGNING_ALLOWED=NO \
             > test_output_long.txt 2>&1
           TEST_EXIT_CODE=$?
@@ -210,53 +173,16 @@ jobs:
 
           TOTAL_CPUS=$(sysctl -n hw.ncpu)
           echo "🖥️  Total CPUs: $TOTAL_CPUS"
-          echo "🧪 Running long tests on macOS"
+          echo "🧪 Running long tests on macOS (using LongTests.xctestplan)"
 
-          # Only run long-running test suites
-          LONG_TESTS=(
-            "IntegrationTests"
-            "ElementViewTests"
-            "AudioPlayerManagerTests"
-            "TruncationDebugTests"
-            "GeneratedContentSortingTests"
-            "FountainParserProgressTests"
-            "FDXParserProgressTests"
-            "SwiftDataProgressTests"
-            "PDFScreenplayParserTests"
-            "DocumentImportTests"
-            "DocumentExportTests"
-            "FileIOProgressTests"
-            "TextPackWriterProgressTests"
-            "FountainParserTests"
-            "GuionSerializationTests"
-            "GuionParsedElementCollectionParsingTests"
-            "TextPackTests"
-            "TypedDataStorageTests"
-            "CloudKitSupportTests"
-            "UIOrderingRegressionTests"
-            "ElementProgressStateTests"
-            "ElementOrderingTests"
-            "LongPressGestureTests"
-            "FountainTextFormatterTests"
-            "TitlePageTests"
-            "OperationProgressTests"
-            "HoverTimingTests"
-            "HoverStateManagementTests"
-          )
-
-          ONLY_ARGS=""
-          for test in "${LONG_TESTS[@]}"; do
-            ONLY_ARGS="$ONLY_ARGS -only-testing:SwiftCompartidoTests/$test"
-          done
-
-          # Run tests with xcodebuild for macOS
+          # Run tests with xcodebuild for macOS using LongTests test plan
           xcodebuild test \
             -scheme SwiftCompartido \
             -destination 'platform=macOS' \
+            -testPlan LongTests \
             -enableCodeCoverage YES \
             -parallel-testing-enabled YES \
             -maximum-parallel-testing-workers $TOTAL_CPUS \
-            $ONLY_ARGS \
             CODE_SIGNING_ALLOWED=NO \
             > test_output_long_macos.txt 2>&1
           TEST_EXIT_CODE=$?

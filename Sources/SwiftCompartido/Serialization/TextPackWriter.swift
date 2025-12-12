@@ -5,15 +5,24 @@
 //  Copyright (c) 2025
 //
 //  Creates .guion TextPack bundles from screenplay data
+//
+//  DEPRECATED: TextPack bundle format is deprecated in favor of JSON .guion files (Phase 1).
+//  This file is maintained for backward compatibility only.
+//  New code should use GuionJSONSerializer instead.
 
 import Foundation
 
 /// Writer for creating .guion TextPack bundles
+///
+/// **DEPRECATED**: Use `GuionJSONSerializer` instead for new code.
+/// TextPack bundles are deprecated in favor of JSON .guion files (Phase 1).
+@available(*, deprecated, message: "Use GuionJSONSerializer instead. TextPack format is deprecated.")
 public struct TextPackWriter {
 
     /// Create a TextPack bundle from a GuionParsedElementCollection
     /// - Parameter screenplay: The screenplay to export
     /// - Returns: FileWrapper representing the TextPack bundle
+    @available(*, deprecated, message: "Use GuionJSONSerializer.encode() instead")
     public static func createTextPack(from screenplay: GuionParsedElementCollection) throws -> FileWrapper {
         let fileWrappers: [String: FileWrapper] = [:]
         let bundle = FileWrapper(directoryWithFileWrappers: fileWrappers)
@@ -49,6 +58,7 @@ public struct TextPackWriter {
     /// Create a TextPack bundle from a GuionDocumentModel
     /// - Parameter document: The document model to export
     /// - Returns: FileWrapper representing the TextPack bundle
+    @available(*, deprecated, message: "Use GuionJSONSerializer.save() instead")
     public static func createTextPack(from document: GuionDocumentModel) throws -> FileWrapper {
         // Convert to GuionParsedElementCollection first
         let screenplay = document.toGuionParsedElementCollection()

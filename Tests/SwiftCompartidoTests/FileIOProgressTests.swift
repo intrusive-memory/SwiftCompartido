@@ -77,7 +77,7 @@ struct FileIOProgressTests {
             voiceName: "Test Voice"
         )
 
-        try await record.saveBinary(audioData, to: storage, fileName: "audio.mp3", mode: .local, progress: progress)
+        try await record.saveBinary(audioData, to: storage, fileName: "audio.mp3", progress: progress)
 
         // Wait for async updates
         try await Task.sleep(for: .milliseconds(100))
@@ -132,7 +132,7 @@ struct FileIOProgressTests {
             voiceName: "Test Voice"
         )
 
-        try await record.saveBinary(audioData, to: storage, fileName: "audio.mp3", mode: .local, progress: progress)
+        try await record.saveBinary(audioData, to: storage, fileName: "audio.mp3", progress: progress)
 
         // Wait for async updates to propagate
         try await Task.sleep(for: .milliseconds(500))
@@ -187,7 +187,7 @@ struct FileIOProgressTests {
             height: 1024
         )
 
-        try await record.saveBinary(imageData, to: storage, fileName: "image.png", mode: .local, progress: progress)
+        try await record.saveBinary(imageData, to: storage, fileName: "image.png", progress: progress)
 
         // Wait for async updates
         try await Task.sleep(for: .milliseconds(100))
@@ -241,7 +241,7 @@ struct FileIOProgressTests {
             height: 2048
         )
 
-        try await record.saveBinary(imageData, to: storage, fileName: "image.png", mode: .local, progress: progress)
+        try await record.saveBinary(imageData, to: storage, fileName: "image.png", progress: progress)
 
         // Wait for async updates to propagate
         try await Task.sleep(for: .milliseconds(500))
@@ -279,7 +279,7 @@ struct FileIOProgressTests {
 
         let task = Task {
             let progress = OperationProgress(totalUnits: nil)
-            try await record.saveBinary(audioData, to: storage, fileName: "audio.mp3", mode: .local, progress: progress)
+            try await record.saveBinary(audioData, to: storage, fileName: "audio.mp3", progress: progress)
         }
 
         // Cancel quickly
@@ -317,7 +317,7 @@ struct FileIOProgressTests {
 
         let task = Task {
             let progress = OperationProgress(totalUnits: nil)
-            try await record.saveBinary(imageData, to: storage, fileName: "image.png", mode: .local, progress: progress)
+            try await record.saveBinary(imageData, to: storage, fileName: "image.png", progress: progress)
         }
 
         // Cancel quickly
@@ -338,170 +338,6 @@ struct FileIOProgressTests {
 
     }
 
-    // MARK: - CloudKit Upload Progress Tests
-
-    @Test("CloudKit mode shows upload preparation in progress")
-    func testCloudKitUploadProgress() async throws {
-        actor ProgressCollector {
-            var descriptions: [String] = []
-
-            func add(_ desc: String) {
-                descriptions.append(desc)
-            }
-
-            func getDescriptions() -> [String] {
-                return descriptions
-            }
-        }
-
-        let collector = ProgressCollector()
-        let progress = OperationProgress(totalUnits: nil) { update in
-            Task {
-                await collector.add(update.description)
-            }
-        }
-
-        let audioData = createLargeAudioData(megabytes: 10)
-        let storage = createTempStorage()
-
-        let record = GeneratedAudioRecord(
-            providerId: "elevenlabs",
-            requestorID: "tts.test",
-            mimeType: "audio/mpeg",
-            binaryValue: nil,
-            prompt: "Test",
-            audioFormat: "mp3",
-            voiceID: "test-voice",
-            voiceName: "Test Voice"
-        )
-
-        try await record.saveBinary(audioData, to: storage, fileName: "audio.mp3", mode: .cloudKit, progress: progress)
-
-        // Wait for async updates to propagate
-        try await Task.sleep(for: .milliseconds(500))
-
-        let descriptions = await collector.getDescriptions()
-
-        // Verify CloudKit asset was set (more reliable than checking descriptions due to async timing)
-        #expect(record.cloudKitAsset != nil, "Should set CloudKit asset")
-        #expect(record.syncStatus == .pending, "Should mark as pending sync")
-        #expect(record.storageMode == .cloudKit, "Should use CloudKit storage mode")
-
-        // Should have progress updates
-        #expect(descriptions.count > 0, "Should report progress during CloudKit upload preparation")
-
-    }
-
-    @Test("Hybrid mode saves to both local and CloudKit", .disabled("CloudKit not available in CI simulators"))
-    func testHybridStorageProgress() async throws {
-        actor ProgressCollector {
-            var finalUpdate: ProgressUpdate?
-
-            func setFinal(_ update: ProgressUpdate) {
-                finalUpdate = update
-            }
-
-            func getFinal() -> ProgressUpdate? {
-                return finalUpdate
-            }
-        }
-
-        let collector = ProgressCollector()
-        let progress = OperationProgress(totalUnits: nil) { update in
-            Task {
-                await collector.setFinal(update)
-            }
-        }
-
-        let imageData = createLargeImageData(megabytes: 5)
-        let storage = createTempStorage()
-
-        let record = GeneratedImageRecord(
-            providerId: "openai",
-            requestorID: "dalle.test",
-            mimeType: "image/png",
-            binaryValue: nil,
-            prompt: "Test",
-            width: 1024,
-            height: 1024
-        )
-
-        try await record.saveBinary(imageData, to: storage, fileName: "image.png", mode: .hybrid, progress: progress)
-
-        // Wait for async updates
-        try await Task.sleep(for: .milliseconds(100))
-
-        let finalUpdate = await collector.getFinal()
-
-        // Verify both local and CloudKit storage
-        #expect(record.fileReference != nil, "Should create local file reference")
-        // Note: CloudKit asset may be nil in CI/Simulator environments without CloudKit
-        // The critical assertion is that local file storage works
-        #expect(record.storageMode == .hybrid, "Should be hybrid mode")
-
-        if let final = finalUpdate {
-            #expect(final.completedUnits > 0, "Should report progress")
-        }
-
-    }
-
-    // MARK: - CloudKit Download Progress Tests
-
-    @Test("Loading from CloudKit reports progress")
-    func testCloudKitDownloadProgress() async throws {
-        actor ProgressCollector {
-            var updates: [ProgressUpdate] = []
-
-            func add(_ update: ProgressUpdate) {
-                updates.append(update)
-            }
-
-            func getUpdates() -> [ProgressUpdate] {
-                return updates
-            }
-        }
-
-        let collector = ProgressCollector()
-        let progress = OperationProgress(totalUnits: nil) { update in
-            Task {
-                await collector.add(update)
-            }
-        }
-
-        // Create record with CloudKit asset (simulating already synced data)
-        let audioData = createLargeAudioData(megabytes: 5)
-
-        let record = GeneratedAudioRecord(
-            providerId: "elevenlabs",
-            requestorID: "tts.test",
-            mimeType: "audio/mpeg",
-            binaryValue: nil,
-            prompt: "Test",
-            storageMode: .cloudKit,
-            audioFormat: "mp3",
-            voiceID: "test-voice",
-            voiceName: "Test Voice"
-        )
-
-        // Simulate CloudKit asset
-        record.cloudKitAsset = audioData
-        record.cloudKitRecordID = "test-record-id"
-
-        let loaded = try record.getBinary(from: nil, progress: progress)
-
-        // Wait for async updates
-        try await Task.sleep(for: .milliseconds(50))
-
-        let updates = await collector.getUpdates()
-
-        #expect(loaded.count == audioData.count, "Should load correct data")
-        #expect(updates.count > 0, "Should report progress")
-
-        // Should indicate CloudKit source
-        let descriptions = updates.map { $0.description.lowercased() }
-        let mentionsCloudKit = descriptions.contains { $0.contains("cloudkit") }
-        #expect(mentionsCloudKit, "Should indicate CloudKit source")
-    }
 
     // MARK: - File Loading Progress Tests
 
@@ -534,7 +370,7 @@ struct FileIOProgressTests {
             voiceName: "Test Voice"
         )
 
-        try await record.saveBinary(audioData, to: storage, fileName: "audio.mp3", mode: .local, progress: nil)
+        try await record.saveBinary(audioData, to: storage, fileName: "audio.mp3", progress: nil)
 
         // Now load with progress
         let collector = ProgressCollector()
@@ -589,7 +425,7 @@ struct FileIOProgressTests {
             height: 2048
         )
 
-        try await record.saveBinary(imageData, to: storage, fileName: "image.png", mode: .local, progress: nil)
+        try await record.saveBinary(imageData, to: storage, fileName: "image.png", progress: nil)
 
         // Now load with progress
         let collector = ProgressCollector()
@@ -637,7 +473,7 @@ struct FileIOProgressTests {
         )
 
         // Save with nil progress
-        try await record.saveBinary(audioData, to: storage, fileName: "audio.mp3", mode: .local, progress: nil)
+        try await record.saveBinary(audioData, to: storage, fileName: "audio.mp3", progress: nil)
 
         #expect(record.fileReference != nil, "Should save without progress")
 
@@ -687,7 +523,7 @@ struct FileIOProgressTests {
             voiceName: "Test Voice"
         )
 
-        try await record.saveBinary(audioData, to: storage, fileName: "audio.mp3", mode: .local, progress: progress)
+        try await record.saveBinary(audioData, to: storage, fileName: "audio.mp3", progress: progress)
 
         // Wait for async updates
         try await Task.sleep(for: .milliseconds(100))

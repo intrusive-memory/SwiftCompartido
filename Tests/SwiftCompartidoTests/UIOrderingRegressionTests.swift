@@ -254,7 +254,7 @@ struct UIOrderingRegressionTests {
         )
 
         // Create snapshot
-        let snapshot = GuionDocumentSnapshot(from: document)
+        let snapshot = document.toSnapshot()
 
         // Verify snapshot elements are in correct order
         for (index, element) in snapshot.elements.enumerated() {
@@ -276,10 +276,10 @@ struct UIOrderingRegressionTests {
         )
 
         // Serialize
-        let snapshot = GuionDocumentSnapshot(from: document1)
+        let snapshot = document1.toSnapshot()
 
         // Deserialize
-        let document2 = snapshot.toModel(in: context)
+        let document2 = GuionDocumentModel.from(snapshot, in: context)
 
         // Verify order preserved
         for (index, element) in document2.sortedElements.enumerated() {
@@ -325,7 +325,7 @@ struct UIOrderingRegressionTests {
         }
 
         // Test 3: Snapshot serialization
-        let snapshot = GuionDocumentSnapshot(from: document)
+        let snapshot = document.toSnapshot()
         for (index, element) in snapshot.elements.enumerated() {
             #expect(element.elementText == "Element \(index)",
                     "Snapshot should maintain order")

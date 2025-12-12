@@ -386,47 +386,6 @@ struct TypedDataStorageTests {
         #expect(record.tokenCount == 5)
     }
 
-    // MARK: - CloudKit Properties Tests
-
-    @Test("CloudKit properties initialization")
-    func testCloudKitPropertiesInit() throws {
-        let record = TypedDataStorage(
-            providerId: "test",
-            requestorID: "test",
-            mimeType: "text/plain",
-            textValue: "Test",
-            prompt: "Test",
-            storageMode: .cloudKit
-        )
-
-        #expect(record.storageMode == .cloudKit)
-        #expect(record.syncStatus == .pending)
-        #expect(record.conflictVersion == 1)
-        #expect(record.cloudKitRecordID == nil)
-        #expect(record.isCloudKitEnabled == true)
-    }
-
-    @Test("Touch method updates modifiedAt and conflictVersion")
-    func testTouchMethod() throws {
-        let record = TypedDataStorage(
-            providerId: "test",
-            requestorID: "test",
-            mimeType: "text/plain",
-            textValue: "Test",
-            prompt: "Test"
-        )
-
-        let originalModified = record.modifiedAt
-        let originalVersion = record.conflictVersion
-
-        // Sleep briefly to ensure time difference
-        Thread.sleep(forTimeInterval: 0.01)
-
-        record.touch()
-
-        #expect(record.modifiedAt > originalModified)
-        #expect(record.conflictVersion == originalVersion + 1)
-    }
 
     // MARK: - Description Tests
 

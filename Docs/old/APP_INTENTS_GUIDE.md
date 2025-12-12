@@ -4,12 +4,21 @@ Complete guide to using SwiftCompartido's App Intents for Shortcuts integration.
 
 ## Overview
 
-SwiftCompartido provides two App Intents for screenplay parsing and querying via Apple Shortcuts:
+SwiftCompartido provides six App Intents for screenplay parsing, querying, export, and voice casting via Apple Shortcuts:
 
+### Import & Query
 1. **ParseScreenplayFileIntent** - Parse screenplay files and extract elements
 2. **QueryScreenplayElementsIntent** - Query elements from previously parsed documents
 
-Both intents return a `ScreenplayElementsReference` that can be chained to downstream actions like voice generation, analysis, or export.
+### Export
+3. **ExportScreenplayIntent** - Export screenplays to Fountain, FDX, or .guion JSON
+
+### Character & Voice Casting
+4. **ExtractCharactersIntent** - Extract character list with dialogue counts
+5. **GetVoiceCastingIntent** - Retrieve character voice assignments
+6. **SetVoiceCastingIntent** - Assign voices to characters
+
+These intents enable complete screenplay workflows including parsing, querying, format conversion, and audio generation setup.
 
 ## Requirements
 
@@ -453,6 +462,286 @@ Check file format before parsing:
 3. Parse Screenplay File
 ```
 
+## New Intents (6.2.0+)
+
+### 3. Export Screenplay
+
+**Intent**: `ExportScreenplayIntent`
+
+**What it does**: Exports a parsed screenplay to Fountain, FDX, or .guion JSON format.
+
+**Parameters**:
+- `documentIDString` (required): The document ID from a previous parse
+- `exportFormat` (required): Target format (Fountain, FDX, or .guion JSON)
+- `outputFilename` (optional): Custom filename (without extension)
+
+**Returns**: `IntentFile` with the exported screenplay
+
+**Example Shortcut**:
+```
+1. Parse Screenplay File (returns reference)
+2. Export Screenplay
+   - Document ID: [documentID from step 1]
+   - Export Format: Final Draft (FDX)
+   - Output Filename: "my_script"
+3. Save File
+```
+
+**Supported Export Formats**:
+| Format | Description | Extension |
+|--------|-------------|-----------|
+| Fountain | Plain text screenplay format | .fountain |
+| Final Draft (FDX) | Final Draft XML format | .fdx |
+| .guion JSON | SwiftCompartido JSON format with metadata | .guion |
+
+**Use Cases**:
+- Convert Fountain to FDX for Final Draft import
+- Export to .guion for archiving with AI-generated content
+- Share screenplays in industry-standard formats
+
+### 4. Extract Characters
+
+**Intent**: `ExtractCharactersIntent`
+
+**What it does**: Extracts the complete list of characters from a screenplay, with optional dialogue counts.
+
+**Parameters**:
+- `documentIDString` (required): The document ID from a previous parse
+- `includeDialogueCount` (optional): Include dialogue line counts (default: true)
+
+**Returns**: `CharacterListReference` with character data
+
+**Example Shortcut**:
+```
+1. Parse Screenplay File (script.fountain)
+2. Extract Characters
+   - Document ID: [documentID from step 1]
+   - Include Dialogue Count: Yes
+3. Show Result → Character list with counts
+```
+
+**CharacterListReference Properties**:
+```swift
+characterCount: Int          // Total number of characters
+characterNames: [String]     // Sorted character names
+characters: [CharacterReference]  // Full character data
+```
+
+**CharacterReference Properties**:
+```swift
+name: String                 // Character name (e.g., "JANE")
+aliases: [String]            // Alternative names
+dialogueCount: Int?          // Number of dialogue lines (optional)
+```
+
+**Use Cases**:
+- Prepare voice assignment list before audio generation
+- Analyze character presence in screenplay
+- Generate casting sheets
+
+### 5. Get Voice Casting
+
+**Intent**: `GetVoiceCastingIntent`
+
+**What it does**: Retrieves all character→voice assignments from a screenplay document.
+
+**Parameters**:
+- `documentIDString` (required): The document ID
+
+**Returns**: `VoiceCastingReference` with all voice mappings
+
+**Example Shortcut**:
+```
+1. Get Voice Casting
+   - Document ID: [documentID]
+2. Show Result → List of character voice assignments
+```
+
+**VoiceCastingReference Properties**:
+```swift
+mappingCount: Int                    // Total number of assignments
+assignedCharacters: [String]         // Characters with voices (sorted)
+mappings: [VoiceMappingReference]    // Full mapping data
+```
+
+**VoiceMappingReference Properties**:
+```swift
+characterName: String    // Character name (e.g., "JANE")
+voiceURI: String        // Voice identifier (e.g., "macos://Samantha")
+voiceName: String       // Human-readable name (e.g., "Samantha")
+providerID: String      // Provider (e.g., "macos", "elevenlabs")
+```
+
+**Voice URI Formats**:
+- **macOS System**: `macos://VoiceName` (e.g., `macos://Samantha`)
+- **ElevenLabs**: `elevenlabs://voice-id` (e.g., `elevenlabs://21m00Tcm4TlvDq8ikWAM`)
+- **OpenAI**: `openai://voice-name` (e.g., `openai://alloy`)
+
+**Use Cases**:
+- Review current voice assignments before audio generation
+- Export voice casting for documentation
+- Verify all characters have assigned voices
+
+### 6. Set Voice Casting
+
+**Intent**: `SetVoiceCastingIntent`
+
+**What it does**: Assigns a voice to a character in the screenplay document.
+
+**Parameters**:
+- `documentIDString` (required): The document ID
+- `characterName` (required): Character to assign voice to (e.g., "JANE")
+- `voiceURI` (required): Voice identifier (e.g., "macos://Samantha")
+- `voiceName` (required): Human-readable name (e.g., "Samantha")
+- `providerID` (required): Provider ID (e.g., "macos", "elevenlabs", "openai")
+
+**Returns**: Confirmation message
+
+**Example Shortcut**:
+```
+1. Extract Characters
+2. For each character:
+   - Ask user: "Select voice for [character]"
+   - Set Voice Casting
+     - Character Name: [character name]
+     - Voice URI: [selected voice URI]
+     - Voice Name: [selected voice name]
+     - Provider ID: [provider]
+3. Show Result → "Voice casting complete"
+```
+
+**Behavior**:
+- Creates new mapping if character doesn't have one
+- Updates existing mapping if character already has a voice
+- Persists to SwiftData immediately
+
+**Use Cases**:
+- Assign voices before audio generation workflow
+- Update voice assignments for re-recording
+- Batch-assign voices to multiple characters
+
+## Advanced Workflows
+
+### Complete Audio Generation Pipeline
+
+**Goal**: Parse screenplay, assign voices, generate audio for all dialogue
+
+```
+1. Get File (screenplay.fountain)
+2. Parse Screenplay File
+   - File: [File from step 1]
+   → documentID
+
+3. Extract Characters
+   - Document ID: [documentID]
+   → characterList
+
+4. For each character in characterList:
+   - Ask user: "Select voice for [character.name]"
+   - Set Voice Casting
+     - Document ID: [documentID]
+     - Character Name: [character.name]
+     - Voice URI: [selected voice URI]
+     - Voice Name: [selected voice name]
+     - Provider ID: [provider]
+
+5. Query Screenplay Elements
+   - Document ID: [documentID]
+   - Filter Element Types: Dialogue
+   → dialogueElements
+
+6. Get Voice Casting
+   - Document ID: [documentID]
+   → voiceCasting
+
+7. For each dialogue in dialogueElements:
+   - Get voice for dialogue.characterName from voiceCasting
+   - Generate Voice Audio
+     - Text: dialogue.elementText
+     - Voice: [voiceURI from casting]
+   - Save File
+```
+
+### Format Conversion Workflow
+
+**Goal**: Convert Fountain screenplay to Final Draft format
+
+```
+1. Get File (screenplay.fountain)
+2. Parse Screenplay File
+   - File: [File from step 1]
+   → documentID
+
+3. Export Screenplay
+   - Document ID: [documentID]
+   - Export Format: Final Draft (FDX)
+   - Output Filename: "screenplay_fdx"
+   → exported file
+
+4. Save File (screenplay.fdx)
+```
+
+### Character Analysis Workflow
+
+**Goal**: Generate character dialogue statistics
+
+```
+1. Parse Screenplay File
+   → documentID
+
+2. Extract Characters
+   - Document ID: [documentID]
+   - Include Dialogue Count: Yes
+   → characterList
+
+3. For each character in characterList:
+   - Query Screenplay Elements
+     - Document ID: [documentID]
+     - Filter Element Types: Dialogue
+     - Character Name: [character.name]
+     → characterDialogue
+
+   - Count Words in characterDialogue
+   - Calculate average words per line
+   - Log results
+```
+
+## Voice Commands (Siri) - Updated
+
+SwiftCompartido registers the following voice commands:
+
+### Parse Screenplay
+- "Import screenplay with SwiftCompartido"
+- "Parse screenplay file in SwiftCompartido"
+- "Parse a screenplay in SwiftCompartido"
+- "Import a script with SwiftCompartido"
+
+### Query Elements
+- "Query screenplay elements in SwiftCompartido"
+- "Get screenplay dialogue in SwiftCompartido"
+- "Search screenplay in SwiftCompartido"
+- "Find screenplay elements in SwiftCompartido"
+
+### Export Screenplay (NEW)
+- "Export screenplay with SwiftCompartido"
+- "Convert screenplay in SwiftCompartido"
+- "Save screenplay as in SwiftCompartido"
+
+### Extract Characters (NEW)
+- "Extract characters in SwiftCompartido"
+- "Get character list from SwiftCompartido"
+- "List characters in SwiftCompartido"
+
+### Get Voice Casting (NEW)
+- "Get voice casting in SwiftCompartido"
+- "Show voice assignments in SwiftCompartido"
+- "List voice casting in SwiftCompartido"
+
+### Set Voice Casting (NEW)
+- "Set voice casting in SwiftCompartido"
+- "Assign voice in SwiftCompartido"
+- "Map character voice in SwiftCompartido"
+
 ## API Reference
 
 See `PARSED_FILE_SERVICE_API.md` for complete API documentation.
@@ -468,6 +757,13 @@ For issues or questions:
 - Documentation: https://github.com/intrusive-memory/SwiftCompartido/tree/main/Docs
 
 ## Version History
+
+- **6.2.0**: Export and Voice Casting Intents (NEW)
+  - ExportScreenplayIntent - Export to Fountain/FDX/.guion
+  - ExtractCharactersIntent - Character list extraction
+  - GetVoiceCastingIntent - Retrieve voice assignments
+  - SetVoiceCastingIntent - Assign voices to characters
+  - Updated SwiftCompartidoShortcuts with new voice commands
 
 - **6.1.0**: Initial App Intents implementation
   - ParseScreenplayFileIntent

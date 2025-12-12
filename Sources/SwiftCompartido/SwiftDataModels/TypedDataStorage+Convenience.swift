@@ -23,7 +23,6 @@ extension TypedDataStorage {
     ///   - prompt: The generation prompt
     ///   - fileReference: Optional file reference for large text
     ///   - estimatedCost: Optional cost estimate
-    ///   - storageMode: Storage mode (defaults to local)
     public convenience init(
         id: UUID = UUID(),
         providerId: String,
@@ -31,8 +30,7 @@ extension TypedDataStorage {
         data: GeneratedTextData,
         prompt: String,
         fileReference: TypedDataFileReference? = nil,
-        estimatedCost: Double? = nil,
-        storageMode: StorageMode = .local
+        estimatedCost: Double? = nil
     ) {
         // If file reference exists, don't store text in-memory
         let textValue = fileReference == nil ? data.text : nil
@@ -48,7 +46,6 @@ extension TypedDataStorage {
             modelIdentifier: data.model,
             estimatedCost: estimatedCost,
             fileReference: fileReference,
-            storageMode: storageMode,
             wordCount: data.wordCount,
             characterCount: data.characterCount,
             languageCode: data.languageCode,
@@ -70,7 +67,6 @@ extension TypedDataStorage {
     ///   - prompt: The generation prompt
     ///   - fileReference: Optional file reference for audio file
     ///   - estimatedCost: Optional cost estimate
-    ///   - storageMode: Storage mode (defaults to local)
     public convenience init(
         id: UUID = UUID(),
         providerId: String,
@@ -78,8 +74,7 @@ extension TypedDataStorage {
         data: GeneratedAudioData,
         prompt: String,
         fileReference: TypedDataFileReference? = nil,
-        estimatedCost: Double? = nil,
-        storageMode: StorageMode = .local
+        estimatedCost: Double? = nil
     ) {
         // If file reference exists, don't store audio data in-memory
         let binaryValue = fileReference == nil ? data.audioData : nil
@@ -95,7 +90,6 @@ extension TypedDataStorage {
             modelIdentifier: data.model,
             estimatedCost: estimatedCost,
             fileReference: fileReference,
-            storageMode: storageMode,
             audioFormat: data.format.rawValue,
             durationSeconds: data.durationSeconds,
             sampleRate: data.sampleRate,
@@ -118,7 +112,6 @@ extension TypedDataStorage {
     ///   - prompt: The generation prompt
     ///   - fileReference: Optional file reference for image file
     ///   - estimatedCost: Optional cost estimate
-    ///   - storageMode: Storage mode (defaults to local)
     public convenience init(
         id: UUID = UUID(),
         providerId: String,
@@ -126,8 +119,7 @@ extension TypedDataStorage {
         data: GeneratedImageData,
         prompt: String,
         fileReference: TypedDataFileReference? = nil,
-        estimatedCost: Double? = nil,
-        storageMode: StorageMode = .local
+        estimatedCost: Double? = nil
     ) {
         // If file reference exists, don't store image data in-memory
         let binaryValue = fileReference == nil ? data.imageData : nil
@@ -143,7 +135,6 @@ extension TypedDataStorage {
             modelIdentifier: data.model,
             estimatedCost: estimatedCost,
             fileReference: fileReference,
-            storageMode: storageMode,
             imageFormat: data.format.rawValue,
             width: data.width,
             height: data.height,
@@ -163,7 +154,6 @@ extension TypedDataStorage {
     ///   - prompt: The generation prompt
     ///   - fileReference: Optional file reference for embedding file
     ///   - estimatedCost: Optional cost estimate
-    ///   - storageMode: Storage mode (defaults to local)
     public convenience init(
         id: UUID = UUID(),
         providerId: String,
@@ -171,8 +161,7 @@ extension TypedDataStorage {
         data: GeneratedEmbeddingData,
         prompt: String,
         fileReference: TypedDataFileReference? = nil,
-        estimatedCost: Double? = nil,
-        storageMode: StorageMode = .local
+        estimatedCost: Double? = nil
     ) {
         // If file reference exists, don't store embedding data in-memory
         let binaryValue: Data?
@@ -196,7 +185,6 @@ extension TypedDataStorage {
             modelIdentifier: data.model,
             estimatedCost: estimatedCost,
             fileReference: fileReference,
-            storageMode: storageMode,
             tokenCount: data.tokenCount,
             dimensions: data.dimensions,
             inputText: data.inputText,
@@ -217,23 +205,16 @@ extension TypedDataStorage {
     /// - Text < 10KB: Stored in textValue (in-memory), no storage area needed
     /// - Text ≥ 10KB: Saved to file with chunked writing for large text
     ///
-    /// **CloudKit Integration:**
-    /// - For .cloudKit/.hybrid modes: Small text stored in cloudKitAsset as UTF-8 data
-    /// - For .cloudKit/.hybrid modes: Large text stored in cloudKitAsset from file
-    /// - syncStatus automatically set to .pending for CloudKit-enabled modes
-    ///
     /// - Parameters:
     ///   - text: The text to save
     ///   - to storageArea: Storage area for the file (required for text ≥ 10KB, optional for small text)
     ///   - fileName: Optional custom filename (defaults to "text.txt")
-    ///   - mode: Storage mode (.local, .cloudKit, .hybrid - defaults to current storageMode)
     ///   - progress: Optional progress tracking for file write operations
     /// - Throws: TypedDataError if save fails or storage area missing for large text
     public func saveText(
         _ text: String,
         to storageArea: StorageAreaReference? = nil,
         fileName: String? = nil,
-        mode: StorageMode? = nil,
         progress: OperationProgress? = nil
     ) throws {
         guard mimeType.lowercased().hasPrefix("text/") else {
@@ -250,26 +231,6 @@ extension TypedDataStorage {
             // Store small text in-memory
             self.textValue = text
             self.fileReference = nil
-
-            // Update storage mode if specified
-            if let mode = mode {
-                self.storageMode = mode
-            }
-
-            // Handle CloudKit for in-memory text
-            let effectiveMode = mode ?? self.storageMode
-            if effectiveMode == .cloudKit || effectiveMode == .hybrid {
-                // For CloudKit text, we can store it in cloudKitAsset as well
-                if let data = text.data(using: .utf8) {
-                    self.cloudKitAsset = data
-                }
-
-                // Mark as pending sync
-                if self.syncStatus == .localOnly {
-                    self.syncStatus = .pending
-                }
-            }
-
             touch()
             return
         }
@@ -291,30 +252,27 @@ extension TypedDataStorage {
         }
 
         let finalFileName = fileName ?? "text.txt"
-        try saveContent(data, to: storageArea, fileName: finalFileName, mode: mode, progress: progress)
+        try saveContent(data, to: storageArea, fileName: finalFileName, progress: progress)
     }
 
     /// Saves binary content to a file in the storage area
     ///
-    /// Handles complete save workflow with automatic CloudKit asset management:
+    /// Handles complete save workflow:
     /// - Creates storage directory if needed
     /// - Writes file in chunks (1MB) for large files (>1MB) with progress
     /// - Creates TypedDataFileReference automatically
-    /// - For .cloudKit/.hybrid modes: Populates cloudKitAsset and sets syncStatus = .pending
-    /// - Clears in-memory binaryValue to save space (data now in file/CloudKit)
+    /// - Clears in-memory binaryValue to save space (data now in file)
     ///
     /// - Parameters:
     ///   - data: The binary data to save
     ///   - storageArea: Storage area for the file
     ///   - fileName: Optional custom filename (auto-generated if nil based on MIME type)
-    ///   - mode: Storage mode (.local, .cloudKit, .hybrid - defaults to current storageMode)
-    ///   - progress: Optional progress tracking for file write and CloudKit preparation
+    ///   - progress: Optional progress tracking for file write
     /// - Throws: TypedDataError if save fails
     public func saveBinary(
         _ data: Data,
         to storageArea: StorageAreaReference,
         fileName: String? = nil,
-        mode: StorageMode? = nil,
         progress: OperationProgress? = nil
     ) throws {
         guard !mimeType.lowercased().hasPrefix("text/") else {
@@ -326,7 +284,7 @@ extension TypedDataStorage {
 
         // Auto-generate filename based on content type if not provided
         let finalFileName = fileName ?? generateFileName()
-        try saveContent(data, to: storageArea, fileName: finalFileName, mode: mode, progress: progress)
+        try saveContent(data, to: storageArea, fileName: finalFileName, progress: progress)
     }
 
     /// Saves embedding vector to a file in the storage area
@@ -335,14 +293,12 @@ extension TypedDataStorage {
     ///   - embedding: The embedding vector to save
     ///   - storageArea: Storage area for the file
     ///   - fileName: Optional custom filename (defaults to "embedding.bin")
-    ///   - mode: Storage mode (defaults to current storageMode)
     ///   - progress: Optional progress tracking
     /// - Throws: TypedDataError if save fails
     public func saveEmbedding(
         _ embedding: [Float],
         to storageArea: StorageAreaReference,
         fileName: String? = nil,
-        mode: StorageMode? = nil,
         progress: OperationProgress? = nil
     ) throws {
         guard mimeType.lowercased() == "application/x-embedding" else {
@@ -357,7 +313,7 @@ extension TypedDataStorage {
         }
 
         let finalFileName = fileName ?? "embedding.bin"
-        try saveContent(data, to: storageArea, fileName: finalFileName, mode: mode, progress: progress)
+        try saveContent(data, to: storageArea, fileName: finalFileName, progress: progress)
     }
 
     // MARK: - Private Helper
@@ -368,7 +324,6 @@ extension TypedDataStorage {
     /// - Directory creation
     /// - Chunked file writing (1MB chunks for >1MB files)
     /// - TypedDataFileReference creation
-    /// - CloudKit asset management (.cloudKit/.hybrid modes)
     /// - In-memory content cleanup
     /// - Progress reporting
     ///
@@ -376,26 +331,21 @@ extension TypedDataStorage {
     ///   - data: The data to save
     ///   - storageArea: Storage area for the file
     ///   - fileName: Filename to use
-    ///   - mode: Storage mode (.local, .cloudKit, .hybrid)
-    ///   - progress: Optional progress tracking for file write and CloudKit preparation
+    ///   - progress: Optional progress tracking for file write
     /// - Throws: TypedDataError if save fails
     private func saveContent(
         _ data: Data,
         to storageArea: StorageAreaReference,
         fileName: String,
-        mode: StorageMode?,
         progress: OperationProgress?
     ) throws {
-        // Determine effective storage mode
-        let effectiveMode = mode ?? self.storageMode
-
         // Set total units for progress tracking if progress is provided
         progress?.setTotalUnitCount(Int64(data.count))
 
         // Create directory if needed
         try storageArea.createDirectoryIfNeeded()
 
-        // Write file to local storage (always done for .local, .cloudKit, and .hybrid)
+        // Write file to local storage
         let fileURL = storageArea.fileURL(for: fileName)
 
         // Report progress for file write
@@ -445,38 +395,11 @@ extension TypedDataStorage {
         // Update record with file reference
         self.fileReference = fileRef
 
-        // Handle CloudKit asset management based on storage mode
-        if effectiveMode == .cloudKit || effectiveMode == .hybrid {
-            // Store data in CloudKit asset field for sync
-            self.cloudKitAsset = data
-
-            // Mark as pending sync
-            if self.syncStatus == .localOnly {
-                self.syncStatus = .pending
-            }
-
-            // Report CloudKit preparation progress
-            progress?.update(
-                completedUnits: Int64(data.count),
-                description: "Prepared CloudKit asset for sync"
-            )
-        }
-
-        // Update storage mode if specified
-        if let mode = mode {
-            self.storageMode = mode
-        }
-
         // Clear in-memory content to save space (now stored in file)
-        // Exception: Keep cloudKitAsset for pending sync
         if mimeType.lowercased().hasPrefix("text/") {
             self.textValue = nil
         } else {
-            // Only clear binaryValue if we're using CloudKit (data is in cloudKitAsset)
-            // or if it's local-only (data is in file)
-            if effectiveMode == .local || effectiveMode == .cloudKit || effectiveMode == .hybrid {
-                self.binaryValue = nil
-            }
+            self.binaryValue = nil
         }
 
         touch()

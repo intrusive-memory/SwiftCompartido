@@ -1,0 +1,59 @@
+{
+  "configurations" : [
+    {
+      "id" : "Default",
+      "name" : "UI Tests Configuration",
+      "options" : {
+        "testTimeoutsEnabled" : true,
+        "maximumTestExecutionTimeAllowance" : 15
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "testTimeoutsEnabled" : true,
+    "maximumTestExecutionTimeAllowance" : 900,
+    "codeCoverage" : {
+      "targets" : [
+        {
+          "containerPath" : "container:",
+          "identifier" : "SwiftCompartido",
+          "name" : "SwiftCompartido"
+        }
+      ]
+    }
+  },
+  "testTargets" : [
+    {
+      "selectedTests" : [
+        "AudioPlayerManagerTests",
+        "DialogueBlockViewTests",
+        "ElementProgressBarTests",
+        "ElementProgressStateTests",
+        "ElementViewTests",
+        "GeneratedContentDisplayTests",
+        "GuionElementPopoverEnvironmentTests",
+        "GuionElementPopoverProviderTests",
+        "GuionElementsListTests",
+        "GuionTextEditorTests",
+        "GuionViewerTests",
+        "HoverStateManagementTests",
+        "HoverTimingTests",
+        "InteractivePopoverTests",
+        "LongPressGestureTests",
+        "MarkdownViewTests",
+        "PopoverAccessibilityTests",
+        "PreSceneBoxTests",
+        "SceneBrowserUITests",
+        "SpectrogramVisualizerViewTests",
+        "TypedDataImageViewTests",
+        "UIOrderingRegressionTests"
+      ],
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "SwiftCompartidoTests",
+        "name" : "SwiftCompartidoTests"
+      }
+    }
+  ],
+  "version" : 1
+}

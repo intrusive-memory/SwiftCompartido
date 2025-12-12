@@ -206,6 +206,38 @@ public final class GuionDocumentModel {
     @Relationship(deleteRule: .cascade)
     public var generatedContent: [TypedDataStorage]?
 
+    // MARK: - Voice Casting (NEW in 6.2.0, Phase 1.5)
+
+    /// Character voice mappings for audio generation
+    ///
+    /// Maps character names (e.g., "JANE") to voice configurations for text-to-speech.
+    /// Used by SwiftHablare to generate dialogue audio with assigned voices.
+    ///
+    /// **Delete Rule**: `.cascade` - When the document is deleted,
+    /// all character voice mappings are automatically deleted.
+    ///
+    /// ## Example
+    ///
+    /// ```swift
+    /// let janeVoice = CharacterVoiceMapping(
+    ///     characterName: "JANE",
+    ///     voiceURI: "macos://Samantha",
+    ///     voiceName: "Samantha",
+    ///     providerID: "macos"
+    /// )
+    /// document.casting.append(janeVoice)
+    /// ```
+    ///
+    /// ## SwiftHablare Integration
+    ///
+    /// When generating audio for dialogue, SwiftHablare looks up the character name
+    /// in the casting array to find the assigned voice. If no mapping exists,
+    /// a default voice is used.
+    ///
+    /// - SeeAlso: `CharacterVoiceMapping`
+    @Relationship(deleteRule: .cascade)
+    public var casting: [CharacterVoiceMapping]?
+
     // MARK: - Source File Tracking (NEW in 1.4.3)
 
     /// Security-scoped bookmark to the original source file
@@ -856,29 +888,7 @@ public final class GuionDocumentModel {
                    let scene = outline.first(where: { $0.sceneId == sceneId }) {
 
                     sceneCount += 1
-                    progress?.update(completedUnits: completedUnits, description: "Generating summary for scene \(sceneCount)...")
-
-                    // Generate summary
-                    if let summaryText = await SceneSummarizer.summarizeScene(scene, from: screenplay, outline: outline) {
-                        // Check if next element is OVER BLACK
-                        if index + 1 < screenplay.elements.count {
-                            let nextElement = screenplay.elements[index + 1]
-                            if nextElement.elementType == .action &&
-                               nextElement.elementText.uppercased().contains("OVER BLACK") {
-                                // Add OVER BLACK element before summary
-                                elementsWithSummaries.append(nextElement)
-                                skipIndices.insert(index + 1)
-                            }
-                        }
-
-                        // Create summary element as #### SUMMARY: text
-                        // Note: Leading space is required because Fountain parser preserves the space after hashtags
-                        let summaryElement = GuionElement(
-                            elementType: .sectionHeading(level: 4),
-                            elementText: " SUMMARY: \(summaryText)"
-                        )
-                        elementsWithSummaries.append(summaryElement)
-                    }
+                    progress?.update(completedUnits: completedUnits, description: "Processing scene \(sceneCount)...")
                 }
             }
 

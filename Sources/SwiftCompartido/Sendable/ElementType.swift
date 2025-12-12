@@ -347,40 +347,101 @@ extension ElementType {
 
 extension ElementType: Codable {
     private enum CodingKeys: String, CodingKey {
-        case type
+        case `case`
         case level
+    }
+
+    private enum CaseValue: String, Codable {
+        case sceneHeading
+        case action
+        case character
+        case dialogue
+        case parenthetical
+        case transition
+        case sectionHeading
+        case synopsis
+        case comment
+        case boneyard
+        case lyrics
+        case pageBreak
+        case unorderedListItem
+        case orderedListItem
     }
 
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        let typeString = try container.decode(String.self, forKey: .type)
+        let caseValue = try container.decode(CaseValue.self, forKey: .case)
 
-        switch typeString {
-        case "Section Heading":
+        switch caseValue {
+        case .sceneHeading:
+            self = .sceneHeading
+        case .action:
+            self = .action
+        case .character:
+            self = .character
+        case .dialogue:
+            self = .dialogue
+        case .parenthetical:
+            self = .parenthetical
+        case .transition:
+            self = .transition
+        case .sectionHeading:
             let level = try container.decode(Int.self, forKey: .level)
             self = .sectionHeading(level: level)
-        case "Unordered List Item":
+        case .synopsis:
+            self = .synopsis
+        case .comment:
+            self = .comment
+        case .boneyard:
+            self = .boneyard
+        case .lyrics:
+            self = .lyrics
+        case .pageBreak:
+            self = .pageBreak
+        case .unorderedListItem:
             let level = try container.decode(Int.self, forKey: .level)
             self = .unorderedListItem(level: level)
-        case "Ordered List Item":
+        case .orderedListItem:
             let level = try container.decode(Int.self, forKey: .level)
             self = .orderedListItem(level: level)
-        default:
-            self = ElementType(string: typeString)
         }
     }
 
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(description, forKey: .type)
 
         switch self {
-        case .sectionHeading(let level),
-             .unorderedListItem(let level),
-             .orderedListItem(let level):
+        case .sceneHeading:
+            try container.encode(CaseValue.sceneHeading, forKey: .case)
+        case .action:
+            try container.encode(CaseValue.action, forKey: .case)
+        case .character:
+            try container.encode(CaseValue.character, forKey: .case)
+        case .dialogue:
+            try container.encode(CaseValue.dialogue, forKey: .case)
+        case .parenthetical:
+            try container.encode(CaseValue.parenthetical, forKey: .case)
+        case .transition:
+            try container.encode(CaseValue.transition, forKey: .case)
+        case .sectionHeading(let level):
+            try container.encode(CaseValue.sectionHeading, forKey: .case)
             try container.encode(level, forKey: .level)
-        default:
-            break
+        case .synopsis:
+            try container.encode(CaseValue.synopsis, forKey: .case)
+        case .comment:
+            try container.encode(CaseValue.comment, forKey: .case)
+        case .boneyard:
+            try container.encode(CaseValue.boneyard, forKey: .case)
+        case .lyrics:
+            try container.encode(CaseValue.lyrics, forKey: .case)
+        case .pageBreak:
+            try container.encode(CaseValue.pageBreak, forKey: .case)
+        case .unorderedListItem(let level):
+            try container.encode(CaseValue.unorderedListItem, forKey: .case)
+            try container.encode(level, forKey: .level)
+        case .orderedListItem(let level):
+            try container.encode(CaseValue.orderedListItem, forKey: .case)
+            try container.encode(level, forKey: .level)
         }
     }
 }
