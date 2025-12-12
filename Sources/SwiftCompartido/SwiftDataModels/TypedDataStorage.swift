@@ -238,36 +238,6 @@ public final class TypedDataStorage {
     /// When this record was last modified
     public var modifiedAt: Date
 
-    // MARK: - CloudKit Sync Properties
-
-    /// CloudKit record identifier (nil for local-only records)
-    public var cloudKitRecordID: String?
-
-    /// CloudKit change tag for conflict detection
-    public var cloudKitChangeTag: String?
-
-    /// When this record was last synced to CloudKit
-    public var lastSyncedAt: Date?
-
-    /// Current sync status
-    public var syncStatus: SyncStatus
-
-    /// Owner's CloudKit user record ID
-    public var ownerUserRecordID: String?
-
-    /// User record IDs with shared access
-    public var sharedWith: [String]?
-
-    /// Conflict resolution version (increments on each change)
-    public var conflictVersion: Int
-
-    /// Storage mode for the content
-    public var storageMode: StorageMode
-
-    /// CloudKit asset for large files (when using CloudKit storage)
-    @Attribute(.externalStorage)
-    public var cloudKitAsset: Data?
-
     // MARK: - Initialization
 
     /// Creates a typed data storage record
@@ -283,7 +253,6 @@ public final class TypedDataStorage {
     ///   - modelIdentifier: Model identifier (optional)
     ///   - estimatedCost: Estimated cost (optional)
     ///   - fileReference: File reference (optional)
-    ///   - storageMode: Storage mode (defaults to local)
     ///   - Additional metadata parameters are type-specific (see individual parameters)
     public init(
         id: UUID = UUID(),
@@ -296,7 +265,6 @@ public final class TypedDataStorage {
         modelIdentifier: String? = nil,
         estimatedCost: Double? = nil,
         fileReference: TypedDataFileReference? = nil,
-        storageMode: StorageMode = .local,
         // Text-specific
         wordCount: Int? = nil,
         characterCount: Int? = nil,
@@ -362,17 +330,6 @@ public final class TypedDataStorage {
         self.dimensions = dimensions
         self.inputText = inputText
         self.batchIndex = batchIndex
-
-        // CloudKit defaults
-        self.cloudKitRecordID = nil
-        self.cloudKitChangeTag = nil
-        self.lastSyncedAt = nil
-        self.syncStatus = storageMode == .local ? .localOnly : .pending
-        self.ownerUserRecordID = nil
-        self.sharedWith = nil
-        self.conflictVersion = 1
-        self.storageMode = storageMode
-        self.cloudKitAsset = nil
     }
 
     // MARK: - MIME Type Validation
@@ -429,14 +386,6 @@ public final class TypedDataStorage {
     /// - Returns: Content as Data (binary data or UTF-8 encoded text)
     /// - Throws: TypedDataError or TypedDataStorageError if content cannot be retrieved
     public func getContent(from storageArea: StorageAreaReference? = nil, progress: OperationProgress? = nil) throws -> Data {
-        // Check if content is in CloudKit asset
-        if let cloudKitAsset = cloudKitAsset {
-            progress?.setTotalUnitCount(Int64(cloudKitAsset.count))
-            progress?.update(completedUnits: 0, description: "Loading from CloudKit asset...")
-            progress?.update(completedUnits: Int64(cloudKitAsset.count), description: "Loaded from CloudKit asset", force: true)
-            return cloudKitAsset
-        }
-
         // Check if content is in memory
         if mimeType.lowercased().hasPrefix("text/") {
             // Text content
@@ -631,17 +580,11 @@ public final class TypedDataStorage {
     /// Updates the modification timestamp
     public func touch() {
         self.modifiedAt = Date()
-        self.conflictVersion += 1
     }
 
     /// Whether this record stores content in a file
     public var isFileStored: Bool {
         fileReference != nil
-    }
-
-    /// Whether CloudKit features are enabled for this record
-    public var isCloudKitEnabled: Bool {
-        cloudKitRecordID != nil || storageMode != .local
     }
 
     /// Returns the primary content category based on MIME type
@@ -674,16 +617,12 @@ public final class TypedDataStorage {
     }
 }
 
-// MARK: - CloudKitSyncable Conformance
-
-extension TypedDataStorage: CloudKitSyncable {}
-
 // MARK: - CustomStringConvertible
 
 extension TypedDataStorage: CustomStringConvertible {
     public var description: String {
         let storage = isFileStored ? "file" : "memory"
-        let sync = isCloudKitEnabled ? "cloudkit" : "local"
+        let sync = "local"
         let size = ByteCountFormatter.string(fromByteCount: Int64(contentSize), countStyle: .file)
 
         var details = ""

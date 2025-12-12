@@ -888,29 +888,7 @@ public final class GuionDocumentModel {
                    let scene = outline.first(where: { $0.sceneId == sceneId }) {
 
                     sceneCount += 1
-                    progress?.update(completedUnits: completedUnits, description: "Generating summary for scene \(sceneCount)...")
-
-                    // Generate summary
-                    if let summaryText = await SceneSummarizer.summarizeScene(scene, from: screenplay, outline: outline) {
-                        // Check if next element is OVER BLACK
-                        if index + 1 < screenplay.elements.count {
-                            let nextElement = screenplay.elements[index + 1]
-                            if nextElement.elementType == .action &&
-                               nextElement.elementText.uppercased().contains("OVER BLACK") {
-                                // Add OVER BLACK element before summary
-                                elementsWithSummaries.append(nextElement)
-                                skipIndices.insert(index + 1)
-                            }
-                        }
-
-                        // Create summary element as #### SUMMARY: text
-                        // Note: Leading space is required because Fountain parser preserves the space after hashtags
-                        let summaryElement = GuionElement(
-                            elementType: .sectionHeading(level: 4),
-                            elementText: " SUMMARY: \(summaryText)"
-                        )
-                        elementsWithSummaries.append(summaryElement)
-                    }
+                    progress?.update(completedUnits: completedUnits, description: "Processing scene \(sceneCount)...")
                 }
             }
 

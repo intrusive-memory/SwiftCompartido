@@ -197,7 +197,7 @@ public final class PDFScreenplayParser {
         return fullText
     }
 
-    /// Convert extracted text to Fountain format using Foundation Models
+    /// Convert extracted text to Fountain format using heuristic pattern matching
     ///
     /// - Parameters:
     ///   - text: Extracted PDF text
@@ -208,15 +208,7 @@ public final class PDFScreenplayParser {
         _ text: String,
         progress: OperationProgress?
     ) async throws -> String {
-
-        #if canImport(FoundationModels)
-        // TODO: Implement Foundation Models API when available
-        // For now, use basic preprocessing
         return await convertToFountainBasic(text, progress: progress)
-        #else
-        // Foundation Models not available
-        throw PDFScreenplayParserError.foundationModelsUnavailable
-        #endif
     }
 
     /// Basic conversion to Fountain format (fallback without Foundation Models)
@@ -354,54 +346,4 @@ public final class PDFScreenplayParser {
     }
 
     /// Build the Foundation Models prompt for converting text to Fountain
-    ///
-    /// - Parameter text: The extracted PDF text
-    /// - Returns: Formatted prompt for the language model
-    private static func buildConversionPrompt(_ text: String) -> String {
-        return """
-        Convert this screenplay text to Fountain format. Follow these rules:
-
-        SCENE HEADINGS:
-        - Format as: INT./EXT. LOCATION - TIME OF DAY
-        - Always in ALL CAPS
-        - Examples: INT. COFFEE SHOP - DAY, EXT. PARK - NIGHT
-
-        CHARACTER NAMES:
-        - Always in ALL CAPS
-        - On their own line above dialogue
-        - Examples: JOHN, SARAH, VOICE OVER
-
-        DIALOGUE:
-        - Plain text below character name
-        - No special formatting needed
-
-        PARENTHETICALS:
-        - Wrapped in (parentheses)
-        - On their own line within dialogue
-        - Examples: (laughing), (to Sarah), (into phone)
-
-        ACTION:
-        - Plain text paragraphs
-        - Between other elements
-        - Describe what happens on screen
-
-        TRANSITIONS:
-        - End with colon
-        - Examples: CUT TO:, FADE OUT., DISSOLVE TO:
-
-        SECTION HEADINGS:
-        - Use # for acts (# ACT ONE)
-        - Use ## for sequences (## OPENING SEQUENCE)
-        - Use ### for scene groups (### THE HEIST)
-
-        IMPORTANT:
-        - Preserve all dialogue word-for-word
-        - Preserve all story content
-        - Only reformat to valid Fountain syntax
-        - Ensure proper spacing between elements
-
-        Original text:
-        \(text)
-        """
-    }
 }
