@@ -60,7 +60,181 @@ See [Migration Guide](./Docs/TEXTPACK_TO_JSON_MIGRATION_GUIDE.md) for upgrading 
 - **TextBundle** (`.textbundle`) - Container format with auto-detection
 - **Pandoc** (`.docx`, `.odt`, `.rtf`) - Document conversion (macOS only)
 
-**Parsing API:**
+Complete Apple Shortcuts integration for screenplay automation:
+
+- **ParseScreenplayFileIntent** - Parse screenplay files via Shortcuts
+- **QueryScreenplayElementsIntent** - Query and filter screenplay elements
+- **ScreenplayElementsReference** - Transferable reference for workflow chaining
+- **SwiftCompartidoShortcuts** - Pre-configured Siri voice commands
+- **ParsedFileService** - Unified service layer (single code path for UI and Intents)
+- **ElementFilter** - Composable filtering by element type, chapter, character, or search text
+
+```swift
+// Use Shortcuts to parse and filter dialogue
+var intent = ParseScreenplayFileIntent()
+intent.fileURL = url
+intent.elementTypes = [ElementTypeEntity(id: "Dialogue", elementType: .dialogue)]
+let result = try await intent.perform()
+
+// Or use programmatically via ParsedFileService
+let service = ParsedFileService.shared
+let documentID = try await service.parseFile(at: url)
+let elements = try await service.elements(documentID: documentID,
+                                         filter: ElementFilter(elementTypes: [.dialogue]))
+```
+
+See [App Intents Guide](./Docs/APP_INTENTS_GUIDE.md) for complete documentation.
+
+#### ⚡ GuionTextEditor - High-Performance Viewer (NEW in 5.5.0)
+
+Fast, read-only screenplay viewer powered by TextKit 2:
+
+- **400-1600x faster** than List-based rendering
+- **Full screenplay formatting**: Scene headings, dialogue margins, transitions
+- **GitHub-style markdown**: Headings, lists, inline formatting
+- **Cross-platform**: iOS 26.0+ and macOS 26.0+
+- **Font size scaling**: 8pt - 24pt with dynamic margins
+
+```swift
+GuionTextEditor(document: document)
+    .environment(\.screenplayFontSize, 12)
+```
+
+**Performance:**
+- 1000 elements: 0.003s (400x faster)
+- 5000 elements: 0.015s (1600x faster)
+
+See [Usage Guide](#guiontexteditor-usage) below for detailed examples.
+
+#### Supported File Formats & Parsing Flow
+
+```mermaid
+flowchart TD
+    Start([File Import]) --> Detect{File Extension?}
+
+    Detect -->|.md / .markdown| MD[Markdown Parser]
+    Detect -->|.highland| Highland[Highland Handler]
+    Detect -->|.textbundle| TextBundle[TextBundle Handler]
+    Detect -->|.fdx| FDX[FDX Parser]
+    Detect -->|.pdf| PDF[PDF Parser]
+    Detect -->|.docx / .odt / .rtf| Pandoc[Pandoc Converter]
+    Detect -->|.fountain / other| Fountain[Fountain Parser]
+
+    MD --> Elements[GuionParsedElementCollection]
+    FDX --> Elements
+    PDF --> Elements
+    Pandoc --> PandocMD[Markdown]
+    Fountain --> Elements
+
+    Highland --> Extract[Extract ZIP Archive]
+    Extract --> FindTB[Locate TextBundle Directory]
+    FindTB --> FindFile{Find .fountain<br/>or .md file}
+    FindFile -->|Found| ForceFountain[Always Use<br/>Fountain Parser]
+    ForceFountain --> Elements
+
+    TextBundle --> Discover[Find Content File]
+    Discover --> RecursiveDetect{File Extension?}
+    RecursiveDetect -->|.fountain| Fountain
+    RecursiveDetect -->|.md| MD
+
+    Elements --> Document[GuionDocumentModel<br/>SwiftData]
+
+    style Highland fill:#e1f5ff
+    style ForceFountain fill:#fff3cd
+    style MD fill:#d4edda
+    style Pandoc fill:#ffeaa7
+    style Elements fill:#f8d7da
+```
+
+**Key Parsing Behaviors:**
+- **.md / .markdown** → Markdown parser with YAML front matter support
+- **.highland** → Extracts ZIP, finds TextBundle, **always uses Fountain parser** (Highland uses Fountain syntax even in .md files)
+- **.textbundle** → Discovers internal file and recursively detects format
+- **.fdx** → Final Draft XML parser
+- **.pdf** → AI-powered PDF screenplay parser (iOS 26.0+)
+- **.docx** → Microsoft Word document via Pandoc (macOS only)
+- **.odt** → OpenDocument Text via Pandoc (macOS only)
+- **.rtf** → Rich Text Format via Pandoc (macOS only)
+- **.fountain / default** → Fountain parser
+
+**Format Features:**
+- **Automatic Format Detection**: Parser automatically selected by file extension (NEW in 4.0.0)
+- **Fountain Format**: Full parsing and export support
+- **FDX Format**: Final Draft XML import/export
+- **PDF Format**: AI-powered PDF screenplay parsing with FoundationModels (iOS 26.0+)
+- **Pandoc Document Import**: DOCX, ODT, RTF support via bundled Pandoc converter (macOS only) (NEW in 4.3.0)
+- **Markdown Support**: Parse markdown with YAML front matter and convert to screenplay format
+- **Highland Support**: Highland 2 archives (.highland) with automatic Fountain parsing
+- **TextBundle Support**: TextBundle containers with format auto-detection
+- **TextPack**: Bundle screenplays with metadata and resources
+- **Complete Element Support**: Scenes, dialogue, action, transitions, and more
+- **Hierarchical Outlines**: Section headings with 6 levels
+- **Chapter-Based Ordering**: Composite key ordering with (chapterIndex, orderIndex) - no element limit per chapter
+- **Order Guarantees**: `sortedElements` property ensures screenplay sequence is always maintained
+
+### 🤖 AI Content Storage
+- **Type-Safe Responses**: `AIResponseData` with typed content (text, audio, image, structured)
+- **Usage Tracking**: Consolidated `UsageStats` for tokens and costs
+- **Request Lifecycle**: Track AI requests with progress and status
+- **Comprehensive Errors**: `AIServiceError` with recovery suggestions
+
+### 💾 Generated Content Models
+- **Unified TypedDataStorage** (NEW in 2.0.1): Single model for all AI-generated content types
+- **MIME-Type Routing**: Automatically handles text/*, image/*, audio/*, application/x-embedding
+- **File-Based Architecture**: Efficient storage for large audio, images, and embeddings
+- **SwiftData Integration**: Persistent models with Phase 6 architecture
+- **Smart Storage**: In-memory for small content (<10KB), file-based for large content
+- **Complete Metadata**: Track prompts, providers, usage, and timestamps
+- **Backward Compatible**: Legacy type aliases preserved for existing code
+
+### 🎨 UI Components
+- **GuionViewer**: Screenplay rendering with proper formatting (simplified in 1.4.3)
+- **GuionElementsList**: Flat, @Query-based element list display with trailing column support (NEW in 3.2.0)
+- **ElementProgressState**: Observable progress tracking for multiple elements simultaneously (NEW in 3.2.0)
+- **ElementProgressTracker**: Scoped progress tracker with convenience methods (NEW in 3.2.0)
+- **ElementProgressBar**: Auto-showing progress bars that appear below list items (NEW in 3.2.0)
+- **AppleTTSVoiceProviderPane**: Configuration UI for Apple TTS with system settings deep linking (NEW in 4.0.0)
+- **GeneratedContentListView**: Master-detail browser for AI-generated content with MIME filtering (NEW in 2.1.0)
+- **TypedDataDetailView**: Automatic content viewer with MIME type routing (NEW in 2.1.0)
+- **TypedDataRowView**: Compact list rows with type-specific metadata (NEW in 2.1.0)
+- **Source File Tracking**: Automatic detection of external file changes (NEW in 1.4.3)
+- **TextConfigurationView**: AI text generation settings
+- **AudioPlayerManager**: Waveform visualization and playback with TypedDataStorage support (enhanced in 2.1.0)
+- **No Visible Separators**: Clean flow between screenplay elements (NEW in 2.0.0)
+
+### 📊 Progress Reporting
+- **Comprehensive Tracking**: Progress for all parsing, conversion, and export operations
+- **Per-Element Progress**: Track progress on individual screenplay elements with auto-hiding progress bars (NEW in 3.2.0)
+- **SwiftUI Integration**: Works seamlessly with `ProgressView` and `@Published` properties
+- **Cancellation Support**: All operations support `Task` cancellation with cleanup
+- **Performance Optimized**: <2% overhead, batched updates, thread-safe
+- **Backward Compatible**: Optional progress parameter - existing code unchanged
+- **437 Tests**: Full test coverage across 28 test suites
+
+## Quick Start
+
+### Installation
+
+#### Swift Package Manager
+
+Add to your `Package.swift`:
+
+```swift
+dependencies: [
+    .package(url: "https://github.com/intrusive-memory/SwiftCompartido.git", from: "6.1.0")
+]
+```
+
+Or in Xcode:
+1. **File → Add Package Dependencies**
+2. Enter: `https://github.com/intrusive-memory/SwiftCompartido.git`
+3. Select version: **6.1.0** or later
+
+### Usage Examples
+
+#### GuionTextEditor Usage
+
+**Basic Usage:**
 
 ```swift
 import SwiftCompartido
@@ -270,8 +444,9 @@ struct ScreenplayApp: View {
 ## Documentation
 
 ### User Guides
-- **[Usage Summary](./USAGE-SUMMARY.md)** - Quick reference and common patterns
-- **[App Intents Guide](./Docs/APP_INTENTS_GUIDE.md)** - Apple Shortcuts integration
+- **[Quick Usage Summary](./USAGE-SUMMARY.md)** - Fast reference and common patterns
+- **[App Intents Guide](./Docs/APP_INTENTS_GUIDE.md)** - Complete guide to Shortcuts integration (NEW in 6.1.0)
+- **[Contributing Guide](./CONTRIBUTING.md)** - How to contribute
 - **[Changelog](./CHANGELOG.md)** - Version history
 
 ### API Documentation
