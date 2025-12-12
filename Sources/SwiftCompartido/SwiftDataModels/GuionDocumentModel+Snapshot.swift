@@ -38,7 +38,7 @@ extension GuionDocumentModel {
             titlePage: titlePage.map { $0.toSnapshot() },
             customPages: customPages.isEmpty ? nil : customPages.map { $0.toSnapshot() },
             generatedContent: generatedContentSnapshot(),
-            casting: nil, // TODO: Add casting support
+            casting: castingSnapshot(),
             sourceFileBookmark: sourceFileBookmark,
             lastImportDate: lastImportDate,
             sourceFileModificationDate: sourceFileModificationDate,
@@ -57,6 +57,21 @@ extension GuionDocumentModel {
         var result: [UUID: TypedDataStorageSnapshot] = [:]
         for item in content {
             result[item.id] = item.toSnapshot()
+        }
+        return result
+    }
+
+    /// Convert casting to snapshot dictionary
+    ///
+    /// - Returns: Dictionary mapping character name to voice mapping snapshot, or nil if no casting
+    private func castingSnapshot() -> [String: CharacterVoiceMappingSnapshot]? {
+        guard let mappings = casting, !mappings.isEmpty else {
+            return nil
+        }
+
+        var result: [String: CharacterVoiceMappingSnapshot] = [:]
+        for mapping in mappings {
+            result[mapping.characterName] = mapping.toSnapshot()
         }
         return result
     }
@@ -120,7 +135,12 @@ extension GuionDocumentModel {
             }
         }
 
-        // TODO: Convert casting when added to model
+        // Convert casting
+        if let castingSnapshot = snapshot.casting {
+            document.casting = castingSnapshot.map { (characterName, voiceSnapshot) in
+                CharacterVoiceMapping.from(characterName: characterName, voiceSnapshot, document: document)
+            }
+        }
 
         return document
     }

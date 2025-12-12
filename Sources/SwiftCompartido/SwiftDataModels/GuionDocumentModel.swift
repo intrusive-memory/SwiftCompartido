@@ -206,6 +206,38 @@ public final class GuionDocumentModel {
     @Relationship(deleteRule: .cascade)
     public var generatedContent: [TypedDataStorage]?
 
+    // MARK: - Voice Casting (NEW in 6.2.0, Phase 1.5)
+
+    /// Character voice mappings for audio generation
+    ///
+    /// Maps character names (e.g., "JANE") to voice configurations for text-to-speech.
+    /// Used by SwiftHablare to generate dialogue audio with assigned voices.
+    ///
+    /// **Delete Rule**: `.cascade` - When the document is deleted,
+    /// all character voice mappings are automatically deleted.
+    ///
+    /// ## Example
+    ///
+    /// ```swift
+    /// let janeVoice = CharacterVoiceMapping(
+    ///     characterName: "JANE",
+    ///     voiceURI: "macos://Samantha",
+    ///     voiceName: "Samantha",
+    ///     providerID: "macos"
+    /// )
+    /// document.casting.append(janeVoice)
+    /// ```
+    ///
+    /// ## SwiftHablare Integration
+    ///
+    /// When generating audio for dialogue, SwiftHablare looks up the character name
+    /// in the casting array to find the assigned voice. If no mapping exists,
+    /// a default voice is used.
+    ///
+    /// - SeeAlso: `CharacterVoiceMapping`
+    @Relationship(deleteRule: .cascade)
+    public var casting: [CharacterVoiceMapping]?
+
     // MARK: - Source File Tracking (NEW in 1.4.3)
 
     /// Security-scoped bookmark to the original source file
