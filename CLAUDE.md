@@ -8,6 +8,103 @@ SwiftCompartido is a Swift package for screenplay management, AI-generated conte
 
 **Platforms**: iOS 26.0+, macOS 26.0+
 
+## ⚠️ CRITICAL: Library Scope and Focus
+
+**SwiftCompartido has exactly TWO core missions. Every file, class, and function must directly support one of these:**
+
+### Mission 1: Parsing & Storage
+**Parse and store screenplay documents and AI-generated content**
+
+✅ **BELONGS IN THIS LIBRARY:**
+- Screenplay parsers (Fountain, FDX, PDF, Markdown, Highland, TextBundle, Pandoc)
+- SwiftData models (GuionDocumentModel, GuionElementModel, TypedDataStorage, CharacterVoiceMapping)
+- Storage infrastructure (TypedDataFileReference, StorageAreaReference, Phase 6 architecture)
+- Serialization (JSON .guion format, TextPack, snapshots)
+- MIME type routing and content type handling
+- File I/O with progress reporting
+
+### Mission 2: UI Display
+**Display screenplay documents and AI-generated content with SwiftUI widgets**
+
+✅ **BELONGS IN THIS LIBRARY:**
+- Screenplay viewers (GuionTextEditor, GuionViewer, GuionElementsList)
+- TypedDataStorage display (GeneratedContentListView, TypedDataDetailView, TypedDataRowView)
+- Element widgets (ElementProgressBar, ElementProgressState, ElementProgressTracker)
+- Audio playback UI (AudioPlayerManager with waveform visualization)
+- Configuration UI (AppleTTSVoiceProviderPane, TextConfigurationView)
+- Query-based list widgets with filtering and grouping
+
+### ❌ DOES NOT BELONG IN THIS LIBRARY
+
+If a file, class, or function does any of the following, it should be **deprecated, removed, or spun off into a separate library**:
+
+- **AI Content Generation**: Text generation, TTS synthesis, image generation, embedding generation
+  - ❌ OpenAI/Anthropic API clients
+  - ❌ ElevenLabs TTS integration
+  - ❌ DALL-E image generation
+  - ❌ Foundation Models prompts
+  - ✅ **Storing** generated content (TypedDataStorage) is OK
+  - ✅ **Displaying** generated content (GeneratedContentListView) is OK
+  - ❌ **Generating** content does NOT belong here
+
+- **Cloud Sync**: CloudKit, Firebase, iCloud sync
+  - ❌ Already removed in 6.2.1
+
+- **External Service Integration**: API clients, service wrappers
+  - ❌ These belong in consumer apps or separate service libraries
+
+- **Business Logic**: Workflow orchestration, state machines, complex automation
+  - ❌ App-specific logic belongs in consumer apps
+  - ✅ Library-specific logic (parsing workflows, storage routing) is OK
+
+### Decision Framework
+
+**When adding or modifying code, ask:**
+
+1. **Does this parse or store screenplay/content data?**
+   - YES → Belongs in Mission 1 ✅
+   - NO → Continue to question 2
+
+2. **Does this display screenplay/content data in SwiftUI?**
+   - YES → Belongs in Mission 2 ✅
+   - NO → Continue to question 3
+
+3. **Does this support parsing, storage, or display?**
+   - YES (file I/O, MIME routing, progress reporting) → OK ✅
+   - NO → **REMOVE IT** ❌
+
+**Examples:**
+
+| Feature | Mission | Belongs? |
+|---------|---------|----------|
+| Fountain parser | Mission 1 (Parsing) | ✅ YES |
+| TypedDataStorage model | Mission 1 (Storage) | ✅ YES |
+| GuionTextEditor | Mission 2 (Display) | ✅ YES |
+| GeneratedContentListView | Mission 2 (Display) | ✅ YES |
+| File I/O with progress | Support (Mission 1) | ✅ YES |
+| OpenAI API client | Generation | ❌ NO - Spin off |
+| ElevenLabs TTS | Generation | ❌ NO - Spin off |
+| CloudKit sync | Cloud Sync | ❌ NO - Removed in 6.2.1 |
+| Foundation Models prompts | Generation | ❌ NO - Removed in 6.2.1 |
+
+### Enforcement
+
+**When reviewing code:**
+- If a file/class doesn't clearly map to Mission 1 or Mission 2, flag it for removal
+- If a feature involves external services (API calls, cloud sync), it doesn't belong here
+- If a feature generates content (vs. storing/displaying it), it doesn't belong here
+
+**This library is NOT:**
+- An AI service wrapper
+- A cloud sync framework
+- A TTS/image generation toolkit
+- A workflow orchestration engine
+
+**This library IS:**
+- A screenplay parser and storage system
+- A TypedDataStorage system for AI-generated content
+- A SwiftUI widget library for displaying screenplays and content
+
 ## ⚠️ CRITICAL: Platform Version Enforcement
 
 **This library ONLY supports iOS 26.0+ and macOS 26.0+. NEVER add code that supports older platforms.**
