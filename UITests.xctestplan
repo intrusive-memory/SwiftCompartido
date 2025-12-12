@@ -25,18 +25,27 @@
   "testTargets" : [
     {
       "selectedTests" : [
+        "AudioPlayerManagerTests",
+        "DialogueBlockViewTests",
+        "ElementProgressBarTests",
+        "ElementProgressStateTests",
         "ElementViewTests",
+        "GeneratedContentDisplayTests",
         "GuionElementPopoverEnvironmentTests",
         "GuionElementPopoverProviderTests",
+        "GuionElementsListTests",
+        "GuionTextEditorTests",
+        "GuionViewerTests",
         "HoverStateManagementTests",
         "HoverTimingTests",
         "InteractivePopoverTests",
         "LongPressGestureTests",
+        "MarkdownViewTests",
         "PopoverAccessibilityTests",
+        "PreSceneBoxTests",
         "SceneBrowserUITests",
+        "SpectrogramVisualizerViewTests",
         "TypedDataImageViewTests",
-        "AudioPlayerManagerTests",
-        "ElementProgressStateTests",
         "UIOrderingRegressionTests"
       ],
       "target" : {
