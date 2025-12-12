@@ -132,7 +132,7 @@ jobs:
           cat test_output.txt
 
           # Check if tests passed
-          if grep -q "Test run with .* tests in .* suites passed\|TEST SUCCEEDED" test_output.txt; then
+          if grep -q "Test Suite 'Selected tests' passed\|TEST SUCCEEDED" test_output.txt; then
             echo "✅ All unit tests passed"
             exit 0
           else
@@ -251,7 +251,7 @@ jobs:
           cat test_output_macos.txt
 
           # Check if tests passed
-          if grep -q "Test run with .* tests in .* suites passed\|TEST SUCCEEDED" test_output_macos.txt; then
+          if grep -q "Test Suite 'Selected tests' passed\|TEST SUCCEEDED" test_output_macos.txt; then
             echo "✅ All unit tests passed"
             exit 0
           else
