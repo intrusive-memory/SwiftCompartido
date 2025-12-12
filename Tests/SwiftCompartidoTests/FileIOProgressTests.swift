@@ -77,7 +77,7 @@ struct FileIOProgressTests {
             voiceName: "Test Voice"
         )
 
-        try await record.saveBinary(audioData, to: storage, fileName: "audio.mp3", mode: .local, progress: progress)
+        try await record.saveBinary(audioData, to: storage, fileName: "audio.mp3", progress: progress)
 
         // Wait for async updates
         try await Task.sleep(for: .milliseconds(100))
@@ -132,7 +132,7 @@ struct FileIOProgressTests {
             voiceName: "Test Voice"
         )
 
-        try await record.saveBinary(audioData, to: storage, fileName: "audio.mp3", mode: .local, progress: progress)
+        try await record.saveBinary(audioData, to: storage, fileName: "audio.mp3", progress: progress)
 
         // Wait for async updates to propagate
         try await Task.sleep(for: .milliseconds(500))
@@ -187,7 +187,7 @@ struct FileIOProgressTests {
             height: 1024
         )
 
-        try await record.saveBinary(imageData, to: storage, fileName: "image.png", mode: .local, progress: progress)
+        try await record.saveBinary(imageData, to: storage, fileName: "image.png", progress: progress)
 
         // Wait for async updates
         try await Task.sleep(for: .milliseconds(100))
@@ -241,7 +241,7 @@ struct FileIOProgressTests {
             height: 2048
         )
 
-        try await record.saveBinary(imageData, to: storage, fileName: "image.png", mode: .local, progress: progress)
+        try await record.saveBinary(imageData, to: storage, fileName: "image.png", progress: progress)
 
         // Wait for async updates to propagate
         try await Task.sleep(for: .milliseconds(500))
@@ -279,7 +279,7 @@ struct FileIOProgressTests {
 
         let task = Task {
             let progress = OperationProgress(totalUnits: nil)
-            try await record.saveBinary(audioData, to: storage, fileName: "audio.mp3", mode: .local, progress: progress)
+            try await record.saveBinary(audioData, to: storage, fileName: "audio.mp3", progress: progress)
         }
 
         // Cancel quickly
@@ -317,7 +317,7 @@ struct FileIOProgressTests {
 
         let task = Task {
             let progress = OperationProgress(totalUnits: nil)
-            try await record.saveBinary(imageData, to: storage, fileName: "image.png", mode: .local, progress: progress)
+            try await record.saveBinary(imageData, to: storage, fileName: "image.png", progress: progress)
         }
 
         // Cancel quickly
@@ -370,7 +370,7 @@ struct FileIOProgressTests {
             voiceName: "Test Voice"
         )
 
-        try await record.saveBinary(audioData, to: storage, fileName: "audio.mp3", mode: .local, progress: nil)
+        try await record.saveBinary(audioData, to: storage, fileName: "audio.mp3", progress: nil)
 
         // Now load with progress
         let collector = ProgressCollector()
@@ -425,7 +425,7 @@ struct FileIOProgressTests {
             height: 2048
         )
 
-        try await record.saveBinary(imageData, to: storage, fileName: "image.png", mode: .local, progress: nil)
+        try await record.saveBinary(imageData, to: storage, fileName: "image.png", progress: nil)
 
         // Now load with progress
         let collector = ProgressCollector()
@@ -473,7 +473,7 @@ struct FileIOProgressTests {
         )
 
         // Save with nil progress
-        try await record.saveBinary(audioData, to: storage, fileName: "audio.mp3", mode: .local, progress: nil)
+        try await record.saveBinary(audioData, to: storage, fileName: "audio.mp3", progress: nil)
 
         #expect(record.fileReference != nil, "Should save without progress")
 
@@ -523,7 +523,7 @@ struct FileIOProgressTests {
             voiceName: "Test Voice"
         )
 
-        try await record.saveBinary(audioData, to: storage, fileName: "audio.mp3", mode: .local, progress: progress)
+        try await record.saveBinary(audioData, to: storage, fileName: "audio.mp3", progress: progress)
 
         // Wait for async updates
         try await Task.sleep(for: .milliseconds(100))

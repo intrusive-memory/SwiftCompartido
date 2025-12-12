@@ -7,6 +7,82 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [6.2.1] - 2025-12-12
+
+### 🧹 Removed
+
+**CloudKit Sync Infrastructure** - Removed non-production-ready CloudKit support to simplify codebase
+- **Deleted Files**:
+  - `CloudKitSupport.swift` - SyncStatus enum, StorageMode enum, CloudKitSyncable protocol
+  - `CloudKitModelConfiguration.swift` - Container configurations and setup utilities
+  - `CloudKitSupportTests.swift` - 17 CloudKit integration tests
+
+- **TypedDataStorage Simplification**:
+  - Removed 9 CloudKit properties: `syncStatus`, `conflictVersion`, `cloudKitRecordID`, `cloudKitChangeTag`, `lastSyncedAt`, `ownerUserRecordID`, `sharedWith`, `storageMode`, `cloudKitAsset`
+  - Removed `storageMode` parameter from convenience initializers
+  - Removed `mode` parameter from `saveText()`, `saveBinary()`, `saveEmbedding()` methods
+  - Removed CloudKit asset management from save operations
+  - Removed CloudKit fallback from `getContent()` and `getBinary()` methods
+  - Removed `isCloudKitEnabled` computed property
+  - Simplified `touch()` method (no longer increments conflictVersion)
+  - Removed CloudKitSyncable protocol conformance
+
+- **Test Cleanup**:
+  - Removed 5 CloudKit-related tests from test suite
+
+**AI Generation Stubs** - Removed non-functional example code
+- **Deleted Files**:
+  - `SceneSummarizer.swift` - Unimplemented scene summarization
+  - `GenerateAudioElementButton.swift` - Non-functional UI button with TODO
+  - `ElementProgressTrackerExamples.swift` - Mock TTS generation examples
+  - `GuionElementsListWithAudioButton.swift` - References non-existent components
+  - `GuionElementsListWithProgress.swift` - References non-existent components
+  - `GuionElementsListWithMultipleButtons.swift` - References non-existent components
+  - `PDF_SCREENPLAY_PARSER.md` - Design document for unimplemented features
+  - `add-guion-element-button.md` - Claude skill with TODO placeholders
+
+- **GuionDocumentModel**:
+  - Removed SceneSummarizer integration from document parsing
+  - Removed summary element insertion logic
+  - Simplified progress reporting
+
+- **PDFScreenplayParser**:
+  - Removed Foundation Models stub code (#if canImport(FoundationModels))
+  - Removed `buildConversionPrompt()` method (50 lines of unused template)
+  - Simplified `convertToFountain()` to use heuristic pattern matching
+
+**Documentation**:
+- Removed `AI-REFERENCE.md` file (replaced by CLAUDE.md)
+- Removed CloudKit sections from README.md
+
+### 📝 Changed
+
+- **Storage**: All storage now local-only (file-based for large content, in-memory for small text)
+- **Documentation**: CLAUDE.md is now the primary developer reference
+
+### ⚠️ Breaking Changes
+
+**API Removals**:
+- `storageMode` parameter removed from TypedDataStorage initializers
+- `mode` parameter removed from `saveText()`, `saveBinary()`, `saveEmbedding()`
+- CloudKit-related properties removed from TypedDataStorage
+
+**Migration**:
+- CloudKit was never production-ready; no migration needed
+- All existing local files continue to work unchanged
+- Remove any code referencing `storageMode`, `syncStatus`, or other CloudKit properties
+
+### 📊 Impact
+
+**Code Reduction**: -3,974 lines (11 files deleted, 6 files simplified)
+
+**Focus**: Codebase now focused on core strengths:
+- Screenplay parsing (all formats)
+- JSON .guion serialization
+- SwiftData document management
+- Voice casting (CharacterVoiceMapping)
+- UI components
+
 ## [6.2.0] - 2025-12-11
 
 ### 🚀 Major Changes

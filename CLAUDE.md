@@ -538,7 +538,7 @@ let record = TypedDataStorage(
 )
 
 // Save to file (automatic file reference creation)
-try record.saveBinary(audioData, to: storage, fileName: "speech.mp3", mode: .local)
+try await record.saveBinary(audioData, to: storage, fileName: "speech.mp3")
 
 modelContext.insert(record)
 try modelContext.save()
@@ -628,7 +628,6 @@ EOF
 ### User Guides
 - `README.md` - User-facing overview
 - `Docs/APP_INTENTS_GUIDE.md` - Complete guide to Shortcuts integration (NEW in 6.1.0)
-- `AI-REFERENCE.md` - Comprehensive API reference
 - `USAGE-SUMMARY.md` - Quick reference and common patterns
 - `CHANGELOG.md` - Version history
 
@@ -645,7 +644,7 @@ EOF
 
 ## Project Metadata
 
-- **Version**: 6.2.0
+- **Version**: 6.2.1
 - **Swift**: 6.2+
 - **Platforms**: iOS 26.0+, macOS 26.0+
 - **Dependencies**: TextBundle, ZIPFoundation, swift-markdown, SwiftFijos (test-only)
