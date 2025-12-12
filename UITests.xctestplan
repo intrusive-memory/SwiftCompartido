@@ -34,8 +34,10 @@
         "LongPressGestureTests",
         "PopoverAccessibilityTests",
         "SceneBrowserUITests",
-        "TextConfigurationViewTests",
-        "TypedDataImageViewTests"
+        "TypedDataImageViewTests",
+        "AudioPlayerManagerTests",
+        "ElementProgressStateTests",
+        "UIOrderingRegressionTests"
       ],
       "target" : {
         "containerPath" : "container:",
