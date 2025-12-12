@@ -58,7 +58,26 @@ jobs:
             echo "✅ All UI tests passed"
             exit 0
           else
-            echo "❌ UI tests failed"
+            echo ""
+            echo "❌ ============================================"
+            echo "❌ UI TESTS FAILED"
+            echo "❌ ============================================"
+            echo ""
+
+            # Show failed tests
+            echo "📋 Failed Tests:"
+            grep "Test Case.*failed" ui_test_output.txt || echo "  No specific test failures found in output"
+
+            echo ""
+            echo "🔍 Error Messages:"
+            grep -E "error:|failed with|Assertion failed|Expected|Fatal error|does not have" ui_test_output.txt | head -20 || echo "  No error messages found"
+
+            echo ""
+            echo "📊 Test Summary:"
+            grep -E "Test Suite|Testing failed|passed with|failed with" ui_test_output.txt | tail -10 || echo "  No summary found"
+
+            echo ""
+            echo "❌ ============================================"
             exit $TEST_EXIT_CODE
           fi
 
@@ -120,7 +139,26 @@ jobs:
             echo "✅ All UI tests passed"
             exit 0
           else
-            echo "❌ UI tests failed"
+            echo ""
+            echo "❌ ============================================"
+            echo "❌ MACOS UI TESTS FAILED"
+            echo "❌ ============================================"
+            echo ""
+
+            # Show failed tests
+            echo "📋 Failed Tests:"
+            grep "Test Case.*failed" ui_test_output_macos.txt || echo "  No specific test failures found in output"
+
+            echo ""
+            echo "🔍 Error Messages:"
+            grep -E "error:|failed with|Assertion failed|Expected|Fatal error|does not have" ui_test_output_macos.txt | head -20 || echo "  No error messages found"
+
+            echo ""
+            echo "📊 Test Summary:"
+            grep -E "Test Suite|Testing failed|passed with|failed with" ui_test_output_macos.txt | tail -10 || echo "  No summary found"
+
+            echo ""
+            echo "❌ ============================================"
             exit $TEST_EXIT_CODE
           fi
 
