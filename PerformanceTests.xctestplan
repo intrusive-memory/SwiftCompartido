@@ -1,0 +1,32 @@
+{
+  "configurations" : [
+    {
+      "id" : "Release",
+      "name" : "Performance Tests Configuration",
+      "options" : {
+        "testTimeoutsEnabled" : true,
+        "maximumTestExecutionTimeAllowance" : 20
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "testTimeoutsEnabled" : true,
+    "maximumTestExecutionTimeAllowance" : 1200,
+    "codeCoverage" : false
+  },
+  "testTargets" : [
+    {
+      "selectedTests" : [
+        "GuionTextEditorPerformanceTests",
+        "GuionViewerPerformanceTests",
+        "Phase2PerformanceTests"
+      ],
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "SwiftCompartidoTests",
+        "name" : "SwiftCompartidoTests"
+      }
+    }
+  ],
+  "version" : 1
+}

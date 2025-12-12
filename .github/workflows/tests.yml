@@ -70,59 +70,16 @@ jobs:
         run: |
           set +e
 
-          echo "🧪 Running unit tests on iOS Simulator (integration and performance tests disabled)"
+          echo "🧪 Running unit tests on iOS Simulator (using UnitTests.xctestplan)"
 
-          # Skip long-running and integration test suites
-          SKIP_TESTS=(
-            "IntegrationTests"
-            "ElementViewTests"
-            "AudioPlayerManagerTests"
-            "TruncationDebugTests"
-            "GeneratedContentSortingTests"
-            "FountainParserProgressTests"
-            "FDXParserProgressTests"
-            "SwiftDataProgressTests"
-            "PDFScreenplayParserTests"
-            "DocumentImportTests"
-            "DocumentExportTests"
-            "FileIOProgressTests"
-            "TextPackWriterProgressTests"
-            "FountainParserTests"
-            "GuionSerializationTests"
-            "GuionParsedElementCollectionParsingTests"
-            "TextPackTests"
-            "TypedDataStorageTests"
-            "CloudKitSupportTests"
-            "UIOrderingRegressionTests"
-            "ElementProgressStateTests"
-            "ElementOrderingTests"
-            "LongPressGestureTests"
-            "FountainTextFormatterTests"
-            "TitlePageTests"
-            "OperationProgressTests"
-            "HoverTimingTests"
-            "HoverStateManagementTests"
-            "PerformanceTests"
-            "PopoverAccessibilityTests"
-            "SerializationFormatTests"
-            "PandocIntegrationTests"
-            "GuionTextEditorPerformanceTests"
-            "SceneLocationTests"
-          )
-
-          SKIP_ARGS=""
-          for test in "${SKIP_TESTS[@]}"; do
-            SKIP_ARGS="$SKIP_ARGS -skip-testing:SwiftCompartidoTests/$test"
-          done
-
-          # Run tests with reduced parallelism
+          # Run tests using the UnitTests test plan
           xcodebuild test \
             -scheme SwiftCompartido \
             -sdk iphonesimulator \
             -destination 'platform=iOS Simulator,name=iPhone 17,OS=26.1' \
+            -testPlan UnitTests \
             -enableCodeCoverage YES \
             -parallel-testing-enabled NO \
-            $SKIP_ARGS \
             CODE_SIGNING_ALLOWED=NO \
             > test_output.txt 2>&1
           TEST_EXIT_CODE=$?
@@ -168,53 +125,15 @@ jobs:
         run: |
           set +e
 
-          echo "🧪 Running unit tests on macOS (integration and performance tests disabled)"
+          echo "🧪 Running unit tests on macOS (using UnitTests.xctestplan)"
 
-          # Skip long-running and integration test suites (same as iOS)
-          SKIP_TESTS=(
-            "IntegrationTests"
-            "ElementViewTests"
-            "AudioPlayerManagerTests"
-            "TruncationDebugTests"
-            "GeneratedContentSortingTests"
-            "FountainParserProgressTests"
-            "FDXParserProgressTests"
-            "SwiftDataProgressTests"
-            "PDFScreenplayParserTests"
-            "DocumentImportTests"
-            "DocumentExportTests"
-            "FileIOProgressTests"
-            "TextPackWriterProgressTests"
-            "FountainParserTests"
-            "GuionSerializationTests"
-            "GuionParsedElementCollectionParsingTests"
-            "TextPackTests"
-            "TypedDataStorageTests"
-            "CloudKitSupportTests"
-            "UIOrderingRegressionTests"
-            "ElementProgressStateTests"
-            "ElementOrderingTests"
-            "LongPressGestureTests"
-            "FountainTextFormatterTests"
-            "TitlePageTests"
-            "OperationProgressTests"
-            "HoverTimingTests"
-            "HoverStateManagementTests"
-            "PerformanceTests"
-          )
-
-          SKIP_ARGS=""
-          for test in "${SKIP_TESTS[@]}"; do
-            SKIP_ARGS="$SKIP_ARGS -skip-testing:SwiftCompartidoTests/$test"
-          done
-
-          # Run tests with reduced parallelism
+          # Run tests using the UnitTests test plan
           xcodebuild test \
             -scheme SwiftCompartido \
             -destination 'platform=macOS' \
+            -testPlan UnitTests \
             -enableCodeCoverage YES \
             -parallel-testing-enabled NO \
-            $SKIP_ARGS \
             CODE_SIGNING_ALLOWED=NO \
             > test_output_macos.txt 2>&1
           TEST_EXIT_CODE=$?
@@ -263,16 +182,15 @@ jobs:
 
       - name: Run performance tests
         run: |
-          echo "🧪 Running performance tests (baseline and UI rendering)"
+          echo "🧪 Running performance tests (using PerformanceTests.xctestplan)"
 
           set +e
           xcodebuild test \
             -scheme SwiftCompartido \
             -sdk iphonesimulator \
             -destination 'platform=iOS Simulator,name=iPhone 17,OS=26.1' \
+            -testPlan PerformanceTests \
             -configuration Release \
-            -only-testing:SwiftCompartidoTests/PerformanceTests \
-            -only-testing:SwiftCompartidoTests/GuionViewerPerformanceTests \
             CODE_SIGNING_ALLOWED=NO \
             > performance_output.txt 2>&1
           PERF_EXIT_CODE=$?
@@ -280,7 +198,7 @@ jobs:
           cat performance_output.txt
 
           # Extract performance metrics
-          grep -A 10 "📊 PERFORMANCE" performance_output.txt || echo "No performance metrics found"
+          grep -A 10 "📊 PERFORMANCE\|📊" performance_output.txt || echo "No performance metrics found"
 
           # Save performance results as artifact
           echo "Saving performance results..."

@@ -1,0 +1,59 @@
+{
+  "configurations" : [
+    {
+      "id" : "Default",
+      "name" : "Long Tests Configuration",
+      "options" : {
+        "testTimeoutsEnabled" : true,
+        "maximumTestExecutionTimeAllowance" : 30
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "testTimeoutsEnabled" : true,
+    "maximumTestExecutionTimeAllowance" : 900,
+    "codeCoverage" : {
+      "targets" : [
+        {
+          "containerPath" : "container:",
+          "identifier" : "SwiftCompartido",
+          "name" : "SwiftCompartido"
+        }
+      ]
+    }
+  },
+  "testTargets" : [
+    {
+      "selectedTests" : [
+        "AudioPlayerManagerTests",
+        "ExportDocumentTests",
+        "FDXParserProgressTests",
+        "FileIOProgressTests",
+        "FountainParserProgressTests",
+        "FountainParserTests",
+        "GeneratedContentSortingTests",
+        "GuionDocumentSnapshotImportTests",
+        "GuionParsedElementCollectionParsingTests",
+        "IntegrationTests",
+        "PandocIntegrationTests",
+        "PDFScreenplayParserTests",
+        "Phase2BackwardCompatibilityTests",
+        "Phase2IntegrationTests",
+        "SceneLocationTests",
+        "SwiftDataProgressTests",
+        "TextPackTests",
+        "TextPackWriterProgressTests",
+        "TruncationDebugTests",
+        "TypedDataStorageTests",
+        "UIOrderingRegressionTests",
+        "AppIntents/AppIntentsIntegrationTests"
+      ],
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "SwiftCompartidoTests",
+        "name" : "SwiftCompartidoTests"
+      }
+    }
+  ],
+  "version" : 1
+}

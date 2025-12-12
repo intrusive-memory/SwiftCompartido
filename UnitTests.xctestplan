@@ -1,0 +1,73 @@
+{
+  "configurations" : [
+    {
+      "id" : "Default",
+      "name" : "Unit Tests Configuration",
+      "options" : {
+        "testTimeoutsEnabled" : true,
+        "maximumTestExecutionTimeAllowance" : 10
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "testTimeoutsEnabled" : true,
+    "maximumTestExecutionTimeAllowance" : 600,
+    "codeCoverage" : {
+      "targets" : [
+        {
+          "containerPath" : "container:",
+          "identifier" : "SwiftCompartido",
+          "name" : "SwiftCompartido"
+        }
+      ]
+    }
+  },
+  "testTargets" : [
+    {
+      "skippedTests" : [
+        "AudioPlayerManagerTests",
+        "ElementViewTests",
+        "ExportDocumentTests",
+        "FDXParserProgressTests",
+        "FileIOProgressTests",
+        "FountainParserProgressTests",
+        "FountainParserTests",
+        "GeneratedContentSortingTests",
+        "GuionDocumentSnapshotImportTests",
+        "GuionElementPopoverEnvironmentTests",
+        "GuionElementPopoverProviderTests",
+        "GuionParsedElementCollectionParsingTests",
+        "GuionTextEditorPerformanceTests",
+        "GuionViewerPerformanceTests",
+        "HoverStateManagementTests",
+        "HoverTimingTests",
+        "IntegrationTests",
+        "InteractivePopoverTests",
+        "LongPressGestureTests",
+        "PandocIntegrationTests",
+        "PDFScreenplayParserTests",
+        "Phase2BackwardCompatibilityTests",
+        "Phase2IntegrationTests",
+        "Phase2PerformanceTests",
+        "PopoverAccessibilityTests",
+        "SceneBrowserUITests",
+        "SceneLocationTests",
+        "SwiftDataProgressTests",
+        "TextConfigurationViewTests",
+        "TextPackTests",
+        "TextPackWriterProgressTests",
+        "TruncationDebugTests",
+        "TypedDataImageViewTests",
+        "TypedDataStorageTests",
+        "UIOrderingRegressionTests",
+        "AppIntents/AppIntentsIntegrationTests"
+      ],
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "SwiftCompartidoTests",
+        "name" : "SwiftCompartidoTests"
+      }
+    }
+  ],
+  "version" : 1
+}

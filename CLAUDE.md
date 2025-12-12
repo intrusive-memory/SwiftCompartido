@@ -482,55 +482,123 @@ class GuionElementModel {
 - Use `@Test("description")` macro, not `func test...`
 - All tests must pass before merging PRs
 
-### Test Execution Strategy
+### Test Plans Organization
 
-Tests are split into **short** and **long** cycles to optimize CI performance:
+SwiftCompartido uses **test plans** (.xctestplan files) to organize tests into four categories:
 
-**Short Tests (runs on every PR/push):**
-- Timeout: 10 minutes
-- Excludes 13 long-running test suites
-- Expected completion: 2-5 minutes
-- Purpose: Fast feedback for developers
+#### 1. **UnitTests.xctestplan** (Runs on every PR)
+- **Fast unit tests** for basic functionality
+- Tests models, enums, parsers (small inputs), serialization
+- **Non-UI tests** focused on testing classes and structs
+- Target: < 1 second per test, < 5 minutes total
+- **Excludes**: UI tests, integration tests, performance tests
 
-**Long Tests (runs on weekend schedule):**
+**Examples:**
+- `CharacterInfoTests`, `ElementTypeEnumTests`, `FountainRegexesTests`
+- `GeneratedAudioDataTests`, `GeneratedTextDataTests`
+- `MarkdownParserTests`, `OutlineLevelParsingTests`
+- `SerializationFormatTests`, `ProviderCategoryTests`
+
+#### 2. **LongTests.xctestplan** (Runs on weekends)
+- **Integration tests** with file I/O and complex workflows
+- Tests with **large data sets** or **multiple iterations**
+- **Progress callback tests** with delays
+- Parser tests on large/real documents
 - Runs: Saturdays and Sundays at 2 AM UTC
-- Timeout: 15 minutes
-- Only runs these 13 suites:
-  - `IntegrationTests`, `ElementViewTests`, `AudioPlayerManagerTests`
-  - `TruncationDebugTests`, `GeneratedContentSortingTests`
-  - `FountainParserProgressTests`, `FDXParserProgressTests`
-  - `SwiftDataProgressTests`, `PDFScreenplayParserTests`
-  - `DocumentImportTests`, `DocumentExportTests`
-  - `FileIOProgressTests`, `TextPackWriterProgressTests`
+
+**Examples:**
+- `IntegrationTests`, `FountainParserTests` (comprehensive)
+- `PDFScreenplayParserTests`, `PandocIntegrationTests`
+- `FountainParserProgressTests`, `FDXParserProgressTests`
+- `SwiftDataProgressTests`, `FileIOProgressTests`
+- `TypedDataStorageTests`, `TextPackTests`
+
+#### 3. **UITests.xctestplan** (Optional, run manually or on weekends)
+- **SwiftUI view tests** and UI component tests
+- Gesture handling, hover states, popovers
+- Accessibility tests
+
+**Examples:**
+- `ElementViewTests`, `SceneBrowserUITests`
+- `TextConfigurationViewTests`, `TypedDataImageViewTests`
+- `GuionElementPopoverProviderTests`, `InteractivePopoverTests`
+- `LongPressGestureTests`, `HoverTimingTests`
+
+#### 4. **PerformanceTests.xctestplan** (Runs after unit tests, non-blocking)
+- **Performance benchmarks only**
+- Tests in files with "Performance" in the class/struct name
+- Runs in Release configuration for accurate measurements
+- Results uploaded as CI artifacts (don't block PRs)
+
+**Examples:**
+- `GuionViewerPerformanceTests`, `GuionTextEditorPerformanceTests`
+- `Phase2PerformanceTests`
+
+### Running Tests Locally
+
+```bash
+# Run unit tests (default for PRs)
+xcodebuild test -scheme SwiftCompartido -testPlan UnitTests \
+  -destination 'platform=iOS Simulator,name=iPhone 17 Pro'
+
+# Run long tests
+xcodebuild test -scheme SwiftCompartido -testPlan LongTests \
+  -destination 'platform=iOS Simulator,name=iPhone 17 Pro'
+
+# Run UI tests
+xcodebuild test -scheme SwiftCompartido -testPlan UITests \
+  -destination 'platform=iOS Simulator,name=iPhone 17 Pro'
+
+# Run performance tests
+xcodebuild test -scheme SwiftCompartido -testPlan PerformanceTests \
+  -configuration Release \
+  -destination 'platform=iOS Simulator,name=iPhone 17 Pro'
+```
 
 ### ⚠️ Adding New Tests - IMPORTANT
 
-When adding new tests, you **MUST** evaluate whether they belong in short or long tests:
+When adding new tests, you **MUST** categorize them into the correct test plan:
 
-**Short tests should be:**
-- Fast (< 1 second per test typically)
-- Unit tests for individual functions/methods
-- Model tests (Codable, initialization, validation)
-- Simple integration tests without heavy I/O
+#### Unit Tests (UnitTests.xctestplan)
+- ✅ Fast (< 1 second per test)
+- ✅ Tests basic functionality of non-UI classes/structs
+- ✅ Model tests (Codable, initialization, validation)
+- ✅ Small parser inputs (< 100 lines)
+- ❌ NO file I/O or heavy operations
+- ❌ NO SwiftUI view tests
+- ❌ NO performance benchmarks
 
-**Long tests should be:**
-- Integration tests with file I/O or complex workflows
-- UI rendering tests (SwiftUI views)
-- Progress callback tests with delays
-- Parser tests on large documents
-- End-to-end workflow tests
+#### Long Tests (LongTests.xctestplan)
+- ✅ Integration tests with file I/O
+- ✅ Large data sets or many iterations
+- ✅ Progress callback tests with delays
+- ✅ Parser tests on realistic documents (1000+ lines)
+- ✅ End-to-end workflow tests
+- ❌ NO UI tests (move to UITests.xctestplan)
+- ❌ NO performance tests (move to PerformanceTests.xctestplan)
 
-**Decision criteria:**
-1. Run the test suite locally with timing
-2. If a test suite averages > 5 seconds total, consider it for long tests
-3. If individual tests take > 1 second, they likely belong in long tests
-4. **Default to short tests** unless there's a clear reason for long tests
+#### UI Tests (UITests.xctestplan)
+- ✅ SwiftUI view rendering tests
+- ✅ Gesture handlers, hover states
+- ✅ Accessibility tests
+- ✅ Any test that imports SwiftUI for view testing
 
-**To add a test suite to long tests:**
-1. Add the suite name to `SKIP_TESTS` array in `.github/workflows/tests.yml`
-2. Add the suite name to `LONG_TESTS` array in `.github/workflows/long-tests.yml`
+#### Performance Tests (PerformanceTests.xctestplan)
+- ✅ **MUST** be in a separate file
+- ✅ **MUST** have "Performance" in class/struct name
+- ✅ Benchmarking parse/render/serialize operations
+- ✅ Timing measurements and metrics
 
-**Goal:** Keep short tests completing in under 5 minutes to maintain fast PR feedback
+**To add a test suite to a test plan:**
+Edit the corresponding `.xctestplan` file and add the test suite name to `selectedTests` or `skippedTests`
+
+**Decision tree:**
+1. Is it a performance benchmark? → `PerformanceTests.xctestplan`
+2. Does it test SwiftUI views? → `UITests.xctestplan`
+3. Does it do heavy I/O or take > 1 second? → `LongTests.xctestplan`
+4. Otherwise → `UnitTests.xctestplan`
+
+**Goal:** Keep unit tests under 5 minutes for fast PR feedback
 
 ## Common Patterns
 

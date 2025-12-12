@@ -1,0 +1,48 @@
+{
+  "configurations" : [
+    {
+      "id" : "Default",
+      "name" : "UI Tests Configuration",
+      "options" : {
+        "testTimeoutsEnabled" : true,
+        "maximumTestExecutionTimeAllowance" : 15
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "testTimeoutsEnabled" : true,
+    "maximumTestExecutionTimeAllowance" : 900,
+    "codeCoverage" : {
+      "targets" : [
+        {
+          "containerPath" : "container:",
+          "identifier" : "SwiftCompartido",
+          "name" : "SwiftCompartido"
+        }
+      ]
+    }
+  },
+  "testTargets" : [
+    {
+      "selectedTests" : [
+        "ElementViewTests",
+        "GuionElementPopoverEnvironmentTests",
+        "GuionElementPopoverProviderTests",
+        "HoverStateManagementTests",
+        "HoverTimingTests",
+        "InteractivePopoverTests",
+        "LongPressGestureTests",
+        "PopoverAccessibilityTests",
+        "SceneBrowserUITests",
+        "TextConfigurationViewTests",
+        "TypedDataImageViewTests"
+      ],
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "SwiftCompartidoTests",
+        "name" : "SwiftCompartidoTests"
+      }
+    }
+  ],
+  "version" : 1
+}
