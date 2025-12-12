@@ -11,18 +11,18 @@ import UniformTypeIdentifiers
 import ZIPFoundation
 
 /// Document configuration for GuionDocumentModel
-struct GuionDocumentConfiguration: FileDocument {
-    static var readableContentTypes: [UTType] {
+public struct GuionDocumentConfiguration: FileDocument {
+    public static var readableContentTypes: [UTType] {
         [.guionDocument, .fountainDocument, .fdxDocument, .highlandDocument]
     }
 
-    var document: GuionDocumentModel
+    public var document: GuionDocumentModel
 
-    init(document: GuionDocumentModel = GuionDocumentModel()) {
+    public init(document: GuionDocumentModel = GuionDocumentModel()) {
         self.document = document
     }
 
-    init(configuration: ReadConfiguration) throws {
+    public init(configuration: ReadConfiguration) throws {
         // Try to load as .guion JSON file (Phase 1 format)
         if configuration.contentType == .guionDocument,
            let data = configuration.file.regularFileContents {
@@ -187,7 +187,7 @@ struct GuionDocumentConfiguration: FileDocument {
         }
     }
 
-    func fileWrapper(configuration: WriteConfiguration) throws -> FileWrapper {
+    public func fileWrapper(configuration: WriteConfiguration) throws -> FileWrapper {
         // Determine output format based on content type
         if configuration.contentType == .guionDocument {
             // Export as .guion JSON file (Phase 1: replaces TextPack bundle)
@@ -209,7 +209,7 @@ struct GuionDocumentConfiguration: FileDocument {
 }
 
 /// Helper to parse screenplay data into SwiftData models
-extension GuionDocumentModel {
+public extension GuionDocumentModel {
     /// Parse screenplay from raw content and file type
     /// Returns a new parsed document instead of modifying self
     @MainActor
@@ -289,7 +289,7 @@ extension GuionDocumentModel {
     }
 }
 
-extension UTType {
+public extension UTType {
     static var guionDocument: UTType {
         UTType(importedAs: "com.swiftguion.screenplay")
     }
