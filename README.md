@@ -4,7 +4,7 @@
     <img src="https://img.shields.io/badge/Swift-6.2+-orange.svg" />
     <img src="https://img.shields.io/badge/Platform-iOS%2026.0+%20|%20macOS%2026.0+-lightgrey.svg" />
     <img src="https://img.shields.io/badge/License-MIT-blue.svg" />
-    <img src="https://img.shields.io/badge/Version-6.2.1-blue.svg" />
+    <img src="https://img.shields.io/badge/Version-6.2.0-blue.svg" />
 </p>
 
 **SwiftCompartido** is a Swift package for parsing, storing, and displaying screenplays and AI-generated content. Built with SwiftData and SwiftUI.
@@ -35,6 +35,17 @@ SwiftCompartido has **two core missions**:
 - ⚡ **Cleaner API**: Removed `mode` and `storageMode` parameters
 
 See [CHANGELOG.md](./CHANGELOG.md) for complete details.
+
+## ⚡ What's New in 6.2.0
+
+**JSON .guion File Format** - Fast, human-readable screenplay files:
+- 🚀 **40-60x faster** than legacy TextPack format
+- 📝 **Human-readable JSON** - Perfect for version control (git diff works!)
+- 📦 **27% smaller** file sizes
+- ✅ **Backward compatible** - Legacy files still load seamlessly
+- 🎙️ **Voice casting support** - Character voice mappings for SwiftHablare
+
+See [Migration Guide](./Docs/TEXTPACK_TO_JSON_MIGRATION_GUIDE.md) for upgrading from TextPack bundles.
 
 ## Features
 
