@@ -172,7 +172,9 @@ final class GuionJSONSerializerTests: XCTestCase {
               "chapterIndex": 0,
               "orderIndex": 1,
               "elementText": "INT. COFFEE SHOP - DAY",
-              "elementType": "Scene Heading",
+              "elementType": {
+                "case": "sceneHeading"
+              },
               "isCentered": false,
               "isDualDialogue": false,
               "sectionDepth": 0
