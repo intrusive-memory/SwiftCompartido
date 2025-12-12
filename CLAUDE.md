@@ -305,15 +305,23 @@ Elements use composite key ordering: `(chapterIndex, orderIndex)`
 GuionDocumentModel (parent)
     ├─→ elements: [GuionElementModel] (@Relationship deleteRule: .cascade)
     ├─→ titlePage: [TitlePageEntryModel] (@Relationship deleteRule: .cascade)
+    ├─→ customPages: [CustomPageModel] (@Relationship deleteRule: .cascade)
+    ├─→ casting: [CharacterVoiceMapping] (@Relationship deleteRule: .cascade) [NEW in 6.2.0]
     └─→ generatedContent: [TypedDataStorage] (@Relationship deleteRule: .cascade)
 
 GuionElementModel
     ├─→ document: GuionDocumentModel? (@Relationship deleteRule: .nullify)
     └─→ generatedContent: [TypedDataStorage] (@Relationship deleteRule: .cascade)
 
+CharacterVoiceMapping (leaf node) [NEW in 6.2.0]
+    └─→ document: GuionDocumentModel? (@Relationship deleteRule: .nullify)
+
 TypedDataStorage (leaf node)
     ├─→ owningElement: GuionElementModel? (@Relationship deleteRule: .nullify)
     └─→ owningDocument: GuionDocumentModel? (@Relationship deleteRule: .nullify)
+
+CustomPageModel (leaf node)
+    └─→ document: GuionDocumentModel? (no @Relationship decorator)
 
 TitlePageEntryModel (leaf node)
     └─→ document: GuionDocumentModel? (no @Relationship decorator)
