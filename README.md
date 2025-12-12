@@ -281,14 +281,23 @@ struct ScreenplayApp: View {
 
 ## Testing
 
-SwiftCompartido has **95%+ test coverage** with **437 passing tests**.
+SwiftCompartido has **95%+ test coverage** with **437 passing tests** organized into **4 test plans**:
+
+- **UnitTests** - Fast unit tests (runs on every PR) ⚡️
+- **LongTests** - Integration tests (runs on weekends) 🔄
+- **UITests** - SwiftUI view tests (manual or weekend) 🎨
+- **PerformanceTests** - Benchmarks (non-blocking) 📊
 
 ```bash
-# Run all tests
+# Run unit tests (default for PRs)
 ./build.sh --action test
+
+# Run specific test plan
+xcodebuild test -scheme SwiftCompartido -testPlan UnitTests \
+  -destination 'platform=iOS Simulator,name=iPhone 17 Pro'
 ```
 
-See [CLAUDE.md](./CLAUDE.md#testing-requirements) for details on test strategy and coverage.
+See [CLAUDE.md](./CLAUDE.md#testing-requirements) for complete test plan documentation and categorization rules.
 
 ## Contributing
 

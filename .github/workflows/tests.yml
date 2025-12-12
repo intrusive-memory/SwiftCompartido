@@ -70,60 +70,14 @@ jobs:
         run: |
           set +e
 
-          echo "🧪 Running unit tests on iOS Simulator (47 fast unit tests)"
+          echo "🧪 Running unit tests on iOS Simulator (using UnitTests.xctestplan)"
 
-          # Run only fast unit tests (Swift Packages don't support .xctestplan files)
+          # Run tests using the UnitTests test plan
           xcodebuild test \
             -scheme SwiftCompartido \
             -sdk iphonesimulator \
             -destination 'platform=iOS Simulator,name=iPhone 17,OS=26.1' \
-            -only-testing:SwiftCompartidoTests/AppIntents/AppIntentsTests \
-            -only-testing:SwiftCompartidoTests/CastListPageTests \
-            -only-testing:SwiftCompartidoTests/CastListTrimTests \
-            -only-testing:SwiftCompartidoTests/CharacterInfoTests \
-            -only-testing:SwiftCompartidoTests/CustomPageContainerTests \
-            -only-testing:SwiftCompartidoTests/CustomPageModelTests \
-            -only-testing:SwiftCompartidoTests/DialogueBlockViewTests \
-            -only-testing:SwiftCompartidoTests/ElementOrderingTests \
-            -only-testing:SwiftCompartidoTests/ElementProgressBarTests \
-            -only-testing:SwiftCompartidoTests/ElementProgressStateTests \
-            -only-testing:SwiftCompartidoTests/ElementTypeEnumTests \
-            -only-testing:SwiftCompartidoTests/FDXDocumentWriterTests \
-            -only-testing:SwiftCompartidoTests/FileReferenceTests \
-            -only-testing:SwiftCompartidoTests/FountainRegexesTests \
-            -only-testing:SwiftCompartidoTests/FountainTextFormatterTests \
-            -only-testing:SwiftCompartidoTests/GeneratedAudioDataTests \
-            -only-testing:SwiftCompartidoTests/GeneratedContentDisplayTests \
-            -only-testing:SwiftCompartidoTests/GeneratedEmbeddingDataTests \
-            -only-testing:SwiftCompartidoTests/GeneratedImageDataTests \
-            -only-testing:SwiftCompartidoTests/GeneratedTextDataTests \
-            -only-testing:SwiftCompartidoTests/GuionDocumentSnapshotTests \
-            -only-testing:SwiftCompartidoTests/GuionElementsListTests \
-            -only-testing:SwiftCompartidoTests/GuionElementSnapshotTests \
-            -only-testing:SwiftCompartidoTests/GuionElementTests \
-            -only-testing:SwiftCompartidoTests/GuionJSONSerializerTests \
-            -only-testing:SwiftCompartidoTests/GuionParsedElementCollectionPandocTests \
-            -only-testing:SwiftCompartidoTests/GuionTextEditorTests \
-            -only-testing:SwiftCompartidoTests/GuionViewerTests \
-            -only-testing:SwiftCompartidoTests/MarkdownParserTests \
-            -only-testing:SwiftCompartidoTests/MarkdownViewTests \
-            -only-testing:SwiftCompartidoTests/OperationProgressTests \
-            -only-testing:SwiftCompartidoTests/OutlineExtensionTests \
-            -only-testing:SwiftCompartidoTests/OutlineLevelParsingTests \
-            -only-testing:SwiftCompartidoTests/OutputFileTypeTests \
-            -only-testing:SwiftCompartidoTests/PandocDocumentParserTests \
-            -only-testing:SwiftCompartidoTests/PreSceneBoxTests \
-            -only-testing:SwiftCompartidoTests/ProgressUpdateTests \
-            -only-testing:SwiftCompartidoTests/ProjectMarkdownParserTests \
-            -only-testing:SwiftCompartidoTests/ProviderCategoryTests \
-            -only-testing:SwiftCompartidoTests/SceneBrowserTests \
-            -only-testing:SwiftCompartidoTests/SerializationFormatTests \
-            -only-testing:SwiftCompartidoTests/Services/ParsedFileServiceTests \
-            -only-testing:SwiftCompartidoTests/SnapshotHelperTests \
-            -only-testing:SwiftCompartidoTests/SpectrogramVisualizerViewTests \
-            -only-testing:SwiftCompartidoTests/TextEditor/GuionTextEditorFormattingTests \
-            -only-testing:SwiftCompartidoTests/TitlePageTests \
-            -only-testing:SwiftCompartidoTests/TypedDataStorageSnapshotTests \
+            -testPlan UnitTests \
             -enableCodeCoverage YES \
             -parallel-testing-enabled NO \
             CODE_SIGNING_ALLOWED=NO \
@@ -190,59 +144,13 @@ jobs:
         run: |
           set +e
 
-          echo "🧪 Running unit tests on macOS (47 fast unit tests)"
+          echo "🧪 Running unit tests on macOS (using UnitTests.xctestplan)"
 
-          # Run only fast unit tests (Swift Packages don't support .xctestplan files)
+          # Run tests using the UnitTests test plan
           xcodebuild test \
             -scheme SwiftCompartido \
             -destination 'platform=macOS' \
-            -only-testing:SwiftCompartidoTests/AppIntents/AppIntentsTests \
-            -only-testing:SwiftCompartidoTests/CastListPageTests \
-            -only-testing:SwiftCompartidoTests/CastListTrimTests \
-            -only-testing:SwiftCompartidoTests/CharacterInfoTests \
-            -only-testing:SwiftCompartidoTests/CustomPageContainerTests \
-            -only-testing:SwiftCompartidoTests/CustomPageModelTests \
-            -only-testing:SwiftCompartidoTests/DialogueBlockViewTests \
-            -only-testing:SwiftCompartidoTests/ElementOrderingTests \
-            -only-testing:SwiftCompartidoTests/ElementProgressBarTests \
-            -only-testing:SwiftCompartidoTests/ElementProgressStateTests \
-            -only-testing:SwiftCompartidoTests/ElementTypeEnumTests \
-            -only-testing:SwiftCompartidoTests/FDXDocumentWriterTests \
-            -only-testing:SwiftCompartidoTests/FileReferenceTests \
-            -only-testing:SwiftCompartidoTests/FountainRegexesTests \
-            -only-testing:SwiftCompartidoTests/FountainTextFormatterTests \
-            -only-testing:SwiftCompartidoTests/GeneratedAudioDataTests \
-            -only-testing:SwiftCompartidoTests/GeneratedContentDisplayTests \
-            -only-testing:SwiftCompartidoTests/GeneratedEmbeddingDataTests \
-            -only-testing:SwiftCompartidoTests/GeneratedImageDataTests \
-            -only-testing:SwiftCompartidoTests/GeneratedTextDataTests \
-            -only-testing:SwiftCompartidoTests/GuionDocumentSnapshotTests \
-            -only-testing:SwiftCompartidoTests/GuionElementsListTests \
-            -only-testing:SwiftCompartidoTests/GuionElementSnapshotTests \
-            -only-testing:SwiftCompartidoTests/GuionElementTests \
-            -only-testing:SwiftCompartidoTests/GuionJSONSerializerTests \
-            -only-testing:SwiftCompartidoTests/GuionParsedElementCollectionPandocTests \
-            -only-testing:SwiftCompartidoTests/GuionTextEditorTests \
-            -only-testing:SwiftCompartidoTests/GuionViewerTests \
-            -only-testing:SwiftCompartidoTests/MarkdownParserTests \
-            -only-testing:SwiftCompartidoTests/MarkdownViewTests \
-            -only-testing:SwiftCompartidoTests/OperationProgressTests \
-            -only-testing:SwiftCompartidoTests/OutlineExtensionTests \
-            -only-testing:SwiftCompartidoTests/OutlineLevelParsingTests \
-            -only-testing:SwiftCompartidoTests/OutputFileTypeTests \
-            -only-testing:SwiftCompartidoTests/PandocDocumentParserTests \
-            -only-testing:SwiftCompartidoTests/PreSceneBoxTests \
-            -only-testing:SwiftCompartidoTests/ProgressUpdateTests \
-            -only-testing:SwiftCompartidoTests/ProjectMarkdownParserTests \
-            -only-testing:SwiftCompartidoTests/ProviderCategoryTests \
-            -only-testing:SwiftCompartidoTests/SceneBrowserTests \
-            -only-testing:SwiftCompartidoTests/SerializationFormatTests \
-            -only-testing:SwiftCompartidoTests/Services/ParsedFileServiceTests \
-            -only-testing:SwiftCompartidoTests/SnapshotHelperTests \
-            -only-testing:SwiftCompartidoTests/SpectrogramVisualizerViewTests \
-            -only-testing:SwiftCompartidoTests/TextEditor/GuionTextEditorFormattingTests \
-            -only-testing:SwiftCompartidoTests/TitlePageTests \
-            -only-testing:SwiftCompartidoTests/TypedDataStorageSnapshotTests \
+            -testPlan UnitTests \
             -enableCodeCoverage YES \
             -parallel-testing-enabled NO \
             CODE_SIGNING_ALLOWED=NO \
