@@ -3,6 +3,9 @@ name: UI Tests
 on:
   pull_request:
     branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -38,67 +41,27 @@ jobs:
         run: |
           set +e
 
-          echo "🎨 Running UI tests on iOS Simulator (20 UI test suites)"
+          echo "🎨 Running UI tests on iOS Simulator (using UITests.xctestplan)"
 
-          # Run only UI tests (Swift Packages don't support .xctestplan files)
+          # Run tests using the UITests test plan
           xcodebuild test \
             -scheme SwiftCompartido \
             -sdk iphonesimulator \
             -destination 'platform=iOS Simulator,name=iPhone 17,OS=26.1' \
-            -only-testing:SwiftCompartidoTests/AudioPlayerManagerTests \
-            -only-testing:SwiftCompartidoTests/DialogueBlockViewTests \
-            -only-testing:SwiftCompartidoTests/ElementProgressBarTests \
-            -only-testing:SwiftCompartidoTests/ElementProgressStateTests \
-            -only-testing:SwiftCompartidoTests/ElementViewTests \
-            -only-testing:SwiftCompartidoTests/GeneratedContentDisplayTests \
-            -only-testing:SwiftCompartidoTests/GuionElementPopoverEnvironmentTests \
-            -only-testing:SwiftCompartidoTests/GuionElementPopoverProviderTests \
-            -only-testing:SwiftCompartidoTests/GuionElementsListTests \
-            -only-testing:SwiftCompartidoTests/GuionTextEditorTests \
-            -only-testing:SwiftCompartidoTests/GuionViewerTests \
-            -only-testing:SwiftCompartidoTests/HoverStateManagementTests \
-            -only-testing:SwiftCompartidoTests/HoverTimingTests \
-            -only-testing:SwiftCompartidoTests/InteractivePopoverTests \
-            -only-testing:SwiftCompartidoTests/LongPressGestureTests \
-            -only-testing:SwiftCompartidoTests/MarkdownViewTests \
-            -only-testing:SwiftCompartidoTests/PopoverAccessibilityTests \
-            -only-testing:SwiftCompartidoTests/PreSceneBoxTests \
-            -only-testing:SwiftCompartidoTests/SceneBrowserUITests \
-            -only-testing:SwiftCompartidoTests/SpectrogramVisualizerViewTests \
-            -only-testing:SwiftCompartidoTests/TypedDataImageViewTests \
-            -only-testing:SwiftCompartidoTests/UIOrderingRegressionTests \
+            -testPlan UITests \
             -enableCodeCoverage YES \
-            -parallel-testing-enabled NO \
+            -parallel-testing-enabled YES \
             CODE_SIGNING_ALLOWED=NO \
             > ui_test_output.txt 2>&1
           TEST_EXIT_CODE=$?
           cat ui_test_output.txt
 
           # Check if tests passed
-          if grep -q "Test Suite 'Selected tests' passed\|TEST SUCCEEDED" ui_test_output.txt; then
+          if grep -q "Test run with .* tests in .* suites passed\|TEST SUCCEEDED" ui_test_output.txt; then
             echo "✅ All UI tests passed"
             exit 0
           else
-            echo ""
-            echo "❌ ============================================"
-            echo "❌ UI TESTS FAILED"
-            echo "❌ ============================================"
-            echo ""
-
-            # Show failed tests
-            echo "📋 Failed Tests:"
-            grep "Test Case.*failed" ui_test_output.txt || echo "  No specific test failures found in output"
-
-            echo ""
-            echo "🔍 Error Messages:"
-            grep -E "error:|failed with|Assertion failed|Expected|Fatal error|does not have" ui_test_output.txt | head -20 || echo "  No error messages found"
-
-            echo ""
-            echo "📊 Test Summary:"
-            grep -E "Test Suite|Testing failed|passed with|failed with" ui_test_output.txt | tail -10 || echo "  No summary found"
-
-            echo ""
-            echo "❌ ============================================"
+            echo "❌ UI tests failed"
             exit $TEST_EXIT_CODE
           fi
 
@@ -141,66 +104,26 @@ jobs:
         run: |
           set +e
 
-          echo "🎨 Running UI tests on macOS (20 UI test suites)"
+          echo "🎨 Running UI tests on macOS (using UITests.xctestplan)"
 
-          # Run only UI tests (Swift Packages don't support .xctestplan files)
+          # Run tests using the UITests test plan
           xcodebuild test \
             -scheme SwiftCompartido \
             -destination 'platform=macOS' \
-            -only-testing:SwiftCompartidoTests/AudioPlayerManagerTests \
-            -only-testing:SwiftCompartidoTests/DialogueBlockViewTests \
-            -only-testing:SwiftCompartidoTests/ElementProgressBarTests \
-            -only-testing:SwiftCompartidoTests/ElementProgressStateTests \
-            -only-testing:SwiftCompartidoTests/ElementViewTests \
-            -only-testing:SwiftCompartidoTests/GeneratedContentDisplayTests \
-            -only-testing:SwiftCompartidoTests/GuionElementPopoverEnvironmentTests \
-            -only-testing:SwiftCompartidoTests/GuionElementPopoverProviderTests \
-            -only-testing:SwiftCompartidoTests/GuionElementsListTests \
-            -only-testing:SwiftCompartidoTests/GuionTextEditorTests \
-            -only-testing:SwiftCompartidoTests/GuionViewerTests \
-            -only-testing:SwiftCompartidoTests/HoverStateManagementTests \
-            -only-testing:SwiftCompartidoTests/HoverTimingTests \
-            -only-testing:SwiftCompartidoTests/InteractivePopoverTests \
-            -only-testing:SwiftCompartidoTests/LongPressGestureTests \
-            -only-testing:SwiftCompartidoTests/MarkdownViewTests \
-            -only-testing:SwiftCompartidoTests/PopoverAccessibilityTests \
-            -only-testing:SwiftCompartidoTests/PreSceneBoxTests \
-            -only-testing:SwiftCompartidoTests/SceneBrowserUITests \
-            -only-testing:SwiftCompartidoTests/SpectrogramVisualizerViewTests \
-            -only-testing:SwiftCompartidoTests/TypedDataImageViewTests \
-            -only-testing:SwiftCompartidoTests/UIOrderingRegressionTests \
+            -testPlan UITests \
             -enableCodeCoverage YES \
-            -parallel-testing-enabled NO \
+            -parallel-testing-enabled YES \
             CODE_SIGNING_ALLOWED=NO \
             > ui_test_output_macos.txt 2>&1
           TEST_EXIT_CODE=$?
           cat ui_test_output_macos.txt
 
           # Check if tests passed
-          if grep -q "Test Suite 'Selected tests' passed\|TEST SUCCEEDED" ui_test_output_macos.txt; then
+          if grep -q "Test run with .* tests in .* suites passed\|TEST SUCCEEDED" ui_test_output_macos.txt; then
             echo "✅ All UI tests passed"
             exit 0
           else
-            echo ""
-            echo "❌ ============================================"
-            echo "❌ MACOS UI TESTS FAILED"
-            echo "❌ ============================================"
-            echo ""
-
-            # Show failed tests
-            echo "📋 Failed Tests:"
-            grep "Test Case.*failed" ui_test_output_macos.txt || echo "  No specific test failures found in output"
-
-            echo ""
-            echo "🔍 Error Messages:"
-            grep -E "error:|failed with|Assertion failed|Expected|Fatal error|does not have" ui_test_output_macos.txt | head -20 || echo "  No error messages found"
-
-            echo ""
-            echo "📊 Test Summary:"
-            grep -E "Test Suite|Testing failed|passed with|failed with" ui_test_output_macos.txt | tail -10 || echo "  No summary found"
-
-            echo ""
-            echo "❌ ============================================"
+            echo "❌ UI tests failed"
             exit $TEST_EXIT_CODE
           fi
 
