@@ -90,7 +90,26 @@ jobs:
             echo "✅ All unit tests passed"
             exit 0
           else
-            echo "❌ Unit tests failed"
+            echo ""
+            echo "❌ ============================================"
+            echo "❌ UNIT TESTS FAILED"
+            echo "❌ ============================================"
+            echo ""
+
+            # Show failed tests
+            echo "📋 Failed Tests:"
+            grep "Test Case.*failed" test_output.txt || echo "  No specific test failures found in output"
+
+            echo ""
+            echo "🔍 Error Messages:"
+            grep -E "error:|failed with|Assertion failed|Expected|Fatal error" test_output.txt | head -20 || echo "  No error messages found"
+
+            echo ""
+            echo "📊 Test Summary:"
+            grep -E "Test Suite|Testing failed|passed with|failed with" test_output.txt | tail -10 || echo "  No summary found"
+
+            echo ""
+            echo "❌ ============================================"
             exit $TEST_EXIT_CODE
           fi
 
@@ -144,7 +163,26 @@ jobs:
             echo "✅ All unit tests passed"
             exit 0
           else
-            echo "❌ Unit tests failed"
+            echo ""
+            echo "❌ ============================================"
+            echo "❌ MACOS UNIT TESTS FAILED"
+            echo "❌ ============================================"
+            echo ""
+
+            # Show failed tests
+            echo "📋 Failed Tests:"
+            grep "Test Case.*failed" test_output_macos.txt || echo "  No specific test failures found in output"
+
+            echo ""
+            echo "🔍 Error Messages:"
+            grep -E "error:|failed with|Assertion failed|Expected|Fatal error" test_output_macos.txt | head -20 || echo "  No error messages found"
+
+            echo ""
+            echo "📊 Test Summary:"
+            grep -E "Test Suite|Testing failed|passed with|failed with" test_output_macos.txt | tail -10 || echo "  No summary found"
+
+            echo ""
+            echo "❌ ============================================"
             exit $TEST_EXIT_CODE
           fi
 
