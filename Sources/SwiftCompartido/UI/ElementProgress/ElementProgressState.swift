@@ -40,13 +40,11 @@ public struct ElementProgress: Sendable {
 /// ```swift
 /// @State private var progressState = ElementProgressState()
 ///
-/// GuionElementsList(document: screenplay) { element in
-///     GenerateAudioElementButton(element: element)
-/// }
-/// .environment(progressState)
+/// GuionElementsList(document: screenplay)
+///     .environment(progressState)
 ///
-/// // Update progress
-/// progressState.setProgress(0.5, for: elementID, message: "Generating...")
+/// // Update progress from your operation
+/// progressState.setProgress(0.5, for: elementID, message: "Processing...")
 /// progressState.setComplete(for: elementID)
 /// ```
 @MainActor
