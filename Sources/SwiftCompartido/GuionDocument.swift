@@ -23,12 +23,37 @@ struct GuionDocumentConfiguration: FileDocument {
     }
 
     init(configuration: ReadConfiguration) throws {
-        // Check if this is a .guion TextPack bundle
+        // Try to load as .guion JSON file (Phase 1 format)
+        if configuration.contentType == .guionDocument,
+           let data = configuration.file.regularFileContents {
+            do {
+                // Attempt to decode as JSON
+                let snapshot = try GuionJSONSerializer.decode(data)
+
+                // Store a temporary document with the JSON data as rawContent
+                // The actual snapshot-to-model conversion will happen in parseContent()
+                // when we have a proper ModelContext
+                self.document = GuionDocumentModel()
+                document.filename = configuration.file.filename
+                // Store the JSON data for later parsing
+                document.rawContent = String(data: data, encoding: .utf8)
+                #if DEBUG
+                print("📄 JSON .guion file loaded: \(configuration.file.filename ?? "unknown"), \(snapshot.elements.count) elements")
+                #endif
+                return
+            } catch {
+                #if DEBUG
+                print("⚠️ Failed to decode as JSON, trying TextPack fallback: \(error.localizedDescription)")
+                #endif
+                // Fall through to TextPack fallback
+            }
+        }
+
+        // Backward compatibility: Check if this is a legacy .guion TextPack bundle
         if configuration.file.isDirectory,
            configuration.contentType == .guionDocument || configuration.file.filename?.hasSuffix(".guion") == true {
-            // Load as TextPack bundle
-            // For now, extract the screenplay.fountain content for later parsing
-            // (Full TextPack loading happens in parseContent with ModelContext)
+            // Load as legacy TextPack bundle (backward compatibility)
+            // Extract the screenplay.fountain content for later parsing
             if let resourceWrapper = configuration.file.fileWrappers?["screenplay.fountain"],
                let data = resourceWrapper.regularFileContents,
                let content = String(data: data, encoding: .utf8) {
@@ -36,7 +61,7 @@ struct GuionDocumentConfiguration: FileDocument {
                 document.rawContent = content
                 document.filename = configuration.file.filename
                 #if DEBUG
-                print("📦 TextPack bundle loaded: \(configuration.file.filename ?? "unknown")")
+                print("📦 Legacy TextPack bundle loaded: \(configuration.file.filename ?? "unknown")")
                 #endif
                 return
             }
@@ -165,8 +190,10 @@ struct GuionDocumentConfiguration: FileDocument {
     func fileWrapper(configuration: WriteConfiguration) throws -> FileWrapper {
         // Determine output format based on content type
         if configuration.contentType == .guionDocument {
-            // Export as .guion TextPack bundle
-            return try TextPackWriter.createTextPack(from: document)
+            // Export as .guion JSON file (Phase 1: replaces TextPack bundle)
+            let snapshot = document.toSnapshot()
+            let data = try GuionJSONSerializer.encode(snapshot)
+            return FileWrapper(regularFileWithContents: data)
         } else if configuration.contentType == .fdxDocument {
             // Export as FDX
             let data = GuionDocumentParserSwiftData.toFDXData(from: document)
@@ -192,6 +219,23 @@ extension GuionDocumentModel {
         contentType: UTType,
         modelContext: ModelContext
     ) async throws -> GuionDocumentModel {
+        // Handle JSON .guion files (Phase 1 format)
+        if contentType == .guionDocument, let data = rawContent.data(using: .utf8) {
+            do {
+                // Try to decode as JSON snapshot
+                let snapshot = try GuionJSONSerializer.decode(data)
+                let document = GuionDocumentModel.from(snapshot, in: modelContext)
+                // Store original raw content
+                document.rawContent = rawContent
+                return document
+            } catch {
+                #if DEBUG
+                print("⚠️ Failed to parse as JSON .guion, falling back to Fountain parsing: \(error.localizedDescription)")
+                #endif
+                // Fall through to legacy parsing (TextPack bundles stored Fountain content)
+            }
+        }
+
         // Create temporary file for parsing
         let tempDir = FileManager.default.temporaryDirectory
 
