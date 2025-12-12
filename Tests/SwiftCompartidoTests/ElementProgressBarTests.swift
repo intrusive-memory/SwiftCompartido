@@ -147,7 +147,7 @@ struct ElementProgressBarTests {
             .environment(progressState)
 
         #expect(progressState.hasVisibleProgress(for: element.persistentModelID) == true)
-        #expect(progressState.progress(for: element.persistentModelID)?.message.contains("Failed to process") == true)
+        #expect(progressState.progress(for: element.persistentModelID)?.message?.contains("Failed to process") == true)
     }
 
     // MARK: - Multiple Element Tests
