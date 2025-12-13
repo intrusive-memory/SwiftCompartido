@@ -20,7 +20,6 @@ public struct MarkdownActionView: View {
         formattedText
             .font(.system(size: fontSize))
             .foregroundStyle(.primary)
-            .textSelection(.enabled)
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.vertical, 4)
     }

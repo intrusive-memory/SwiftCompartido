@@ -139,11 +139,16 @@ public struct GuionViewer: View {
                     }
                     .keyboardShortcut("-", modifiers: .command)
                     .help("Decrease font size (⌘-)")
+                    .accessibilityLabel("Decrease font size")
+                    .accessibilityHint("Decreases the screenplay font size by 1 point")
+                    .accessibilityValue("\(Int(fontSize)) points")
 
                     Text("\(Int(fontSize))pt")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                         .frame(minWidth: 30)
+                        .accessibilityLabel("Current font size: \(Int(fontSize)) points")
+                        .accessibilityAddTraits(.updatesFrequently)
 
                     Button {
                         increaseFontSize()
@@ -153,6 +158,9 @@ public struct GuionViewer: View {
                     }
                     .keyboardShortcut("=", modifiers: .command)
                     .help("Increase font size (⌘=)")
+                    .accessibilityLabel("Increase font size")
+                    .accessibilityHint("Increases the screenplay font size by 1 point")
+                    .accessibilityValue("\(Int(fontSize)) points")
                 }
             }
             .padding(.horizontal)

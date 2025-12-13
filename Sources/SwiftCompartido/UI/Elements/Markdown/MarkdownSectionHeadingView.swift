@@ -29,7 +29,6 @@ public struct MarkdownSectionHeadingView: View {
                 .font(fontForLevel)
                 .fontWeight(weightForLevel)
                 .foregroundStyle(.primary)
-                .textSelection(.enabled)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.top, topPaddingForLevel)
                 .padding(.bottom, bottomPaddingForLevel)

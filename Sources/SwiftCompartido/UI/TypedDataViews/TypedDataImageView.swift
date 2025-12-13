@@ -69,20 +69,44 @@ public struct TypedDataImageView: View {
         Group {
             if isLoading {
                 ProgressView("Loading image...")
+                    .accessibilityLabel("Loading image")
+                    .accessibilityValue("Please wait")
             } else if let error = error {
                 ErrorView(error: error)
+                    .accessibilityLabel("Image load error")
+                    .accessibilityValue(error.localizedDescription)
             } else if let image = image {
                 image
                     .resizable()
                     .aspectRatio(contentMode: contentMode)
+                    .accessibilityLabel(accessibilityLabelForImage)
+                    .accessibilityAddTraits(.isImage)
             } else {
                 Text("No image available")
                     .foregroundColor(.secondary)
+                    .accessibilityLabel("No image available")
             }
         }
         .task {
             await loadImage()
         }
+    }
+
+    // MARK: - Accessibility Helpers
+
+    /// Accessibility label for the loaded image
+    private var accessibilityLabelForImage: String {
+        var label = "Generated image"
+
+        if !record.prompt.isEmpty {
+            label += ": \(record.prompt)"
+        }
+
+        if let width = record.width, let height = record.height {
+            label += ", Size: \(width) by \(height) pixels"
+        }
+
+        return label
     }
 
     // MARK: - Loading

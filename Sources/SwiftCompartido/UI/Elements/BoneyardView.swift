@@ -29,7 +29,6 @@ public struct BoneyardView<Element: DisplayableElement>: View {
             .font(.custom("Courier New", size: fontSize * 0.83))
             .foregroundStyle(.secondary.opacity(0.5))
             .strikethrough(true, color: .secondary.opacity(0.5))
-            .textSelection(.enabled)
             .frame(maxWidth: .infinity, alignment: .leading)
     }
 }

@@ -29,7 +29,6 @@ public struct CommentView<Element: DisplayableElement>: View {
             .font(.custom("Courier New", size: fontSize * 0.83))
             .foregroundStyle(.secondary.opacity(0.6))
             .italic()
-            .textSelection(.enabled)
             .frame(maxWidth: .infinity, alignment: .leading)
     }
 }

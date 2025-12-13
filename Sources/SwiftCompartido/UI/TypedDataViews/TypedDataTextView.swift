@@ -54,20 +54,43 @@ public struct TypedDataTextView: View {
         Group {
             if isLoading {
                 ProgressView("Loading text...")
+                    .accessibilityLabel("Loading text content")
+                    .accessibilityValue("Please wait")
             } else if let error = error {
                 ErrorView(error: error)
+                    .accessibilityLabel("Text load error")
+                    .accessibilityValue(error.localizedDescription)
             } else {
                 ScrollView {
                     Text(text)
-                        .textSelection(.enabled)
                         .padding()
                         .frame(maxWidth: .infinity, alignment: .leading)
+                        .accessibilityLabel(accessibilityLabelForText)
                 }
             }
         }
         .task {
             await loadText()
         }
+    }
+
+    // MARK: - Accessibility Helpers
+
+    /// Accessibility label for the loaded text
+    private var accessibilityLabelForText: String {
+        var label = "Generated text"
+
+        if !record.prompt.isEmpty {
+            label += " for: \(record.prompt)"
+        }
+
+        if let wordCount = record.wordCount {
+            label += ", \(wordCount) words"
+        }
+
+        label += ". Content: \(text)"
+
+        return label
     }
 
     // MARK: - Loading

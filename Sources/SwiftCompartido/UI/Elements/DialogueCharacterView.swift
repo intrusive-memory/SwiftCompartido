@@ -36,7 +36,6 @@ public struct DialogueCharacterView<Element: DisplayableElement>: View {
                 .font(.custom("Courier New", size: fontSize * 0.75).weight(.heavy))
                 .textCase(.uppercase)
                 .foregroundStyle(.primary)
-                .textSelection(.enabled)
                 .frame(maxWidth: contentMaxWidth, alignment: .leading)
 
             Spacer()
