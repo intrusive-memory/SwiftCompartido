@@ -290,7 +290,7 @@ public extension GuionDocumentModel {
 }
 
 public extension UTType {
-    static var guionDocument: UTType {
+    public static var guionDocument: UTType {
         UTType(importedAs: "com.swiftguion.screenplay")
     }
 
