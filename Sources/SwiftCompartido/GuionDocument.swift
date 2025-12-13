@@ -291,18 +291,18 @@ public extension GuionDocumentModel {
 
 public extension UTType {
     public static var guionDocument: UTType {
-        UTType(importedAs: "com.swiftguion.screenplay")
+        UTType(importedAs: "io.intrusive-memory.produciesta.screenplay")
     }
 
-    static var fdxDocument: UTType {
+    public static var fdxDocument: UTType {
         UTType(importedAs: "com.finaldraft.fdx")
     }
 
-    static var fountainDocument: UTType {
-        UTType(importedAs: "com.fountain")
+    public static var fountainDocument: UTType {
+        UTType(importedAs: "com.fountain.screenplay")
     }
 
-    static var highlandDocument: UTType {
-        UTType(importedAs: "com.highland")
+    public static var highlandDocument: UTType {
+        UTType(importedAs: "com.quoteunquoteapps.highland")
     }
 }
