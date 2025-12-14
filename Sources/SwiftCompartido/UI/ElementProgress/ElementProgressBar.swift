@@ -32,6 +32,8 @@ public struct ElementProgressBar: View {
                     .tint(progress.isComplete ? .green : .blue)
                     .padding(.horizontal, 8)
                     .padding(.top, 4)
+                    .accessibilityLabel("Operation progress")
+                    .accessibilityValue(progressAccessibilityValue(for: progress))
 
                 // Optional message
                 if let message = progress.message {
@@ -41,11 +43,30 @@ public struct ElementProgressBar: View {
                         .padding(.horizontal, 8)
                         .padding(.bottom, 4)
                         .frame(maxWidth: .infinity, alignment: .leading)
+                        .accessibilityLabel(message)
                 }
             }
             .transition(.opacity.combined(with: .move(edge: .top)))
             .animation(.easeInOut(duration: 0.2), value: progressState.hasVisibleProgress(for: element.persistentModelID))
+            .accessibilityElement(children: .combine)
+            .accessibilityLabel(progressAccessibilityLabel(for: progress))
         }
+    }
+
+    // MARK: - Accessibility Helpers
+
+    /// Accessibility label for progress bar
+    private func progressAccessibilityLabel(for progress: ElementProgress) -> String {
+        if progress.isComplete {
+            return "Operation complete"
+        }
+        return progress.message ?? "Operation in progress"
+    }
+
+    /// Accessibility value for progress bar
+    private func progressAccessibilityValue(for progress: ElementProgress) -> String {
+        let percentage = Int(progress.progress * 100)
+        return "\(percentage)%"
     }
 }
 

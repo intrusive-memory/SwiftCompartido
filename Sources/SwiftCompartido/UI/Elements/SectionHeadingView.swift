@@ -39,14 +39,12 @@ public struct SectionHeadingView<Element: DisplayableElement>: View {
                     formattedText
                         .font(fontForLevel)
                         .foregroundStyle(colorForLevel)
-                        .textSelection(.disabled)  // TEMP: Disabled to allow custom context menu
                         .frame(maxWidth: .infinity, alignment: alignmentForLevel)
                 }
             } else {
                 formattedText
                     .font(fontForLevel)
                     .foregroundStyle(colorForLevel)
-                    .textSelection(.disabled)  // TEMP: Disabled to allow custom context menu
                     .frame(maxWidth: .infinity, alignment: alignmentForLevel)
                     .padding(.vertical, paddingForLevel)
             }

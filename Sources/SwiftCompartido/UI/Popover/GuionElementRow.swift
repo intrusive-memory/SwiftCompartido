@@ -66,6 +66,8 @@ struct GuionElementRow<TrailingContent: View>: View {
                 // Content area that dismisses popover on tap (iOS only)
                 HStack(alignment: .top, spacing: 0) {
                     elementView
+                        .accessibilityElement(children: .combine)
+                        .accessibilityLabel(accessibilityLabelForElement)
 
                     // Add trailing column content if provided
                     if let trailingContent = trailingContent {
@@ -88,6 +90,7 @@ struct GuionElementRow<TrailingContent: View>: View {
                 // Hover target area (only shown if popover is available)
                 if popoverProvider != nil {
                     hoverTarget
+                        .accessibilityHidden(true) // Hide from VoiceOver, use accessibility action instead
                 }
             }
             .background(
@@ -144,6 +147,22 @@ struct GuionElementRow<TrailingContent: View>: View {
             EmptyView()
         }
         .allowsHitTesting(!scrollState.isScrolling)
+        .accessibilityAction(named: popoverState.isVisible ? "Hide details" : "Show details") {
+            if popoverState.isVisible {
+                dismissPopover()
+            } else {
+                popoverState.isVisible = true
+            }
+        }
+    }
+
+    // MARK: - Accessibility Helpers
+
+    /// Accessibility label for the element based on its type
+    private var accessibilityLabelForElement: String {
+        let typeDescription = element.elementType.description
+        let text = element.elementText.prefix(100)
+        return "\(typeDescription): \(text)"
     }
 
     // MARK: - Hover Target

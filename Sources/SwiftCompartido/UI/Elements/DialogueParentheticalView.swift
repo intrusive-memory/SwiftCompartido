@@ -36,7 +36,6 @@ public struct DialogueParentheticalView<Element: DisplayableElement>: View {
                 .font(.custom("Courier New", size: fontSize * 0.65))
                 .italic()
                 .foregroundStyle(.secondary)
-                .textSelection(.enabled)
                 .frame(maxWidth: contentMaxWidth, alignment: .leading)
 
             Spacer()

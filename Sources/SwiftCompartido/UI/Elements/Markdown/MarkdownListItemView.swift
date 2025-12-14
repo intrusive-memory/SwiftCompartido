@@ -101,7 +101,6 @@ public struct MarkdownListItemView: View {
             formattedText
                 .font(.system(size: fontSize))
                 .foregroundStyle(.primary)
-                .textSelection(.enabled)
                 .frame(maxWidth: .infinity, alignment: .leading)
         }
         .padding(.top, itemTopPadding)

@@ -36,7 +36,6 @@ public struct DialogueLyricsView<Element: DisplayableElement>: View {
                 .font(.custom("Courier New", size: fontSize))
                 .italic()
                 .foregroundStyle(.primary)
-                .textSelection(.enabled)
                 .frame(maxWidth: contentMaxWidth, alignment: .leading)
 
             Spacer()

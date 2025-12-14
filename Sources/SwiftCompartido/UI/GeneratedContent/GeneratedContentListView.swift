@@ -127,7 +127,10 @@ public struct GeneratedContentListView: View {
             }
             .pickerStyle(.segmented)
             .padding()
-            .onChange(of: selectedFilter) { _, _ in
+            .accessibilityLabel("Filter content by type")
+            .accessibilityHint("Select a content type to filter the list")
+            .accessibilityValue(selectedFilter.rawValue)
+            .onChange(of: selectedFilter) { _, newFilter in
                 // Clear selection when filter changes
                 selectedItem = nil
             }
@@ -163,6 +166,7 @@ public struct GeneratedContentListView: View {
             Image(systemName: "photo.on.rectangle.angled")
                 .font(.system(size: 64))
                 .foregroundColor(.secondary)
+                .accessibilityHidden(true)
 
             Text("No Selection")
                 .font(.title2)
@@ -173,6 +177,8 @@ public struct GeneratedContentListView: View {
                 .foregroundColor(.secondary)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("No item selected. Select an item from the list below to preview its content.")
     }
 
     // MARK: - Computed Properties

@@ -39,6 +39,9 @@ public struct TypedDataAudioView: View {
     /// Error state
     @State private var error: Error?
 
+    /// Accessibility announcement trigger
+    @State private var accessibilityAnnouncement: String = ""
+
     // MARK: - Initialization
 
     /// Creates an audio view for a TypedDataStorage record
@@ -61,17 +64,20 @@ public struct TypedDataAudioView: View {
                     Image(systemName: "waveform")
                         .font(.title)
                         .foregroundColor(.blue)
+                        .accessibilityHidden(true)
 
                     VStack(alignment: .leading) {
                         if let voiceName = record.voiceName {
                             Text(voiceName)
                                 .font(.headline)
+                                .accessibilityLabel("Voice: \(voiceName)")
                         }
 
                         if let format = record.audioFormat {
                             Text(format.uppercased())
                                 .font(.caption)
                                 .foregroundColor(.secondary)
+                                .accessibilityLabel("Format: \(format.uppercased())")
                         }
                     }
 
@@ -81,6 +87,7 @@ public struct TypedDataAudioView: View {
                         Text(formatDuration(duration))
                             .font(.caption)
                             .foregroundColor(.secondary)
+                            .accessibilityLabel("Duration: \(formatDuration(duration))")
                     }
                 }
 
@@ -90,11 +97,14 @@ public struct TypedDataAudioView: View {
                         .foregroundColor(.secondary)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .lineLimit(2)
+                        .accessibilityLabel("Prompt: \(record.prompt)")
                 }
             }
             .padding()
             .background(Color.secondary.opacity(0.1))
             .cornerRadius(8)
+            .accessibilityElement(children: .contain)
+            .accessibilityLabel("Audio information")
 
             // Playback Controls
             HStack(spacing: 20) {
@@ -105,6 +115,10 @@ public struct TypedDataAudioView: View {
                 }
                 .buttonStyle(.plain)
                 .disabled(error != nil)
+                .accessibilityLabel(playerManager.isPlaying ? "Pause" : "Play")
+                .accessibilityHint(playerManager.isPlaying ? "Pauses audio playback" : "Starts or resumes audio playback")
+                .accessibilityValue(playerManager.isPlaying ? "Playing" : "Paused")
+                .accessibilityAddTraits(.isButton)
 
                 // Stop Button
                 Button(action: stop) {
@@ -113,7 +127,12 @@ public struct TypedDataAudioView: View {
                 }
                 .buttonStyle(.plain)
                 .disabled(!playerManager.isPlaying)
+                .accessibilityLabel("Stop")
+                .accessibilityHint("Stops audio playback and resets to the beginning")
+                .accessibilityAddTraits(.isButton)
             }
+            .accessibilityElement(children: .contain)
+            .accessibilityLabel("Playback controls")
 
             // Error Display
             if let error = error {
@@ -124,6 +143,16 @@ public struct TypedDataAudioView: View {
             }
         }
         .padding()
+        .accessibilityElement(children: .contain)
+        .onChange(of: playerManager.isPlaying) { _, isPlaying in
+            accessibilityAnnouncement = isPlaying ? "Audio playback started" : "Audio playback paused"
+        }
+        .accessibilityAction(named: "Toggle playback") {
+            togglePlayback()
+        }
+        .accessibilityAction(named: "Stop playback") {
+            stop()
+        }
     }
 
     // MARK: - Actions
@@ -153,6 +182,7 @@ public struct TypedDataAudioView: View {
     private func stop() {
         playerManager.stop()
         error = nil
+        accessibilityAnnouncement = "Audio playback stopped"
     }
 
     // MARK: - Helper

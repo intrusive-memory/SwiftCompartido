@@ -28,7 +28,6 @@ public struct SynopsisView<Element: DisplayableElement>: View {
         Text(element.elementText)
             .font(.custom("Courier New", size: fontSize * 0.9).italic())
             .foregroundStyle(.secondary)
-            .textSelection(.enabled)
             .frame(maxWidth: .infinity, alignment: .leading)
     }
 }

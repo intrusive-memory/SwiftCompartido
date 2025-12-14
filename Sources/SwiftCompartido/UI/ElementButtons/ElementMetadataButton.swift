@@ -42,10 +42,15 @@ public struct ElementMetadataButton: View {
         }
         .buttonStyle(.plain)
         .help("Show element details")
+        .accessibilityLabel("Element details")
+        .accessibilityHint("Shows detailed information about this screenplay element including type, position, and generated content")
+        .accessibilityAddTraits(.isButton)
         .popover(isPresented: $showingMetadata) {
             MetadataView(element: element)
                 .frame(minWidth: 250, minHeight: 150)
                 .padding()
+                .accessibilityElement(children: .contain)
+                .accessibilityLabel("Element metadata")
         }
     }
 }

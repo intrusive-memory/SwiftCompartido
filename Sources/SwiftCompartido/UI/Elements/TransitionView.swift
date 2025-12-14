@@ -39,7 +39,6 @@ public struct TransitionView<Element: DisplayableElement>: View {
             Text(element.elementText)
                 .font(.custom("Courier New", size: fontSize))
                 .foregroundStyle(.primary)
-                .textSelection(.enabled)
                 .multilineTextAlignment(.trailing)
                 .frame(maxWidth: contentMaxWidth, alignment: .trailing)
         }

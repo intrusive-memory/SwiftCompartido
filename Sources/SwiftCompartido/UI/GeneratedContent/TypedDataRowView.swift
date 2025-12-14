@@ -100,6 +100,60 @@ public struct TypedDataRowView: View {
         .padding(.horizontal, 12)
         .background(isSelected ? Color.accentColor.opacity(0.1) : Color.clear)
         .cornerRadius(8)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(accessibilityLabelForRow)
+        .accessibilityHint("Tap to preview this content")
+        .accessibilityAddTraits(isSelected ? [.isSelected] : [])
+    }
+
+    // MARK: - Accessibility Helpers
+
+    /// Accessibility label for the row
+    private var accessibilityLabelForRow: String {
+        var label = contentTypeDescription
+
+        if !record.prompt.isEmpty {
+            label += ": \(record.prompt)"
+        }
+
+        // Add type-specific metadata
+        if record.mimeType.hasPrefix("audio/"), let duration = record.durationSeconds {
+            label += ", Duration: \(formatDuration(duration))"
+        } else if record.mimeType.hasPrefix("image/"), let width = record.width, let height = record.height {
+            label += ", Size: \(width) by \(height) pixels"
+        } else if record.mimeType.hasPrefix("text/"), let wordCount = record.wordCount {
+            label += ", \(wordCount) words"
+        } else if record.mimeType == "application/x-embedding", let dimensions = record.dimensions {
+            label += ", \(dimensions) dimensions"
+        }
+
+        // Add element position
+        if let element = record.owningElement {
+            label += ", Element at chapter \(element.chapterIndex), position \(element.orderIndex)"
+        }
+
+        if isSelected {
+            label += ", Selected"
+        }
+
+        return label
+    }
+
+    /// Content type description for accessibility
+    private var contentTypeDescription: String {
+        if record.mimeType.hasPrefix("text/") {
+            return "Text content"
+        } else if record.mimeType.hasPrefix("audio/") {
+            return "Audio content"
+        } else if record.mimeType.hasPrefix("image/") {
+            return "Image content"
+        } else if record.mimeType.hasPrefix("video/") {
+            return "Video content"
+        } else if record.mimeType == "application/x-embedding" {
+            return "Embedding"
+        } else {
+            return "Content"
+        }
     }
 
     // MARK: - Type-Specific Metadata

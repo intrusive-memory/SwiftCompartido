@@ -44,7 +44,6 @@ public struct ActionViewDebug: View {
                     Text(element.elementText)
                         .font(.custom("Courier New", size: fontSize))
                         .foregroundStyle(.primary)
-                        .textSelection(.enabled)
                         .frame(
                             maxWidth: geometry.size.width * 0.80,
                             alignment: .leading
