@@ -91,13 +91,37 @@ public struct GuionDocumentConfiguration: FileDocument {
             return nil
         }
 
-        // Check if it's a Highland file (ZIP archive)
+        // Check if it's a Highland file
+        // Highland files can be EITHER:
+        // 1. ZIP archives (Highland 2 format with .textbundle inside)
+        // 2. Plain Fountain text (exported or newer format)
         let ext = (filename as NSString?)?.pathExtension.lowercased()
         if ext == "highland" {
             #if DEBUG
-            print("📦 Highland ZIP file detected, extracting...")
+            print("📦 Highland file detected, attempting ZIP extraction...")
             #endif
-            return extractHighlandContent(from: data)
+
+            // Try ZIP extraction first (Highland 2 format)
+            if let content = extractHighlandContent(from: data) {
+                return content
+            }
+
+            #if DEBUG
+            print("⚠️ ZIP extraction failed, trying plain text fallback...")
+            #endif
+
+            // Fall back to plain text (Highland might be a Fountain text file)
+            if let content = String(data: data, encoding: .utf8) {
+                #if DEBUG
+                print("✅ Highland file loaded as plain Fountain text")
+                #endif
+                return content
+            }
+
+            #if DEBUG
+            print("❌ Highland file could not be loaded as ZIP or plain text")
+            #endif
+            return nil
         }
 
         // For other files, try to decode as UTF-8
