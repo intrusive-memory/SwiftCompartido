@@ -125,6 +125,10 @@ public final class TypedDataStorage {
     ///
     /// When content is large, it's written to a .guion bundle file
     /// and this property stores the reference for retrieval.
+    ///
+    /// **Note**: Uses `.externalStorage` to prevent NSSecureCoding issues.
+    /// This Codable struct is stored separately to avoid __SwiftValue wrapping.
+    @Attribute(.externalStorage)
     public var fileReference: TypedDataFileReference?
 
     // MARK: - Text-specific Metadata (used when mimeType starts with "text/")
