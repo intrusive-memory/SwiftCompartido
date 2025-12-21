@@ -274,10 +274,16 @@ public final class GuionElementModel: GuionElementProtocol {
     public var formattedText: AttributedString? {
         get {
             guard let data = formattedTextData else { return nil }
-            return try? AttributedString(data, including: \.swiftUI)
+            let decoder = PropertyListDecoder()
+            return try? decoder.decode(AttributedString.self, from: data)
         }
         set {
-            formattedTextData = try? newValue?.data(including: \.swiftUI)
+            guard let value = newValue else {
+                formattedTextData = nil
+                return
+            }
+            let encoder = PropertyListEncoder()
+            formattedTextData = try? encoder.encode(value)
         }
     }
 
