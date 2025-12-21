@@ -263,8 +263,23 @@ public final class GuionElementModel: GuionElementProtocol {
     ///
     /// - SeeAlso: ``FountainTextFormatter``
     /// - Since: 5.4.0
-    @Attribute(.transformable(by: "NSSecureUnarchiveFromDataTransformer"))
-    public var formattedText: AttributedString?
+    ///
+    /// ## Storage Implementation
+    ///
+    /// Stored as binary Data using AttributedString's built-in encoding.
+    /// This avoids the __SwiftValue serialization issue with NSSecureUnarchiveFromDataTransformer.
+    private var formattedTextData: Data?
+
+    /// Computed property for accessing the formatted text
+    public var formattedText: AttributedString? {
+        get {
+            guard let data = formattedTextData else { return nil }
+            return try? AttributedString(data, including: \.swiftUI)
+        }
+        set {
+            formattedTextData = try? newValue?.data(including: \.swiftUI)
+        }
+    }
 
     public init(elementText: String, elementType: ElementType, isCentered: Bool = false, isDualDialogue: Bool = false, sceneNumber: String? = nil, sectionDepth: Int = 0, summary: String? = nil, sceneId: String? = nil, chapterIndex: Int = 0, orderIndex: Int = 0, uuid: UUID = UUID()) {
         self.uuid = uuid
