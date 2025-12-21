@@ -341,7 +341,19 @@ public final class TypedDataStorage {
         self.requestorID = requestorID
         self.mimeType = mimeType
         self.textValue = textValue
-        self.binaryValue = binaryValue
+
+        // Compress binaryValue during initialization
+        if let uncompressed = binaryValue {
+            do {
+                self._compressedBinaryValue = try (uncompressed as NSData).compressed(using: .lzfse) as Data
+            } catch {
+                // If compression fails, store uncompressed
+                self._compressedBinaryValue = uncompressed
+            }
+        } else {
+            self._compressedBinaryValue = nil
+        }
+
         self.prompt = prompt
         self.modelIdentifier = modelIdentifier
         self.estimatedCost = estimatedCost
