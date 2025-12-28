@@ -20,19 +20,29 @@ SwiftCompartido has **two core missions**:
 - **File Architecture**: Smart storage (in-memory for small content, file-based for large)
 
 ### 2. 🎨 UI Display
-- **Screenplay Viewers**: GuionTextEditor (TextKit 2, 400-1600x faster), GuionViewer (List-based)
+- **Screenplay Viewers**: GuionTextEditor (TextKit 2, 400-1600x faster), GuionViewer (reference implementation)
+- **Element Views**: SceneHeadingView, DialogueTextView, ActionView, and 10+ element-specific views
 - **Element Widgets**: GuionElementsList for displaying screenplay elements
 - **Content Browsers**: GeneratedContentListView, TypedDataDetailView, TypedDataRowView
 - **List Widgets**: Query-based lists with filtering and grouping
+- **DisplayableElement Protocol**: Enables DTOs to work seamlessly with element views
 
 **Everything else** in this library should support these two goals. Features unrelated to parsing/storage or UI display should be deprecated or moved to separate libraries.
 
-## ⚡ What's New in 6.2.1
+## ⚡ What's New in 6.3.0
 
-**Simplified Focus** - Removed CloudKit sync and AI generation stubs:
-- 🧹 **-4,000 lines** of non-functional code removed
-- 📦 **Focused scope**: Parsing, storage, and display only
-- ⚡ **Cleaner API**: Removed `mode` and `storageMode` parameters
+**GuionViewer Reference Implementation** - Minimal macOS demo app:
+- 📱 **Reference App**: GuionViewer demonstrates best practices for integration
+- 🎯 **ModelActor Pattern**: DocumentModelActor for safe SwiftData concurrency
+- 📐 **Fixed Layout**: 12pt font, 102 char width, centered content
+- 🔄 **Component Reuse**: DTOs conform to DisplayableElement for seamless view integration
+- 📦 **Bundle Resources**: Loads 24+ screenplay files from app bundle
+
+**Recent Improvements:**
+- ✅ Explicit element sorting ensures correct document order
+- ✅ LZFSE compression for binary content storage
+- ✅ Dual-mode file discovery (bundle resources + development)
+- ✅ @preconcurrency SwiftData imports throughout codebase
 
 See [CHANGELOG.md](./CHANGELOG.md) for complete details.
 
@@ -258,13 +268,16 @@ struct ScreenplayApp: View {
 
 ## Reference Implementation
 
-**GuionViewer** is a minimal macOS demo app (located in `GuionViewer/`) that demonstrates best practices for integrating SwiftCompartido:
+**GuionViewer** is a minimal macOS demo app (located in `GuionViewer/`) that demonstrates best practices for integrating SwiftCompartido with proper concurrency, performance, and UI patterns.
 
 ### Key Features
 - ✅ **ModelActor Pattern**: Proper actor isolation for SwiftData operations
 - ✅ **Infinite Scrolling**: Lazy-loads large screenplays in batches (100 elements at a time)
-- ✅ **Monospace Typography**: Industry-standard screenplay formatting
+- ✅ **Fixed Typography**: 12pt Courier New with 102 character width (8.5" page)
+- ✅ **Centered Layout**: Content stays centered, window resizable without affecting text
 - ✅ **Sendable DTOs**: Safe cross-actor communication with `DocumentInfo` and `ElementInfo`
+- ✅ **Component Reuse**: Uses SwiftCompartido's element views via DisplayableElement protocol
+- ✅ **Bundle Resources**: Loads 24+ screenplay files from app bundle
 
 ### Architecture Highlights
 ```swift
@@ -277,7 +290,35 @@ let documentID = try await actor.parseAndSaveDocument(from: url)
 // Fetch Sendable DTOs for UI display
 let docInfo = await actor.getDocumentInfo(documentID: documentID)
 let elements = try await actor.getElements(for: documentID, limit: 100)
+
+// Display with SwiftCompartido element views
+ForEach(elements) { element in
+    switch element.elementType {
+    case .sceneHeading:
+        SceneHeadingView(element: element)
+    case .dialogue:
+        DialogueTextView(element: element)
+    // ... other element types
+    }
+}
 ```
+
+### Key Implementation Details
+
+**Fixed-Width Layout:**
+- Font: 12pt Courier New (fixed, never scales)
+- Width: 734.4pt (12pt × 0.6 aspect ratio × 102 chars)
+- Centered in window with `.frame(width: contentWidth).frame(maxWidth: .infinity)`
+
+**Element Ordering:**
+- Elements sorted by composite key `(chapterIndex, orderIndex)`
+- Guaranteed document order regardless of SwiftData relationship ordering
+- Chapter-aware positioning (0 = before chapters, 1 = Chapter 1, etc.)
+
+**Component Pattern:**
+- ElementInfo DTOs conform to DisplayableElement
+- Reuses 10+ SwiftCompartido element views (SceneHeadingView, DialogueTextView, etc.)
+- No duplicate view code - single source of truth for screenplay formatting
 
 ### Running GuionViewer
 ```bash
