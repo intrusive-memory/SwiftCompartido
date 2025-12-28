@@ -256,6 +256,40 @@ struct ScreenplayApp: View {
 }
 ```
 
+## Reference Implementation
+
+**GuionViewer** is a minimal macOS demo app (located in `GuionViewer/`) that demonstrates best practices for integrating SwiftCompartido:
+
+### Key Features
+- ✅ **ModelActor Pattern**: Proper actor isolation for SwiftData operations
+- ✅ **Infinite Scrolling**: Lazy-loads large screenplays in batches (100 elements at a time)
+- ✅ **Monospace Typography**: Industry-standard screenplay formatting
+- ✅ **Sendable DTOs**: Safe cross-actor communication with `DocumentInfo` and `ElementInfo`
+
+### Architecture Highlights
+```swift
+// DocumentModelActor handles all database operations
+let actor = DocumentModelActor(modelContainer: container)
+
+// Parse screenplay in background
+let documentID = try await actor.parseAndSaveDocument(from: url)
+
+// Fetch Sendable DTOs for UI display
+let docInfo = await actor.getDocumentInfo(documentID: documentID)
+let elements = try await actor.getElements(for: documentID, limit: 100)
+```
+
+### Running GuionViewer
+```bash
+cd GuionViewer
+xcodebuild build -scheme GuionViewer -destination 'platform=macOS'
+open ~/Library/Developer/Xcode/DerivedData/GuionViewer-*/Build/Products/Debug/GuionViewer.app
+```
+
+**Use GuionViewer as a template when building apps with SwiftCompartido.**
+
+See `GuionViewer/REQUIREMENTS.md` for complete specifications.
+
 ## Documentation
 
 ### User Guides

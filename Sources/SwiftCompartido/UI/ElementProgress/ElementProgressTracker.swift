@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import SwiftData
+@preconcurrency import SwiftData
 
 /// Scoped progress tracker for a specific element
 ///

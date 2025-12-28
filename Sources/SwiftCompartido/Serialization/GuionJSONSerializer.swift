@@ -7,7 +7,7 @@
 
 import Foundation
 #if canImport(SwiftData)
-import SwiftData
+@preconcurrency import SwiftData
 #endif
 
 /// JSON serializer for .guion screenplay files.

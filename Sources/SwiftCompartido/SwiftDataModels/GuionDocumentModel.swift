@@ -8,7 +8,7 @@
 import Foundation
 import SwiftUI
 #if canImport(SwiftData)
-import SwiftData
+@preconcurrency import SwiftData
 
 /// SwiftData model representing a complete screenplay document.
 ///
@@ -746,8 +746,7 @@ public final class GuionDocumentModel {
     ///   - context: The ModelContext to use
     ///   - generateSummaries: Whether to generate AI summaries for scene headings (default: false)
     /// - Returns: The created GuionDocumentModel
-    @MainActor
-    public static func from(
+    nonisolated public static func from(
         _ screenplay: GuionParsedElementCollection,
         in context: ModelContext,
         generateSummaries: Bool = false
@@ -814,8 +813,7 @@ public final class GuionDocumentModel {
     ///     progress: progress
     /// )
     /// ```
-    @MainActor
-    public static func from(
+    nonisolated public static func from(
         _ screenplay: GuionParsedElementCollection,
         in context: ModelContext,
         generateSummaries: Bool = false,

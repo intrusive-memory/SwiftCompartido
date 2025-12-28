@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-import SwiftData
+@preconcurrency import SwiftData
 #if canImport(UIKit)
 import UIKit
 #elseif canImport(AppKit)

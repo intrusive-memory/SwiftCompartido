@@ -25,7 +25,7 @@
 
 import Foundation
 #if canImport(SwiftData)
-import SwiftData
+@preconcurrency import SwiftData
 
 /// SwiftData model for custom pages (Cast List, Advanced, Empty, etc.)
 ///

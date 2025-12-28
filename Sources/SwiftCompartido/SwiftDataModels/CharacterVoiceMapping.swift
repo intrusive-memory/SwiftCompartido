@@ -7,7 +7,7 @@
 
 import Foundation
 #if canImport(SwiftData)
-import SwiftData
+@preconcurrency import SwiftData
 
 /// SwiftData model representing a character's voice assignment.
 ///

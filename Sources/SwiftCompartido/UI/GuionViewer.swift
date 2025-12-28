@@ -9,7 +9,7 @@
 
 #if canImport(SwiftUI)
 import SwiftUI
-import SwiftData
+@preconcurrency import SwiftData
 
 /// Simple viewer for displaying GuionDocumentModel using GuionElementsList
 ///

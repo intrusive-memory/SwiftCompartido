@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-import SwiftData
+@preconcurrency import SwiftData
 import AVKit
 
 /// SwiftUI view for displaying and playing video content from TypedDataStorage

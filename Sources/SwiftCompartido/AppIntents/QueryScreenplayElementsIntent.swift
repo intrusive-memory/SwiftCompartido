@@ -7,7 +7,7 @@
 
 import AppIntents
 import Foundation
-import SwiftData
+@preconcurrency import SwiftData
 
 /// Query elements from an existing screenplay document.
 ///

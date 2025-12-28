@@ -105,6 +105,46 @@ If a file, class, or function does any of the following, it should be **deprecat
 - A TypedDataStorage system for AI-generated content
 - A SwiftUI widget library for displaying screenplays and content
 
+## GuionViewer Reference Implementation
+
+**Location**: `GuionViewer/` (in repository root)
+
+GuionViewer is a minimal macOS demo app that serves as the **reference implementation** for SwiftCompartido. It demonstrates best practices for integrating the library:
+
+### Purpose
+- **Showcase SwiftCompartido capabilities**: Parsing, storage, and display
+- **Reference architecture**: Proper use of DocumentModelActor pattern
+- **Integration example**: How to consume SwiftCompartido in real apps
+
+### Architecture Highlights
+1. **ModelActor Pattern**: Uses `DocumentModelActor` for all SwiftData operations
+   - Actor isolation prevents data races
+   - Returns Sendable DTOs (`DocumentInfo`, `ElementInfo`) to MainActor
+   - Never passes Model instances across actor boundaries
+
+2. **Infinite Scrolling**: Lazy-loads screenplay elements in batches
+   - Starts with 100 elements, loads 100 more on scroll
+   - Uses `LazyVStack` for performance
+   - Smooth rendering of large documents
+
+3. **Monospace Typography**: All screenplay content uses monospace fonts
+   - Consistent with industry-standard screenplay formatting
+   - Better readability for screenplay elements
+
+### Key Files
+- `GuionViewer/GuionViewer/GuionViewerApp.swift` - App entry point, ModelContainer setup
+- `GuionViewer/GuionViewer/ContentView.swift` - Main UI with infinite scroll
+- `GuionViewer/REQUIREMENTS.md` - Feature specifications
+
+### Running GuionViewer
+```bash
+cd GuionViewer
+xcodebuild build -scheme GuionViewer -destination 'platform=macOS'
+open ~/Library/Developer/Xcode/DerivedData/GuionViewer-*/Build/Products/Debug/GuionViewer.app
+```
+
+**Use GuionViewer as a template when integrating SwiftCompartido into new apps.**
+
 ## ⚠️ CRITICAL: Platform Version Enforcement
 
 **This library ONLY supports iOS 26.0+ and macOS 26.0+. NEVER add code that supports older platforms.**
@@ -473,7 +513,9 @@ class GuionElementModel {
 - `Sources/SwiftCompartido/Models/` - All data models
 - `Sources/SwiftCompartido/UI/` - SwiftUI components
 - `Sources/SwiftCompartido/SwiftDataModels/` - SwiftData @Model classes
+- `Sources/SwiftCompartido/Actors/` - Actor-based concurrency (DocumentModelActor)
 - `Tests/SwiftCompartidoTests/` - Test suites
+- `GuionViewer/` - Reference implementation demo app (macOS)
 
 ## Testing Requirements
 

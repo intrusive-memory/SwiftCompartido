@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-import SwiftData
+@preconcurrency import SwiftData
 
 /// Detail view that displays TypedDataStorage content using the appropriate viewer based on MIME type
 ///

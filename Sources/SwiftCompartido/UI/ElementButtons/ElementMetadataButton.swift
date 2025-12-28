@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-import SwiftData
+@preconcurrency import SwiftData
 
 /// Button that displays element metadata in a popover
 ///

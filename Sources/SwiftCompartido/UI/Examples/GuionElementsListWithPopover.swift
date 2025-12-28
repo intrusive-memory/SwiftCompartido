@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-import SwiftData
+@preconcurrency import SwiftData
 
 /// Example view demonstrating popover usage with GuionElementsList
 ///

@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import SwiftData
+@preconcurrency import SwiftData
 
 /// SwiftData model representing a single screenplay element.
 ///

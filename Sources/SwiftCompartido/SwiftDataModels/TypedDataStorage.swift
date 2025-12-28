@@ -7,7 +7,7 @@
 //
 
 import Foundation
-import SwiftData
+@preconcurrency import SwiftData
 import CloudKit
 
 /// Errors specific to TypedDataStorage operations

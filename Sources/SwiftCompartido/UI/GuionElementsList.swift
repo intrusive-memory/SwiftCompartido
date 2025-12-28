@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-import SwiftData
+@preconcurrency import SwiftData
 
 /// PreferenceKey for tracking scroll position
 private struct ScrollOffsetPreferenceKey: PreferenceKey {

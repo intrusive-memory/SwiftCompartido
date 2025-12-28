@@ -13,7 +13,7 @@
 
 import Foundation
 #if canImport(SwiftData)
-import SwiftData
+@preconcurrency import SwiftData
 #endif
 
 /// Main data structure for the scene browser

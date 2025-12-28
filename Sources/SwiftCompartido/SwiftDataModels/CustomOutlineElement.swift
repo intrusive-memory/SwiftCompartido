@@ -8,7 +8,7 @@
 //
 
 import Foundation
-import SwiftData
+@preconcurrency import SwiftData
 
 /// A custom outline element that can be attached to screenplay scenes/sections
 ///

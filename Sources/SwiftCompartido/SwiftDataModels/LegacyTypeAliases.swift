@@ -7,7 +7,7 @@
 //
 
 import Foundation
-import SwiftData
+@preconcurrency import SwiftData
 
 /// Legacy type alias for GeneratedTextRecord
 ///

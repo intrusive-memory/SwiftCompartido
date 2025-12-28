@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import SwiftData
+@preconcurrency import SwiftData
 
 /// Unified service for parsing screenplay files and querying elements.
 ///
