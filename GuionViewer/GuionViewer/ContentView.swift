@@ -114,55 +114,59 @@ struct ContentView: View {
                 }
                 Spacer()
             } else if let docInfo = currentDocumentInfo {
-                // Screenplay display with proper formatting
-                GeometryReader { geometry in
-                    ScrollView {
-                        LazyVStack(alignment: .leading, spacing: 0, pinnedViews: []) {
-                            // Title page
-                            VStack(spacing: 8) {
-                                Text(docInfo.title ?? "Untitled")
-                                    .font(.custom("Courier New", size: 24).weight(.bold))
-                                    .textCase(.uppercase)
-                                    .padding(.top, 40)
+                // Screenplay display with fixed 12pt font and 102 character width
+                // Width calculation: 12pt * 0.6 (Courier aspect ratio) * 102 chars = 734.4pt
+                let fontSize: CGFloat = 12
+                let characterWidth = fontSize * ScreenplayPageFormat.courierCharacterAspectRatio
+                let contentWidth = characterWidth * 102
 
-                                Text("Showing \(currentElements.count) of \(docInfo.elementCount) elements")
-                                    .font(.custom("Courier New", size: 10))
-                                    .foregroundStyle(.secondary)
-                                    .padding(.bottom, 40)
-                            }
-                            .frame(maxWidth: .infinity)
+                ScrollView {
+                    LazyVStack(alignment: .leading, spacing: 0, pinnedViews: []) {
+                        // Title page
+                        VStack(spacing: 8) {
+                            Text(docInfo.title ?? "Untitled")
+                                .font(.custom("Courier New", size: 24).weight(.bold))
+                                .textCase(.uppercase)
+                                .padding(.top, 40)
 
-                            // Screenplay elements with proper formatting
-                            ForEach(currentElements) { element in
-                                ScreenplayElementView(element: element)
-                                    .onAppear {
-                                        // Load more when we reach the last element
-                                        if element.id == currentElements.last?.id {
-                                            Task {
-                                                await loadMoreElements()
-                                            }
+                            Text("Showing \(currentElements.count) of \(docInfo.elementCount) elements")
+                                .font(.custom("Courier New", size: 10))
+                                .foregroundStyle(.secondary)
+                                .padding(.bottom, 40)
+                        }
+                        .frame(maxWidth: .infinity)
+
+                        // Screenplay elements with proper formatting
+                        ForEach(currentElements) { element in
+                            ScreenplayElementView(element: element)
+                                .onAppear {
+                                    // Load more when we reach the last element
+                                    if element.id == currentElements.last?.id {
+                                        Task {
+                                            await loadMoreElements()
                                         }
                                     }
-                            }
-
-                            if isLoadingMore {
-                                HStack {
-                                    Spacer()
-                                    ProgressView()
-                                        .padding()
-                                    Spacer()
                                 }
-                            } else if currentElements.count < docInfo.elementCount {
-                                Text("Loaded \(currentElements.count) of \(docInfo.elementCount) elements")
-                                    .font(.custom("Courier New", size: 10))
-                                    .foregroundStyle(.secondary)
-                                    .padding()
-                                    .frame(maxWidth: .infinity, alignment: .center)
-                            }
                         }
-                        .padding(.horizontal, 60) // Screenplay page margins
-                        .environment(\.screenplayFontSize, ScreenplayPageFormat.calculateFontSize(forWidth: geometry.size.width))
+
+                        if isLoadingMore {
+                            HStack {
+                                Spacer()
+                                ProgressView()
+                                    .padding()
+                                Spacer()
+                            }
+                        } else if currentElements.count < docInfo.elementCount {
+                            Text("Loaded \(currentElements.count) of \(docInfo.elementCount) elements")
+                                .font(.custom("Courier New", size: 10))
+                                .foregroundStyle(.secondary)
+                                .padding()
+                                .frame(maxWidth: .infinity, alignment: .center)
+                        }
                     }
+                    .frame(width: contentWidth)
+                    .frame(maxWidth: .infinity) // Center the fixed-width content
+                    .environment(\.screenplayFontSize, fontSize)
                 }
             } else {
                 Spacer()
