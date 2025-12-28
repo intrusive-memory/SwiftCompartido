@@ -145,10 +145,12 @@ public actor DocumentModelActor {
             throw DocumentModelActorError.documentNotFound
         }
 
+        // Get elements in sorted order (by chapterIndex, then orderIndex)
         let elements = document.sortedElements
         let limitedElements = limit.map { Array(elements.prefix($0)) } ?? elements
 
-        return limitedElements.map { element in
+        // Convert to DTOs, preserving sort order
+        let elementInfos = limitedElements.map { element in
             ElementInfo(
                 id: element.persistentModelID,
                 elementType: element.elementType,
@@ -156,6 +158,15 @@ public actor DocumentModelActor {
                 chapterIndex: element.chapterIndex,
                 orderIndex: element.orderIndex
             )
+        }
+
+        // Ensure elements are sorted by composite key (chapterIndex, orderIndex)
+        // This guarantees document order even if SwiftData relationship order changes
+        return elementInfos.sorted { lhs, rhs in
+            if lhs.chapterIndex != rhs.chapterIndex {
+                return lhs.chapterIndex < rhs.chapterIndex
+            }
+            return lhs.orderIndex < rhs.orderIndex
         }
     }
 
@@ -182,6 +193,17 @@ public actor DocumentModelActor {
         public let elementText: String
         public let chapterIndex: Int
         public let orderIndex: Int
+    }
+}
+
+// MARK: - DisplayableElement Conformance
+
+@available(iOS 26.0, macOS 26.0, *)
+extension DocumentModelActor.ElementInfo: DisplayableElement {
+    /// DTOs don't pre-compute formatted text
+    /// Views will format at runtime using FountainTextFormatter
+    public var formattedText: AttributedString? {
+        return nil
     }
 }
 
