@@ -198,36 +198,52 @@ struct ContentView: View {
 
     @MainActor
     private func discoverScreenplayFiles() async {
-        let projectRoot = URL(fileURLWithPath: #filePath)
-            .deletingLastPathComponent()
-            .deletingLastPathComponent()
-            .deletingLastPathComponent()
+        // Determine where to look for screenplay files
+        // 1. Try app bundle Resources folder (for built app with bundled fixtures)
+        // 2. Fall back to project Fixtures folder (for development in Xcode)
+        let searchURL: URL
 
-        let fixturesURL = projectRoot.appendingPathComponent("Fixtures")
+        if let resourceURL = Bundle.main.resourceURL,
+           FileManager.default.fileExists(atPath: resourceURL.path) {
+            // Running from built app - look in Resources folder
+            searchURL = resourceURL
+        } else {
+            // Running from Xcode - use project path
+            let projectRoot = URL(fileURLWithPath: #filePath)
+                .deletingLastPathComponent()
+                .deletingLastPathComponent()
+                .deletingLastPathComponent()
+            searchURL = projectRoot.appendingPathComponent("Fixtures")
+        }
 
-        guard FileManager.default.fileExists(atPath: fixturesURL.path) else {
-            errorMessage = "Fixtures folder not found at: \(fixturesURL.path)"
+        guard FileManager.default.fileExists(atPath: searchURL.path) else {
+            errorMessage = "Resources folder not found at: \(searchURL.path)"
             return
         }
 
         do {
             let contents = try FileManager.default.contentsOfDirectory(
-                at: fixturesURL,
-                includingPropertiesForKeys: nil
+                at: searchURL,
+                includingPropertiesForKeys: [.isRegularFileKey]
             )
 
             let supportedExtensions = ["fountain", "fdx", "md", "markdown", "pdf", "highland", "textbundle"]
             screenplayFiles = contents.filter { url in
-                supportedExtensions.contains(url.pathExtension.lowercased())
+                // Filter for screenplay files only (skip directories, bundles, etc.)
+                guard supportedExtensions.contains(url.pathExtension.lowercased()) else { return false }
+
+                // Ensure it's a regular file, not a directory or bundle
+                let isFile = (try? url.resourceValues(forKeys: [.isRegularFileKey]))?.isRegularFile ?? false
+                return isFile
             }.sorted { $0.lastPathComponent < $1.lastPathComponent }
 
             if screenplayFiles.isEmpty {
-                errorMessage = "No screenplay files found in Fixtures folder"
+                errorMessage = "No screenplay files found in resources"
             } else {
                 selectedFile = screenplayFiles.first
             }
         } catch {
-            errorMessage = "Failed to read Figures folder: \(error.localizedDescription)"
+            errorMessage = "Failed to read resources folder: \(error.localizedDescription)"
         }
     }
 
