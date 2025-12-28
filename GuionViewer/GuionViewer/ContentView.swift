@@ -9,6 +9,52 @@ import SwiftUI
 import SwiftData
 import SwiftCompartido
 
+/// View for rendering a single screenplay element using SwiftCompartido element views
+struct ScreenplayElementView: View {
+    let element: DocumentModelActor.ElementInfo
+
+    var body: some View {
+        switch element.elementType {
+        case .sceneHeading:
+            SceneHeadingView(element: element)
+
+        case .action:
+            ActionView(element: element)
+
+        case .character:
+            DialogueCharacterView(element: element)
+
+        case .dialogue:
+            DialogueTextView(element: element)
+
+        case .parenthetical:
+            DialogueParentheticalView(element: element)
+
+        case .transition:
+            TransitionView(element: element)
+
+        case .sectionHeading:
+            SectionHeadingView(element: element)
+
+        case .lyrics:
+            DialogueLyricsView(element: element)
+
+        case .synopsis:
+            SynopsisView(element: element)
+
+        case .comment:
+            CommentView(element: element)
+
+        case .pageBreak:
+            PageBreakView()
+
+        default:
+            // Fallback for any element types not explicitly handled
+            ActionView(element: element)
+        }
+    }
+}
+
 struct ContentView: View {
     let modelContainer: ModelContainer
 
@@ -68,53 +114,54 @@ struct ContentView: View {
                 }
                 Spacer()
             } else if let docInfo = currentDocumentInfo {
-                // Simple display of document info using Sendable DTOs
-                ScrollView {
-                    LazyVStack(alignment: .leading, spacing: 16, pinnedViews: []) {
-                        Text(docInfo.title ?? "Untitled")
-                            .font(.system(.title, design: .monospaced).weight(.bold))
-                            .padding()
+                // Screenplay display with proper formatting
+                GeometryReader { geometry in
+                    ScrollView {
+                        LazyVStack(alignment: .leading, spacing: 0, pinnedViews: []) {
+                            // Title page
+                            VStack(spacing: 8) {
+                                Text(docInfo.title ?? "Untitled")
+                                    .font(.custom("Courier New", size: 24).weight(.bold))
+                                    .textCase(.uppercase)
+                                    .padding(.top, 40)
 
-                        Text("Showing \(currentElements.count) of \(docInfo.elementCount) elements")
-                            .font(.system(.subheadline, design: .monospaced))
-                            .foregroundStyle(.secondary)
-                            .padding(.horizontal)
-
-                        Divider()
-
-                        ForEach(currentElements) { element in
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text("\(element.elementType)".uppercased())
-                                    .font(.system(.caption, design: .monospaced))
+                                Text("Showing \(currentElements.count) of \(docInfo.elementCount) elements")
+                                    .font(.custom("Courier New", size: 10))
                                     .foregroundStyle(.secondary)
-                                Text(element.elementText)
-                                    .font(.system(.body, design: .monospaced))
+                                    .padding(.bottom, 40)
                             }
-                            .padding(.horizontal)
-                            .padding(.vertical, 4)
-                            .onAppear {
-                                // Load more when we reach the last element
-                                if element.id == currentElements.last?.id {
-                                    Task {
-                                        await loadMoreElements()
-                                    }
-                                }
-                            }
-                        }
+                            .frame(maxWidth: .infinity)
 
-                        if isLoadingMore {
-                            HStack {
-                                Spacer()
-                                ProgressView()
-                                    .padding()
-                                Spacer()
+                            // Screenplay elements with proper formatting
+                            ForEach(currentElements) { element in
+                                ScreenplayElementView(element: element)
+                                    .onAppear {
+                                        // Load more when we reach the last element
+                                        if element.id == currentElements.last?.id {
+                                            Task {
+                                                await loadMoreElements()
+                                            }
+                                        }
+                                    }
                             }
-                        } else if currentElements.count < docInfo.elementCount {
-                            Text("Loaded \(currentElements.count) of \(docInfo.elementCount) elements")
-                                .font(.system(.caption, design: .monospaced))
-                                .foregroundStyle(.secondary)
-                                .padding()
+
+                            if isLoadingMore {
+                                HStack {
+                                    Spacer()
+                                    ProgressView()
+                                        .padding()
+                                    Spacer()
+                                }
+                            } else if currentElements.count < docInfo.elementCount {
+                                Text("Loaded \(currentElements.count) of \(docInfo.elementCount) elements")
+                                    .font(.custom("Courier New", size: 10))
+                                    .foregroundStyle(.secondary)
+                                    .padding()
+                                    .frame(maxWidth: .infinity, alignment: .center)
+                            }
                         }
+                        .padding(.horizontal, 60) // Screenplay page margins
+                        .environment(\.screenplayFontSize, ScreenplayPageFormat.calculateFontSize(forWidth: geometry.size.width))
                     }
                 }
             } else {
