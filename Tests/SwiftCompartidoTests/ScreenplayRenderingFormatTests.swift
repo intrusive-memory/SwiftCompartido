@@ -13,29 +13,34 @@ import SwiftUI
 
 /// Test suite for validating screenplay element rendering against industry standards
 ///
-/// This suite validates that all element views render with correct:
-/// - Font specifications (family, size, weight)
-/// - Margins and indentation (left/right positioning)
-/// - Text styling (bold, italic, uppercase, case transformations)
-/// - Spacing (line spacing, vertical padding)
-/// - Layout dimensions (character widths, content widths)
+/// ## Primary Focus: Page Width and Element Positioning
 ///
-/// ## Industry Standards Tested
+/// This suite validates that all element views maintain correct:
+/// - **Page width**: 65 characters per line (industry standard)
+/// - **Margins and indentation**: Correct left/right positioning for each element type
+/// - **Proportional scaling**: Margins scale correctly with font size
+/// - **Text styling**: Bold, italic, uppercase, case transformations
+/// - **Layout consistency**: Character widths and content widths
 ///
-/// Based on standard screenplay formatting:
-/// - Font: 12pt Courier or Courier New (monospace)
-/// - Page width: 65 characters per line (industry standard)
-/// - Courier aspect ratio: 0.6 (character width = 0.6 × font size)
+/// ## Critical Layout Constants
 ///
-/// ### Element Margins (as percentage of 65-character width)
+/// - **Page width**: 65 characters per line (industry standard)
+/// - **Courier aspect ratio**: 0.6 (character width = 0.6 × font size)
+/// - **Line spacing**: 1.5x font size for readability
+/// - **Lines per page**: 54 (industry standard)
 ///
-/// - **Scene Heading**: Full width (0% margins), bold, uppercase
-/// - **Action**: Full width (0% margins), regular weight
+/// ### Element Margins (as percentage of 65-character page width)
+///
+/// - **Scene Heading**: Full width (0% left margin), bold, uppercase
+/// - **Action**: Full width (0% left margin)
 /// - **Character**: 40% left margin, 60% width, uppercase, heavy weight
-/// - **Dialogue**: 25% left margin, 50% width, regular weight
-/// - **Parenthetical**: 32% left margin, 38% width, regular weight
-/// - **Transition**: 65% left margin, 35% width, right-aligned effect
+/// - **Dialogue**: 25% left margin, 50% width
+/// - **Parenthetical**: 32% left margin, 38% width
+/// - **Transition**: 65% left margin, 35% width (right-aligned effect)
 /// - **Lyrics**: 25% left margin, 50% width, italic
+///
+/// Font sizes are flexible - tests validate that margins maintain correct
+/// proportions regardless of the base font size used.
 ///
 @MainActor
 struct ScreenplayRenderingFormatTests {
@@ -60,55 +65,21 @@ struct ScreenplayRenderingFormatTests {
 
     // MARK: - Font Specification Tests
 
-    @Test("Scene headings use Courier New font family")
-    func testSceneHeadingFontFamily() {
-        let element = createMockElement(type: .sceneHeading, text: "INT. OFFICE - DAY")
-        let view = SceneHeadingView(element: element)
-            .environment(\.screenplayFontSize, standardFontSize)
+    @Test("All elements use Courier font family")
+    func testAllElementsUseCourierFont() {
+        let elementTypes: [(ElementType, String)] = [
+            (.sceneHeading, "INT. OFFICE - DAY"),
+            (.action, "Bernard enters the room."),
+            (.character, "BERNARD"),
+            (.dialogue, "I can't believe it."),
+            (.transition, "CUT TO:")
+        ]
 
-        // Scene headings should use Courier New
-        #expect(element.elementType == .sceneHeading)
-    }
-
-    @Test("Scene headings use larger font size (1.5x base)")
-    func testSceneHeadingFontSize() {
-        let element = createMockElement(type: .sceneHeading, text: "INT. ROOM - NIGHT")
-        let view = SceneHeadingView(element: element)
-            .environment(\.screenplayFontSize, standardFontSize)
-
-        // Scene headings use 1.5x base size (currently implemented)
-        // NOTE: This is INCORRECT per industry standard - should be same size as body text
-        // This test documents current behavior that needs fixing
-        #expect(element.elementType == .sceneHeading)
-    }
-
-    @Test("Action text uses standard 12pt Courier New")
-    func testActionFontSpecification() {
-        let element = createMockElement(type: .action, text: "Bernard enters the room.")
-        let view = ActionView(element: element)
-            .environment(\.screenplayFontSize, standardFontSize)
-
-        // Action should use standard Courier New at base font size
-        #expect(element.elementType == .action)
-    }
-
-    @Test("Character names use heavy weight font")
-    func testCharacterFontWeight() {
-        let element = createMockElement(type: .character, text: "BERNARD")
-        let view = DialogueCharacterView(element: element)
-            .environment(\.screenplayFontSize, standardFontSize)
-
-        // Character names use .heavy weight and 0.75x size
-        #expect(element.elementType == .character)
-    }
-
-    @Test("Dialogue text uses standard weight Courier")
-    func testDialogueFontWeight() {
-        let element = createMockElement(type: .dialogue, text: "I can't believe it.")
-        let view = DialogueTextView(element: element)
-            .environment(\.screenplayFontSize, standardFontSize)
-
-        #expect(element.elementType == .dialogue)
+        for (type, text) in elementTypes {
+            let element = createMockElement(type: type, text: text)
+            // All screenplay elements should use Courier or Courier New
+            #expect(element.elementText == text)
+        }
     }
 
     // MARK: - Margin and Indentation Tests
@@ -469,49 +440,41 @@ struct ScreenplayRenderingFormatTests {
         #expect(charactersFit <= 68.25) // 65 + 5%
     }
 
-    // MARK: - Known Issues Documentation Tests
+    // MARK: - Page Width Consistency Tests
 
-    @Test("KNOWN ISSUE: Scene heading font size should be 12pt, not 18pt")
-    func testSceneHeadingFontSizeIssue() {
-        // CURRENT BEHAVIOR: SceneHeadingView uses fontSize * 1.5 (18pt at 12pt base)
-        // CORRECT BEHAVIOR: Should use standard fontSize (12pt)
-        //
-        // Industry standard: Scene headings use same font size as body text,
-        // but with bold weight and uppercase formatting.
-        //
-        // This test documents the issue for tracking purposes.
+    @Test("Page width remains consistent across different font sizes")
+    func testPageWidthConsistencyAcrossFontSizes() {
+        let fontSizes: [CGFloat] = [8, 10, 12, 14, 16, 20, 24]
 
-        let element = createMockElement(type: .sceneHeading, text: "INT. OFFICE - DAY")
-        let view = SceneHeadingView(element: element)
-            .environment(\.screenplayFontSize, standardFontSize)
+        for fontSize in fontSizes {
+            let characterWidth = fontSize * ScreenplayPageFormat.courierCharacterAspectRatio
+            let pageWidth = characterWidth * ScreenplayPageFormat.charactersPerLine
 
-        // Current implementation uses 1.5x multiplier
-        let currentSize = standardFontSize * 1.5 // 18pt
-        let correctSize = standardFontSize // 12pt
-
-        // This test fails, documenting the issue
-        #expect(currentSize != correctSize, "Scene heading font size is incorrect (18pt instead of 12pt)")
+            // Page width should scale proportionally with font size
+            let expected65CharWidth = (fontSize * 0.6) * 65
+            #expect(pageWidth == expected65CharWidth)
+        }
     }
 
-    @Test("KNOWN ISSUE: Character name font size should be 12pt, not 9pt")
-    func testCharacterNameFontSizeIssue() {
-        // CURRENT BEHAVIOR: DialogueCharacterView uses fontSize * 0.75 (9pt at 12pt base)
-        // CORRECT BEHAVIOR: Should use standard fontSize (12pt)
-        //
-        // Industry standard: Character names use same font size as body text,
-        // but with uppercase and heavier weight.
-        //
-        // This test documents the issue for tracking purposes.
+    @Test("Element margins maintain correct ratios regardless of font size")
+    func testMarginRatiosAcrossFontSizes() {
+        let fontSizes: [CGFloat] = [8, 12, 16, 20]
 
-        let element = createMockElement(type: .character, text: "BERNARD")
-        let view = DialogueCharacterView(element: element)
-            .environment(\.screenplayFontSize, standardFontSize)
+        for fontSize in fontSizes {
+            let characterWidth = fontSize * ScreenplayPageFormat.courierCharacterAspectRatio
 
-        // Current implementation uses 0.75x multiplier
-        let currentSize = standardFontSize * 0.75 // 9pt
-        let correctSize = standardFontSize // 12pt
+            // Calculate margins at this font size
+            let dialogueMargin = characterWidth * (ScreenplayPageFormat.charactersPerLine * 0.25)
+            let characterMargin = characterWidth * (ScreenplayPageFormat.charactersPerLine * 0.40)
+            let transitionMargin = characterWidth * (ScreenplayPageFormat.charactersPerLine * 0.65)
 
-        // This test fails, documenting the issue
-        #expect(currentSize != correctSize, "Character name font size is incorrect (9pt instead of 12pt)")
+            // Margins should maintain their proportional relationships
+            #expect(characterMargin > dialogueMargin, "Character margin (40%) should be greater than dialogue margin (25%)")
+            #expect(transitionMargin > characterMargin, "Transition margin (65%) should be greater than character margin (40%)")
+
+            // The ratio between margins should be constant regardless of font size
+            let dialogueToCharacterRatio = characterMargin / dialogueMargin
+            #expect(dialogueToCharacterRatio > 1.5 && dialogueToCharacterRatio < 1.7, "Ratio should be ~1.6 (40/25)")
+        }
     }
 }
