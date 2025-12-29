@@ -8,6 +8,28 @@
 
 /* Begin PBXBuildFile section */
 		D62CD6752F01BD4C00DF74C7 /* SwiftCompartido in Frameworks */ = {isa = PBXBuildFile; productRef = D62CD6742F01BD4C00DF74C7 /* SwiftCompartido */; };
+		D62CD6AA2F01EB5900DF74C7 /* Heathers_1x01_-_Pilot.pdf in Resources */ = {isa = PBXBuildFile; fileRef = D62CD6942F01EB5800DF74C7 /* Heathers_1x01_-_Pilot.pdf */; };
+		D62CD6AB2F01EB5900DF74C7 /* yntswyd.fountain in Resources */ = {isa = PBXBuildFile; fileRef = D62CD6952F01EB5800DF74C7 /* yntswyd.fountain */; };
+		D62CD6AC2F01EB5900DF74C7 /* a fool in the desert.highland in Resources */ = {isa = PBXBuildFile; fileRef = D62CD6962F01EB5900DF74C7 /* a fool in the desert.highland */; };
+		D62CD6AD2F01EB5900DF74C7 /* mr-mr-charles.fountain in Resources */ = {isa = PBXBuildFile; fileRef = D62CD6972F01EB5900DF74C7 /* mr-mr-charles.fountain */; };
+		D62CD6AE2F01EB5900DF74C7 /* BULLITT.pdf in Resources */ = {isa = PBXBuildFile; fileRef = D62CD6982F01EB5900DF74C7 /* BULLITT.pdf */; };
+		D62CD6AF2F01EB5900DF74C7 /* bigfish.highland in Resources */ = {isa = PBXBuildFile; fileRef = D62CD6992F01EB5900DF74C7 /* bigfish.highland */; };
+		D62CD6B02F01EB5900DF74C7 /* Eternal Sunshine of the Spotless Mind.pdf in Resources */ = {isa = PBXBuildFile; fileRef = D62CD69A2F01EB5900DF74C7 /* Eternal Sunshine of the Spotless Mind.pdf */; };
+		D62CD6B12F01EB5900DF74C7 /* You're Nobody til Somebody Wants You Dead.highland in Resources */ = {isa = PBXBuildFile; fileRef = D62CD69B2F01EB5900DF74C7 /* You're Nobody til Somebody Wants You Dead.highland */; };
+		D62CD6B22F01EB5900DF74C7 /* The Tempest.highland in Resources */ = {isa = PBXBuildFile; fileRef = D62CD69C2F01EB5900DF74C7 /* The Tempest.highland */; };
+		D62CD6B32F01EB5900DF74C7 /* ATTACK-THE-BLOCK.pdf in Resources */ = {isa = PBXBuildFile; fileRef = D62CD69D2F01EB5900DF74C7 /* ATTACK-THE-BLOCK.pdf */; };
+		D62CD6B42F01EB5900DF74C7 /* chapter 4.highland in Resources */ = {isa = PBXBuildFile; fileRef = D62CD69E2F01EB5900DF74C7 /* chapter 4.highland */; };
+		D62CD6B52F01EB5900DF74C7 /* You're Nobody til Somebody Wants You Dead.fountain in Resources */ = {isa = PBXBuildFile; fileRef = D62CD69F2F01EB5900DF74C7 /* You're Nobody til Somebody Wants You Dead.fountain */; };
+		D62CD6B62F01EB5900DF74C7 /* bigfish.fdx in Resources */ = {isa = PBXBuildFile; fileRef = D62CD6A02F01EB5900DF74C7 /* bigfish.fdx */; };
+		D62CD6B72F01EB5900DF74C7 /* bigfish.fountain in Resources */ = {isa = PBXBuildFile; fileRef = D62CD6A12F01EB5900DF74C7 /* bigfish.fountain */; };
+		D62CD6B82F01EB5900DF74C7 /* red chief is gone.highland in Resources */ = {isa = PBXBuildFile; fileRef = D62CD6A22F01EB5900DF74C7 /* red chief is gone.highland */; };
+		D62CD6B92F01EB5900DF74C7 /* ride the pink horse - MAY2025.highland in Resources */ = {isa = PBXBuildFile; fileRef = D62CD6A32F01EB5900DF74C7 /* ride the pink horse - MAY2025.highland */; };
+		D62CD6BA2F01EB5900DF74C7 /* Anatomy-Of-A-Fall-Read-The-Screenplay.pdf in Resources */ = {isa = PBXBuildFile; fileRef = D62CD6A42F01EB5900DF74C7 /* Anatomy-Of-A-Fall-Read-The-Screenplay.pdf */; };
+		D62CD6BB2F01EB5900DF74C7 /* dao-de-ching.highland in Resources */ = {isa = PBXBuildFile; fileRef = D62CD6A52F01EB5900DF74C7 /* dao-de-ching.highland */; };
+		D62CD6BC2F01EB5900DF74C7 /* The Banshees of Inisherin.pdf in Resources */ = {isa = PBXBuildFile; fileRef = D62CD6A62F01EB5900DF74C7 /* The Banshees of Inisherin.pdf */; };
+		D62CD6BD2F01EB5900DF74C7 /* Legion_1x01_-_Chapter_One.pdf in Resources */ = {isa = PBXBuildFile; fileRef = D62CD6A72F01EB5900DF74C7 /* Legion_1x01_-_Chapter_One.pdf */; };
+		D62CD6BE2F01EB5900DF74C7 /* The_Terror_1x01_-_Go_For_Broke.pdf in Resources */ = {isa = PBXBuildFile; fileRef = D62CD6A82F01EB5900DF74C7 /* The_Terror_1x01_-_Go_For_Broke.pdf */; };
+		D62CD6BF2F01EB5900DF74C7 /* test.fountain in Resources */ = {isa = PBXBuildFile; fileRef = D62CD6A92F01EB5900DF74C7 /* test.fountain */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -31,6 +53,28 @@
 		D62CD6352F019D0600DF74C7 /* GuionViewer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GuionViewer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D62CD6452F019D0700DF74C7 /* GuionViewerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = GuionViewerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		D62CD64F2F019D0700DF74C7 /* GuionViewerUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = GuionViewerUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		D62CD6942F01EB5800DF74C7 /* Heathers_1x01_-_Pilot.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; name = "Heathers_1x01_-_Pilot.pdf"; path = "../../Fixtures/Heathers_1x01_-_Pilot.pdf"; sourceTree = "<group>"; };
+		D62CD6952F01EB5800DF74C7 /* yntswyd.fountain */ = {isa = PBXFileReference; lastKnownFileType = text; name = yntswyd.fountain; path = ../../Fixtures/yntswyd.fountain; sourceTree = "<group>"; };
+		D62CD6962F01EB5900DF74C7 /* a fool in the desert.highland */ = {isa = PBXFileReference; lastKnownFileType = file; name = "a fool in the desert.highland"; path = "../../Fixtures/a fool in the desert.highland"; sourceTree = "<group>"; };
+		D62CD6972F01EB5900DF74C7 /* mr-mr-charles.fountain */ = {isa = PBXFileReference; lastKnownFileType = text; name = "mr-mr-charles.fountain"; path = "../../Fixtures/mr-mr-charles.fountain"; sourceTree = "<group>"; };
+		D62CD6982F01EB5900DF74C7 /* BULLITT.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; name = BULLITT.pdf; path = ../../Fixtures/BULLITT.pdf; sourceTree = "<group>"; };
+		D62CD6992F01EB5900DF74C7 /* bigfish.highland */ = {isa = PBXFileReference; lastKnownFileType = text; name = bigfish.highland; path = ../../Fixtures/bigfish.highland; sourceTree = "<group>"; };
+		D62CD69A2F01EB5900DF74C7 /* Eternal Sunshine of the Spotless Mind.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; name = "Eternal Sunshine of the Spotless Mind.pdf"; path = "../../Fixtures/Eternal Sunshine of the Spotless Mind.pdf"; sourceTree = "<group>"; };
+		D62CD69B2F01EB5900DF74C7 /* You're Nobody til Somebody Wants You Dead.highland */ = {isa = PBXFileReference; lastKnownFileType = text; name = "You're Nobody til Somebody Wants You Dead.highland"; path = "../../Fixtures/You're Nobody til Somebody Wants You Dead.highland"; sourceTree = "<group>"; };
+		D62CD69C2F01EB5900DF74C7 /* The Tempest.highland */ = {isa = PBXFileReference; lastKnownFileType = text; name = "The Tempest.highland"; path = "../../Fixtures/The Tempest.highland"; sourceTree = "<group>"; };
+		D62CD69D2F01EB5900DF74C7 /* ATTACK-THE-BLOCK.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; name = "ATTACK-THE-BLOCK.pdf"; path = "../../Fixtures/ATTACK-THE-BLOCK.pdf"; sourceTree = "<group>"; };
+		D62CD69E2F01EB5900DF74C7 /* chapter 4.highland */ = {isa = PBXFileReference; lastKnownFileType = file; name = "chapter 4.highland"; path = "../../Fixtures/chapter 4.highland"; sourceTree = "<group>"; };
+		D62CD69F2F01EB5900DF74C7 /* You're Nobody til Somebody Wants You Dead.fountain */ = {isa = PBXFileReference; lastKnownFileType = text; name = "You're Nobody til Somebody Wants You Dead.fountain"; path = "../../Fixtures/You're Nobody til Somebody Wants You Dead.fountain"; sourceTree = "<group>"; };
+		D62CD6A02F01EB5900DF74C7 /* bigfish.fdx */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = bigfish.fdx; path = ../../Fixtures/bigfish.fdx; sourceTree = "<group>"; };
+		D62CD6A12F01EB5900DF74C7 /* bigfish.fountain */ = {isa = PBXFileReference; lastKnownFileType = text; name = bigfish.fountain; path = ../../Fixtures/bigfish.fountain; sourceTree = "<group>"; };
+		D62CD6A22F01EB5900DF74C7 /* red chief is gone.highland */ = {isa = PBXFileReference; lastKnownFileType = file; name = "red chief is gone.highland"; path = "../../Fixtures/red chief is gone.highland"; sourceTree = "<group>"; };
+		D62CD6A32F01EB5900DF74C7 /* ride the pink horse - MAY2025.highland */ = {isa = PBXFileReference; lastKnownFileType = text; name = "ride the pink horse - MAY2025.highland"; path = "../../Fixtures/ride the pink horse - MAY2025.highland"; sourceTree = "<group>"; };
+		D62CD6A42F01EB5900DF74C7 /* Anatomy-Of-A-Fall-Read-The-Screenplay.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; name = "Anatomy-Of-A-Fall-Read-The-Screenplay.pdf"; path = "../../Fixtures/Anatomy-Of-A-Fall-Read-The-Screenplay.pdf"; sourceTree = "<group>"; };
+		D62CD6A52F01EB5900DF74C7 /* dao-de-ching.highland */ = {isa = PBXFileReference; lastKnownFileType = file; name = "dao-de-ching.highland"; path = "../../Fixtures/dao-de-ching.highland"; sourceTree = "<group>"; };
+		D62CD6A62F01EB5900DF74C7 /* The Banshees of Inisherin.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; name = "The Banshees of Inisherin.pdf"; path = "../../Fixtures/The Banshees of Inisherin.pdf"; sourceTree = "<group>"; };
+		D62CD6A72F01EB5900DF74C7 /* Legion_1x01_-_Chapter_One.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; name = "Legion_1x01_-_Chapter_One.pdf"; path = "../../Fixtures/Legion_1x01_-_Chapter_One.pdf"; sourceTree = "<group>"; };
+		D62CD6A82F01EB5900DF74C7 /* The_Terror_1x01_-_Go_For_Broke.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; name = "The_Terror_1x01_-_Go_For_Broke.pdf"; path = "../../Fixtures/The_Terror_1x01_-_Go_For_Broke.pdf"; sourceTree = "<group>"; };
+		D62CD6A92F01EB5900DF74C7 /* test.fountain */ = {isa = PBXFileReference; lastKnownFileType = text; name = test.fountain; path = ../../Fixtures/test.fountain; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -93,6 +137,7 @@
 		D62CD62C2F019D0600DF74C7 = {
 			isa = PBXGroup;
 			children = (
+				D62CD6C02F01EB9300DF74C7 /* Fixtures */,
 				D62CD6372F019D0600DF74C7 /* GuionViewer */,
 				D62CD6482F019D0700DF74C7 /* GuionViewerTests */,
 				D62CD6522F019D0700DF74C7 /* GuionViewerUITests */,
@@ -108,6 +153,35 @@
 				D62CD64F2F019D0700DF74C7 /* GuionViewerUITests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		D62CD6C02F01EB9300DF74C7 /* Fixtures */ = {
+			isa = PBXGroup;
+			children = (
+				D62CD6962F01EB5900DF74C7 /* a fool in the desert.highland */,
+				D62CD6A42F01EB5900DF74C7 /* Anatomy-Of-A-Fall-Read-The-Screenplay.pdf */,
+				D62CD69D2F01EB5900DF74C7 /* ATTACK-THE-BLOCK.pdf */,
+				D62CD6A02F01EB5900DF74C7 /* bigfish.fdx */,
+				D62CD6A12F01EB5900DF74C7 /* bigfish.fountain */,
+				D62CD6992F01EB5900DF74C7 /* bigfish.highland */,
+				D62CD6982F01EB5900DF74C7 /* BULLITT.pdf */,
+				D62CD69E2F01EB5900DF74C7 /* chapter 4.highland */,
+				D62CD6A52F01EB5900DF74C7 /* dao-de-ching.highland */,
+				D62CD69A2F01EB5900DF74C7 /* Eternal Sunshine of the Spotless Mind.pdf */,
+				D62CD6942F01EB5800DF74C7 /* Heathers_1x01_-_Pilot.pdf */,
+				D62CD6A72F01EB5900DF74C7 /* Legion_1x01_-_Chapter_One.pdf */,
+				D62CD6972F01EB5900DF74C7 /* mr-mr-charles.fountain */,
+				D62CD6A22F01EB5900DF74C7 /* red chief is gone.highland */,
+				D62CD6A32F01EB5900DF74C7 /* ride the pink horse - MAY2025.highland */,
+				D62CD6A92F01EB5900DF74C7 /* test.fountain */,
+				D62CD6A62F01EB5900DF74C7 /* The Banshees of Inisherin.pdf */,
+				D62CD69C2F01EB5900DF74C7 /* The Tempest.highland */,
+				D62CD6A82F01EB5900DF74C7 /* The_Terror_1x01_-_Go_For_Broke.pdf */,
+				D62CD6952F01EB5800DF74C7 /* yntswyd.fountain */,
+				D62CD69F2F01EB5900DF74C7 /* You're Nobody til Somebody Wants You Dead.fountain */,
+				D62CD69B2F01EB5900DF74C7 /* You're Nobody til Somebody Wants You Dead.highland */,
+			);
+			path = Fixtures;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -235,6 +309,28 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D62CD6AA2F01EB5900DF74C7 /* Heathers_1x01_-_Pilot.pdf in Resources */,
+				D62CD6AB2F01EB5900DF74C7 /* yntswyd.fountain in Resources */,
+				D62CD6AC2F01EB5900DF74C7 /* a fool in the desert.highland in Resources */,
+				D62CD6AD2F01EB5900DF74C7 /* mr-mr-charles.fountain in Resources */,
+				D62CD6AE2F01EB5900DF74C7 /* BULLITT.pdf in Resources */,
+				D62CD6AF2F01EB5900DF74C7 /* bigfish.highland in Resources */,
+				D62CD6B02F01EB5900DF74C7 /* Eternal Sunshine of the Spotless Mind.pdf in Resources */,
+				D62CD6B12F01EB5900DF74C7 /* You're Nobody til Somebody Wants You Dead.highland in Resources */,
+				D62CD6B22F01EB5900DF74C7 /* The Tempest.highland in Resources */,
+				D62CD6B32F01EB5900DF74C7 /* ATTACK-THE-BLOCK.pdf in Resources */,
+				D62CD6B42F01EB5900DF74C7 /* chapter 4.highland in Resources */,
+				D62CD6B52F01EB5900DF74C7 /* You're Nobody til Somebody Wants You Dead.fountain in Resources */,
+				D62CD6B62F01EB5900DF74C7 /* bigfish.fdx in Resources */,
+				D62CD6B72F01EB5900DF74C7 /* bigfish.fountain in Resources */,
+				D62CD6B82F01EB5900DF74C7 /* red chief is gone.highland in Resources */,
+				D62CD6B92F01EB5900DF74C7 /* ride the pink horse - MAY2025.highland in Resources */,
+				D62CD6BA2F01EB5900DF74C7 /* Anatomy-Of-A-Fall-Read-The-Screenplay.pdf in Resources */,
+				D62CD6BB2F01EB5900DF74C7 /* dao-de-ching.highland in Resources */,
+				D62CD6BC2F01EB5900DF74C7 /* The Banshees of Inisherin.pdf in Resources */,
+				D62CD6BD2F01EB5900DF74C7 /* Legion_1x01_-_Chapter_One.pdf in Resources */,
+				D62CD6BE2F01EB5900DF74C7 /* The_Terror_1x01_-_Go_For_Broke.pdf in Resources */,
+				D62CD6BF2F01EB5900DF74C7 /* test.fountain in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -329,13 +425,14 @@
 				REGISTER_APP_GROUPS = YES;
 				SDKROOT = auto;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2,7";
+				TARGETED_DEVICE_FAMILY = "1,2";
 				XROS_DEPLOYMENT_TARGET = 26.2;
 			};
 			name = Debug;
@@ -377,13 +474,14 @@
 				REGISTER_APP_GROUPS = YES;
 				SDKROOT = auto;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2,7";
+				TARGETED_DEVICE_FAMILY = "1,2";
 				XROS_DEPLOYMENT_TARGET = 26.2;
 			};
 			name = Release;

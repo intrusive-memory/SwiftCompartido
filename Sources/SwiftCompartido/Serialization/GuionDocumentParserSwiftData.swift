@@ -23,7 +23,7 @@ public class GuionDocumentParserSwiftData {
     ///   - modelContext: The ModelContext to use
     ///   - generateSummaries: Whether to generate AI summaries for scene headings (default: false)
     /// - Returns: The created GuionDocumentModel
-    nonisolated public static func parse(script: GuionParsedElementCollection, in modelContext: ModelContext, generateSummaries: Bool = false) async -> GuionDocumentModel {
+    @MainActor public static func parse(script: GuionParsedElementCollection, in modelContext: ModelContext, generateSummaries: Bool = false) async -> GuionDocumentModel {
         return await parse(script: script, in: modelContext, generateSummaries: generateSummaries, progress: nil)
     }
 
@@ -54,7 +54,7 @@ public class GuionDocumentParserSwiftData {
     ///     progress: progress
     /// )
     /// ```
-    nonisolated public static func parse(
+    @MainActor public static func parse(
         script: GuionParsedElementCollection,
         in modelContext: ModelContext,
         generateSummaries: Bool = false,
@@ -71,7 +71,7 @@ public class GuionDocumentParserSwiftData {
     ///   - generateSummaries: Whether to generate AI summaries for scene headings (default: false)
     /// - Returns: The created GuionDocumentModel
     /// - Throws: Parsing errors
-    nonisolated public static func loadAndParse(from url: URL, in modelContext: ModelContext, generateSummaries: Bool = false) async throws -> GuionDocumentModel {
+    @MainActor public static func loadAndParse(from url: URL, in modelContext: ModelContext, generateSummaries: Bool = false) async throws -> GuionDocumentModel {
         return try await loadAndParse(from: url, in: modelContext, generateSummaries: generateSummaries, progress: nil)
     }
 
@@ -83,7 +83,7 @@ public class GuionDocumentParserSwiftData {
     ///   - progress: Optional progress tracker for monitoring load and conversion progress
     /// - Returns: The created GuionDocumentModel
     /// - Throws: Parsing errors
-    nonisolated public static func loadAndParse(
+    @MainActor public static func loadAndParse(
         from url: URL,
         in modelContext: ModelContext,
         generateSummaries: Bool = false,

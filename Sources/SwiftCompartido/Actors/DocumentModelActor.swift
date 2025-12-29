@@ -59,10 +59,12 @@ public actor DocumentModelActor {
         // Parse the screenplay
         let screenplay = try await GuionParsedElementCollection(file: url.path, progress: progress)
 
-        // Convert to SwiftData model
-        let document = await GuionDocumentParserSwiftData.parse(
-            script: screenplay,
-            in: modelContext
+        // Convert to SwiftData model (use GuionDocumentModel.from directly to avoid actor isolation issues)
+        let document = await GuionDocumentModel.from(
+            screenplay,
+            in: modelContext,
+            generateSummaries: false,
+            progress: progress
         )
 
         // Insert and save
@@ -86,10 +88,12 @@ public actor DocumentModelActor {
         // Parse the screenplay
         let screenplay = try await GuionParsedElementCollection(string: string, progress: progress)
 
-        // Convert to SwiftData model
-        let document = await GuionDocumentParserSwiftData.parse(
-            script: screenplay,
-            in: modelContext
+        // Convert to SwiftData model (use GuionDocumentModel.from directly to avoid actor isolation issues)
+        let document = await GuionDocumentModel.from(
+            screenplay,
+            in: modelContext,
+            generateSummaries: false,
+            progress: progress
         )
 
         // Set title if provided
