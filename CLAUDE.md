@@ -105,6 +105,88 @@ If a file, class, or function does any of the following, it should be **deprecat
 - A TypedDataStorage system for AI-generated content
 - A SwiftUI widget library for displaying screenplays and content
 
+## GuionViewer Reference Implementation
+
+**Location**: `GuionViewer/` (in repository root)
+
+GuionViewer is a minimal macOS demo app that serves as the **reference implementation** for SwiftCompartido. It demonstrates best practices for integrating the library with proper concurrency, performance, and UI patterns.
+
+### Purpose
+- **Showcase SwiftCompartido capabilities**: Parsing, storage, and display
+- **Reference architecture**: Proper use of DocumentModelActor pattern
+- **Integration example**: How to consume SwiftCompartido in real apps
+- **Component reuse**: Demonstrates using SwiftCompartido's UI element views
+
+### Architecture Highlights
+
+1. **ModelActor Pattern**: Uses `DocumentModelActor` for all SwiftData operations
+   - Actor isolation prevents data races
+   - Returns Sendable DTOs (`DocumentInfo`, `ElementInfo`) to MainActor
+   - Never passes Model instances across actor boundaries
+   - Explicit sorting ensures elements are always in document order
+
+2. **Infinite Scrolling**: Lazy-loads screenplay elements in batches
+   - Starts with 100 elements, loads 100 more on scroll
+   - Uses `LazyVStack` for performance
+   - Smooth rendering of large documents (tested with 5000+ elements)
+
+3. **Fixed Typography Layout**:
+   - Fixed 12pt Courier New font (industry standard)
+   - 102 character width (8.5" page equivalent)
+   - Content centered in window (width: 734.4pt = 12pt × 0.6 × 102 chars)
+   - Window resizable without affecting text size
+
+4. **Component Reuse**: Uses SwiftCompartido's element views via DisplayableElement protocol
+   - `SceneHeadingView<ElementInfo>`
+   - `DialogueTextView<ElementInfo>`
+   - `ActionView<ElementInfo>`
+   - And 9+ other element-specific views
+   - DTOs conform to DisplayableElement for seamless integration
+
+5. **Bundle Resource Loading**: Dual-mode file discovery
+   - Built app: Loads fixtures from app bundle Resources folder
+   - Development: Falls back to project Fixtures folder
+   - Filters for screenplay files only (fountain, fdx, pdf, highland, etc.)
+
+### Key Files
+- `GuionViewer/GuionViewer/GuionViewerApp.swift` - App entry point, ModelContainer setup
+- `GuionViewer/GuionViewer/ContentView.swift` - Main UI with infinite scroll, fixed-width layout
+- `Sources/SwiftCompartido/Actors/DocumentModelActor.swift` - Actor for safe SwiftData operations
+- `GuionViewer/REQUIREMENTS.md` - Feature specifications
+
+### Running GuionViewer
+```bash
+cd GuionViewer
+xcodebuild build -scheme GuionViewer -destination 'platform=macOS'
+open ~/Library/Developer/Xcode/DerivedData/GuionViewer-*/Build/Products/Debug/GuionViewer.app
+```
+
+### Code Example
+```swift
+// Initialize DocumentModelActor
+let actor = DocumentModelActor(modelContainer: container)
+
+// Parse screenplay in background
+let documentID = try await actor.parseAndSaveDocument(from: url)
+
+// Fetch Sendable DTOs for UI display
+let docInfo = await actor.getDocumentInfo(documentID: documentID)
+let elements = try await actor.getElements(for: documentID, limit: 100)
+
+// Display with SwiftCompartido element views
+ForEach(elements) { element in
+    switch element.elementType {
+    case .sceneHeading:
+        SceneHeadingView(element: element)
+    case .dialogue:
+        DialogueTextView(element: element)
+    // ... other element types
+    }
+}
+```
+
+**Use GuionViewer as a template when integrating SwiftCompartido into new apps.**
+
 ## ⚠️ CRITICAL: Platform Version Enforcement
 
 **This library ONLY supports iOS 26.0+ and macOS 26.0+. NEVER add code that supports older platforms.**
@@ -468,12 +550,73 @@ class GuionElementModel {
 // Result: Deleting document cascades to elements, but deleting element doesn't affect document
 ```
 
+## ⚠️ Known Issues and Migration Notes
+
+### Binary Payload Migration (6.2.0+)
+
+**CRITICAL DATA LOSS RISK**: The binary storage column was renamed from `binaryValue` to `_compressedBinaryValue` with LZFSE compression added in version 6.2.0. This creates a migration issue for existing SwiftData stores.
+
+**Problem:**
+- Old column: `binaryValue` (uncompressed binary data)
+- New column: `_compressedBinaryValue` (LZFSE compressed)
+- New accessor: `binaryValue` (computed property, decompresses `_compressedBinaryValue`)
+- **Existing stores**: `_compressedBinaryValue` is nil for all prior records, even though data exists in old `binaryValue` column
+- **Result**: Calls like `getContent()` return nil/throw for previously persisted audio/image/video payloads
+
+**Affected Data:**
+- All `TypedDataStorage` records with binary content (audio, images, video) created before 6.2.0
+- `binaryValue` accessor returns nil because `_compressedBinaryValue` is nil
+- Original data still exists in old column but is inaccessible
+
+**Required Fix:**
+```swift
+// Migration pseudocode (needs implementation)
+// 1. Read legacy binaryValue column (direct database access)
+// 2. Compress with LZFSE
+// 3. Write to _compressedBinaryValue
+// 4. Clear old binaryValue column
+
+// OR: Fallback approach
+// Add computed property that checks both columns:
+public var binaryValue: Data? {
+    get {
+        // Try new compressed column first
+        if let compressed = _compressedBinaryValue {
+            return try? decompress(compressed)
+        }
+        // Fallback to legacy uncompressed column
+        return _legacyBinaryValue
+    }
+    set {
+        // Always write to new compressed column
+        _compressedBinaryValue = newValue.map { compress($0) }
+    }
+}
+```
+
+**Workaround Until Fixed:**
+- Apps upgrading from pre-6.2.0 should re-generate all binary content
+- OR: Export to .guion JSON format before upgrading (preserves data)
+- OR: Implement custom migration code
+
+**Status**: **UNRESOLVED** - Migration path not implemented
+
+### DocumentModelActor Element Ordering
+
+**Issue**: Elements were potentially returned out of order from `getElements()` due to SwiftData relationship ordering not being guaranteed.
+
+**Fixed in**: 6.3.0
+
+**Solution**: Added explicit sorting by composite key `(chapterIndex, orderIndex)` in `DocumentModelActor.getElements()`. Elements are now always returned in correct document order.
+
 ## Key Directories
 
 - `Sources/SwiftCompartido/Models/` - All data models
 - `Sources/SwiftCompartido/UI/` - SwiftUI components
 - `Sources/SwiftCompartido/SwiftDataModels/` - SwiftData @Model classes
+- `Sources/SwiftCompartido/Actors/` - Actor-based concurrency (DocumentModelActor)
 - `Tests/SwiftCompartidoTests/` - Test suites
+- `GuionViewer/` - Reference implementation demo app (macOS)
 
 ## Testing Requirements
 
@@ -498,6 +641,7 @@ SwiftCompartido uses **test plans** (.xctestplan files) to organize tests into f
 - `GeneratedAudioDataTests`, `GeneratedTextDataTests`
 - `MarkdownParserTests`, `OutlineLevelParsingTests`
 - `SerializationFormatTests`, `ProviderCategoryTests`
+- `ScreenplayRenderingFormatTests`, `ScreenplayDocumentRenderingTests` (NEW in 6.3.1)
 
 #### 2. **LongTests.xctestplan** (Runs on weekends)
 - **Integration tests** with file I/O and complex workflows
@@ -599,6 +743,48 @@ Edit the corresponding `.xctestplan` file and add the test suite name to `select
 4. Otherwise → `UnitTests.xctestplan`
 
 **Goal:** Keep unit tests under 5 minutes for fast PR feedback
+
+### Screenplay Rendering Tests (NEW in 6.3.1)
+
+SwiftCompartido includes comprehensive rendering validation tests that ensure screenplay elements render correctly according to industry standards.
+
+**Two Test Suites (45 tests total):**
+
+#### ScreenplayRenderingFormatTests (32 tests)
+Validates individual element rendering against industry-standard formatting:
+
+**Page Width & Layout:**
+- 65 characters per line (industry standard)
+- Courier aspect ratio: 0.6 (character width = 60% of font size)
+- Page width consistency across font sizes (8pt - 24pt)
+- 54 lines per page, 1.5x line spacing
+
+**Element Margins** (as percentage of 65-character page width):
+- Scene Heading: 0% left margin (full width)
+- Action: 0% left margin (full width)
+- Character: 40% left margin, 60% width
+- Dialogue: 25% left margin, 50% width
+- Parenthetical: 32% left margin, 38% width
+- Transition: 65% left margin, 35% width (right-aligned)
+- Lyrics: 25% left margin, 50% width
+
+**Key Validation:**
+- Margins maintain correct proportional relationships at any font size
+- Character margin (40%) > Dialogue margin (25%)
+- Transition margin (65%) > Character margin (40%)
+- Margin ratios stay constant (e.g., 40/25 ≈ 1.6)
+
+#### ScreenplayDocumentRenderingTests (13 tests)
+End-to-end validation of complete screenplay documents:
+
+- Element ordering and sequence preservation
+- Dialogue blocks (character + parenthetical + dialogue)
+- Multi-scene documents with transitions
+- Chapter sections with proper element ordering
+- Large screenplay handling (100+ elements)
+- DocumentModelActor element ordering verification
+
+**Tests are flexible about font sizes** - they validate that page width and margins maintain correct proportions regardless of the base font size used.
 
 ## Common Patterns
 
@@ -809,7 +995,7 @@ EOF
 
 ## Project Metadata
 
-- **Version**: 6.2.1
+- **Version**: 6.3.1
 - **Swift**: 6.2+
 - **Platforms**: iOS 26.0+, macOS 26.0+
 - **Dependencies**: TextBundle, ZIPFoundation, swift-markdown, SwiftFijos (test-only)

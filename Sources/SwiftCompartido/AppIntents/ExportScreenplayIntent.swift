@@ -7,7 +7,7 @@
 
 import AppIntents
 import Foundation
-import SwiftData
+@preconcurrency import SwiftData
 import UniformTypeIdentifiers
 
 /// Export a screenplay document to Fountain, FDX, or .guion JSON format.

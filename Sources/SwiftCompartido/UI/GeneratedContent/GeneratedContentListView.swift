@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-import SwiftData
+@preconcurrency import SwiftData
 
 /// MIME type filter options
 public enum ContentTypeFilter: String, CaseIterable, Identifiable {

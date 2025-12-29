@@ -7,7 +7,7 @@
 
 import AppIntents
 import Foundation
-import SwiftData
+@preconcurrency import SwiftData
 
 // MARK: - Get Voice Casting Intent
 

@@ -7,7 +7,7 @@
 //
 
 import SwiftUI
-import SwiftData
+@preconcurrency import SwiftData
 
 /// Read-only text view for screenplay documents
 ///

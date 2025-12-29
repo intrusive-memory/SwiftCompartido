@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import SwiftData
+@preconcurrency import SwiftData
 
 /// SwiftData model representing a single screenplay element.
 ///
@@ -263,8 +263,29 @@ public final class GuionElementModel: GuionElementProtocol {
     ///
     /// - SeeAlso: ``FountainTextFormatter``
     /// - Since: 5.4.0
-    @Attribute(.transformable(by: "NSSecureUnarchiveFromDataTransformer"))
-    public var formattedText: AttributedString?
+    ///
+    /// ## Storage Implementation
+    ///
+    /// Stored as binary Data using AttributedString's built-in encoding.
+    /// This avoids the __SwiftValue serialization issue with NSSecureUnarchiveFromDataTransformer.
+    private var formattedTextData: Data?
+
+    /// Computed property for accessing the formatted text
+    public var formattedText: AttributedString? {
+        get {
+            guard let data = formattedTextData else { return nil }
+            let decoder = PropertyListDecoder()
+            return try? decoder.decode(AttributedString.self, from: data)
+        }
+        set {
+            guard let value = newValue else {
+                formattedTextData = nil
+                return
+            }
+            let encoder = PropertyListEncoder()
+            formattedTextData = try? encoder.encode(value)
+        }
+    }
 
     public init(elementText: String, elementType: ElementType, isCentered: Bool = false, isDualDialogue: Bool = false, sceneNumber: String? = nil, sectionDepth: Int = 0, summary: String? = nil, sceneId: String? = nil, chapterIndex: Int = 0, orderIndex: Int = 0, uuid: UUID = UUID()) {
         self.uuid = uuid

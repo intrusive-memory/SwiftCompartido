@@ -7,7 +7,7 @@
 
 import AppIntents
 import Foundation
-import SwiftData
+@preconcurrency import SwiftData
 
 /// Parse a screenplay file and return structured element references.
 ///

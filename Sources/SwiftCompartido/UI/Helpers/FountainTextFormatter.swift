@@ -29,7 +29,7 @@ public struct FountainTextFormatter {
     ///
     /// Previous: 3 regex passes (bold, italic, underline)
     /// Current: 1 combined regex pass with alternation
-    public static func format(_ text: String, baseFont: Font) -> AttributedString {
+    nonisolated public static func format(_ text: String, baseFont: Font) -> AttributedString {
         var result = AttributedString(text)
 
         // Combined pattern: matches bold (**text**), italic (*text*), or underline (_text_)

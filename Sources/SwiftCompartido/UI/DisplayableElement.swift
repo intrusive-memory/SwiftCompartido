@@ -7,7 +7,7 @@
 //
 
 import Foundation
-import SwiftData
+@preconcurrency import SwiftData
 
 /// Protocol for types that can be displayed as screenplay elements
 ///

@@ -7,7 +7,7 @@
 
 import AppIntents
 import Foundation
-import SwiftData
+@preconcurrency import SwiftData
 
 /// Extract the list of characters from a screenplay document.
 ///

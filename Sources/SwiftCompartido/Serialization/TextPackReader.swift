@@ -8,7 +8,7 @@
 
 import Foundation
 #if canImport(SwiftData)
-import SwiftData
+@preconcurrency import SwiftData
 #endif
 
 /// Reader for loading .guion TextPack bundles

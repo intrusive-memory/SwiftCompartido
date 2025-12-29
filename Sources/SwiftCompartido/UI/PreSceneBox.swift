@@ -8,7 +8,7 @@
 //
 
 import SwiftUI
-import SwiftData
+@preconcurrency import SwiftData
 
 /// A collapsible box displaying pre-scene content (OVER BLACK) with an expandable disclosure
 public struct PreSceneBox: View {

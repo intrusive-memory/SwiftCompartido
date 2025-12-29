@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import SwiftData
+@preconcurrency import SwiftData
 import CryptoKit
 
 /// Reference to typed data stored as a file in a `.guion` bundle.
