@@ -4,7 +4,7 @@
     <img src="https://img.shields.io/badge/Swift-6.2+-orange.svg" />
     <img src="https://img.shields.io/badge/Platform-iOS%2026.0+%20|%20macOS%2026.0+-lightgrey.svg" />
     <img src="https://img.shields.io/badge/License-MIT-blue.svg" />
-    <img src="https://img.shields.io/badge/Version-6.3.0-blue.svg" />
+    <img src="https://img.shields.io/badge/Version-6.3.1-blue.svg" />
 </p>
 
 **SwiftCompartido** is a Swift package for parsing, storing, and displaying screenplays and AI-generated content. Built with SwiftData and SwiftUI.
@@ -29,20 +29,24 @@ SwiftCompartido has **two core missions**:
 
 **Everything else** in this library should support these two goals. Features unrelated to parsing/storage or UI display should be deprecated or moved to separate libraries.
 
-## ⚡ What's New in 6.3.0
+## ⚡ What's New in 6.3.1
 
-**GuionViewer Reference Implementation** - Minimal macOS demo app:
-- 📱 **Reference App**: GuionViewer demonstrates best practices for integration
+**Rendering Validation & Bug Fixes:**
+- 🧪 **Comprehensive Rendering Tests**: 45 tests validating screenplay formatting against industry standards
+  - Page width validation (65 characters per line)
+  - Element margin tests (character 40%, dialogue 25%, transition 65%)
+  - Proportional scaling across font sizes
+  - Document ordering and sequence validation
+- 🐛 **Element Ordering Fix**: Explicit sorting by composite key (chapterIndex, orderIndex)
+- 🔧 **Concurrency Fixes**: Resolved Swift 6 strict concurrency errors in parser methods
+- ✅ **CI Stability**: All tests passing on iOS and macOS platforms
+
+**6.3.0 Highlights:**
+- 📱 **GuionViewer Reference App**: Minimal macOS demo with best practices
 - 🎯 **ModelActor Pattern**: DocumentModelActor for safe SwiftData concurrency
 - 📐 **Fixed Layout**: 12pt font, 102 char width, centered content
-- 🔄 **Component Reuse**: DTOs conform to DisplayableElement for seamless view integration
+- 🔄 **Component Reuse**: DTOs conform to DisplayableElement protocol
 - 📦 **Bundle Resources**: Loads 24+ screenplay files from app bundle
-
-**Recent Improvements:**
-- ✅ Explicit element sorting ensures correct document order
-- ✅ LZFSE compression for binary content storage
-- ✅ Dual-mode file discovery (bundle resources + development)
-- ✅ @preconcurrency SwiftData imports throughout codebase
 
 See [CHANGELOG.md](./CHANGELOG.md) for complete details.
 
@@ -356,9 +360,10 @@ See `GuionViewer/REQUIREMENTS.md` for complete specifications.
 
 ## Testing
 
-SwiftCompartido has **95%+ test coverage** with **437 passing tests** organized into **4 test plans**:
+SwiftCompartido has **95%+ test coverage** with **480+ passing tests** organized into **4 test plans**:
 
 - **UnitTests** - Fast unit tests (runs on every PR) ⚡️
+  - Includes 45 rendering validation tests for industry-standard screenplay formatting
 - **LongTests** - Integration tests (runs on weekends) 🔄
 - **UITests** - SwiftUI view tests (manual or weekend) 🎨
 - **PerformanceTests** - Benchmarks (non-blocking) 📊

@@ -641,6 +641,7 @@ SwiftCompartido uses **test plans** (.xctestplan files) to organize tests into f
 - `GeneratedAudioDataTests`, `GeneratedTextDataTests`
 - `MarkdownParserTests`, `OutlineLevelParsingTests`
 - `SerializationFormatTests`, `ProviderCategoryTests`
+- `ScreenplayRenderingFormatTests`, `ScreenplayDocumentRenderingTests` (NEW in 6.3.1)
 
 #### 2. **LongTests.xctestplan** (Runs on weekends)
 - **Integration tests** with file I/O and complex workflows
@@ -742,6 +743,48 @@ Edit the corresponding `.xctestplan` file and add the test suite name to `select
 4. Otherwise → `UnitTests.xctestplan`
 
 **Goal:** Keep unit tests under 5 minutes for fast PR feedback
+
+### Screenplay Rendering Tests (NEW in 6.3.1)
+
+SwiftCompartido includes comprehensive rendering validation tests that ensure screenplay elements render correctly according to industry standards.
+
+**Two Test Suites (45 tests total):**
+
+#### ScreenplayRenderingFormatTests (32 tests)
+Validates individual element rendering against industry-standard formatting:
+
+**Page Width & Layout:**
+- 65 characters per line (industry standard)
+- Courier aspect ratio: 0.6 (character width = 60% of font size)
+- Page width consistency across font sizes (8pt - 24pt)
+- 54 lines per page, 1.5x line spacing
+
+**Element Margins** (as percentage of 65-character page width):
+- Scene Heading: 0% left margin (full width)
+- Action: 0% left margin (full width)
+- Character: 40% left margin, 60% width
+- Dialogue: 25% left margin, 50% width
+- Parenthetical: 32% left margin, 38% width
+- Transition: 65% left margin, 35% width (right-aligned)
+- Lyrics: 25% left margin, 50% width
+
+**Key Validation:**
+- Margins maintain correct proportional relationships at any font size
+- Character margin (40%) > Dialogue margin (25%)
+- Transition margin (65%) > Character margin (40%)
+- Margin ratios stay constant (e.g., 40/25 ≈ 1.6)
+
+#### ScreenplayDocumentRenderingTests (13 tests)
+End-to-end validation of complete screenplay documents:
+
+- Element ordering and sequence preservation
+- Dialogue blocks (character + parenthetical + dialogue)
+- Multi-scene documents with transitions
+- Chapter sections with proper element ordering
+- Large screenplay handling (100+ elements)
+- DocumentModelActor element ordering verification
+
+**Tests are flexible about font sizes** - they validate that page width and margins maintain correct proportions regardless of the base font size used.
 
 ## Common Patterns
 
@@ -952,7 +995,7 @@ EOF
 
 ## Project Metadata
 
-- **Version**: 6.3.0
+- **Version**: 6.3.1
 - **Swift**: 6.2+
 - **Platforms**: iOS 26.0+, macOS 26.0+
 - **Dependencies**: TextBundle, ZIPFoundation, swift-markdown, SwiftFijos (test-only)
