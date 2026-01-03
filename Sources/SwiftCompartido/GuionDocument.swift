@@ -13,7 +13,17 @@ import ZIPFoundation
 /// Document configuration for GuionDocumentModel
 public struct GuionDocumentConfiguration: FileDocument {
     public static var readableContentTypes: [UTType] {
-        [.guionDocument, .fountainDocument, .fdxDocument, .highlandDocument]
+        [
+            .guionDocument,      // .guion (Produciesta native format)
+            .fountainDocument,   // .fountain (Fountain screenplay format)
+            .fdxDocument,        // .fdx (Final Draft)
+            .highlandDocument,   // .highland (Highland app)
+            .plainText,          // .md, .markdown, .txt
+            .rtf,                // .rtf (Rich Text Format)
+            .pdf,                // .pdf (Adobe PDF)
+            UTType(filenameExtension: "docx")!,  // Microsoft Word
+            UTType(filenameExtension: "odt")!    // OpenDocument Text
+        ]
     }
 
     public var document: GuionDocumentModel
