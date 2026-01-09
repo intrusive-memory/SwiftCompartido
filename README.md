@@ -8,7 +8,7 @@
     <img src="https://img.shields.io/badge/Swift-6.2+-orange.svg" />
     <img src="https://img.shields.io/badge/Platform-iOS%2026.0+%20|%20macOS%2026.0+-lightgrey.svg" />
     <img src="https://img.shields.io/badge/License-MIT-blue.svg" />
-    <img src="https://img.shields.io/badge/Version-6.3.0-blue.svg" />
+    <img src="https://img.shields.io/badge/Version-6.6.0-blue.svg" />
 </p>
 
 **SwiftCompartido** is a Swift package for parsing, storing, and displaying screenplays and AI-generated content. Built with SwiftData and SwiftUI.
@@ -268,7 +268,7 @@ dependencies: [
 Or in Xcode:
 1. **File → Add Package Dependencies**
 2. Enter: `https://github.com/intrusive-memory/SwiftCompartido.git`
-3. Select version: **6.3.0** or later
+3. Select version: **6.6.0** or later
 
 ### Basic Usage
 
