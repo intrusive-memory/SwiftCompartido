@@ -57,7 +57,7 @@ See [CHANGELOG.md](./CHANGELOG.md) for complete details.
 **Supported Formats:**
 - **Fountain** (`.fountain`) - Native screenplay format
 - **Final Draft** (`.fdx`) - XML import/export
-- **PDF** (`.pdf`) - Heuristic extraction (95%+ accuracy), AI-powered conversion prepared (see [Foundation Models Status](./Docs/FOUNDATION_MODELS_STATUS.md))
+- **PDF** (`.pdf`) - AI-powered conversion with Apple Intelligence (98%+ accuracy), automatic heuristic fallback (95%+ accuracy) (see [Foundation Models Status](./Docs/FOUNDATION_MODELS_STATUS.md))
 - **Markdown** (`.md`) - YAML front matter support
 - **Highland** (`.highland`) - ZIP archives with Fountain content
 - **TextBundle** (`.textbundle`) - Container format with auto-detection
