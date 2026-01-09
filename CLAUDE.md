@@ -825,7 +825,7 @@ SwiftCompartido includes **full Apple Intelligence integration** for AI-powered 
 
 #### Implementation Status: ✅ FULLY IMPLEMENTED
 
-**Version**: 6.5.0
+**Version**: 6.6.0
 **Framework**: Foundation Models (iOS 26.2+, macOS 26.0+)
 **Status**: Production-ready with graceful fallback
 
@@ -1212,7 +1212,7 @@ All iOS workflows now include a "Create iPhone Simulator" step that:
 
 ## Project Metadata
 
-- **Version**: 6.4.0
+- **Version**: 6.6.0
 - **Swift**: 6.2+
 - **Platforms**: iOS 26.0+, macOS 26.0+
 - **Dependencies**: TextBundle, ZIPFoundation, swift-markdown, SwiftFijos (test-only)
