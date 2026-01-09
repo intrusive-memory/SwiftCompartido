@@ -278,7 +278,52 @@ jobs:
             exit $TEST_EXIT_CODE
           fi
 
-  # Step 3: Performance Tests (runs after unit tests pass)
+  # Step 3: AI Tests Check (runs after unit tests pass)
+  ai-tests-check:
+    name: AI Tests Check
+    runs-on: macos-26
+    needs: [unit-tests-ios, unit-tests-macos]
+    # AI tests are informational only - don't block PRs
+    continue-on-error: true
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Select Xcode
+        run: sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
+
+      - name: Check Apple Intelligence availability
+        run: |
+          echo ""
+          echo "╔════════════════════════════════════════════════════════════╗"
+          echo "║  🤖  Apple Intelligence AI Tests - Status Check           ║"
+          echo "╚════════════════════════════════════════════════════════════╝"
+          echo ""
+          echo "ℹ️  Apple Intelligence (Foundation Models) tests require:"
+          echo "   • iOS 26.2+ or macOS 26.0+"
+          echo "   • M1+ Mac or A17 Pro+ device"
+          echo "   • Apple Intelligence enabled in System Settings"
+          echo ""
+          echo "⚠️  SKIPPED: Apple Intelligence is not available in CI"
+          echo ""
+          echo "GitHub Actions runs in a headless environment without:"
+          echo "   • User consent for Apple Intelligence"
+          echo "   • System Settings access to enable AI features"
+          echo "   • Interactive session required for model downloads"
+          echo ""
+          echo "📋 AI test suite location:"
+          echo "   Tests/SwiftCompartidoTests/PDFScreenplayParserAITests.swift (8 tests)"
+          echo ""
+          echo "🧪 To run AI tests manually on a device with Apple Intelligence:"
+          echo "   ./Scripts/test-ai-features.sh --macos"
+          echo "   ./Scripts/test-ai-features.sh --ios"
+          echo ""
+          echo "✅ AI tests are designed to skip gracefully when unavailable"
+          echo "   The library automatically falls back to heuristic parsing"
+          echo ""
+
+  # Step 4: Performance Tests (runs after unit tests pass)
   performance-tests:
     name: Performance Tests
     runs-on: macos-26

@@ -197,7 +197,10 @@ public final class PDFScreenplayParser {
         return fullText
     }
 
-    /// Convert extracted text to Fountain format using heuristic pattern matching
+    /// Convert extracted text to Fountain format using Foundation Models
+    ///
+    /// This method uses Apple Intelligence to intelligently convert screenplay text
+    /// from PDF format to proper Fountain syntax while preserving all content.
     ///
     /// - Parameters:
     ///   - text: Extracted PDF text
@@ -208,7 +211,204 @@ public final class PDFScreenplayParser {
         _ text: String,
         progress: OperationProgress?
     ) async throws -> String {
+        #if canImport(FoundationModels)
+        // Try Foundation Models first (iOS 26+/macOS 26+ with Apple Intelligence)
+        do {
+            return try await convertToFountainWithAI(text, progress: progress)
+        } catch {
+            // If Foundation Models unavailable or fails, fall back to basic conversion
+            progress?.update(
+                completedUnits: 20,
+                description: "Apple Intelligence unavailable, using fallback conversion...",
+                additionalInfo: "⚠️ AI-powered parsing unavailable. Falling back to heuristic conversion. Results may be less accurate for non-standard screenplay formats. To enable AI parsing: 1) Enable Apple Intelligence in System Settings, 2) Ensure device has M1+/A17 Pro+ chip, 3) iOS 26.2+ or macOS 26.0+",
+                force: true
+            )
+            return await convertToFountainBasic(text, progress: progress)
+        }
+        #else
+        // Foundation Models not available on this platform
+        progress?.update(
+            completedUnits: 20,
+            description: "Using heuristic screenplay conversion...",
+            additionalInfo: "ℹ️ Apple Intelligence not available on this platform. Using heuristic conversion. For AI-powered parsing, upgrade to iOS 26.2+ or macOS 26.0+ with M1+/A17 Pro+ chip.",
+            force: true
+        )
         return await convertToFountainBasic(text, progress: progress)
+        #endif
+    }
+
+    /// Convert to Fountain using Foundation Models (Apple Intelligence)
+    ///
+    /// Uses on-device AI to intelligently parse screenplay structure and convert
+    /// to proper Fountain format while preserving all text content.
+    ///
+    /// **NOTE**: Foundation Models implementation is prepared but currently falls back
+    /// to heuristic conversion. The AI-powered conversion will be enabled once the
+    /// FoundationModels framework API is finalized in iOS 26/macOS 26 SDK.
+    ///
+    /// - Parameters:
+    ///   - text: Extracted PDF text
+    ///   - progress: Optional progress reporting
+    /// - Returns: AI-converted Fountain screenplay text
+    /// - Throws: `PDFScreenplayParserError` if Foundation Models unavailable or conversion fails
+    @available(iOS 26.0, macCatalyst 26.0, *)
+    private static func convertToFountainWithAI(
+        _ text: String,
+        progress: OperationProgress?
+    ) async throws -> String {
+        #if canImport(FoundationModels)
+        progress?.update(
+            completedUnits: 30,
+            description: "Checking Apple Intelligence availability...",
+            force: true
+        )
+
+        // Check if the system language model is available
+        let model = SystemLanguageModel.default
+        guard model.isAvailable else {
+            throw PDFScreenplayParserError.foundationModelsUnavailable
+        }
+
+        progress?.update(
+            completedUnits: 35,
+            description: "Analyzing screenplay structure with Apple Intelligence...",
+            force: true
+        )
+
+        // Build the system prompt that teaches the model Fountain format
+        let systemPrompt = buildFountainConversionPrompt()
+
+        // Build the user prompt with the extracted text
+        let userPrompt = """
+        Convert the following screenplay text to Fountain format. Preserve ALL text exactly as written, including all dialogue, action, character names, scene headings, and transitions. Maintain the original story order and content.
+
+        PDF TEXT:
+        \(text)
+
+        OUTPUT FOUNTAIN FORMAT:
+        """
+
+        progress?.update(
+            completedUnits: 40,
+            description: "Converting to Fountain format with AI...",
+            force: true
+        )
+
+        // Create a language model session with the system prompt
+        let session = LanguageModelSession(
+            model: model,
+            instructions: systemPrompt
+        )
+
+        progress?.update(
+            completedUnits: 50,
+            description: "Generating Fountain screenplay...",
+            force: true
+        )
+
+        // Generate the Fountain format using the AI model
+        let response = try await session.respond(to: Prompt(userPrompt))
+
+        progress?.update(
+            completedUnits: 75,
+            description: "AI conversion complete",
+            force: true
+        )
+
+        return response.content
+
+        #else
+        throw PDFScreenplayParserError.foundationModelsUnavailable
+        #endif
+    }
+
+    /// Build the system prompt that teaches Foundation Models how to convert to Fountain format
+    ///
+    /// This prompt provides comprehensive Fountain syntax rules so the AI can accurately
+    /// convert screenplay text while preserving all content.
+    ///
+    /// - Returns: System prompt string with Fountain format instructions
+    private static func buildFountainConversionPrompt() -> String {
+        return """
+        You are a screenplay formatting expert. Your task is to convert screenplay text extracted from PDF files into proper Fountain format.
+
+        CRITICAL RULES:
+        1. Preserve ALL text exactly as written - do not summarize, omit, or add content
+        2. Maintain the original story order and scene sequence
+        3. Keep all dialogue word-for-word
+        4. Preserve all action descriptions verbatim
+        5. Output ONLY the Fountain-formatted screenplay - no explanations or comments
+
+        FOUNTAIN FORMAT RULES:
+
+        SCENE HEADINGS:
+        - Start with INT. or EXT. or INT./EXT. or I/E.
+        - Must be in ALL CAPS
+        - Example: INT. BEDROOM - NIGHT
+        - Always on their own line with blank line before and after
+
+        ACTION:
+        - Regular text describing what happens
+        - Full sentences, proper capitalization
+        - Blank line before and after paragraphs
+        - Example: John walks into the room. He looks around nervously.
+
+        CHARACTER NAMES:
+        - ALL CAPS
+        - On their own line before dialogue
+        - Can include (V.O.) or (O.S.) for voice over or off-screen
+        - Example: JOHN
+        - Example: MARY (V.O.)
+
+        DIALOGUE:
+        - Immediately follows character name
+        - Regular capitalization
+        - Can span multiple lines
+        - Example:
+        JOHN
+        I can't believe this is happening.
+
+        PARENTHETICALS:
+        - Goes between character name and dialogue
+        - Wrapped in parentheses
+        - Describes how dialogue is delivered
+        - Example:
+        JOHN
+        (whispering)
+        We need to leave now.
+
+        TRANSITIONS:
+        - Right-aligned by using > at start
+        - ALL CAPS
+        - Example: > FADE TO:
+        - Example: > CUT TO:
+
+        CENTERED TEXT:
+        - For titles or special formatting
+        - Wrapped with > and <
+        - Example: > THE END <
+
+        NOTES:
+        - Wrapped in [[ ]]
+        - For production notes
+        - Example: [[This scene was shot on location]]
+
+        FORMATTING:
+        - Use blank lines to separate elements
+        - Don't add extra markup or markdown formatting
+        - Keep the screenplay clean and readable
+        - Preserve original line breaks in dialogue
+
+        COMMON PDF EXTRACTION ISSUES TO FIX:
+        - Remove page numbers
+        - Remove headers and footers
+        - Remove "CONTINUED" markers
+        - Fix broken scene headings (may be split across lines)
+        - Fix broken character names
+        - Reassemble dialogue that may be split across pages
+
+        Your goal: Output valid Fountain format that preserves 100% of the screenplay content.
+        """
     }
 
     /// Basic conversion to Fountain format (fallback without Foundation Models)

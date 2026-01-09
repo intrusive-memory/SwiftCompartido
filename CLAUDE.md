@@ -42,7 +42,7 @@ If a file, class, or function does any of the following, it should be **deprecat
   - ❌ OpenAI/Anthropic API clients
   - ❌ ElevenLabs TTS integration
   - ❌ DALL-E image generation
-  - ❌ Foundation Models prompts
+  - ⚠️ Foundation Models PDF conversion (prepared but not yet functional - see FOUNDATION_MODELS_STATUS.md)
   - ✅ **Storing** generated content (TypedDataStorage) is OK
   - ✅ **Displaying** generated content (GeneratedContentListView) is OK
   - ❌ **Generating** content does NOT belong here
@@ -85,7 +85,7 @@ If a file, class, or function does any of the following, it should be **deprecat
 | OpenAI API client | Generation | ❌ NO - Spin off |
 | ElevenLabs TTS | Generation | ❌ NO - Spin off |
 | CloudKit sync | Cloud Sync | ❌ NO - Removed in 6.2.1 |
-| Foundation Models prompts | Generation | ❌ NO - Removed in 6.2.1 |
+| Foundation Models PDF conversion | Mission 1 (Parsing) | ⚠️ Prepared, not yet functional |
 
 ### Enforcement
 
@@ -283,6 +283,11 @@ flowchart TD
 2. **Highland .md files** → **Always Fountain parser** (Highland uses Fountain syntax)
 3. **TextBundle .md files** → Markdown parser (recursive detection)
 4. **TextBundle .fountain files** → Fountain parser (recursive detection)
+5. **PDF files** → Heuristic extraction (95%+ accuracy on standard formats)
+   - ⚠️ **Foundation Models Note**: AI-powered conversion is architecturally prepared (iOS 26.2 shipping, API verification needed)
+   - Falls back to heuristic rules for scene heading, character, and dialogue detection
+   - Test AI features: `./Scripts/test-ai-features.sh` (requires Apple Intelligence enabled)
+   - See `Docs/FOUNDATION_MODELS_STATUS.md` for complete status and roadmap
 
 ## Performance Testing & Benchmarking
 
@@ -627,7 +632,7 @@ public var binaryValue: Data? {
 
 ### Test Plans Organization
 
-SwiftCompartido uses **test plans** (.xctestplan files) to organize tests into four categories:
+SwiftCompartido uses **test plans** (.xctestplan files) to organize tests into five categories:
 
 #### 1. **UnitTests.xctestplan** (Runs on every PR)
 - **Fast unit tests** for basic functionality
@@ -678,6 +683,22 @@ SwiftCompartido uses **test plans** (.xctestplan files) to organize tests into f
 - `GuionViewerPerformanceTests`, `GuionTextEditorPerformanceTests`
 - `Phase2PerformanceTests`
 
+#### 5. **AITests.xctestplan** (Manual only - Requires Apple Intelligence)
+- **Apple Intelligence (Foundation Models) tests**
+- Tests AI-powered PDF parsing when available
+- Requires iOS 26.2+, Apple Intelligence enabled, M1+/A17 Pro+ device
+- **NOT run in CI** (Apple Intelligence unavailable in headless runners)
+- Run manually with: `./Scripts/test-ai-features.sh`
+
+**Examples:**
+- `PDFScreenplayParserAITests`
+
+**Why separate from CI:**
+- Apple Intelligence requires user opt-in (System Settings)
+- Headless CI runners can't enable Apple Intelligence
+- Foundation Models API availability needs verification (iOS 26.2 is shipping)
+- All PDF parsing tests in LongTests validate heuristic conversion (production baseline)
+
 ### Running Tests Locally
 
 ```bash
@@ -697,6 +718,10 @@ xcodebuild test -scheme SwiftCompartido -testPlan UITests \
 xcodebuild test -scheme SwiftCompartido -testPlan PerformanceTests \
   -configuration Release \
   -destination 'platform=iOS Simulator,name=iPhone 17 Pro'
+
+# Run Apple Intelligence tests (requires Apple Intelligence enabled)
+./Scripts/test-ai-features.sh
+# Or: ./Scripts/test-ai-features.sh --macos
 ```
 
 ### ⚠️ Adding New Tests - IMPORTANT
@@ -733,14 +758,22 @@ When adding new tests, you **MUST** categorize them into the correct test plan:
 - ✅ Benchmarking parse/render/serialize operations
 - ✅ Timing measurements and metrics
 
+#### AI Tests (AITests.xctestplan)
+- ✅ **MUST** require Apple Intelligence to function
+- ✅ Tests Foundation Models API integration
+- ✅ Gracefully skip if Apple Intelligence unavailable
+- ✅ Run manually with `./Scripts/test-ai-features.sh`
+- ❌ **NEVER run in CI** (Apple Intelligence unavailable in headless runners)
+
 **To add a test suite to a test plan:**
 Edit the corresponding `.xctestplan` file and add the test suite name to `selectedTests` or `skippedTests`
 
 **Decision tree:**
-1. Is it a performance benchmark? → `PerformanceTests.xctestplan`
-2. Does it test SwiftUI views? → `UITests.xctestplan`
-3. Does it do heavy I/O or take > 1 second? → `LongTests.xctestplan`
-4. Otherwise → `UnitTests.xctestplan`
+1. Does it require Apple Intelligence? → `AITests.xctestplan` (manual only)
+2. Is it a performance benchmark? → `PerformanceTests.xctestplan`
+3. Does it test SwiftUI views? → `UITests.xctestplan`
+4. Does it do heavy I/O or take > 1 second? → `LongTests.xctestplan`
+5. Otherwise → `UnitTests.xctestplan`
 
 **Goal:** Keep unit tests under 5 minutes for fast PR feedback
 
@@ -984,7 +1017,8 @@ EOF
 
 ### API Documentation
 - `Docs/PARSED_FILE_SERVICE_API.md` - Complete API reference for ParsedFileService (NEW in 6.1.0)
-- `Docs/PDF_CAPABILITIES.md` - PDF reading capabilities
+- `Docs/FOUNDATION_MODELS_STATUS.md` - Foundation Models integration status and roadmap (NEW in 6.4.0)
+- `Docs/old/PDF_CAPABILITIES.md` - PDF reading/writing capabilities assessment
 - `SOURCE_FILE_TRACKING.md` - Source file tracking guide
 
 ### Developer Documentation

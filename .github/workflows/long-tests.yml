@@ -272,3 +272,65 @@ jobs:
           echo "- OperationProgressTests" >> $GITHUB_STEP_SUMMARY
           echo "- HoverTimingTests" >> $GITHUB_STEP_SUMMARY
           echo "- HoverStateManagementTests" >> $GITHUB_STEP_SUMMARY
+
+  ai-tests-check:
+    name: AI Tests Check
+    runs-on: macos-26
+    needs: [test-long, test-long-macos]
+    # AI tests are informational only - don't block weekend runs
+    continue-on-error: true
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Select Xcode
+        run: sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
+
+      - name: Check Apple Intelligence availability
+        run: |
+          echo ""
+          echo "╔════════════════════════════════════════════════════════════╗"
+          echo "║  🤖  Apple Intelligence AI Tests - Status Check           ║"
+          echo "╚════════════════════════════════════════════════════════════╝"
+          echo ""
+          echo "ℹ️  Apple Intelligence (Foundation Models) tests require:"
+          echo "   • iOS 26.2+ or macOS 26.0+"
+          echo "   • M1+ Mac or A17 Pro+ device"
+          echo "   • Apple Intelligence enabled in System Settings"
+          echo ""
+          echo "⚠️  SKIPPED: Apple Intelligence is not available in CI"
+          echo ""
+          echo "GitHub Actions runs in a headless environment without:"
+          echo "   • User consent for Apple Intelligence"
+          echo "   • System Settings access to enable AI features"
+          echo "   • Interactive session required for model downloads"
+          echo ""
+          echo "📋 AI test suite location:"
+          echo "   Tests/SwiftCompartidoTests/PDFScreenplayParserAITests.swift (8 tests)"
+          echo ""
+          echo "🧪 To run AI tests manually on a device with Apple Intelligence:"
+          echo "   ./Scripts/test-ai-features.sh --macos"
+          echo "   ./Scripts/test-ai-features.sh --ios"
+          echo ""
+          echo "✅ AI tests are designed to skip gracefully when unavailable"
+          echo "   The library automatically falls back to heuristic parsing"
+          echo ""
+
+      - name: Add AI tests notice to summary
+        if: always()
+        run: |
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## 🤖 AI Tests Status" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Status**: ⚠️ Skipped (Apple Intelligence unavailable in CI)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Apple Intelligence tests require:" >> $GITHUB_STEP_SUMMARY
+          echo "- iOS 26.2+ or macOS 26.0+" >> $GITHUB_STEP_SUMMARY
+          echo "- M1+ Mac or A17 Pro+ device" >> $GITHUB_STEP_SUMMARY
+          echo "- Apple Intelligence enabled in System Settings" >> $GITHUB_STEP_SUMMARY
+          echo "- Interactive user session" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Manual Testing**: Run \`./Scripts/test-ai-features.sh\` on a device with Apple Intelligence enabled." >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Graceful Degradation**: The library automatically falls back to heuristic PDF parsing when AI is unavailable." >> $GITHUB_STEP_SUMMARY
