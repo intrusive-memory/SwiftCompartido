@@ -1,0 +1,38 @@
+{
+  "configurations" : [
+    {
+      "id" : "Default",
+      "name" : "Apple Intelligence Tests Configuration",
+      "options" : {
+        "testTimeoutsEnabled" : true,
+        "maximumTestExecutionTimeAllowance" : 60
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "testTimeoutsEnabled" : true,
+    "maximumTestExecutionTimeAllowance" : 900,
+    "codeCoverage" : {
+      "targets" : [
+        {
+          "containerPath" : "container:",
+          "identifier" : "SwiftCompartido",
+          "name" : "SwiftCompartido"
+        }
+      ]
+    }
+  },
+  "testTargets" : [
+    {
+      "selectedTests" : [
+        "PDFScreenplayParserAITests"
+      ],
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "SwiftCompartidoTests",
+        "name" : "SwiftCompartidoTests"
+      }
+    }
+  ],
+  "version" : 1
+}

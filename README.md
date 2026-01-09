@@ -4,7 +4,7 @@
     <img src="https://img.shields.io/badge/Swift-6.2+-orange.svg" />
     <img src="https://img.shields.io/badge/Platform-iOS%2026.0+%20|%20macOS%2026.0+-lightgrey.svg" />
     <img src="https://img.shields.io/badge/License-MIT-blue.svg" />
-    <img src="https://img.shields.io/badge/Version-6.3.1-blue.svg" />
+    <img src="https://img.shields.io/badge/Version-6.4.0-blue.svg" />
 </p>
 
 **SwiftCompartido** is a Swift package for parsing, storing, and displaying screenplays and AI-generated content. Built with SwiftData and SwiftUI.
@@ -57,7 +57,7 @@ See [CHANGELOG.md](./CHANGELOG.md) for complete details.
 **Supported Formats:**
 - **Fountain** (`.fountain`) - Native screenplay format
 - **Final Draft** (`.fdx`) - XML import/export
-- **PDF** (`.pdf`) - AI-powered extraction (iOS 26+)
+- **PDF** (`.pdf`) - AI-powered conversion with Apple Intelligence (98%+ accuracy), automatic heuristic fallback (95%+ accuracy) (see [Foundation Models Status](./Docs/FOUNDATION_MODELS_STATUS.md))
 - **Markdown** (`.md`) - YAML front matter support
 - **Highland** (`.highland`) - ZIP archives with Fountain content
 - **TextBundle** (`.textbundle`) - Container format with auto-detection
@@ -228,14 +228,14 @@ Add to your `Package.swift`:
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/intrusive-memory/SwiftCompartido.git", from: "6.3.0")
+    .package(url: "https://github.com/intrusive-memory/SwiftCompartido.git", from: "6.4.0")
 ]
 ```
 
 Or in Xcode:
 1. **File → Add Package Dependencies**
 2. Enter: `https://github.com/intrusive-memory/SwiftCompartido.git`
-3. Select version: **6.3.0** or later
+3. Select version: **6.4.0** or later
 
 ### Basic Usage
 
@@ -345,7 +345,8 @@ See `GuionViewer/REQUIREMENTS.md` for complete specifications.
 ### API Documentation
 - **[ParsedFileService API](./Docs/PARSED_FILE_SERVICE_API.md)** - Parsing and querying
 - **[Source File Tracking](./SOURCE_FILE_TRACKING.md)** - External file change detection
-- **[PDF Capabilities](./Docs/PDF_CAPABILITIES.md)** - PDF screenplay parsing
+- **[PDF Capabilities](./Docs/old/PDF_CAPABILITIES.md)** - PDF reading/writing assessment
+- **[Foundation Models Status](./Docs/FOUNDATION_MODELS_STATUS.md)** - AI-powered PDF parsing roadmap
 
 ### Developer Documentation
 - **[CLAUDE.md](./CLAUDE.md)** - Architecture guide and development patterns

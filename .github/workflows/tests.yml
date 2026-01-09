@@ -56,13 +56,50 @@ jobs:
       - name: Install Pandoc
         run: brew install pandoc
 
+      - name: Create iPhone Simulator
+        run: |
+          echo "📱 Creating iPhone simulator for testing"
+
+          # List available runtimes
+          echo "Available runtimes:"
+          xcrun simctl list runtimes
+
+          # List available device types
+          echo "Available device types:"
+          xcrun simctl list devicetypes | grep iPhone
+
+          # Get latest iOS runtime
+          RUNTIME=$(xcrun simctl list runtimes iOS -j | jq -r '.runtimes | sort_by(.version) | last | .identifier')
+          echo "Using runtime: $RUNTIME"
+
+          # Try iPhone 16 Pro, fall back to other models if unavailable
+          for DEVICE in "iPhone-16-Pro" "iPhone-16" "iPhone-15-Pro" "iPhone-15"; do
+            DEVICE_TYPE="com.apple.CoreSimulator.SimDeviceType.$DEVICE"
+            echo "Trying device type: $DEVICE_TYPE"
+            UDID=$(xcrun simctl create "iPhone-Test" "$DEVICE_TYPE" "$RUNTIME" 2>&1 || echo "")
+            if [[ -n "$UDID" && "$UDID" != *"error"* ]]; then
+              echo "✅ Created simulator: $UDID"
+              break
+            fi
+          done
+
+          # Boot the simulator
+          if [[ -n "$UDID" ]]; then
+            xcrun simctl boot "$UDID" || true
+            echo "Simulator booted (or already booted)"
+          fi
+
+          # List all available simulators
+          echo "Available simulators:"
+          xcrun simctl list devices available
+
       - name: Build for iOS Simulator
         run: |
           echo "🔨 Building for iOS Simulator (arm64)"
           xcodebuild build \
             -scheme SwiftCompartido \
             -sdk iphonesimulator \
-            -destination 'platform=iOS Simulator,name=iPhone 17,OS=26.1' \
+            -destination 'platform=iOS Simulator,name=iPhone-Test' \
             -quiet \
             CODE_SIGNING_ALLOWED=NO
 
@@ -76,7 +113,7 @@ jobs:
           xcodebuild test \
             -scheme SwiftCompartido \
             -sdk iphonesimulator \
-            -destination 'platform=iOS Simulator,name=iPhone 17,OS=26.1' \
+            -destination 'platform=iOS Simulator,name=iPhone-Test' \
             -only-testing:SwiftCompartidoTests/AppIntents/AppIntentsTests \
             -only-testing:SwiftCompartidoTests/CastListPageTests \
             -only-testing:SwiftCompartidoTests/CastListTrimTests \
@@ -278,7 +315,52 @@ jobs:
             exit $TEST_EXIT_CODE
           fi
 
-  # Step 3: Performance Tests (runs after unit tests pass)
+  # Step 3: AI Tests Check (runs after unit tests pass)
+  ai-tests-check:
+    name: AI Tests Check
+    runs-on: macos-26
+    needs: [unit-tests-ios, unit-tests-macos]
+    # AI tests are informational only - don't block PRs
+    continue-on-error: true
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Select Xcode
+        run: sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
+
+      - name: Check Apple Intelligence availability
+        run: |
+          echo ""
+          echo "╔════════════════════════════════════════════════════════════╗"
+          echo "║  🤖  Apple Intelligence AI Tests - Status Check           ║"
+          echo "╚════════════════════════════════════════════════════════════╝"
+          echo ""
+          echo "ℹ️  Apple Intelligence (Foundation Models) tests require:"
+          echo "   • iOS 26.2+ or macOS 26.0+"
+          echo "   • M1+ Mac or A17 Pro+ device"
+          echo "   • Apple Intelligence enabled in System Settings"
+          echo ""
+          echo "⚠️  SKIPPED: Apple Intelligence is not available in CI"
+          echo ""
+          echo "GitHub Actions runs in a headless environment without:"
+          echo "   • User consent for Apple Intelligence"
+          echo "   • System Settings access to enable AI features"
+          echo "   • Interactive session required for model downloads"
+          echo ""
+          echo "📋 AI test suite location:"
+          echo "   Tests/SwiftCompartidoTests/PDFScreenplayParserAITests.swift (8 tests)"
+          echo ""
+          echo "🧪 To run AI tests manually on a device with Apple Intelligence:"
+          echo "   ./Scripts/test-ai-features.sh --macos"
+          echo "   ./Scripts/test-ai-features.sh --ios"
+          echo ""
+          echo "✅ AI tests are designed to skip gracefully when unavailable"
+          echo "   The library automatically falls back to heuristic parsing"
+          echo ""
+
+  # Step 4: Performance Tests (runs after unit tests pass)
   performance-tests:
     name: Performance Tests
     runs-on: macos-26
@@ -305,7 +387,7 @@ jobs:
           xcodebuild build \
             -scheme SwiftCompartido \
             -sdk iphonesimulator \
-            -destination 'platform=iOS Simulator,name=iPhone 17,OS=26.1' \
+            -destination 'generic/platform=iOS Simulator' \
             -configuration Release \
             -quiet \
             CODE_SIGNING_ALLOWED=NO
@@ -318,7 +400,7 @@ jobs:
           xcodebuild test \
             -scheme SwiftCompartido \
             -sdk iphonesimulator \
-            -destination 'platform=iOS Simulator,name=iPhone 17,OS=26.1' \
+            -destination 'generic/platform=iOS Simulator' \
             -testPlan PerformanceTests \
             -configuration Release \
             CODE_SIGNING_ALLOWED=NO \
