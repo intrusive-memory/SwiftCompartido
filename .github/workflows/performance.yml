@@ -71,7 +71,7 @@ jobs:
           xcodebuild test \
             -scheme SwiftCompartido \
             -sdk iphonesimulator \
-            -destination 'generic/platform=iOS Simulator' \
+            -destination 'platform=iOS Simulator,name=iPhone-Test' \
             -configuration Release \
             CODE_SIGNING_ALLOWED=NO \
             > performance-results/baseline/output.txt 2>&1
@@ -124,13 +124,29 @@ jobs:
 
           exit 0
 
+      - name: Create iPhone Simulator
+        run: |
+          echo "📱 Creating iPhone simulator for testing"
+          RUNTIME=$(xcrun simctl list runtimes iOS -j | jq -r '.runtimes | sort_by(.version) | last | .identifier')
+          echo "Using runtime: $RUNTIME"
+
+          for DEVICE in "iPhone-16-Pro" "iPhone-16" "iPhone-15-Pro" "iPhone-15"; do
+            DEVICE_TYPE="com.apple.CoreSimulator.SimDeviceType.$DEVICE"
+            UDID=$(xcrun simctl create "iPhone-Test" "$DEVICE_TYPE" "$RUNTIME" 2>&1 || echo "")
+            if [[ -n "$UDID" && "$UDID" != *"error"* ]]; then
+              echo "✅ Created simulator: $UDID"
+              xcrun simctl boot "$UDID" || true
+              break
+            fi
+          done
+
       - name: Build in Release mode for iOS Simulator
         run: |
           echo "🔨 Building for iOS Simulator in Release mode"
           xcodebuild build \
             -scheme SwiftCompartido \
             -sdk iphonesimulator \
-            -destination 'generic/platform=iOS Simulator' \
+            -destination 'platform=iOS Simulator,name=iPhone-Test' \
             -configuration Release \
             -quiet \
             CODE_SIGNING_ALLOWED=NO
@@ -149,7 +165,7 @@ jobs:
           xcodebuild test \
             -scheme SwiftCompartido \
             -sdk iphonesimulator \
-            -destination 'generic/platform=iOS Simulator' \
+            -destination 'platform=iOS Simulator,name=iPhone-Test' \
             -configuration Release \
             CODE_SIGNING_ALLOWED=NO \
             > performance-results/output.txt 2>&1

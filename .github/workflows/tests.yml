@@ -56,13 +56,50 @@ jobs:
       - name: Install Pandoc
         run: brew install pandoc
 
+      - name: Create iPhone Simulator
+        run: |
+          echo "📱 Creating iPhone simulator for testing"
+
+          # List available runtimes
+          echo "Available runtimes:"
+          xcrun simctl list runtimes
+
+          # List available device types
+          echo "Available device types:"
+          xcrun simctl list devicetypes | grep iPhone
+
+          # Get latest iOS runtime
+          RUNTIME=$(xcrun simctl list runtimes iOS -j | jq -r '.runtimes | sort_by(.version) | last | .identifier')
+          echo "Using runtime: $RUNTIME"
+
+          # Try iPhone 16 Pro, fall back to other models if unavailable
+          for DEVICE in "iPhone-16-Pro" "iPhone-16" "iPhone-15-Pro" "iPhone-15"; do
+            DEVICE_TYPE="com.apple.CoreSimulator.SimDeviceType.$DEVICE"
+            echo "Trying device type: $DEVICE_TYPE"
+            UDID=$(xcrun simctl create "iPhone-Test" "$DEVICE_TYPE" "$RUNTIME" 2>&1 || echo "")
+            if [[ -n "$UDID" && "$UDID" != *"error"* ]]; then
+              echo "✅ Created simulator: $UDID"
+              break
+            fi
+          done
+
+          # Boot the simulator
+          if [[ -n "$UDID" ]]; then
+            xcrun simctl boot "$UDID" || true
+            echo "Simulator booted (or already booted)"
+          fi
+
+          # List all available simulators
+          echo "Available simulators:"
+          xcrun simctl list devices available
+
       - name: Build for iOS Simulator
         run: |
           echo "🔨 Building for iOS Simulator (arm64)"
           xcodebuild build \
             -scheme SwiftCompartido \
             -sdk iphonesimulator \
-            -destination 'generic/platform=iOS Simulator' \
+            -destination 'platform=iOS Simulator,name=iPhone-Test' \
             -quiet \
             CODE_SIGNING_ALLOWED=NO
 
@@ -76,7 +113,7 @@ jobs:
           xcodebuild test \
             -scheme SwiftCompartido \
             -sdk iphonesimulator \
-            -destination 'generic/platform=iOS Simulator' \
+            -destination 'platform=iOS Simulator,name=iPhone-Test' \
             -only-testing:SwiftCompartidoTests/AppIntents/AppIntentsTests \
             -only-testing:SwiftCompartidoTests/CastListPageTests \
             -only-testing:SwiftCompartidoTests/CastListTrimTests \
