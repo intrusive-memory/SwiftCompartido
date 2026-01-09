@@ -62,7 +62,7 @@ jobs:
           xcodebuild build \
             -scheme SwiftCompartido \
             -sdk iphonesimulator \
-            -destination 'platform=iOS Simulator,name=iPhone 17,OS=26.1' \
+            -destination 'platform=iOS Simulator,name=Any iOS Simulator Device' \
             -quiet \
             CODE_SIGNING_ALLOWED=NO
 
@@ -76,7 +76,7 @@ jobs:
           xcodebuild test \
             -scheme SwiftCompartido \
             -sdk iphonesimulator \
-            -destination 'platform=iOS Simulator,name=iPhone 17,OS=26.1' \
+            -destination 'platform=iOS Simulator,name=Any iOS Simulator Device' \
             -only-testing:SwiftCompartidoTests/AppIntents/AppIntentsTests \
             -only-testing:SwiftCompartidoTests/CastListPageTests \
             -only-testing:SwiftCompartidoTests/CastListTrimTests \
@@ -350,7 +350,7 @@ jobs:
           xcodebuild build \
             -scheme SwiftCompartido \
             -sdk iphonesimulator \
-            -destination 'platform=iOS Simulator,name=iPhone 17,OS=26.1' \
+            -destination 'platform=iOS Simulator,name=Any iOS Simulator Device' \
             -configuration Release \
             -quiet \
             CODE_SIGNING_ALLOWED=NO
@@ -363,7 +363,7 @@ jobs:
           xcodebuild test \
             -scheme SwiftCompartido \
             -sdk iphonesimulator \
-            -destination 'platform=iOS Simulator,name=iPhone 17,OS=26.1' \
+            -destination 'platform=iOS Simulator,name=Any iOS Simulator Device' \
             -testPlan PerformanceTests \
             -configuration Release \
             CODE_SIGNING_ALLOWED=NO \
