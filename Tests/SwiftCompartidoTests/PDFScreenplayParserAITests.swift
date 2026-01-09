@@ -58,20 +58,12 @@ struct PDFScreenplayParserAITests {
     ///
     /// Returns true only if:
     /// - Framework is importable (#if canImport(FoundationModels))
-    /// - API types exist (LanguageModel, Conversation)
+    /// - SystemLanguageModel.default.isAvailable returns true
     /// - Apple Intelligence is enabled by user
     private func isAppleIntelligenceAvailable() async -> Bool {
         #if canImport(FoundationModels)
-        // TODO: When API ships, check if model is available:
-        // do {
-        //     let _ = try LanguageModel.conversational()
-        //     return true
-        // } catch {
-        //     return false
-        // }
-
-        // For now, API doesn't exist yet
-        return false
+        let model = SystemLanguageModel.default
+        return model.isAvailable
         #else
         return false
         #endif
