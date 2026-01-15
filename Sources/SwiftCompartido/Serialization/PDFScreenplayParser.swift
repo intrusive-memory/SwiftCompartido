@@ -483,24 +483,8 @@ public final class PDFScreenplayParser {
 
         CRITICAL: Your output MUST be in valid Fountain screenplay format. Do NOT include any explanations, markdown formatting, code blocks, or additional text. Output ONLY the Fountain-formatted screenplay text, starting immediately with the screenplay content.
 
-        If this page starts mid-scene or mid-dialogue, that's normal - just convert what's present.
-
-        FORMATTING ANNOTATIONS:
-        The text below includes formatting annotations in brackets to help you identify screenplay elements:
-        - [BOLD] = Bold text (often scene headings)
-        - [ITALIC] = Italic text (sometimes used for emphasis)
-        - [LARGE] = Larger font (often scene headings or titles)
-        - [CAPS] = All uppercase text (scene headings, character names, transitions)
-
-        Use these formatting cues along with screenplay conventions to accurately identify:
-        - Scene headings (BOLD + CAPS + starts with INT./EXT.)
-        - Character names (CAPS, short lines before dialogue)
-        - Dialogue (normal text following character names)
-        - Action (normal text, full sentences)
-        - Transitions (CAPS, right-aligned cues like "FADE TO:")
-
-        PAGE \(pageContent.pageNumber) TEXT WITH FORMATTING:
-        \(pageContent.formattedText)
+        PDF TEXT:
+        \(text)
 
         OUTPUT (Fountain format only, no explanations):
         """
