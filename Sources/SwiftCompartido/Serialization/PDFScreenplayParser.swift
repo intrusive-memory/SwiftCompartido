@@ -346,56 +346,25 @@ public final class PDFScreenplayParser {
     ) async throws -> String {
         #if canImport(FoundationModels)
         #if DEBUG
-        print("🔍 [PDFParser] convertPagesToFountain: Processing \(pages.count) pages")
-        print("🔍 [PDFParser] FoundationModels available, attempting page-by-page AI conversion")
+        print("🔍 [PDFParser] convertToFountain: FoundationModels available, attempting AI conversion")
         #endif
 
-        // Try page-by-page AI conversion
-        var convertedPages: [String] = []
-        var failedPages = 0
-        let totalPages = pages.count
-
-        for (index, pageContent) in pages.enumerated() {
-            let pageNumber = index + 1
-
-            // Update progress for this page (within 20-80% range)
-            let baseProgress: Int64 = 20
-            let rangeSize: Int64 = 60
-            let pageProgress = baseProgress + Int64((Double(rangeSize) * Double(pageNumber)) / Double(totalPages))
-            progress?.update(
-                completedUnits: pageProgress,
-                description: "Converting page \(pageNumber) of \(totalPages)...",
-                force: true
-            )
-
-            // Try AI conversion for this page with formatting info
-            do {
-                let convertedPage = try await convertPageToFountainWithAI(pageContent)
-                convertedPages.append(convertedPage)
-
-                #if DEBUG
-                print("✅ [PDFParser] Page \(pageNumber) converted with AI (using formatting)")
-                #endif
-            } catch {
-                // This page failed - try basic conversion as fallback
-                failedPages += 1
-
-                #if DEBUG
-                print("⚠️ [PDFParser] Page \(pageNumber) AI conversion failed: \(error)")
-                print("⚠️ [PDFParser] Using heuristic conversion for page \(pageNumber)")
-                #endif
-
-                let basicPage = await convertPageToFountainBasic(pageContent.plainText)
-                convertedPages.append(basicPage)
-            }
-        }
-
-        // If more than 50% of pages failed AI conversion, consider it a failure
-        let failureRate = Double(failedPages) / Double(totalPages)
-        if failureRate > 0.5 {
+        // Try Foundation Models first (iOS 26+/macOS 26+ with Apple Intelligence)
+        do {
+            let result = try await convertToFountainWithAI(text, progress: progress)
             #if DEBUG
-            print("⚠️ [PDFParser] High AI failure rate (\(failedPages)/\(totalPages) pages)")
-            print("⚠️ [PDFParser] Falling back to full basic conversion")
+            print("✅ [PDFParser] AI conversion succeeded!")
+            #endif
+            return result
+        } catch {
+            // If Foundation Models unavailable or fails, fall back to basic conversion
+            #if DEBUG
+            print("⚠️ [PDFParser] AI conversion failed, falling back to basic conversion")
+            print("⚠️ [PDFParser] Error: \(error)")
+            print("⚠️ [PDFParser] Error type: \(type(of: error))")
+            if let pdfError = error as? PDFScreenplayParserError {
+                print("⚠️ [PDFParser] PDFScreenplayParserError: \(pdfError.errorDescription ?? "unknown")")
+            }
             #endif
 
             progress?.update(
@@ -421,8 +390,8 @@ public final class PDFScreenplayParser {
 
         #else
         #if DEBUG
-        print("ℹ️ [PDFParser] convertPagesToFountain: FoundationModels NOT available at compile time")
-        print("ℹ️ [PDFParser] Using basic conversion for all pages")
+        print("ℹ️ [PDFParser] convertToFountain: FoundationModels NOT available at compile time")
+        print("ℹ️ [PDFParser] Using basic conversion")
         #endif
 
         // Foundation Models not available on this platform
@@ -458,21 +427,69 @@ public final class PDFScreenplayParser {
     ) async throws -> String {
         #if canImport(FoundationModels)
         #if DEBUG
-        print("🤖 [PDFParser] Page \(pageContent.pageNumber): Attempting AI conversion with formatting")
-        let charCount = pageContent.formattedText.count
-        let tokenEstimate = charCount / 3
-        print("🤖 [PDFParser] Page \(pageContent.pageNumber): \(charCount) chars formatted (~\(tokenEstimate) tokens)")
+        print("🤖 [PDFParser] Attempting Apple Intelligence conversion")
+        print("🤖 [PDFParser] FoundationModels framework is available at compile time")
         #endif
 
-        // Check if the system language model is available (cached after first check)
+        progress?.update(
+            completedUnits: 30,
+            description: "Checking Apple Intelligence availability...",
+            force: true
+        )
+
+        // Get system info for debugging
+        #if DEBUG
+        let osVersion = ProcessInfo.processInfo.operatingSystemVersionString
+        print("🤖 [PDFParser] OS Version: \(osVersion)")
+
+        #if os(macOS)
+        // Try to detect Apple Silicon
+        var size = 0
+        sysctlbyname("hw.optional.arm64", nil, &size, nil, 0)
+        var isAppleSilicon = false
+        if size > 0 {
+            var value: Int32 = 0
+            sysctlbyname("hw.optional.arm64", &value, &size, nil, 0)
+            isAppleSilicon = value == 1
+        }
+        print("🤖 [PDFParser] Chip: \(isAppleSilicon ? "Apple Silicon" : "Intel")")
+        #endif
+        #endif
+
+        // Check if the system language model is available
+        #if DEBUG
+        print("🤖 [PDFParser] Creating SystemLanguageModel.default...")
+        #endif
+
         let model = SystemLanguageModel.default
+
+        #if DEBUG
+        print("🤖 [PDFParser] SystemLanguageModel created")
+        print("🤖 [PDFParser] Checking model.isAvailable...")
+        print("🤖 [PDFParser] model.isAvailable = \(model.isAvailable)")
+        #endif
 
         guard model.isAvailable else {
             #if DEBUG
-            print("❌ [PDFParser] Page \(pageContent.pageNumber): Apple Intelligence NOT available")
+            print("❌ [PDFParser] Apple Intelligence NOT available")
+            print("❌ [PDFParser] Possible reasons:")
+            print("   1. Apple Intelligence not enabled in System Settings")
+            print("   2. Device doesn't meet requirements (M1+/A17 Pro+)")
+            print("   3. iOS version too old (need 26.2+) or macOS (need 26.0+)")
+            print("   4. Language model not downloaded yet")
             #endif
             throw PDFScreenplayParserError.foundationModelsUnavailable
         }
+
+        #if DEBUG
+        print("✅ [PDFParser] Apple Intelligence IS available!")
+        #endif
+
+        progress?.update(
+            completedUnits: 35,
+            description: "Analyzing screenplay structure with Apple Intelligence...",
+            force: true
+        )
 
         // Build the system prompt that teaches the model Fountain format
         let systemPrompt = buildFountainConversionPrompt()
@@ -496,21 +513,32 @@ public final class PDFScreenplayParser {
         )
 
         // Generate the Fountain format using the AI model
+        #if DEBUG
+        print("🤖 [PDFParser] Sending request to Apple Intelligence...")
+        print("🤖 [PDFParser] Input text length: \(text.count) characters")
+        #endif
+
         do {
             let response = try await session.respond(to: Prompt(userPrompt))
 
             #if DEBUG
-            print("✅ [PDFParser] Page \(pageContent.pageNumber): AI conversion succeeded")
-            print("✅ [PDFParser] Page \(pageContent.pageNumber): Output \(response.content.count) chars")
+            print("✅ [PDFParser] Received AI response")
+            print("✅ [PDFParser] Output length: \(response.content.count) characters")
+            print("✅ [PDFParser] First 200 chars: \(String(response.content.prefix(200)))")
             #endif
+
+            progress?.update(
+                completedUnits: 75,
+                description: "AI conversion complete",
+                force: true
+            )
 
             return response.content
         } catch {
             #if DEBUG
-            print("❌ [PDFParser] Page \(pageContent.pageNumber): AI request failed: \(error)")
-            if let errorDesc = (error as? LocalizedError)?.errorDescription {
-                print("❌ [PDFParser] Page \(pageContent.pageNumber): \(errorDesc)")
-            }
+            print("❌ [PDFParser] AI request failed with error: \(error)")
+            print("❌ [PDFParser] Error type: \(type(of: error))")
+            print("❌ [PDFParser] Error description: \(error.localizedDescription)")
             #endif
             throw PDFScreenplayParserError.conversionFailed(error.localizedDescription)
         }
