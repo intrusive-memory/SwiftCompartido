@@ -212,11 +212,28 @@ public final class PDFScreenplayParser {
         progress: OperationProgress?
     ) async throws -> String {
         #if canImport(FoundationModels)
+        #if DEBUG
+        print("🔍 [PDFParser] convertToFountain: FoundationModels available, attempting AI conversion")
+        #endif
+
         // Try Foundation Models first (iOS 26+/macOS 26+ with Apple Intelligence)
         do {
-            return try await convertToFountainWithAI(text, progress: progress)
+            let result = try await convertToFountainWithAI(text, progress: progress)
+            #if DEBUG
+            print("✅ [PDFParser] AI conversion succeeded!")
+            #endif
+            return result
         } catch {
             // If Foundation Models unavailable or fails, fall back to basic conversion
+            #if DEBUG
+            print("⚠️ [PDFParser] AI conversion failed, falling back to basic conversion")
+            print("⚠️ [PDFParser] Error: \(error)")
+            print("⚠️ [PDFParser] Error type: \(type(of: error))")
+            if let pdfError = error as? PDFScreenplayParserError {
+                print("⚠️ [PDFParser] PDFScreenplayParserError: \(pdfError.errorDescription ?? "unknown")")
+            }
+            #endif
+
             progress?.update(
                 completedUnits: 20,
                 description: "Apple Intelligence unavailable, using fallback conversion...",
@@ -226,6 +243,11 @@ public final class PDFScreenplayParser {
             return await convertToFountainBasic(text, progress: progress)
         }
         #else
+        #if DEBUG
+        print("ℹ️ [PDFParser] convertToFountain: FoundationModels NOT available at compile time")
+        print("ℹ️ [PDFParser] Using basic conversion")
+        #endif
+
         // Foundation Models not available on this platform
         progress?.update(
             completedUnits: 20,
@@ -257,17 +279,64 @@ public final class PDFScreenplayParser {
         progress: OperationProgress?
     ) async throws -> String {
         #if canImport(FoundationModels)
+        #if DEBUG
+        print("🤖 [PDFParser] Attempting Apple Intelligence conversion")
+        print("🤖 [PDFParser] FoundationModels framework is available at compile time")
+        #endif
+
         progress?.update(
             completedUnits: 30,
             description: "Checking Apple Intelligence availability...",
             force: true
         )
 
+        // Get system info for debugging
+        #if DEBUG
+        let osVersion = ProcessInfo.processInfo.operatingSystemVersionString
+        print("🤖 [PDFParser] OS Version: \(osVersion)")
+
+        #if os(macOS)
+        // Try to detect Apple Silicon
+        var size = 0
+        sysctlbyname("hw.optional.arm64", nil, &size, nil, 0)
+        var isAppleSilicon = false
+        if size > 0 {
+            var value: Int32 = 0
+            sysctlbyname("hw.optional.arm64", &value, &size, nil, 0)
+            isAppleSilicon = value == 1
+        }
+        print("🤖 [PDFParser] Chip: \(isAppleSilicon ? "Apple Silicon" : "Intel")")
+        #endif
+        #endif
+
         // Check if the system language model is available
+        #if DEBUG
+        print("🤖 [PDFParser] Creating SystemLanguageModel.default...")
+        #endif
+
         let model = SystemLanguageModel.default
+
+        #if DEBUG
+        print("🤖 [PDFParser] SystemLanguageModel created")
+        print("🤖 [PDFParser] Checking model.isAvailable...")
+        print("🤖 [PDFParser] model.isAvailable = \(model.isAvailable)")
+        #endif
+
         guard model.isAvailable else {
+            #if DEBUG
+            print("❌ [PDFParser] Apple Intelligence NOT available")
+            print("❌ [PDFParser] Possible reasons:")
+            print("   1. Apple Intelligence not enabled in System Settings")
+            print("   2. Device doesn't meet requirements (M1+/A17 Pro+)")
+            print("   3. iOS version too old (need 26.2+) or macOS (need 26.0+)")
+            print("   4. Language model not downloaded yet")
+            #endif
             throw PDFScreenplayParserError.foundationModelsUnavailable
         }
+
+        #if DEBUG
+        print("✅ [PDFParser] Apple Intelligence IS available!")
+        #endif
 
         progress?.update(
             completedUnits: 35,
@@ -309,17 +378,40 @@ public final class PDFScreenplayParser {
         )
 
         // Generate the Fountain format using the AI model
-        let response = try await session.respond(to: Prompt(userPrompt))
+        #if DEBUG
+        print("🤖 [PDFParser] Sending request to Apple Intelligence...")
+        print("🤖 [PDFParser] Input text length: \(text.count) characters")
+        #endif
 
-        progress?.update(
-            completedUnits: 75,
-            description: "AI conversion complete",
-            force: true
-        )
+        do {
+            let response = try await session.respond(to: Prompt(userPrompt))
 
-        return response.content
+            #if DEBUG
+            print("✅ [PDFParser] Received AI response")
+            print("✅ [PDFParser] Output length: \(response.content.count) characters")
+            print("✅ [PDFParser] First 200 chars: \(String(response.content.prefix(200)))")
+            #endif
+
+            progress?.update(
+                completedUnits: 75,
+                description: "AI conversion complete",
+                force: true
+            )
+
+            return response.content
+        } catch {
+            #if DEBUG
+            print("❌ [PDFParser] AI request failed with error: \(error)")
+            print("❌ [PDFParser] Error type: \(type(of: error))")
+            print("❌ [PDFParser] Error description: \(error.localizedDescription)")
+            #endif
+            throw PDFScreenplayParserError.conversionFailed(error.localizedDescription)
+        }
 
         #else
+        #if DEBUG
+        print("❌ [PDFParser] FoundationModels not available at compile time")
+        #endif
         throw PDFScreenplayParserError.foundationModelsUnavailable
         #endif
     }
