@@ -458,6 +458,7 @@ struct CastListGenerationIntegrationTests {
     // MARK: - Fallback Tests (No AI)
 
     @Test("Gracefully handle unavailable Apple Intelligence")
+    @available(iOS 26.2, macOS 26.0, *)
     func testUnavailableAI() async throws {
         let snapshot = try await loadScreenplay(filename: "test.fountain")
 
