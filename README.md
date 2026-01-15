@@ -35,16 +35,14 @@ SwiftCompartido has **two core missions**:
 
 ## ⚡ What's New
 
-**Version 6.3.0** adds voice casting support for character-to-voice assignments. Key highlights:
+**Version 6.6.0** brings Apple Intelligence integration, comprehensive rendering validation, and architectural improvements. Key highlights:
 
-- 🎤 **Voice Casting System**: Assign voices to screenplay characters for audio generation
-  - CharacterVoiceMapping data model with SwiftData persistence
-  - App Intents for Shortcuts automation (GetVoiceCasting, SetVoiceCasting)
-  - Support for multiple TTS providers (macOS, ElevenLabs, OpenAI)
-  - JSON .guion format stores casting assignments
-- 🔗 **SwiftHablare Integration Ready**: Voice mappings ready for TTS workflows
-- 📝 **API-First Design**: Voice casting works via Shortcuts without UI layer
-- ✅ **Full Test Coverage**: Round-trip persistence, UUID preservation, large documents
+- 🤖 **Apple Intelligence PDF Parsing**: On-device AI-powered conversion with 98.3% accuracy
+- 🎭 **AI Cast List Generation**: Automatic character extraction with role descriptions
+- 🧪 **Rendering Validation**: 45 tests ensuring industry-standard screenplay formatting
+- 📱 **GuionViewer Reference App**: Minimal macOS demo with best practices
+- 🎯 **ModelActor Pattern**: Safe SwiftData concurrency with DocumentModelActor
+- 🔄 **Component Reuse**: DTOs conform to DisplayableElement protocol
 
 See [CHANGELOG.md](./CHANGELOG.md) for complete version history and detailed release notes.
 
