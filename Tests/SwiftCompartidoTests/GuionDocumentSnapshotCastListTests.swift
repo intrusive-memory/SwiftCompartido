@@ -122,6 +122,7 @@ struct GuionDocumentSnapshotCastListTests {
 
     /// Test that cast list generation returns nil when Apple Intelligence unavailable
     @Test("Cast list generation gracefully returns nil when unavailable")
+    @available(iOS 26.2, macOS 26.0, *)
     func testUnavailableAppleIntelligence() async throws {
         #if canImport(FoundationModels)
         let available = await isAppleIntelligenceAvailable()
