@@ -137,29 +137,11 @@ public struct GuionDocumentConfiguration: FileDocument {
         // Check if it's a PDF file - PDFs are binary and need special parsing
         if ext == "pdf" {
             #if DEBUG
-            print("📄 PDF file detected, writing to secure temp file")
+            print("📄 PDF file detected, returning marker for special parsing")
             #endif
-
-            // Write PDF data to a temporary file that will persist for the app session
-            // This allows PDFScreenplayParser to access it later
-            let tempDir = FileManager.default.temporaryDirectory
-            let tempPDFURL = tempDir.appendingPathComponent("pdf_\(UUID().uuidString).pdf")
-
-            do {
-                try data.write(to: tempPDFURL)
-                #if DEBUG
-                print("✅ PDF written to temp file: \(tempPDFURL.path)")
-                #endif
-
-                // Return the temp file path prefixed with a marker
-                // Format: "PDF_TEMP_FILE:/path/to/temp.pdf"
-                return "PDF_TEMP_FILE:\(tempPDFURL.path)"
-            } catch {
-                #if DEBUG
-                print("❌ Failed to write PDF to temp file: \(error)")
-                #endif
-                return nil
-            }
+            // Return a marker string that FileDocumentView recognizes
+            // FileDocumentView will use sourceFileURL directly for PDF parsing
+            return "PDF_FILE"
         }
 
         // For other files, try to decode as UTF-8
