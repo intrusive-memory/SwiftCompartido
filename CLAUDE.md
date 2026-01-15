@@ -230,155 +230,47 @@ This is **intentional and correct**. Apps using this library **must** update the
 
 **DO NOT lower the platform requirements to fix this error. Instead, consumers must raise their deployment targets.**
 
-## File Format Parsing Flow
+## File Format Parsing
 
-```mermaid
-flowchart TD
-    Start([GuionParsedElementCollection]) --> Detect{File Extension?}
+SwiftCompartido supports **8 screenplay formats** with automatic format detection and unified output.
 
-    Detect -->|.md / .markdown| MD[Markdown Parser]
-    Detect -->|.highland| Highland[Highland Handler]
-    Detect -->|.textbundle| TextBundle[TextBundle Handler]
-    Detect -->|.fdx| FDX[FDX Parser]
-    Detect -->|.pdf| PDF[PDF Parser]
-    Detect -->|.fountain / other| Fountain[Fountain Parser]
-
-    MD --> YAMLExtract[Extract YAML Front Matter]
-    YAMLExtract --> ConvertMD[Convert Markdown to Elements]
-    ConvertMD --> Elements[screenplay.elements]
-
-    FDX --> ParseXML[Parse Final Draft XML]
-    ParseXML --> Elements
-
-    PDF --> AIExtract[AI-Powered Extraction]
-    AIExtract --> Elements
-
-    Fountain --> ParseFountain[Parse Fountain Syntax]
-    ParseFountain --> Elements
-
-    Highland --> Extract[Extract ZIP Archive]
-    Extract --> FindTB[Locate TextBundle Directory]
-    FindTB --> FindFile{Find .fountain<br/>or .md file}
-    FindFile -->|.fountain found| ForceFountain1[Use Fountain Parser]
-    FindFile -->|.md found| ForceFountain2[Use Fountain Parser<br/>Highland .md = Fountain]
-    ForceFountain1 --> ParseFountain
-    ForceFountain2 --> ParseFountain
-
-    TextBundle --> Discover[Find Content File]
-    Discover --> RecursiveDetect{File Extension?}
-    RecursiveDetect -->|.fountain| Fountain
-    RecursiveDetect -->|.md| MD
-
-    Elements --> Return([Return GuionParsedElementCollection])
-
-    style Highland fill:#e1f5ff
-    style ForceFountain2 fill:#fff3cd
-    style MD fill:#d4edda
-    style Elements fill:#f8d7da
-```
+**Supported Formats:**
+- Fountain (`.fountain`) - 99%+ accuracy
+- Final Draft (`.fdx`) - 99%+ accuracy
+- PDF (`.pdf`) - 95-98.3% accuracy (AI-powered or heuristic)
+- Markdown (`.md`) - 99%+ accuracy
+- Highland (`.highland`) - 99%+ accuracy
+- TextBundle (`.textbundle`) - 99%+ accuracy
+- Pandoc (`.docx`, `.odt`, `.rtf`) - 95%+ accuracy (macOS only)
 
 **Critical Parsing Rules:**
-
 1. **Standalone .md files** → Markdown parser with YAML front matter
 2. **Highland .md files** → **Always Fountain parser** (Highland uses Fountain syntax)
-3. **TextBundle .md files** → Markdown parser (recursive detection)
-4. **TextBundle .fountain files** → Fountain parser (recursive detection)
-5. **PDF files** → Heuristic extraction (95%+ accuracy on standard formats)
-   - ⚠️ **Foundation Models Note**: AI-powered conversion is architecturally prepared (iOS 26.2 shipping, API verification needed)
-   - Falls back to heuristic rules for scene heading, character, and dialogue detection
-   - Test AI features: `./Scripts/test-ai-features.sh` (requires Apple Intelligence enabled)
-   - See `Docs/FOUNDATION_MODELS_STATUS.md` for complete status and roadmap
+3. **PDF files** → AI-powered (98.3%) or heuristic (95%) extraction with automatic fallback
+
+**See [Docs/PARSING_ARCHITECTURE.md](./Docs/PARSING_ARCHITECTURE.md) for:**
+- Complete parsing flow diagram (Mermaid)
+- Parser-specific implementation details
+- Error handling and progress reporting
+- Test coverage and fixtures
 
 ## Performance Testing & Benchmarking
 
 SwiftCompartido includes comprehensive performance testing to track rendering speed and detect regressions.
 
-### Performance Test Suite
+**Quick Summary:**
+- **Performance Test Suite**: Measures parsing, conversion, and formatting performance
+- **Current Baselines**: 1.2s for 1000 elements, 24s for 5000 elements
+- **Primary Bottleneck**: SwiftData conversion (94-99% of total time)
+- **Tracking**: JSON reports exported to `/tmp/performance_results/`
+- **CI Integration**: Non-blocking performance tests with artifact upload
 
-Located in `Tests/SwiftCompartidoTests/GuionViewerPerformanceTests.swift`, the suite measures:
-
-- **Parsing performance**: GuionParsedElementCollection on 100-5000 element screenplays
-- **SwiftData conversion**: Parse → SwiftData model creation time
-- **Element access**: `sortedElements` retrieval performance
-- **Text formatting**: FountainTextFormatter (bold, italic, underline) processing
-- **End-to-end benchmarks**: Complete parse → render pipeline
-
-**Run performance tests:**
-```bash
-xcodebuild test \
-  -scheme SwiftCompartido \
-  -sdk iphonesimulator \
-  -destination 'platform=iOS Simulator,name=iPhone 17 Pro' \
-  -configuration Release \
-  -only-testing:SwiftCompartidoTests/GuionViewerPerformanceTests \
-  CODE_SIGNING_ALLOWED=NO
-```
-
-### Performance Baselines (Current)
-
-**1000 Elements:**
-- Parse: 0.016s
-- Convert: 1.127s (94% of total) ← Primary bottleneck
-- Format: 0.054s
-- **Total: 1.200s**
-
-**5000 Elements:**
-- Parse: 0.072s
-- Convert: 23.732s (99% of total) ← Primary bottleneck
-- Format: 0.234s
-- **Total: 24.050s**
-
-**Bottleneck Analysis:**
-1. SwiftData conversion scales poorly (1.1s → 23.7s for 5x elements)
-2. Text formatting is efficient (~1% of total time)
-3. Parsing is negligible (< 1% of total time)
-
-### Build-to-Build Performance Tracking
-
-**PerformanceMetricsTracker** automatically records metrics and exports JSON reports:
-
-```swift
-// Automatically tracked in tests
-await PerformanceMetricsTracker.shared.recordMetric(
-    testName: "ParseAndRender_1000",
-    elementCount: 1000,
-    parseTime: 0.016,
-    convertTime: 1.127,
-    sortTime: 0.003,
-    formatTime: 0.054
-)
-```
-
-**JSON Output Location:** `/tmp/performance_results/performance_*.json`
-
-**Automatic Comparison:**
-- Compares current run with previous baseline
-- Detects regressions >10%
-- Prints diff report in test output
-
-**CI Integration:**
-- Performance tests run after unit tests pass (non-blocking)
-- JSON reports uploaded as artifacts (90-day retention)
-- Available for download from GitHub Actions
-
-**View Reports:**
-```bash
-# Local
-ls /tmp/performance_results/
-cat /tmp/performance_results/performance_*.json | jq '.'
-
-# CI Artifacts
-# Download from GitHub Actions → Artifacts → performance-results
-```
-
-### Future Optimization Targets
-
-Based on current baselines, TextKit 2 implementation should target:
-- **SwiftData conversion**: Pre-compute during parsing phase
-- **Text rendering**: Viewport-based layout (only render visible elements)
-- **Memory usage**: 30-50% reduction via lazy loading
-
-See `.claude/skills/performance-tracking.md` for advanced tracking strategies.
+**See [Docs/PERFORMANCE_TESTING.md](./Docs/PERFORMANCE_TESTING.md) for:**
+- Detailed performance baselines
+- Running performance tests
+- Build-to-build tracking
+- Optimization targets
+- Regression detection
 
 ## Essential Build Commands
 
@@ -483,130 +375,24 @@ Elements use composite key ordering: `(chapterIndex, orderIndex)`
 
 **IMPORTANT**: All `@Relationship` decorators omit the `inverse:` parameter to avoid macro expansion circular reference errors. SwiftData automatically infers inverse relationships.
 
-#### Relationship Graph
+**Quick Summary:**
+- **Cascade Delete**: Deleting a document cascades to all elements and generated content
+- **Element Ordering**: Always use `document.sortedElements` (relationship arrays are unordered)
+- **No inverse: parameters**: Prevents circular reference errors in Swift 6 macro expansion
+- **Model Pairs Pattern**: Separate DTO models (Sendable) from SwiftData models (persistent)
 
-```
-GuionDocumentModel (parent)
-    ├─→ elements: [GuionElementModel] (@Relationship deleteRule: .cascade)
-    ├─→ titlePage: [TitlePageEntryModel] (@Relationship deleteRule: .cascade)
-    ├─→ customPages: [CustomPageModel] (@Relationship deleteRule: .cascade)
-    ├─→ casting: [CharacterVoiceMapping] (@Relationship deleteRule: .cascade) [NEW in 6.2.0]
-    └─→ generatedContent: [TypedDataStorage] (@Relationship deleteRule: .cascade)
+**See [Docs/ARCHITECTURE_SWIFTDATA.md](./Docs/ARCHITECTURE_SWIFTDATA.md) for:**
+- Complete relationship graph
+- Cascade delete behavior
+- DocumentModelActor pattern
+- Phase 6 storage architecture
+- Proper relationship usage examples
 
-GuionElementModel
-    ├─→ document: GuionDocumentModel? (@Relationship deleteRule: .nullify)
-    └─→ generatedContent: [TypedDataStorage] (@Relationship deleteRule: .cascade)
+## ⚠️ Known Issues
 
-CharacterVoiceMapping (leaf node) [NEW in 6.2.0]
-    └─→ document: GuionDocumentModel? (@Relationship deleteRule: .nullify)
+See [Docs/KNOWN_ISSUES.md](./Docs/KNOWN_ISSUES.md) for complete list of known issues and limitations.
 
-TypedDataStorage (leaf node)
-    ├─→ owningElement: GuionElementModel? (@Relationship deleteRule: .nullify)
-    └─→ owningDocument: GuionDocumentModel? (@Relationship deleteRule: .nullify)
-
-CustomPageModel (leaf node)
-    └─→ document: GuionDocumentModel? (no @Relationship decorator)
-
-TitlePageEntryModel (leaf node)
-    └─→ document: GuionDocumentModel? (no @Relationship decorator)
-```
-
-#### Cascade Delete Behavior
-
-**When a document is deleted:**
-- ✅ All elements are automatically deleted (`.cascade`)
-- ✅ All title page entries are automatically deleted (`.cascade`)
-- ✅ All document-level generated content is automatically deleted (`.cascade`)
-- ✅ Element-level generated content is deleted via element cascade
-
-**When an element is deleted:**
-- ✅ All element-level generated content is automatically deleted (`.cascade`)
-- ❌ Parent document is NOT deleted (`.nullify`)
-
-**When generated content is deleted:**
-- ❌ Owning element is NOT deleted (`.nullify`)
-- ❌ Owning document is NOT deleted (`.nullify`)
-
-**Why no `inverse:` parameters?**
-
-The `inverse:` parameter in `@Relationship` macros can cause circular reference errors during macro expansion in Swift 6. By omitting them:
-1. SwiftData still correctly infers bidirectional relationships
-2. All cascade delete rules work as expected
-3. Macro expansion completes without circular reference errors
-4. The relationship graph remains functionally identical
-
-**Example: Proper relationship usage**
-
-```swift
-// ✅ CORRECT - Document owns elements
-@Model
-class GuionDocumentModel {
-    @Relationship(deleteRule: .cascade)  // No inverse: parameter
-    var elements: [GuionElementModel]
-}
-
-// ✅ CORRECT - Element references document
-@Model
-class GuionElementModel {
-    @Relationship(deleteRule: .nullify)  // No inverse: parameter
-    var document: GuionDocumentModel?
-}
-
-// Result: Deleting document cascades to elements, but deleting element doesn't affect document
-```
-
-## ⚠️ Known Issues and Migration Notes
-
-### Binary Payload Migration (6.2.0+)
-
-**CRITICAL DATA LOSS RISK**: The binary storage column was renamed from `binaryValue` to `_compressedBinaryValue` with LZFSE compression added in version 6.2.0. This creates a migration issue for existing SwiftData stores.
-
-**Problem:**
-- Old column: `binaryValue` (uncompressed binary data)
-- New column: `_compressedBinaryValue` (LZFSE compressed)
-- New accessor: `binaryValue` (computed property, decompresses `_compressedBinaryValue`)
-- **Existing stores**: `_compressedBinaryValue` is nil for all prior records, even though data exists in old `binaryValue` column
-- **Result**: Calls like `getContent()` return nil/throw for previously persisted audio/image/video payloads
-
-**Affected Data:**
-- All `TypedDataStorage` records with binary content (audio, images, video) created before 6.2.0
-- `binaryValue` accessor returns nil because `_compressedBinaryValue` is nil
-- Original data still exists in old column but is inaccessible
-
-**Required Fix:**
-```swift
-// Migration pseudocode (needs implementation)
-// 1. Read legacy binaryValue column (direct database access)
-// 2. Compress with LZFSE
-// 3. Write to _compressedBinaryValue
-// 4. Clear old binaryValue column
-
-// OR: Fallback approach
-// Add computed property that checks both columns:
-public var binaryValue: Data? {
-    get {
-        // Try new compressed column first
-        if let compressed = _compressedBinaryValue {
-            return try? decompress(compressed)
-        }
-        // Fallback to legacy uncompressed column
-        return _legacyBinaryValue
-    }
-    set {
-        // Always write to new compressed column
-        _compressedBinaryValue = newValue.map { compress($0) }
-    }
-}
-```
-
-**Workaround Until Fixed:**
-- Apps upgrading from pre-6.2.0 should re-generate all binary content
-- OR: Export to .guion JSON format before upgrading (preserves data)
-- OR: Implement custom migration code
-
-**Status**: **UNRESOLVED** - Migration path not implemented
-
-### DocumentModelActor Element Ordering
+### DocumentModelActor Element Ordering (RESOLVED)
 
 **Issue**: Elements were potentially returned out of order from `getElements()` due to SwiftData relationship ordering not being guaranteed.
 
@@ -646,7 +432,7 @@ SwiftCompartido uses **test plans** (.xctestplan files) to organize tests into f
 - `GeneratedAudioDataTests`, `GeneratedTextDataTests`
 - `MarkdownParserTests`, `OutlineLevelParsingTests`
 - `SerializationFormatTests`, `ProviderCategoryTests`
-- `ScreenplayRenderingFormatTests`, `ScreenplayDocumentRenderingTests` (NEW in 6.3.1)
+- `ScreenplayRenderingFormatTests`, `ScreenplayDocumentRenderingTests`
 
 #### 2. **LongTests.xctestplan** (Runs on weekends)
 - **Integration tests** with file I/O and complex workflows
@@ -777,7 +563,7 @@ Edit the corresponding `.xctestplan` file and add the test suite name to `select
 
 **Goal:** Keep unit tests under 5 minutes for fast PR feedback
 
-### Screenplay Rendering Tests (NEW in 6.3.1)
+### Screenplay Rendering Tests
 
 SwiftCompartido includes comprehensive rendering validation tests that ensure screenplay elements render correctly according to industry standards.
 
@@ -943,7 +729,59 @@ For AI-powered parsing, upgrade to iOS 26.2+ or macOS 26.0+ with M1+/A17 Pro+ ch
 
 ## Common Patterns
 
-### App Intents & Shortcuts Integration (NEW in 6.1.0)
+### Voice Download Integration
+
+SwiftCompartido provides tools to help users download Enhanced and Premium system voices for high-quality Text-to-Speech.
+
+**Quick Setup:**
+
+1. **Bundle the AppleScript** in your app's Resources:
+   ```
+   YourApp.app/Contents/Resources/Scripts/download-premium-voices.applescript
+   ```
+
+2. **Use VoiceDownloadHelper** in your code:
+   ```swift
+   import SwiftCompartido
+
+   VoiceDownloadHelper.promptUserToDownloadPremiumVoices { result in
+       switch result {
+       case .success:
+           print("Voice download launched")
+       case .failure(let error):
+           print("Error: \(error)")
+       }
+   }
+   ```
+
+3. **Add to Info.plist**:
+   ```xml
+   <key>NSAppleEventsUsageDescription</key>
+   <parameter name="string">This app automates System Settings to help you download Premium voices.</string>
+   ```
+
+**SwiftUI Integration:**
+```swift
+struct SettingsView: View {
+    @State private var showVoiceDownload = false
+
+    var body: some View {
+        Button("Download Premium Voices") {
+            showVoiceDownload = true
+        }
+        .presentVoiceDownload(isPresented: $showVoiceDownload)
+    }
+}
+```
+
+**See:**
+- [Voice Download Guide](./Docs/VOICE_DOWNLOAD_GUIDE.md) - Complete documentation
+- [Scripts/README.md](./Scripts/README.md) - Integration guide
+- `Scripts/VoiceDownloadHelper.swift` - Swift API reference
+- `Scripts/VoiceDownloadExample.swift` - Example implementation
+- `Scripts/download-premium-voices.applescript` - AppleScript source
+
+### App Intents & Shortcuts Integration
 
 SwiftCompartido provides comprehensive App Intents support for Apple Shortcuts integration:
 
@@ -981,8 +819,8 @@ func parseViaIntent(url: URL) async throws -> ScreenplayElementsReference {
 **Architecture:** All App Intents delegate to `ParsedFileService.shared` for consistent behavior across Shortcuts, programmatic usage, and UI. This ensures a single code path for parsing and querying.
 
 **Documentation:**
-- See `Docs/APP_INTENTS_GUIDE.md` for complete user guide
-- See `Docs/PARSED_FILE_SERVICE_API.md` for API reference
+- See [Docs/APP_INTENTS_GUIDE.md](./Docs/APP_INTENTS_GUIDE.md) for complete user guide
+- See [Docs/PARSED_FILE_SERVICE_API.md](./Docs/PARSED_FILE_SERVICE_API.md) for API reference
 
 ### Parsing Screenplays
 
@@ -1004,7 +842,7 @@ struct ContentView: View {
 }
 ```
 
-**Or use ParsedFileService (NEW in 6.1.0):**
+**Or use ParsedFileService:**
 ```swift
 @MainActor
 func parseAndQuery(url: URL) async throws {
@@ -1080,107 +918,29 @@ This project follows a **strict branch-based workflow**:
 - Can be triggered manually via GitHub Actions UI
 - Includes coverage reporting to Codecov (separate flags for iOS and macOS)
 
-### Branch Protection Configuration
+### CI/CD Configuration
 
-**⚠️ IMPORTANT: When tests are changed or renamed, branch protections must be evaluated.**
+#### Branch Protection
 
-The `main` branch has required status checks that must pass before PRs can be merged. These checks are configured in GitHub repository settings and must match the actual CI workflow job names.
+**Required status checks:**
+- `iOS Tests (Short)` - Fast unit tests on iOS Simulator
+- `macOS Tests (Short)` - Fast unit tests on macOS
+- `Code Quality` - Linting and quality checks
 
-**When to Update Branch Protections:**
-- ✅ When CI workflow job names change
-- ✅ When test jobs are added or removed
-- ✅ When platforms are added or removed (iOS, macOS)
-- ✅ When test structure is reorganized (short vs long tests)
+**⚠️ IMPORTANT**: Update branch protections when CI workflow job names change.
 
-**How to Update Branch Protections:**
+#### iOS Simulator Creation
 
-View current protections:
-```bash
-gh api repos/intrusive-memory/SwiftCompartido/branches/main/protection/required_status_checks
-```
+**⚠️ CRITICAL**: GitHub Actions `macos-26` runners don't have iPhone simulators pre-installed.
 
-Update required checks:
-```bash
-gh api --method PATCH repos/intrusive-memory/SwiftCompartido/branches/main/protection/required_status_checks \
-  -H "Accept: application/vnd.github.v3+json" \
-  --input - <<'EOF'
-{
-  "strict": true,
-  "contexts": [
-    "iOS Tests (Short)",
-    "macOS Tests (Short)",
-    "Code Quality"
-  ]
-}
-EOF
-```
+**Solution**: All iOS workflows include a "Create iPhone Simulator" step that dynamically creates and boots an "iPhone-Test" simulator before running tests.
 
-**Best Practices:**
-- Keep branch protection checks minimal but essential
-- Align check names exactly with CI workflow job names
-- Document protection changes in PR descriptions
-- Test protection changes by creating a test PR
-
-### iOS Simulator Creation in CI (NEW in 6.5.0)
-
-**⚠️ CRITICAL: GitHub Actions `macos-26` runners don't have iPhone simulators pre-installed.**
-
-Available simulators on GitHub Actions runners:
-- ✅ Apple TV (tvOS)
-- ✅ Apple Watch (watchOS)
-- ✅ Apple Vision Pro (visionOS)
-- ❌ **NO iPhone simulators** (must be created)
-
-**Solution: Dynamic Simulator Creation**
-
-All iOS workflows now include a "Create iPhone Simulator" step that:
-
-1. **Detects latest iOS runtime** using `xcrun simctl list runtimes`
-2. **Tries multiple iPhone models** (fallback chain):
-   - iPhone 16 Pro
-   - iPhone 16
-   - iPhone 15 Pro
-   - iPhone 15
-3. **Creates simulator** named "iPhone-Test"
-4. **Boots simulator** before tests run
-
-**Example workflow step:**
-```yaml
-- name: Create iPhone Simulator
-  run: |
-    echo "📱 Creating iPhone simulator for testing"
-    RUNTIME=$(xcrun simctl list runtimes iOS -j | jq -r '.runtimes | sort_by(.version) | last | .identifier')
-    echo "Using runtime: $RUNTIME"
-
-    for DEVICE in "iPhone-16-Pro" "iPhone-16" "iPhone-15-Pro" "iPhone-15"; do
-      DEVICE_TYPE="com.apple.CoreSimulator.SimDeviceType.$DEVICE"
-      UDID=$(xcrun simctl create "iPhone-Test" "$DEVICE_TYPE" "$RUNTIME" 2>&1 || echo "")
-      if [[ -n "$UDID" && "$UDID" != *"error"* ]]; then
-        echo "✅ Created simulator: $UDID"
-        xcrun simctl boot "$UDID" || true
-        break
-      fi
-    done
-
-- name: Build for iOS Simulator
-  run: |
-    xcodebuild build \
-      -scheme SwiftCompartido \
-      -sdk iphonesimulator \
-      -destination 'platform=iOS Simulator,name=iPhone-Test' \
-      CODE_SIGNING_ALLOWED=NO
-```
-
-**Affected Workflows:**
-- `.github/workflows/tests.yml` - Unit tests
-- `.github/workflows/ui-tests.yml` - UI tests
-- `.github/workflows/long-tests.yml` - Weekend integration tests
-- `.github/workflows/performance.yml` - Performance benchmarks
-
-**Why This Matters:**
-- Without simulator creation, all iOS tests fail with "device not found" errors
-- Generic destinations like `platform=iOS Simulator` don't work (no actual devices)
-- Placeholder destinations only work for placeholders, not actual test execution
+**See [Docs/CI_CD_SETUP.md](./Docs/CI_CD_SETUP.md) for:**
+- Complete workflow descriptions (tests, long-tests, ui-tests, performance)
+- Branch protection update procedures
+- Dynamic simulator creation implementation
+- Codecov integration
+- Troubleshooting guide
 
 **See [`.claude/WORKFLOW.md`](.claude/WORKFLOW.md) for:**
 - Complete branch strategy
@@ -1194,15 +954,15 @@ All iOS workflows now include a "Create iPhone Simulator" step that:
 
 ### User Guides
 - `README.md` - User-facing overview
-- `Docs/APP_INTENTS_GUIDE.md` - Complete guide to Shortcuts integration (NEW in 6.1.0)
-- `USAGE-SUMMARY.md` - Quick reference and common patterns
+- `Docs/APP_INTENTS_GUIDE.md` - Complete guide to Shortcuts integration
+- `Docs/USAGE-SUMMARY.md` - Quick reference and common patterns
 - `CHANGELOG.md` - Version history
 
 ### API Documentation
-- `Docs/PARSED_FILE_SERVICE_API.md` - Complete API reference for ParsedFileService (NEW in 6.1.0)
-- `Docs/FOUNDATION_MODELS_STATUS.md` - Foundation Models integration status and roadmap (NEW in 6.4.0)
+- `Docs/PARSED_FILE_SERVICE_API.md` - Complete API reference for ParsedFileService
+- `Docs/FOUNDATION_MODELS_STATUS.md` - Foundation Models integration status and roadmap
 - `Docs/old/PDF_CAPABILITIES.md` - PDF reading/writing capabilities assessment
-- `SOURCE_FILE_TRACKING.md` - Source file tracking guide
+- `Docs/SOURCE_FILE_TRACKING.md` - Source file tracking guide
 
 ### Developer Documentation
 - `CLAUDE.md` - This file - architecture guide

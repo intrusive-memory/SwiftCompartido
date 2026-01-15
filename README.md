@@ -29,26 +29,18 @@ SwiftCompartido has **two core missions**:
 
 **Everything else** in this library should support these two goals. Features unrelated to parsing/storage or UI display should be deprecated or moved to separate libraries.
 
-## ⚡ What's New in 6.3.1
+## ⚡ What's New
 
-**Rendering Validation & Bug Fixes:**
-- 🧪 **Comprehensive Rendering Tests**: 45 tests validating screenplay formatting against industry standards
-  - Page width validation (65 characters per line)
-  - Element margin tests (character 40%, dialogue 25%, transition 65%)
-  - Proportional scaling across font sizes
-  - Document ordering and sequence validation
-- 🐛 **Element Ordering Fix**: Explicit sorting by composite key (chapterIndex, orderIndex)
-- 🔧 **Concurrency Fixes**: Resolved Swift 6 strict concurrency errors in parser methods
-- ✅ **CI Stability**: All tests passing on iOS and macOS platforms
+**Version 6.6.0** brings Apple Intelligence integration, comprehensive rendering validation, and architectural improvements. Key highlights:
 
-**6.3.0 Highlights:**
+- 🤖 **Apple Intelligence PDF Parsing**: On-device AI-powered conversion with 98.3% accuracy
+- 🎭 **AI Cast List Generation**: Automatic character extraction with role descriptions
+- 🧪 **Rendering Validation**: 45 tests ensuring industry-standard screenplay formatting
 - 📱 **GuionViewer Reference App**: Minimal macOS demo with best practices
-- 🎯 **ModelActor Pattern**: DocumentModelActor for safe SwiftData concurrency
-- 📐 **Fixed Layout**: 12pt font, 102 char width, centered content
+- 🎯 **ModelActor Pattern**: Safe SwiftData concurrency with DocumentModelActor
 - 🔄 **Component Reuse**: DTOs conform to DisplayableElement protocol
-- 📦 **Bundle Resources**: Loads 24+ screenplay files from app bundle
 
-See [CHANGELOG.md](./CHANGELOG.md) for complete details.
+See [CHANGELOG.md](./CHANGELOG.md) for complete version history and detailed release notes.
 
 ## Features
 
@@ -83,11 +75,46 @@ for element in document.sortedElements {
 }
 ```
 
-**JSON .guion Format** (NEW in 6.2.0):
+**JSON .guion Format**:
 - 🚀 **40-60x faster** than legacy TextPack
 - 📝 **Human-readable JSON** (perfect for git diff)
 - 📦 **27% smaller** file sizes
 - ✅ **Backward compatible**
+
+### 🎭 AI Cast List Generation
+
+Generate cast lists automatically using Apple Intelligence (iOS 26.2+, macOS 26.0+):
+
+```swift
+// Generate cast list from screenplay snapshot
+let progress = OperationProgress(totalUnits: 100) { update in
+    print("Progress (\(update.completedUnits)/\(update.totalUnits ?? 100)): \(update.description)")
+}
+
+let castList = try await snapshot.generateCastList(progress: progress)
+
+if let castList = castList {
+    // AI-generated with character descriptions
+    for member in castList.items {
+        print("\(member.role): \(member.name)")
+    }
+
+    // Add to custom pages
+    let container = try CustomPageContainer(page: castList, type: .castList)
+    snapshot.customPages = [container]
+} else {
+    // Fallback to simple extraction
+    let characters = snapshot.characters
+}
+```
+
+**Features:**
+- 🤖 **On-device AI** - Privacy-first, no cloud, zero API costs
+- 📝 **Role Descriptions** - AI-generated character summaries
+- 🎯 **Importance Ranking** - Characters sorted by dialogue frequency
+- ✅ **Graceful Fallback** - Simple extraction when AI unavailable
+
+See [Cast List Generation Guide](./Docs/CAST_LIST_GENERATION.md) for complete documentation.
 
 ### 💾 TypedDataStorage
 
@@ -335,16 +362,40 @@ open ~/Library/Developer/Xcode/DerivedData/GuionViewer-*/Build/Products/Debug/Gu
 
 See `GuionViewer/REQUIREMENTS.md` for complete specifications.
 
+## Voice Download Helper
+
+SwiftCompartido includes tools to help users download Enhanced and Premium system voices for high-quality Text-to-Speech:
+
+```swift
+// Prompt user to download Premium voices
+VoiceDownloadHelper.promptUserToDownloadPremiumVoices { result in
+    switch result {
+    case .success:
+        print("Voice download launched")
+    case .failure(let error):
+        print("Error: \(error)")
+    }
+}
+
+// SwiftUI integration
+Button("Download Premium Voices") {
+    showVoiceDownload = true
+}
+.presentVoiceDownload(isPresented: $showVoiceDownload)
+```
+
+**See [Voice Download Guide](./Docs/VOICE_DOWNLOAD_GUIDE.md) for complete documentation.**
+
 ## Documentation
 
 ### User Guides
-- **[Usage Summary](./USAGE-SUMMARY.md)** - Quick reference and common patterns
+- **[Usage Summary](./Docs/USAGE-SUMMARY.md)** - Quick reference and common patterns
 - **[App Intents Guide](./Docs/APP_INTENTS_GUIDE.md)** - Apple Shortcuts integration
 - **[Changelog](./CHANGELOG.md)** - Version history
 
 ### API Documentation
 - **[ParsedFileService API](./Docs/PARSED_FILE_SERVICE_API.md)** - Parsing and querying
-- **[Source File Tracking](./SOURCE_FILE_TRACKING.md)** - External file change detection
+- **[Source File Tracking](./Docs/SOURCE_FILE_TRACKING.md)** - External file change detection
 - **[PDF Capabilities](./Docs/old/PDF_CAPABILITIES.md)** - PDF reading/writing assessment
 - **[Foundation Models Status](./Docs/FOUNDATION_MODELS_STATUS.md)** - AI-powered PDF parsing roadmap
 

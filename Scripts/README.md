@@ -1,6 +1,121 @@
 # SwiftCompartido Scripts
 
-This directory contains utility scripts for testing and development.
+This directory contains utility scripts for testing, development, and voice management.
+
+## Voice Download Tools
+
+### 📱 download-premium-voices.applescript
+
+**Interactive AppleScript that guides users through downloading Enhanced and Premium system voices.**
+
+**What it does:**
+1. Opens System Settings → Accessibility → Read & Speak
+2. Navigates to System voice selection panel
+3. Guides user to download Enhanced/Premium voices for their language
+4. Optionally attempts automatic download
+
+**Usage:**
+```bash
+./Scripts/download-premium-voices.applescript
+```
+
+**Requirements:**
+- macOS 26.0+
+- User must approve System Events automation when prompted
+
+**Integration into your app:**
+
+1. **Bundle the script** in your app's Resources:
+   ```
+   YourApp.app/Contents/Resources/Scripts/download-premium-voices.applescript
+   ```
+
+2. **Use VoiceDownloadHelper** (included in SwiftCompartido):
+   ```swift
+   import SwiftCompartido
+
+   VoiceDownloadHelper.promptUserToDownloadPremiumVoices { result in
+       switch result {
+       case .success:
+           print("Voice download launched successfully")
+       case .failure(let error):
+           print("Error: \(error)")
+       }
+   }
+   ```
+
+3. **Add to Info.plist**:
+   ```xml
+   <key>NSAppleEventsUsageDescription</key>
+   <string>This app automates System Settings to help you download Premium voices.</string>
+   ```
+
+**See:** [Voice Download Guide](../Docs/VOICE_DOWNLOAD_GUIDE.md) for complete documentation.
+
+---
+
+### 🔧 VoiceDownloadHelper.swift
+
+**Swift helper class for programmatic voice download and management.**
+
+**Features:**
+- Prompt users to download Premium voices
+- Check installed voices and quality
+- SwiftUI integration with ready-to-use buttons
+- Automatic script discovery and execution
+
+**API:**
+```swift
+// Check voice status
+if VoiceDownloadHelper.isUsingPremiumVoice() {
+    print("Using Premium voice!")
+}
+
+// Get installed voices
+let voices = VoiceDownloadHelper.getInstalledVoices()
+
+// Prompt for download
+VoiceDownloadHelper.promptUserToDownloadPremiumVoices { result in
+    // Handle result
+}
+```
+
+**SwiftUI Components:**
+```swift
+// Ready-to-use button
+DownloadPremiumVoicesButton(label: "Download Premium Voices") { success in
+    print("Completed: \(success)")
+}
+
+// View modifier for sheets
+.presentVoiceDownload(isPresented: $showVoiceDownload)
+```
+
+---
+
+### 🎨 VoiceDownloadExample.swift
+
+**Example SwiftUI app demonstrating voice download integration.**
+
+**Features:**
+- Display current system voice status
+- List all installed voices with quality indicators
+- Test Text-to-Speech with sample text
+- Download Premium voices button
+- Voice quality badges (Premium ⭐, Enhanced, Standard)
+
+**How to use:**
+1. Copy into a new SwiftUI macOS app project
+2. Import SwiftCompartido package
+3. Set deployment target to macOS 26.0+
+4. Run to see voice management UI
+
+**Perfect for:**
+- Reference implementation for settings screens
+- Testing voice download workflow
+- Demonstrating voice quality differences to users
+
+---
 
 ## Apple Intelligence Testing
 
