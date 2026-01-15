@@ -282,10 +282,12 @@ public final class PDFScreenplayParser {
         let userPrompt = """
         Convert the following screenplay text to Fountain format. Preserve ALL text exactly as written, including all dialogue, action, character names, scene headings, and transitions. Maintain the original story order and content.
 
+        CRITICAL: Your output MUST be in valid Fountain screenplay format. Do NOT include any explanations, markdown formatting, code blocks, or additional text. Output ONLY the Fountain-formatted screenplay text, starting immediately with the screenplay content.
+
         PDF TEXT:
         \(text)
 
-        OUTPUT FOUNTAIN FORMAT:
+        OUTPUT (Fountain format only, no explanations):
         """
 
         progress?.update(
