@@ -134,6 +134,16 @@ public struct GuionDocumentConfiguration: FileDocument {
             return nil
         }
 
+        // Check if it's a PDF file - PDFs are binary and need special parsing
+        if ext == "pdf" {
+            #if DEBUG
+            print("📄 PDF file detected, returning marker for special parsing")
+            #endif
+            // Return a marker string that FileDocumentView recognizes
+            // FileDocumentView will use sourceFileURL directly for PDF parsing
+            return "PDF_FILE"
+        }
+
         // For other files, try to decode as UTF-8
         if let content = String(data: data, encoding: .utf8) {
             return content
