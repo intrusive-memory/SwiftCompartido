@@ -35,14 +35,17 @@ SwiftCompartido has **two core missions**:
 
 ## ⚡ What's New
 
-**Version 6.6.0** brings Apple Intelligence integration, comprehensive rendering validation, and architectural improvements. Key highlights:
+**Version 6.6.0** brings voice download tools, PDF parsing improvements, and comprehensive documentation. Key highlights:
 
-- 🤖 **Apple Intelligence PDF Parsing**: On-device AI-powered conversion with 98.3% accuracy
+- 🎙️ **Voice Download Tools**: Complete system for installing Enhanced/Premium macOS voices for high-quality TTS
+  - AppleScript automation for System Settings navigation
+  - Swift API wrapper with SwiftUI components
+  - Zero configuration, works out of the box
+- 🤖 **PDF Parsing Enhancements**: Page-by-page AI conversion and improved Fountain format compliance (98.3% accuracy)
+- 📚 **Documentation Reorganization**: Major audit with 5 new specialized documentation files
 - 🎭 **AI Cast List Generation**: Automatic character extraction with role descriptions
 - 🧪 **Rendering Validation**: 45 tests ensuring industry-standard screenplay formatting
 - 📱 **GuionViewer Reference App**: Minimal macOS demo with best practices
-- 🎯 **ModelActor Pattern**: Safe SwiftData concurrency with DocumentModelActor
-- 🔄 **Component Reuse**: DTOs conform to DisplayableElement protocol
 
 See [CHANGELOG.md](./CHANGELOG.md) for complete version history and detailed release notes.
 

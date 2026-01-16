@@ -7,21 +7,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [Unreleased]
-
-### Fixed
-
-- **PDF Progress Bar** - Fixed progress bar not advancing during page-by-page parsing
-- **PDF Attributed Strings** - Extract attributed strings for richer AI parsing context
-
-### Changed
-
-- **CI/CD Updates** - Disabled iOS tests and performance tests
-  - Only macOS unit tests run on PRs
-  - Branch protection updated to match
-
----
-
 ## [6.6.0] - 2026-01-15
 
 ### Added - Voice Download Tools & PDF Improvements 🎙️
