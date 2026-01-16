@@ -359,9 +359,9 @@ public final class PDFScreenplayParser {
             let pageNumber = index + 1
 
             // Update progress for this page (within 20-80% range)
-            let baseProgress = 20
-            let rangeSize = 60
-            let pageProgress = Int64(baseProgress + (rangeSize * pageNumber) / totalPages)
+            let baseProgress: Int64 = 20
+            let rangeSize: Int64 = 60
+            let pageProgress = baseProgress + Int64((Double(rangeSize) * Double(pageNumber)) / Double(totalPages))
             progress?.update(
                 completedUnits: pageProgress,
                 description: "Converting page \(pageNumber) of \(totalPages)...",
@@ -766,9 +766,9 @@ public final class PDFScreenplayParser {
             let pageNumber = index + 1
 
             // Update progress for this page (within 20-80% range)
-            let baseProgress = 20
-            let rangeSize = 60
-            let pageProgress = Int64(baseProgress + (rangeSize * pageNumber) / totalPages)
+            let baseProgress: Int64 = 20
+            let rangeSize: Int64 = 60
+            let pageProgress = baseProgress + Int64((Double(rangeSize) * Double(pageNumber)) / Double(totalPages))
             progress?.update(
                 completedUnits: pageProgress,
                 description: "Converting page \(pageNumber) of \(totalPages) (heuristic)...",
