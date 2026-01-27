@@ -1,6 +1,10 @@
 # SwiftCompartido
 
 <p align="center">
+    <img src="icon.jpg" alt="SwiftCompartido" width="200" />
+</p>
+
+<p align="center">
     <img src="https://img.shields.io/badge/Swift-6.2+-orange.svg" />
     <img src="https://img.shields.io/badge/Platform-iOS%2026.0+%20|%20macOS%2026.0+-lightgrey.svg" />
     <img src="https://img.shields.io/badge/License-MIT-blue.svg" />
