@@ -1,10 +1,14 @@
 # SwiftCompartido
 
 <p align="center">
+    <img src="icon.jpg" alt="SwiftCompartido" width="200" />
+</p>
+
+<p align="center">
     <img src="https://img.shields.io/badge/Swift-6.2+-orange.svg" />
     <img src="https://img.shields.io/badge/Platform-iOS%2026.0+%20|%20macOS%2026.0+-lightgrey.svg" />
     <img src="https://img.shields.io/badge/License-MIT-blue.svg" />
-    <img src="https://img.shields.io/badge/Version-6.4.0-blue.svg" />
+    <img src="https://img.shields.io/badge/Version-6.6.0-blue.svg" />
 </p>
 
 **SwiftCompartido** is a Swift package for parsing, storing, and displaying screenplays and AI-generated content. Built with SwiftData and SwiftUI.
@@ -29,26 +33,21 @@ SwiftCompartido has **two core missions**:
 
 **Everything else** in this library should support these two goals. Features unrelated to parsing/storage or UI display should be deprecated or moved to separate libraries.
 
-## ⚡ What's New in 6.3.1
+## ⚡ What's New
 
-**Rendering Validation & Bug Fixes:**
-- 🧪 **Comprehensive Rendering Tests**: 45 tests validating screenplay formatting against industry standards
-  - Page width validation (65 characters per line)
-  - Element margin tests (character 40%, dialogue 25%, transition 65%)
-  - Proportional scaling across font sizes
-  - Document ordering and sequence validation
-- 🐛 **Element Ordering Fix**: Explicit sorting by composite key (chapterIndex, orderIndex)
-- 🔧 **Concurrency Fixes**: Resolved Swift 6 strict concurrency errors in parser methods
-- ✅ **CI Stability**: All tests passing on iOS and macOS platforms
+**Version 6.6.0** brings voice download tools, PDF parsing improvements, and comprehensive documentation. Key highlights:
 
-**6.3.0 Highlights:**
+- 🎙️ **Voice Download Tools**: Complete system for installing Enhanced/Premium macOS voices for high-quality TTS
+  - AppleScript automation for System Settings navigation
+  - Swift API wrapper with SwiftUI components
+  - Zero configuration, works out of the box
+- 🤖 **PDF Parsing Enhancements**: Page-by-page AI conversion and improved Fountain format compliance (98.3% accuracy)
+- 📚 **Documentation Reorganization**: Major audit with 5 new specialized documentation files
+- 🎭 **AI Cast List Generation**: Automatic character extraction with role descriptions
+- 🧪 **Rendering Validation**: 45 tests ensuring industry-standard screenplay formatting
 - 📱 **GuionViewer Reference App**: Minimal macOS demo with best practices
-- 🎯 **ModelActor Pattern**: DocumentModelActor for safe SwiftData concurrency
-- 📐 **Fixed Layout**: 12pt font, 102 char width, centered content
-- 🔄 **Component Reuse**: DTOs conform to DisplayableElement protocol
-- 📦 **Bundle Resources**: Loads 24+ screenplay files from app bundle
 
-See [CHANGELOG.md](./CHANGELOG.md) for complete details.
+See [CHANGELOG.md](./CHANGELOG.md) for complete version history and detailed release notes.
 
 ## Features
 
@@ -83,11 +82,46 @@ for element in document.sortedElements {
 }
 ```
 
-**JSON .guion Format** (NEW in 6.2.0):
+**JSON .guion Format**:
 - 🚀 **40-60x faster** than legacy TextPack
 - 📝 **Human-readable JSON** (perfect for git diff)
 - 📦 **27% smaller** file sizes
 - ✅ **Backward compatible**
+
+### 🎭 AI Cast List Generation
+
+Generate cast lists automatically using Apple Intelligence (iOS 26.2+, macOS 26.0+):
+
+```swift
+// Generate cast list from screenplay snapshot
+let progress = OperationProgress(totalUnits: 100) { update in
+    print("Progress (\(update.completedUnits)/\(update.totalUnits ?? 100)): \(update.description)")
+}
+
+let castList = try await snapshot.generateCastList(progress: progress)
+
+if let castList = castList {
+    // AI-generated with character descriptions
+    for member in castList.items {
+        print("\(member.role): \(member.name)")
+    }
+
+    // Add to custom pages
+    let container = try CustomPageContainer(page: castList, type: .castList)
+    snapshot.customPages = [container]
+} else {
+    // Fallback to simple extraction
+    let characters = snapshot.characters
+}
+```
+
+**Features:**
+- 🤖 **On-device AI** - Privacy-first, no cloud, zero API costs
+- 📝 **Role Descriptions** - AI-generated character summaries
+- 🎯 **Importance Ranking** - Characters sorted by dialogue frequency
+- ✅ **Graceful Fallback** - Simple extraction when AI unavailable
+
+See [Cast List Generation Guide](./Docs/CAST_LIST_GENERATION.md) for complete documentation.
 
 ### 💾 TypedDataStorage
 
@@ -228,14 +262,14 @@ Add to your `Package.swift`:
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/intrusive-memory/SwiftCompartido.git", from: "6.4.0")
+    .package(url: "https://github.com/intrusive-memory/SwiftCompartido.git", from: "6.6.0")
 ]
 ```
 
 Or in Xcode:
 1. **File → Add Package Dependencies**
 2. Enter: `https://github.com/intrusive-memory/SwiftCompartido.git`
-3. Select version: **6.4.0** or later
+3. Select version: **6.6.0** or later
 
 ### Basic Usage
 
@@ -335,16 +369,40 @@ open ~/Library/Developer/Xcode/DerivedData/GuionViewer-*/Build/Products/Debug/Gu
 
 See `GuionViewer/REQUIREMENTS.md` for complete specifications.
 
+## Voice Download Helper
+
+SwiftCompartido includes tools to help users download Enhanced and Premium system voices for high-quality Text-to-Speech:
+
+```swift
+// Prompt user to download Premium voices
+VoiceDownloadHelper.promptUserToDownloadPremiumVoices { result in
+    switch result {
+    case .success:
+        print("Voice download launched")
+    case .failure(let error):
+        print("Error: \(error)")
+    }
+}
+
+// SwiftUI integration
+Button("Download Premium Voices") {
+    showVoiceDownload = true
+}
+.presentVoiceDownload(isPresented: $showVoiceDownload)
+```
+
+**See [Voice Download Guide](./Docs/VOICE_DOWNLOAD_GUIDE.md) for complete documentation.**
+
 ## Documentation
 
 ### User Guides
-- **[Usage Summary](./USAGE-SUMMARY.md)** - Quick reference and common patterns
+- **[Usage Summary](./Docs/USAGE-SUMMARY.md)** - Quick reference and common patterns
 - **[App Intents Guide](./Docs/APP_INTENTS_GUIDE.md)** - Apple Shortcuts integration
 - **[Changelog](./CHANGELOG.md)** - Version history
 
 ### API Documentation
 - **[ParsedFileService API](./Docs/PARSED_FILE_SERVICE_API.md)** - Parsing and querying
-- **[Source File Tracking](./SOURCE_FILE_TRACKING.md)** - External file change detection
+- **[Source File Tracking](./Docs/SOURCE_FILE_TRACKING.md)** - External file change detection
 - **[PDF Capabilities](./Docs/old/PDF_CAPABILITIES.md)** - PDF reading/writing assessment
 - **[Foundation Models Status](./Docs/FOUNDATION_MODELS_STATUS.md)** - AI-powered PDF parsing roadmap
 
@@ -361,13 +419,14 @@ See `GuionViewer/REQUIREMENTS.md` for complete specifications.
 
 ## Testing
 
-SwiftCompartido has **95%+ test coverage** with **480+ passing tests** organized into **4 test plans**:
+SwiftCompartido has **95%+ test coverage** with **480+ passing tests** organized into **5 test plans**:
 
 - **UnitTests** - Fast unit tests (runs on every PR) ⚡️
   - Includes 45 rendering validation tests for industry-standard screenplay formatting
 - **LongTests** - Integration tests (runs on weekends) 🔄
 - **UITests** - SwiftUI view tests (manual or weekend) 🎨
 - **PerformanceTests** - Benchmarks (non-blocking) 📊
+- **AITests** - Apple Intelligence tests (manual only, requires Apple Intelligence enabled) 🤖
 
 ```bash
 # Run unit tests (default for PRs)

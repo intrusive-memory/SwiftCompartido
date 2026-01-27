@@ -10,9 +10,101 @@
 import Foundation
 import PDFKit
 
+#if os(macOS)
+import AppKit
+#elseif os(iOS)
+import UIKit
+#endif
+
 #if canImport(FoundationModels)
 import FoundationModels
 #endif
+
+// MARK: - Types
+
+/// Formatted text extracted from a PDF page with layout and style information
+private struct PDFPageContent {
+    let plainText: String
+    let formattedText: String  // Text with formatting annotations
+    let pageNumber: Int
+
+    /// Create formatted text representation from attributed string
+    static func from(page: PDFPage, pageNumber: Int) -> PDFPageContent {
+        let plainText = page.string ?? ""
+
+        // Try to get attributed string for formatting information
+        guard let attributedString = page.attributedString else {
+            return PDFPageContent(plainText: plainText, formattedText: plainText, pageNumber: pageNumber)
+        }
+
+        // Build formatted representation with style annotations
+        var formattedText = ""
+        let fullRange = NSRange(location: 0, length: attributedString.length)
+
+        attributedString.enumerateAttributes(in: fullRange, options: []) { attributes, range, _ in
+            let substring = (attributedString.string as NSString).substring(with: range)
+
+            // Skip empty strings
+            guard !substring.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+                formattedText.append(substring)
+                return
+            }
+
+            // Extract font information
+            var styleAnnotations: [String] = []
+
+            #if os(macOS)
+            if let font = attributes[.font] as? NSFont {
+                // Check for bold
+                if font.fontDescriptor.symbolicTraits.contains(.bold) {
+                    styleAnnotations.append("BOLD")
+                }
+                // Check for italic
+                if font.fontDescriptor.symbolicTraits.contains(.italic) {
+                    styleAnnotations.append("ITALIC")
+                }
+                // Note larger fonts (potential headings)
+                if font.pointSize > 13 {
+                    styleAnnotations.append("LARGE")
+                }
+            }
+            #elseif os(iOS)
+            if let font = attributes[.font] as? UIFont {
+                // Check for bold
+                if font.fontDescriptor.symbolicTraits.contains(.traitBold) {
+                    styleAnnotations.append("BOLD")
+                }
+                // Check for italic
+                if font.fontDescriptor.symbolicTraits.contains(.traitItalic) {
+                    styleAnnotations.append("ITALIC")
+                }
+                // Note larger fonts (potential headings)
+                if font.pointSize > 13 {
+                    styleAnnotations.append("LARGE")
+                }
+            }
+            #endif
+
+            // Check for all caps (common in scene headings and character names)
+            let trimmed = substring.trimmingCharacters(in: .whitespacesAndNewlines)
+            if !trimmed.isEmpty && trimmed == trimmed.uppercased() && trimmed != trimmed.lowercased() {
+                styleAnnotations.append("CAPS")
+            }
+
+            // Append text with style annotations if present
+            if !styleAnnotations.isEmpty {
+                formattedText.append("[\(styleAnnotations.joined(separator: ","))]")
+            }
+            formattedText.append(substring)
+        }
+
+        return PDFPageContent(
+            plainText: plainText,
+            formattedText: formattedText,
+            pageNumber: pageNumber
+        )
+    }
+}
 
 // MARK: - Error Types
 
@@ -98,9 +190,14 @@ public final class PDFScreenplayParser {
     /// Parse a PDF file into a screenplay
     ///
     /// This method performs a three-phase workflow:
-    /// 1. Extract text from PDF using PDFKit (20% of progress)
-    /// 2. Convert to Fountain format using Foundation Models (60% of progress)
+    /// 1. Extract text from PDF page-by-page using PDFKit (20% of progress)
+    /// 2. Convert each page to Fountain format using Foundation Models (60% of progress)
     /// 3. Parse Fountain into screenplay structure (20% of progress)
+    ///
+    /// **Page-by-Page Processing:**
+    /// PDFs are processed one page at a time through Apple Intelligence to avoid
+    /// token limits (4,096 tokens per request). Each page is typically 500-1,000 tokens,
+    /// well within limits. Results are concatenated into final Fountain screenplay.
     ///
     /// - Parameters:
     ///   - url: URL to the PDF file
@@ -112,14 +209,18 @@ public final class PDFScreenplayParser {
         progress: OperationProgress? = nil
     ) async throws -> GuionParsedElementCollection {
 
-        // Phase 1: Extract text from PDF (20%)
+        // Phase 1: Extract text from PDF page-by-page (20%)
         progress?.update(completedUnits: 0, description: "Extracting text from PDF...", force: true)
-        let pdfText = try extractText(from: url, progress: progress)
-        progress?.update(completedUnits: 20, description: "Text extracted", force: true)
+        let pages = try extractPages(from: url, progress: progress)
+        progress?.update(completedUnits: 20, description: "Text extracted from \(pages.count) pages", force: true)
 
-        // Phase 2: Convert to Fountain using Foundation Models (60%)
+        #if DEBUG
+        print("📄 [PDFParser] Extracted \(pages.count) pages from PDF")
+        #endif
+
+        // Phase 2: Convert pages to Fountain using Foundation Models (60%)
         progress?.update(completedUnits: 20, description: "Converting to screenplay format...", force: true)
-        let fountainText = try await convertToFountain(pdfText, progress: progress)
+        let fountainText = try await convertPagesToFountain(pages, progress: progress)
         progress?.update(completedUnits: 80, description: "Conversion complete", force: true)
 
         // Phase 3: Parse Fountain into screenplay (20%)
@@ -138,17 +239,20 @@ public final class PDFScreenplayParser {
 
     // MARK: - Private Implementation
 
-    /// Extract text from all pages of a PDF
+    /// Extract formatted content from all pages of a PDF
+    ///
+    /// This returns an array of PDFPageContent with both plain text and formatting information,
+    /// enabling page-by-page AI processing with richer context to avoid token limits.
     ///
     /// - Parameters:
     ///   - pdfURL: URL to the PDF file
     ///   - progress: Optional progress reporting for page-by-page extraction
-    /// - Returns: Extracted text from all pages
+    /// - Returns: Array of page content with formatting information
     /// - Throws: `PDFScreenplayParserError` if PDF cannot be read or contains no text
-    private static func extractText(
+    private static func extractPages(
         from pdfURL: URL,
         progress: OperationProgress? = nil
-    ) throws -> String {
+    ) throws -> [PDFPageContent] {
 
         // Validate file exists
         guard FileManager.default.fileExists(atPath: pdfURL.path) else {
@@ -166,16 +270,32 @@ public final class PDFScreenplayParser {
             throw PDFScreenplayParserError.emptyPDF
         }
 
-        // Note: Progress is managed by parent parse() method
-        // We report sub-progress within the extraction phase if needed
+        #if DEBUG
+        print("📄 [PDFParser] Extracting formatted content from \(pageCount) pages")
+        #endif
 
-        // Extract text from all pages
-        var fullText = ""
+        // Extract formatted content from all pages
+        var pages: [PDFPageContent] = []
         for pageIndex in 0..<pageCount {
-            guard let page = pdfDocument.page(at: pageIndex) else { continue }
+            guard let page = pdfDocument.page(at: pageIndex) else {
+                #if DEBUG
+                print("⚠️ [PDFParser] Could not access page \(pageIndex + 1)")
+                #endif
+                continue
+            }
 
-            if let pageText = page.string {
-                fullText += pageText + "\n\n"
+            let pageContent = PDFPageContent.from(page: page, pageNumber: pageIndex + 1)
+
+            // Only include pages with actual content
+            if !pageContent.plainText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                pages.append(pageContent)
+
+                #if DEBUG
+                let charCount = pageContent.plainText.count
+                let formattedCharCount = pageContent.formattedText.count
+                let tokenEstimate = formattedCharCount / 3 // Rough estimate: 1 token ≈ 3 chars
+                print("📄 [PDFParser] Page \(pageIndex + 1): \(charCount) chars plain, \(formattedCharCount) chars formatted (~\(tokenEstimate) tokens)")
+                #endif
             }
 
             // Report progress for each page (within 0-20% range)
@@ -188,44 +308,123 @@ public final class PDFScreenplayParser {
             }
         }
 
-        // Validate we got text
-        let trimmedText = fullText.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmedText.isEmpty else {
+        // Validate we got content from at least one page
+        guard !pages.isEmpty else {
             throw PDFScreenplayParserError.textExtractionFailed
         }
 
-        return fullText
+        #if DEBUG
+        print("✅ [PDFParser] Successfully extracted \(pages.count) pages with formatting")
+        #endif
+
+        return pages
     }
 
-    /// Convert extracted text to Fountain format using Foundation Models
+    /// Convert pages to Fountain format using page-by-page AI processing
     ///
-    /// This method uses Apple Intelligence to intelligently convert screenplay text
-    /// from PDF format to proper Fountain syntax while preserving all content.
+    /// This method processes each page individually through Apple Intelligence
+    /// to avoid the 4,096 token context window limit. Results are concatenated
+    /// into a complete Fountain screenplay.
+    ///
+    /// **Formatting Information:**
+    /// Uses attributed string data (font, style, caps) to help AI recognize
+    /// screenplay elements more accurately than plain text alone.
+    ///
+    /// **Error Handling:**
+    /// - If AI fails on a few pages, they're converted with heuristics
+    /// - If AI fails on >50% of pages, entire document falls back to heuristics
+    /// - Individual page failures don't stop the overall conversion
     ///
     /// - Parameters:
-    ///   - text: Extracted PDF text
-    ///   - progress: Optional progress reporting
-    /// - Returns: Text formatted as Fountain screenplay
-    /// - Throws: `PDFScreenplayParserError` if conversion fails
-    private static func convertToFountain(
-        _ text: String,
+    ///   - pages: Array of page content with formatting extracted from PDF
+    ///   - progress: Optional progress reporting (updated per-page)
+    /// - Returns: Complete Fountain-formatted screenplay
+    /// - Throws: `PDFScreenplayParserError` if conversion fails completely
+    private static func convertPagesToFountain(
+        _ pages: [PDFPageContent],
         progress: OperationProgress?
     ) async throws -> String {
         #if canImport(FoundationModels)
-        // Try Foundation Models first (iOS 26+/macOS 26+ with Apple Intelligence)
-        do {
-            return try await convertToFountainWithAI(text, progress: progress)
-        } catch {
-            // If Foundation Models unavailable or fails, fall back to basic conversion
+        #if DEBUG
+        print("🔍 [PDFParser] convertPagesToFountain: Processing \(pages.count) pages")
+        print("🔍 [PDFParser] FoundationModels available, attempting page-by-page AI conversion")
+        #endif
+
+        // Try page-by-page AI conversion
+        var convertedPages: [String] = []
+        var failedPages = 0
+        let totalPages = pages.count
+
+        for (index, pageContent) in pages.enumerated() {
+            let pageNumber = index + 1
+
+            // Update progress for this page (within 20-80% range)
+            let baseProgress: Int64 = 20
+            let rangeSize: Int64 = 60
+            let pageProgress = baseProgress + Int64((Double(rangeSize) * Double(pageNumber)) / Double(totalPages))
+            progress?.update(
+                completedUnits: pageProgress,
+                description: "Converting page \(pageNumber) of \(totalPages)...",
+                force: true
+            )
+
+            // Try AI conversion for this page with formatting info
+            do {
+                let convertedPage = try await convertPageToFountainWithAI(pageContent)
+                convertedPages.append(convertedPage)
+
+                #if DEBUG
+                print("✅ [PDFParser] Page \(pageNumber) converted with AI (using formatting)")
+                #endif
+            } catch {
+                // This page failed - try basic conversion as fallback
+                failedPages += 1
+
+                #if DEBUG
+                print("⚠️ [PDFParser] Page \(pageNumber) AI conversion failed: \(error)")
+                print("⚠️ [PDFParser] Using heuristic conversion for page \(pageNumber)")
+                #endif
+
+                let basicPage = await convertPageToFountainBasic(pageContent.plainText)
+                convertedPages.append(basicPage)
+            }
+        }
+
+        // If more than 50% of pages failed AI conversion, consider it a failure
+        let failureRate = Double(failedPages) / Double(totalPages)
+        if failureRate > 0.5 {
+            #if DEBUG
+            print("⚠️ [PDFParser] High AI failure rate (\(failedPages)/\(totalPages) pages)")
+            print("⚠️ [PDFParser] Falling back to full basic conversion")
+            #endif
+
             progress?.update(
                 completedUnits: 20,
                 description: "Apple Intelligence unavailable, using fallback conversion...",
-                additionalInfo: "⚠️ AI-powered parsing unavailable. Falling back to heuristic conversion. Results may be less accurate for non-standard screenplay formats. To enable AI parsing: 1) Enable Apple Intelligence in System Settings, 2) Ensure device has M1+/A17 Pro+ chip, 3) iOS 26.2+ or macOS 26.0+",
+                additionalInfo: "⚠️ AI-powered parsing unavailable for this document. Falling back to heuristic conversion. Results may be less accurate for non-standard screenplay formats.",
                 force: true
             )
-            return await convertToFountainBasic(text, progress: progress)
+
+            // Re-process all pages with basic conversion for consistency
+            return await convertAllPagesToFountainBasic(pages, progress: progress)
         }
+
+        #if DEBUG
+        print("✅ [PDFParser] Page-by-page AI conversion succeeded")
+        print("✅ [PDFParser] Success: \(totalPages - failedPages)/\(totalPages) pages")
+        print("✅ [PDFParser] Failed: \(failedPages)/\(totalPages) pages (used heuristics)")
+        #endif
+
+        // Concatenate all converted pages with page breaks
+        let fountainText = convertedPages.joined(separator: "\n\n")
+        return fountainText
+
         #else
+        #if DEBUG
+        print("ℹ️ [PDFParser] convertPagesToFountain: FoundationModels NOT available at compile time")
+        print("ℹ️ [PDFParser] Using basic conversion for all pages")
+        #endif
+
         // Foundation Models not available on this platform
         progress?.update(
             completedUnits: 20,
@@ -233,66 +432,78 @@ public final class PDFScreenplayParser {
             additionalInfo: "ℹ️ Apple Intelligence not available on this platform. Using heuristic conversion. For AI-powered parsing, upgrade to iOS 26.2+ or macOS 26.0+ with M1+/A17 Pro+ chip.",
             force: true
         )
-        return await convertToFountainBasic(text, progress: progress)
+        return await convertAllPagesToFountainBasic(pages, progress: progress)
         #endif
     }
 
-    /// Convert to Fountain using Foundation Models (Apple Intelligence)
+    /// Convert a single page to Fountain using Foundation Models (Apple Intelligence)
     ///
     /// Uses on-device AI to intelligently parse screenplay structure and convert
     /// to proper Fountain format while preserving all text content.
     ///
-    /// **NOTE**: Foundation Models implementation is prepared but currently falls back
-    /// to heuristic conversion. The AI-powered conversion will be enabled once the
-    /// FoundationModels framework API is finalized in iOS 26/macOS 26 SDK.
+    /// **Formatting-Aware Processing:**
+    /// This method uses attributed string data (font styles, caps) to provide
+    /// richer context to the AI, improving recognition of screenplay elements.
     ///
-    /// - Parameters:
-    ///   - text: Extracted PDF text
-    ///   - progress: Optional progress reporting
-    /// - Returns: AI-converted Fountain screenplay text
+    /// **Page-by-Page Processing:**
+    /// Designed for single-page conversion to avoid the 4,096 token context window limit.
+    /// Average screenplay pages are 500-1,000 tokens, well within the limit.
+    ///
+    /// - Parameter pageContent: Page content with formatting information
+    /// - Returns: AI-converted Fountain screenplay text for this page
     /// - Throws: `PDFScreenplayParserError` if Foundation Models unavailable or conversion fails
     @available(iOS 26.0, macCatalyst 26.0, *)
-    private static func convertToFountainWithAI(
-        _ text: String,
-        progress: OperationProgress?
+    private static func convertPageToFountainWithAI(
+        _ pageContent: PDFPageContent
     ) async throws -> String {
         #if canImport(FoundationModels)
-        progress?.update(
-            completedUnits: 30,
-            description: "Checking Apple Intelligence availability...",
-            force: true
-        )
+        #if DEBUG
+        print("🤖 [PDFParser] Page \(pageContent.pageNumber): Attempting AI conversion with formatting")
+        let charCount = pageContent.formattedText.count
+        let tokenEstimate = charCount / 3
+        print("🤖 [PDFParser] Page \(pageContent.pageNumber): \(charCount) chars formatted (~\(tokenEstimate) tokens)")
+        #endif
 
-        // Check if the system language model is available
+        // Check if the system language model is available (cached after first check)
         let model = SystemLanguageModel.default
+
         guard model.isAvailable else {
+            #if DEBUG
+            print("❌ [PDFParser] Page \(pageContent.pageNumber): Apple Intelligence NOT available")
+            #endif
             throw PDFScreenplayParserError.foundationModelsUnavailable
         }
-
-        progress?.update(
-            completedUnits: 35,
-            description: "Analyzing screenplay structure with Apple Intelligence...",
-            force: true
-        )
 
         // Build the system prompt that teaches the model Fountain format
         let systemPrompt = buildFountainConversionPrompt()
 
-        // Build the user prompt with the extracted text
+        // Build the user prompt with formatted text
         let userPrompt = """
-        Convert the following screenplay text to Fountain format. Preserve ALL text exactly as written, including all dialogue, action, character names, scene headings, and transitions. Maintain the original story order and content.
+        Convert the following screenplay page to Fountain format. This is page \(pageContent.pageNumber) of a screenplay. Preserve ALL text exactly as written, including all dialogue, action, character names, scene headings, and transitions.
 
-        PDF TEXT:
-        \(text)
+        CRITICAL: Your output MUST be in valid Fountain screenplay format. Do NOT include any explanations, markdown formatting, code blocks, or additional text. Output ONLY the Fountain-formatted screenplay text, starting immediately with the screenplay content.
 
-        OUTPUT FOUNTAIN FORMAT:
+        If this page starts mid-scene or mid-dialogue, that's normal - just convert what's present.
+
+        FORMATTING ANNOTATIONS:
+        The text below includes formatting annotations in brackets to help you identify screenplay elements:
+        - [BOLD] = Bold text (often scene headings)
+        - [ITALIC] = Italic text (sometimes used for emphasis)
+        - [LARGE] = Larger font (often scene headings or titles)
+        - [CAPS] = All uppercase text (scene headings, character names, transitions)
+
+        Use these formatting cues along with screenplay conventions to accurately identify:
+        - Scene headings (BOLD + CAPS + starts with INT./EXT.)
+        - Character names (CAPS, short lines before dialogue)
+        - Dialogue (normal text following character names)
+        - Action (normal text, full sentences)
+        - Transitions (CAPS, right-aligned cues like "FADE TO:")
+
+        PAGE \(pageContent.pageNumber) TEXT WITH FORMATTING:
+        \(pageContent.formattedText)
+
+        OUTPUT (Fountain format only, no explanations):
         """
-
-        progress?.update(
-            completedUnits: 40,
-            description: "Converting to Fountain format with AI...",
-            force: true
-        )
 
         // Create a language model session with the system prompt
         let session = LanguageModelSession(
@@ -300,24 +511,30 @@ public final class PDFScreenplayParser {
             instructions: systemPrompt
         )
 
-        progress?.update(
-            completedUnits: 50,
-            description: "Generating Fountain screenplay...",
-            force: true
-        )
-
         // Generate the Fountain format using the AI model
-        let response = try await session.respond(to: Prompt(userPrompt))
+        do {
+            let response = try await session.respond(to: Prompt(userPrompt))
 
-        progress?.update(
-            completedUnits: 75,
-            description: "AI conversion complete",
-            force: true
-        )
+            #if DEBUG
+            print("✅ [PDFParser] Page \(pageContent.pageNumber): AI conversion succeeded")
+            print("✅ [PDFParser] Page \(pageContent.pageNumber): Output \(response.content.count) chars")
+            #endif
 
-        return response.content
+            return response.content
+        } catch {
+            #if DEBUG
+            print("❌ [PDFParser] Page \(pageContent.pageNumber): AI request failed: \(error)")
+            if let errorDesc = (error as? LocalizedError)?.errorDescription {
+                print("❌ [PDFParser] Page \(pageContent.pageNumber): \(errorDesc)")
+            }
+            #endif
+            throw PDFScreenplayParserError.conversionFailed(error.localizedDescription)
+        }
 
         #else
+        #if DEBUG
+        print("❌ [PDFParser] FoundationModels not available at compile time")
+        #endif
         throw PDFScreenplayParserError.foundationModelsUnavailable
         #endif
     }
@@ -411,79 +628,6 @@ public final class PDFScreenplayParser {
         """
     }
 
-    /// Basic conversion to Fountain format (fallback without Foundation Models)
-    ///
-    /// This applies heuristic rules to detect screenplay structure:
-    /// - Scene headings (INT./EXT. patterns)
-    /// - Character names (ALL CAPS lines)
-    /// - Dialogue (text following character names)
-    /// - Action (paragraph text)
-    ///
-    /// Also filters out common non-screenplay elements:
-    /// - Page numbers
-    /// - Headers and footers
-    /// - Draft information
-    ///
-    /// - Parameters:
-    ///   - text: Extracted PDF text
-    ///   - progress: Optional progress reporting
-    /// - Returns: Best-effort Fountain formatting
-    private static func convertToFountainBasic(
-        _ text: String,
-        progress: OperationProgress?
-    ) async -> String {
-
-        // Report progress for conversion phase (within 20-80% range)
-        progress?.update(completedUnits: 40, description: "Applying screenplay formatting...", force: true)
-
-        // Clean up the text
-        var lines = text.components(separatedBy: .newlines)
-            .map { $0.trimmingCharacters(in: .whitespaces) }
-
-        // Filter out page numbers and headers/footers
-        lines = filterPageNumbersAndHeaders(lines)
-
-        // Apply heuristic formatting
-        var formattedLines: [String] = []
-
-        for line in lines {
-            guard !line.isEmpty else {
-                formattedLines.append("")
-                continue
-            }
-
-            // Detect scene headings (INT./EXT. in all caps at start)
-            if line.range(of: "^(INT\\.|EXT\\.|INT/EXT\\.|I/E\\.)", options: .regularExpression) != nil {
-                // Ensure scene heading has proper spacing
-                if let last = formattedLines.last, !last.isEmpty {
-                    formattedLines.append("")
-                }
-                formattedLines.append(line.uppercased())
-                formattedLines.append("")
-                continue
-            }
-
-            // Detect character names (short ALL CAPS lines, not starting with INT/EXT)
-            let isAllCaps = line == line.uppercased()
-            let isShort = line.count < 40
-            let hasLetters = line.rangeOfCharacter(from: .letters) != nil
-
-            if isAllCaps && isShort && hasLetters && !line.hasPrefix("INT") && !line.hasPrefix("EXT") {
-                // Likely a character name
-                if let last = formattedLines.last, !last.isEmpty {
-                    formattedLines.append("")
-                }
-                formattedLines.append(line)
-                continue
-            }
-
-            // Everything else is likely action or dialogue
-            formattedLines.append(line)
-        }
-
-        return formattedLines.joined(separator: "\n")
-    }
-
     /// Filter out page numbers, headers, and footers from extracted PDF lines
     ///
     /// Common patterns filtered:
@@ -543,6 +687,99 @@ public final class PDFScreenplayParser {
             // Keep the line
             return true
         }
+    }
+
+    /// Convert a single page to Fountain format using basic heuristics
+    ///
+    /// This applies the same heuristic rules as `convertToFountainBasic()` but for a single page.
+    /// Used as a fallback when AI conversion fails for individual pages.
+    ///
+    /// - Parameter pageText: Text from a single PDF page
+    /// - Returns: Fountain-formatted text for this page
+    private static func convertPageToFountainBasic(_ pageText: String) async -> String {
+        // Clean up the text
+        var lines = pageText.components(separatedBy: .newlines)
+            .map { $0.trimmingCharacters(in: .whitespaces) }
+
+        // Filter out page numbers and headers/footers
+        lines = filterPageNumbersAndHeaders(lines)
+
+        // Apply heuristic formatting
+        var formattedLines: [String] = []
+
+        for line in lines {
+            guard !line.isEmpty else {
+                formattedLines.append("")
+                continue
+            }
+
+            // Detect scene headings (INT./EXT. in all caps at start)
+            if line.range(of: "^(INT\\.|EXT\\.|INT/EXT\\.|I/E\\.)", options: .regularExpression) != nil {
+                // Ensure scene heading has proper spacing
+                if let last = formattedLines.last, !last.isEmpty {
+                    formattedLines.append("")
+                }
+                formattedLines.append(line.uppercased())
+                formattedLines.append("")
+                continue
+            }
+
+            // Detect character names (short ALL CAPS lines, not starting with INT/EXT)
+            let isAllCaps = line == line.uppercased()
+            let isShort = line.count < 40
+            let hasLetters = line.rangeOfCharacter(from: .letters) != nil
+
+            if isAllCaps && isShort && hasLetters && !line.hasPrefix("INT") && !line.hasPrefix("EXT") {
+                // Likely a character name
+                if let last = formattedLines.last, !last.isEmpty {
+                    formattedLines.append("")
+                }
+                formattedLines.append(line)
+                continue
+            }
+
+            // Everything else is likely action or dialogue
+            formattedLines.append(line)
+        }
+
+        return formattedLines.joined(separator: "\n")
+    }
+
+    /// Convert all pages to Fountain format using basic heuristics
+    ///
+    /// This is used when AI conversion fails for the majority of pages or when
+    /// Foundation Models is not available. Processes all pages with heuristics
+    /// and concatenates results.
+    ///
+    /// - Parameters:
+    ///   - pages: Array of page content from PDF
+    ///   - progress: Optional progress reporting
+    /// - Returns: Complete Fountain-formatted screenplay
+    private static func convertAllPagesToFountainBasic(
+        _ pages: [PDFPageContent],
+        progress: OperationProgress?
+    ) async -> String {
+        var convertedPages: [String] = []
+        let totalPages = pages.count
+
+        for (index, pageContent) in pages.enumerated() {
+            let pageNumber = index + 1
+
+            // Update progress for this page (within 20-80% range)
+            let baseProgress: Int64 = 20
+            let rangeSize: Int64 = 60
+            let pageProgress = baseProgress + Int64((Double(rangeSize) * Double(pageNumber)) / Double(totalPages))
+            progress?.update(
+                completedUnits: pageProgress,
+                description: "Converting page \(pageNumber) of \(totalPages) (heuristic)...",
+                force: true
+            )
+
+            let convertedPage = await convertPageToFountainBasic(pageContent.plainText)
+            convertedPages.append(convertedPage)
+        }
+
+        return convertedPages.joined(separator: "\n\n")
     }
 
     /// Build the Foundation Models prompt for converting text to Fountain

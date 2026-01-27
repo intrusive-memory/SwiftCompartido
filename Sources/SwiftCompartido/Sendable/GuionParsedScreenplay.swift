@@ -284,17 +284,18 @@ public final class GuionParsedElementCollection {
 
         case "pdf":
             // Parse PDF files using PDFScreenplayParser
-            #if canImport(FoundationModels)
-            let screenplay = try await PDFScreenplayParser.parse(from: url, progress: progress)
-            self.init(
-                filename: filename,
-                elements: screenplay.elements,
-                titlePage: screenplay.titlePage,
-                suppressSceneNumbers: screenplay.suppressSceneNumbers
-            )
-            #else
-            throw PDFScreenplayParserError.foundationModelsUnavailable
-            #endif
+            // PDFScreenplayParser handles fallback when Apple Intelligence is unavailable
+            if #available(iOS 26.0, macCatalyst 26.0, macOS 26.0, *) {
+                let screenplay = try await PDFScreenplayParser.parse(from: url, progress: progress)
+                self.init(
+                    filename: filename,
+                    elements: screenplay.elements,
+                    titlePage: screenplay.titlePage,
+                    suppressSceneNumbers: screenplay.suppressSceneNumbers
+                )
+            } else {
+                throw PDFScreenplayParserError.foundationModelsUnavailable
+            }
 
         case "docx", "odt", "rtf":
             // Parse document files (DOCX, ODT, RTF) using Pandoc

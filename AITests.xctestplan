@@ -25,7 +25,9 @@
   "testTargets" : [
     {
       "selectedTests" : [
-        "PDFScreenplayParserAITests"
+        "PDFScreenplayParserAITests",
+        "GuionDocumentSnapshotCastListTests",
+        "CastListGenerationIntegrationTests"
       ],
       "target" : {
         "containerPath" : "container:",

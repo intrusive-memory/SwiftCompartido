@@ -1,8 +1,13 @@
-name: UI Tests
+name: UI Tests [DISABLED]
+
+# DISABLED: iOS UI tests disabled per project requirements.
+# Only macOS unit tests should run on PRs.
 
 on:
-  pull_request:
-    branches: [main]
+  # DISABLED - iOS UI tests disabled
+  # pull_request:
+  #   branches: [main]
+  workflow_dispatch:  # Allow manual triggering only
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}

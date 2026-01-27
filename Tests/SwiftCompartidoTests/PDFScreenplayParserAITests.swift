@@ -100,8 +100,10 @@ struct PDFScreenplayParserAITests {
         let available = await isAppleIntelligenceAvailable()
 
         guard available else {
-            print("⏭️  Skipping - Apple Intelligence not available")
-            print("   Run this test on iOS 26.1+ with Apple Intelligence enabled")
+            Issue.record(
+                "⚠️ SKIPPED: Apple Intelligence not available. Enable Apple Intelligence in System Settings to run AI tests.",
+                sourceLocation: SourceLocation(fileID: #fileID, filePath: #filePath, line: #line, column: #column)
+            )
             return
         }
 
@@ -136,7 +138,10 @@ struct PDFScreenplayParserAITests {
         let available = await isAppleIntelligenceAvailable()
 
         guard available else {
-            print("⏭️  Skipping - Apple Intelligence not available")
+            Issue.record(
+                "⚠️ SKIPPED: Apple Intelligence not available. Enable Apple Intelligence in System Settings to run AI tests.",
+                sourceLocation: SourceLocation(fileID: #fileID, filePath: #filePath, line: #line, column: #column)
+            )
             return
         }
 
@@ -166,7 +171,10 @@ struct PDFScreenplayParserAITests {
         let available = await isAppleIntelligenceAvailable()
 
         guard available else {
-            print("⏭️  Skipping - Apple Intelligence not available")
+            Issue.record(
+                "⚠️ SKIPPED: Apple Intelligence not available. Enable Apple Intelligence in System Settings to run AI tests.",
+                sourceLocation: SourceLocation(fileID: #fileID, filePath: #filePath, line: #line, column: #column)
+            )
             return
         }
 
@@ -193,7 +201,10 @@ struct PDFScreenplayParserAITests {
         let available = await isAppleIntelligenceAvailable()
 
         guard available else {
-            print("⏭️  Skipping - Apple Intelligence not available")
+            Issue.record(
+                "⚠️ SKIPPED: Apple Intelligence not available. Enable Apple Intelligence in System Settings to run AI tests.",
+                sourceLocation: SourceLocation(fileID: #fileID, filePath: #filePath, line: #line, column: #column)
+            )
             return
         }
 
@@ -225,7 +236,10 @@ struct PDFScreenplayParserAITests {
         let available = await isAppleIntelligenceAvailable()
 
         guard available else {
-            print("⏭️  Skipping - Apple Intelligence not available")
+            Issue.record(
+                "⚠️ SKIPPED: Apple Intelligence not available. Enable Apple Intelligence in System Settings to run AI tests.",
+                sourceLocation: SourceLocation(fileID: #fileID, filePath: #filePath, line: #line, column: #column)
+            )
             return
         }
 
@@ -261,7 +275,10 @@ struct PDFScreenplayParserAITests {
         let available = await isAppleIntelligenceAvailable()
 
         guard available else {
-            print("⏭️  Skipping - Apple Intelligence not available")
+            Issue.record(
+                "⚠️ SKIPPED: Apple Intelligence not available. Enable Apple Intelligence in System Settings to run AI tests.",
+                sourceLocation: SourceLocation(fileID: #fileID, filePath: #filePath, line: #line, column: #column)
+            )
             return
         }
 
@@ -310,7 +327,10 @@ struct PDFScreenplayParserAITests {
         let available = await isAppleIntelligenceAvailable()
 
         guard available else {
-            print("⏭️  Skipping - Apple Intelligence not available")
+            Issue.record(
+                "⚠️ SKIPPED: Apple Intelligence not available. Enable Apple Intelligence in System Settings to run AI tests.",
+                sourceLocation: SourceLocation(fileID: #fileID, filePath: #filePath, line: #line, column: #column)
+            )
             return
         }
 
