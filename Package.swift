@@ -18,7 +18,7 @@ let package = Package(
         .package(url: "https://github.com/mcritz/TextBundle.git", from: "1.0.0"),
         .package(url: "https://github.com/weichsel/ZIPFoundation", from: "0.9.0"),
         .package(url: "https://github.com/intrusive-memory/SwiftFijos.git", from: "1.0.0"),
-        .package(url: "https://github.com/swiftlang/swift-markdown.git", branch: "main")
+        .package(url: "https://github.com/intrusive-memory/swift-markdown.git", branch: "development")
     ],
     targets: [
         .target(
