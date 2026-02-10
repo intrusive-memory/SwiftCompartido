@@ -2,7 +2,7 @@
 
 This file provides comprehensive documentation for AI agents working with the SwiftCompartido codebase.
 
-**Current Version**: 6.3.0 (February 2026)
+**Current Version**: 6.6.0 (February 2026)
 
 ---
 
@@ -259,12 +259,13 @@ TypedDataStorage (SwiftData model)
 
 ## Version History
 
-**6.3.0** (Current):
-- Voice casting system for character-to-voice assignments
-- CharacterVoiceMapping data model
-- App Intents for Shortcuts automation (GetVoiceCasting, SetVoiceCasting)
-- Support for multiple TTS providers (macOS, ElevenLabs, OpenAI)
-- SwiftHablare integration ready
+**6.6.0** (Current):
+- Voice download tools (AppleScript automation)
+- PDF parsing improvements (98.3% accuracy)
+- Documentation reorganization
+- AI cast list generation
+- Rendering validation tests
+- GuionViewer reference app
 
 See [CHANGELOG.md](./CHANGELOG.md) for complete version history.
 
