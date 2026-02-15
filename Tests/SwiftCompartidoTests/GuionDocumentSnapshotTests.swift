@@ -51,7 +51,7 @@ final class GuionDocumentSnapshotTests: XCTestCase {
         )
 
         let voiceMapping = CharacterVoiceMappingSnapshot(
-            voiceURI: "macos://Samantha",
+            voiceURI: "macos://Samantha?lang=en",
             voiceName: "Samantha",
             providerID: "macos"
         )
@@ -121,7 +121,7 @@ final class GuionDocumentSnapshotTests: XCTestCase {
 
         // Set mapping
         let mapping = CharacterVoiceMappingSnapshot(
-            voiceURI: "macos://Samantha",
+            voiceURI: "macos://Samantha?lang=en",
             voiceName: "Samantha",
             providerID: "macos"
         )
@@ -130,7 +130,7 @@ final class GuionDocumentSnapshotTests: XCTestCase {
         // Verify
         let retrieved = snapshot.voiceMapping(for: "JANE")
         XCTAssertNotNil(retrieved)
-        XCTAssertEqual(retrieved?.voiceURI, "macos://Samantha")
+        XCTAssertEqual(retrieved?.voiceURI, "macos://Samantha?lang=en")
         XCTAssertEqual(retrieved?.voiceName, "Samantha")
     }
 
@@ -138,7 +138,7 @@ final class GuionDocumentSnapshotTests: XCTestCase {
         var snapshot = GuionDocumentSnapshot()
 
         let jane = CharacterVoiceMappingSnapshot(
-            voiceURI: "macos://Samantha",
+            voiceURI: "macos://Samantha?lang=en",
             voiceName: "Samantha",
             providerID: "macos"
         )
@@ -223,12 +223,12 @@ final class GuionDocumentSnapshotTests: XCTestCase {
         var snapshot = GuionDocumentSnapshot()
         snapshot.casting = [
             "JANE": CharacterVoiceMappingSnapshot(
-                voiceURI: "macos://Samantha",
+                voiceURI: "macos://Samantha?lang=en",
                 voiceName: "Samantha",
                 providerID: "macos"
             ),
             "JOHN": CharacterVoiceMappingSnapshot(
-                voiceURI: "elevenlabs://voice-123",
+                voiceURI: "elevenlabs://voice-123?lang=en",
                 voiceName: "Adam",
                 providerID: "elevenlabs"
             ),
@@ -341,7 +341,7 @@ final class GuionDocumentSnapshotTests: XCTestCase {
 
         snapshot.casting = [
             "JANE": CharacterVoiceMappingSnapshot(
-                voiceURI: "macos://Samantha",
+                voiceURI: "macos://Samantha?lang=en",
                 voiceName: "Samantha",
                 providerID: "macos"
             )

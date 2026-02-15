@@ -142,14 +142,14 @@ struct Phase2IntegrationTests {
 
         let janeVoice = CharacterVoiceMapping(
             characterName: "JANE",
-            voiceURI: "macos://Samantha",
+            voiceURI: "macos://Samantha?lang=en",
             voiceName: "Samantha",
             providerID: "macos"
         )
 
         let johnVoice = CharacterVoiceMapping(
             characterName: "JOHN",
-            voiceURI: "elevenlabs://voice-id-123",
+            voiceURI: "elevenlabs://voice-id-123?lang=en",
             voiceName: "Daniel",
             providerID: "elevenlabs"
         )
@@ -166,12 +166,12 @@ struct Phase2IntegrationTests {
         #expect(restored.casting?.count == 2)
 
         let janeRestored = restored.casting?.first { $0.characterName == "JANE" }
-        #expect(janeRestored?.voiceURI == "macos://Samantha")
+        #expect(janeRestored?.voiceURI == "macos://Samantha?lang=en")
         #expect(janeRestored?.voiceName == "Samantha")
         #expect(janeRestored?.providerID == "macos")
 
         let johnRestored = restored.casting?.first { $0.characterName == "JOHN" }
-        #expect(johnRestored?.voiceURI == "elevenlabs://voice-id-123")
+        #expect(johnRestored?.voiceURI == "elevenlabs://voice-id-123?lang=en")
         #expect(johnRestored?.voiceName == "Daniel")
         #expect(johnRestored?.providerID == "elevenlabs")
     }

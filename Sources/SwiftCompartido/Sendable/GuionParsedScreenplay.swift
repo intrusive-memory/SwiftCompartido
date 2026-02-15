@@ -90,6 +90,63 @@ public final class GuionParsedElementCollection {
     public let suppressSceneNumbers: Bool
     public let customPages: [CustomPageContainer]
 
+    // MARK: - Supported File Extensions
+
+    /// All supported screenplay file extensions across all parsers.
+    ///
+    /// This includes basic screenplay formats, document formats (macOS only),
+    /// and PDF support (macOS 26.0+ only).
+    ///
+    /// Use this property when you need to validate or filter screenplay files
+    /// regardless of platform or OS version.
+    ///
+    /// - Returns: Array of lowercase file extensions without dots (e.g., ["fountain", "fdx", "pdf"])
+    public static var supportedFileExtensions: [String] {
+        var extensions = supportedScreenplayExtensions
+        #if os(macOS)
+        extensions += supportedDocumentExtensions
+        if #available(macOS 26.0, *) {
+            extensions += supportedPDFExtensions
+        }
+        #endif
+        return extensions
+    }
+
+    /// Basic screenplay file extensions supported on all platforms.
+    ///
+    /// These formats are always available regardless of OS version:
+    /// - `.fountain` - Fountain screenplay format (default)
+    /// - `.highland` - Highland app format (ZIP bundle or plain text)
+    /// - `.textbundle` - TextBundle format
+    /// - `.fdx` - Final Draft XML format
+    /// - `.md`, `.markdown` - Markdown with YAML front matter
+    /// - `.guion` - Produciesta's JSON format
+    public static let supportedScreenplayExtensions: [String] = [
+        "fountain",
+        "highland",
+        "textbundle",
+        "fdx",
+        "md",
+        "markdown",
+        "guion"
+    ]
+
+    /// Document file extensions supported via Pandoc (macOS only).
+    ///
+    /// These formats require Pandoc and are only available on macOS:
+    /// - `.docx` - Microsoft Word 2007+ (Office Open XML)
+    /// - `.odt` - OpenDocument Text (LibreOffice, Google Docs)
+    /// - `.rtf` - Rich Text Format
+    ///
+    /// - Note: Returns the same as `PandocDocumentParser.supportedExtensions`
+    public static let supportedDocumentExtensions: [String] = PandocDocumentParser.supportedExtensions
+
+    /// PDF file extensions (macOS 26.0+ only, requires Apple Intelligence).
+    ///
+    /// PDF parsing is only available on macOS 26.0 or later and requires
+    /// Apple Intelligence to extract structured screenplay content.
+    public static let supportedPDFExtensions: [String] = ["pdf"]
+
     /// Initialize with parsed screenplay data
     /// - Parameters:
     ///   - filename: Optional filename for the screenplay

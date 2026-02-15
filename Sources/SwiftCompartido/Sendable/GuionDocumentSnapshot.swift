@@ -52,7 +52,7 @@ import os.log
 /// ```swift
 /// snapshot.casting = [
 ///     "JANE": CharacterVoiceMappingSnapshot(
-///         voiceURI: "elevenlabs://voice-id-123",
+///         voiceURI: "elevenlabs://voice-id-123?lang=en",
 ///         voiceName: "Rachel",
 ///         providerID: "elevenlabs"
 ///     )
@@ -195,12 +195,12 @@ public struct GuionDocumentSnapshot: Codable, Identifiable, Sendable {
     /// ```swift
     /// snapshot.casting = [
     ///     "JANE": CharacterVoiceMappingSnapshot(
-    ///         voiceURI: "macos://Samantha",
+    ///         voiceURI: "macos://Samantha?lang=en",
     ///         voiceName: "Samantha",
     ///         providerID: "macos"
     ///     ),
     ///     "JOHN": CharacterVoiceMappingSnapshot(
-    ///         voiceURI: "elevenlabs://voice-123",
+    ///         voiceURI: "elevenlabs://voice-123?lang=en",
     ///         voiceName: "Adam",
     ///         providerID: "elevenlabs"
     ///     )
