@@ -8,7 +8,7 @@
     <img src="https://img.shields.io/badge/Swift-6.2+-orange.svg" />
     <img src="https://img.shields.io/badge/Platform-iOS%2026.0+%20|%20macOS%2026.0+-lightgrey.svg" />
     <img src="https://img.shields.io/badge/License-MIT-blue.svg" />
-    <img src="https://img.shields.io/badge/Version-6.6.0-blue.svg" />
+    <img src="https://img.shields.io/badge/Version-6.3.0-blue.svg" />
 </p>
 
 **SwiftCompartido** is a Swift package for parsing, storing, and displaying screenplays and AI-generated content. Built with SwiftData and SwiftUI.
@@ -35,17 +35,16 @@ SwiftCompartido has **two core missions**:
 
 ## ⚡ What's New
 
-**Version 6.6.0** brings voice download tools, PDF parsing improvements, and comprehensive documentation. Key highlights:
+**Version 6.3.0** adds voice casting support for character-to-voice assignments. Key highlights:
 
-- 🎙️ **Voice Download Tools**: Complete system for installing Enhanced/Premium macOS voices for high-quality TTS
-  - AppleScript automation for System Settings navigation
-  - Swift API wrapper with SwiftUI components
-  - Zero configuration, works out of the box
-- 🤖 **PDF Parsing Enhancements**: Page-by-page AI conversion and improved Fountain format compliance (98.3% accuracy)
-- 📚 **Documentation Reorganization**: Major audit with 5 new specialized documentation files
-- 🎭 **AI Cast List Generation**: Automatic character extraction with role descriptions
-- 🧪 **Rendering Validation**: 45 tests ensuring industry-standard screenplay formatting
-- 📱 **GuionViewer Reference App**: Minimal macOS demo with best practices
+- 🎤 **Voice Casting System**: Assign voices to screenplay characters for audio generation
+  - CharacterVoiceMapping data model with SwiftData persistence
+  - App Intents for Shortcuts automation (GetVoiceCasting, SetVoiceCasting)
+  - Support for multiple TTS providers (macOS, ElevenLabs, OpenAI)
+  - JSON .guion format stores casting assignments
+- 🔗 **SwiftHablare Integration Ready**: Voice mappings ready for TTS workflows
+- 📝 **API-First Design**: Voice casting works via Shortcuts without UI layer
+- ✅ **Full Test Coverage**: Round-trip persistence, UUID preservation, large documents
 
 See [CHANGELOG.md](./CHANGELOG.md) for complete version history and detailed release notes.
 
@@ -269,7 +268,7 @@ dependencies: [
 Or in Xcode:
 1. **File → Add Package Dependencies**
 2. Enter: `https://github.com/intrusive-memory/SwiftCompartido.git`
-3. Select version: **6.6.0** or later
+3. Select version: **6.3.0** or later
 
 ### Basic Usage
 
