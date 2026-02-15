@@ -113,36 +113,36 @@ final class CharacterVoiceMappingSnapshotTests: XCTestCase {
 
     func testInit_MacOSVoice() {
         let snapshot = CharacterVoiceMappingSnapshot(
-            voiceURI: "macos://Samantha",
+            voiceURI: "macos://Samantha?lang=en",
             voiceName: "Samantha",
             providerID: "macos"
         )
 
-        XCTAssertEqual(snapshot.voiceURI, "macos://Samantha")
+        XCTAssertEqual(snapshot.voiceURI, "macos://Samantha?lang=en")
         XCTAssertEqual(snapshot.voiceName, "Samantha")
         XCTAssertEqual(snapshot.providerID, "macos")
     }
 
     func testInit_ElevenLabsVoice() {
         let snapshot = CharacterVoiceMappingSnapshot(
-            voiceURI: "elevenlabs://21m00Tcm4TlvDq8ikWAM",
+            voiceURI: "elevenlabs://21m00Tcm4TlvDq8ikWAM?lang=en",
             voiceName: "Rachel",
             providerID: "elevenlabs"
         )
 
-        XCTAssertEqual(snapshot.voiceURI, "elevenlabs://21m00Tcm4TlvDq8ikWAM")
+        XCTAssertEqual(snapshot.voiceURI, "elevenlabs://21m00Tcm4TlvDq8ikWAM?lang=en")
         XCTAssertEqual(snapshot.voiceName, "Rachel")
         XCTAssertEqual(snapshot.providerID, "elevenlabs")
     }
 
     func testInit_OpenAIVoice() {
         let snapshot = CharacterVoiceMappingSnapshot(
-            voiceURI: "openai://alloy",
+            voiceURI: "openai://alloy?lang=en",
             voiceName: "Alloy",
             providerID: "openai"
         )
 
-        XCTAssertEqual(snapshot.voiceURI, "openai://alloy")
+        XCTAssertEqual(snapshot.voiceURI, "openai://alloy?lang=en")
         XCTAssertEqual(snapshot.voiceName, "Alloy")
         XCTAssertEqual(snapshot.providerID, "openai")
     }
@@ -151,7 +151,7 @@ final class CharacterVoiceMappingSnapshotTests: XCTestCase {
 
     func testCodable_MacOSVoice() throws {
         let original = CharacterVoiceMappingSnapshot(
-            voiceURI: "macos://Samantha",
+            voiceURI: "macos://Samantha?lang=en",
             voiceName: "Samantha",
             providerID: "macos"
         )
@@ -166,7 +166,7 @@ final class CharacterVoiceMappingSnapshotTests: XCTestCase {
 
     func testCodable_ElevenLabsVoice() throws {
         let original = CharacterVoiceMappingSnapshot(
-            voiceURI: "elevenlabs://21m00Tcm4TlvDq8ikWAM",
+            voiceURI: "elevenlabs://21m00Tcm4TlvDq8ikWAM?lang=en",
             voiceName: "Rachel",
             providerID: "elevenlabs"
         )
@@ -181,7 +181,7 @@ final class CharacterVoiceMappingSnapshotTests: XCTestCase {
 
     func testCodable_CustomProvider() throws {
         let original = CharacterVoiceMappingSnapshot(
-            voiceURI: "custom://voice-xyz",
+            voiceURI: "custom://voice-xyz?lang=en",
             voiceName: "Custom Voice",
             providerID: "custom-provider"
         )
@@ -209,12 +209,12 @@ final class CharacterVoiceMappingSnapshotTests: XCTestCase {
 
     func testHashable_EqualMappings() {
         let mapping1 = CharacterVoiceMappingSnapshot(
-            voiceURI: "macos://Samantha",
+            voiceURI: "macos://Samantha?lang=en",
             voiceName: "Samantha",
             providerID: "macos"
         )
         let mapping2 = CharacterVoiceMappingSnapshot(
-            voiceURI: "macos://Samantha",
+            voiceURI: "macos://Samantha?lang=en",
             voiceName: "Samantha",
             providerID: "macos"
         )
@@ -225,7 +225,7 @@ final class CharacterVoiceMappingSnapshotTests: XCTestCase {
 
     func testHashable_DifferentMappings() {
         let mapping1 = CharacterVoiceMappingSnapshot(
-            voiceURI: "macos://Samantha",
+            voiceURI: "macos://Samantha?lang=en",
             voiceName: "Samantha",
             providerID: "macos"
         )
@@ -244,12 +244,12 @@ final class CharacterVoiceMappingSnapshotTests: XCTestCase {
         var casting: [String: CharacterVoiceMappingSnapshot] = [:]
 
         casting["JANE"] = CharacterVoiceMappingSnapshot(
-            voiceURI: "macos://Samantha",
+            voiceURI: "macos://Samantha?lang=en",
             voiceName: "Samantha",
             providerID: "macos"
         )
         casting["JOHN"] = CharacterVoiceMappingSnapshot(
-            voiceURI: "elevenlabs://voice-123",
+            voiceURI: "elevenlabs://voice-123?lang=en",
             voiceName: "Adam",
             providerID: "elevenlabs"
         )

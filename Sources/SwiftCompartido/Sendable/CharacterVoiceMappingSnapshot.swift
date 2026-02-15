@@ -19,24 +19,24 @@ import Foundation
 ///
 /// ## Voice URI Format
 ///
-/// Voice URIs use a provider-specific scheme:
-/// - **macOS System Voices**: `macos://VoiceName` (e.g., `macos://Samantha`)
-/// - **ElevenLabs**: `elevenlabs://voice-id` (e.g., `elevenlabs://21m00Tcm4TlvDq8ikWAM`)
-/// - **OpenAI**: `openai://voice-name` (e.g., `openai://alloy`)
-/// - **Custom Providers**: `provider://identifier`
+/// Voice URIs follow the SwiftHablare standard: `<provider>://<voiceId>?lang=<languageCode>`
+/// - **macOS System Voices**: `macos://Samantha?lang=en`
+/// - **ElevenLabs**: `elevenlabs://21m00Tcm4TlvDq8ikWAM?lang=en`
+/// - **OpenAI**: `openai://alloy?lang=en`
+/// - **Custom Providers**: `provider://identifier?lang=<languageCode>`
 ///
 /// ## Example
 ///
 /// ```swift
 /// let mapping = CharacterVoiceMappingSnapshot(
-///     voiceURI: "macos://Samantha",
+///     voiceURI: "macos://Samantha?lang=en",
 ///     voiceName: "Samantha",
 ///     providerID: "macos"
 /// )
 ///
 /// // Or ElevenLabs:
 /// let elevenlabsMapping = CharacterVoiceMappingSnapshot(
-///     voiceURI: "elevenlabs://21m00Tcm4TlvDq8ikWAM",
+///     voiceURI: "elevenlabs://21m00Tcm4TlvDq8ikWAM?lang=en",
 ///     voiceName: "Rachel",
 ///     providerID: "elevenlabs"
 /// )
@@ -55,13 +55,13 @@ public struct CharacterVoiceMappingSnapshot: Codable, Sendable, Hashable {
 
     /// Voice URI identifying the specific voice
     ///
-    /// Format: `provider://identifier`
+    /// Format: `<provider>://<voiceId>?lang=<languageCode>`
     ///
     /// ## Examples
     ///
-    /// - `macos://Samantha` - macOS system voice
-    /// - `elevenlabs://21m00Tcm4TlvDq8ikWAM` - ElevenLabs voice ID
-    /// - `openai://alloy` - OpenAI voice name
+    /// - `macos://Samantha?lang=en` - macOS system voice
+    /// - `elevenlabs://21m00Tcm4TlvDq8ikWAM?lang=en` - ElevenLabs voice ID
+    /// - `openai://alloy?lang=en` - OpenAI voice name
     public var voiceURI: String
 
     /// Human-readable voice name
@@ -84,7 +84,7 @@ public struct CharacterVoiceMappingSnapshot: Codable, Sendable, Hashable {
     /// Initialize a new character voice mapping
     ///
     /// - Parameters:
-    ///   - voiceURI: Voice URI (e.g., "macos://Samantha")
+    ///   - voiceURI: Voice URI (e.g., "macos://Samantha?lang=en")
     ///   - voiceName: Human-readable name (e.g., "Samantha")
     ///   - providerID: Provider ID (e.g., "macos")
     public init(voiceURI: String, voiceName: String, providerID: String) {

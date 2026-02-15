@@ -149,7 +149,7 @@ public struct SetVoiceCastingIntent: AppIntent {
 
     @Parameter(
         title: "Voice URI",
-        description: "Voice identifier (e.g., 'macos://Samantha', 'elevenlabs://voice-id')"
+        description: "Voice identifier (e.g., 'macos://Samantha?lang=en', 'elevenlabs://voice-id?lang=en')"
     )
     public var voiceURI: String
 

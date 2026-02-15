@@ -252,12 +252,12 @@ final class GuionJSONSerializerTests: XCTestCase {
         var original = GuionDocumentSnapshot()
         original.casting = [
             "JANE": CharacterVoiceMappingSnapshot(
-                voiceURI: "macos://Samantha",
+                voiceURI: "macos://Samantha?lang=en",
                 voiceName: "Samantha",
                 providerID: "macos"
             ),
             "JOHN": CharacterVoiceMappingSnapshot(
-                voiceURI: "elevenlabs://voice-123",
+                voiceURI: "elevenlabs://voice-123?lang=en",
                 voiceName: "Adam",
                 providerID: "elevenlabs"
             )
