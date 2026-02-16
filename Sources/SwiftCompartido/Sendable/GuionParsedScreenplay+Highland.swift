@@ -75,40 +75,13 @@ extension GuionParsedElementCollection {
         // Parse as Fountain (Highland's .md files are actually Fountain format)
         let fountainParser = try FountainParser(file: contentURL.path)
 
-        // DISABLED: Custom pages loading is temporarily disabled
-        // let customPages = Self.loadCustomPages(from: textBundleURL)
-
         self.init(
             filename: url.lastPathComponent,
             elements: fountainParser.elements,
             titlePage: fountainParser.titlePage,
             suppressSceneNumbers: false,
-            customPages: [] // DISABLED
+            customPages: []
         )
-    }
-
-    /// Load custom pages from a TextBundle's resources directory
-    /// - Parameter textBundleURL: URL to the .textbundle directory
-    /// - Returns: Array of CustomPageContainer objects
-    private static func loadCustomPages(from textBundleURL: URL) -> [CustomPageContainer] {
-        let resourcesURL = textBundleURL.appendingPathComponent("resources")
-        let customPagesURL = resourcesURL.appendingPathComponent("custom-pages.json")
-
-        guard FileManager.default.fileExists(atPath: customPagesURL.path) else {
-            return []
-        }
-
-        do {
-            let data = try Data(contentsOf: customPagesURL)
-            let jsonArray = try JSONSerialization.jsonObject(with: data) as? [[String: Any]] ?? []
-
-            return try jsonArray.compactMap { dict in
-                try CustomPageContainer(from: dict)
-            }
-        } catch {
-            print("Warning: Failed to load custom-pages.json: \(error)")
-            return []
-        }
     }
 
     /// Write the current GuionParsedElementCollection to a Highland file (.highland)

@@ -145,9 +145,6 @@ extension GuionParsedElementCollection {
             fountainFilename: "\(name).fountain"
         )
 
-        // REMOVED: Automatic custom-pages.json writing
-        // Custom pages must be written manually if needed
-
         // Add derived metadata files if requested
         if includeResources {
             let resourcesDir = textBundleURL.appendingPathComponent("resources")
@@ -167,14 +164,6 @@ extension GuionParsedElementCollection {
         }
 
         return textBundleURL
-    }
-
-    /// Write custom pages to JSON file
-    /// - Parameter url: Destination URL for custom-pages.json
-    private func writeCustomPagesJSON(to url: URL) throws {
-        let jsonArray = try customPages.map { try $0.toDictionary() }
-        let jsonData = try JSONSerialization.data(withJSONObject: jsonArray, options: [.prettyPrinted, .sortedKeys])
-        try jsonData.write(to: url)
     }
 }
 
