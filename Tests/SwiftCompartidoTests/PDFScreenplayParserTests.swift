@@ -24,17 +24,10 @@ struct PDFScreenplayParserTests {
 
     /// Get a test fixture PDF by filename
     private func getFixture(_ filename: String) -> URL {
-        #if SWIFT_PACKAGE
-        let bundle = Bundle.module
-        #else
-        let bundle = Bundle(for: type(of: self))
-        #endif
-
-        guard let resourcePath = bundle.resourcePath else {
-            fatalError("Could not find resource path")
-        }
-
-        return URL(fileURLWithPath: resourcePath)
+        URL(fileURLWithPath: #filePath)
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
             .appendingPathComponent("Fixtures")
             .appendingPathComponent(filename)
     }

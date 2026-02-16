@@ -25,18 +25,10 @@ struct PandocIntegrationTests {
     /// - Parameter filename: Filename relative to Fixtures/pandoc-documents/
     /// - Returns: Full URL to the fixture file
     static func fixtureURL(_ filename: String) -> URL {
-        let bundle: Bundle
-        #if SWIFT_PACKAGE
-        bundle = Bundle.module
-        #else
-        bundle = Bundle(for: PandocIntegrationTests.self as! AnyClass)
-        #endif
-
-        guard let resourcePath = bundle.resourcePath else {
-            fatalError("Could not find resource path")
-        }
-
-        return URL(fileURLWithPath: resourcePath)
+        URL(fileURLWithPath: #filePath)
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
             .appendingPathComponent("Fixtures")
             .appendingPathComponent("pandoc-documents")
             .appendingPathComponent(filename)
