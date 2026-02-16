@@ -87,40 +87,23 @@ for element in document.sortedElements {
 - 📦 **27% smaller** file sizes
 - ✅ **Backward compatible**
 
-### 🎭 AI Cast List Generation
+### 🎭 Cast Management
 
-Generate cast lists automatically using Apple Intelligence (iOS 26.2+, macOS 26.0+):
+Cast management has moved to **SwiftProyecto** for PROJECT.md-based workflows:
 
 ```swift
-// Generate cast list from screenplay snapshot
-let progress = OperationProgress(totalUnits: 100) { update in
-    print("Progress (\(update.completedUnits)/\(update.totalUnits ?? 100)): \(update.description)")
-}
+import SwiftProyecto
 
-let castList = try await snapshot.generateCastList(progress: progress)
-
-if let castList = castList {
-    // AI-generated with character descriptions
-    for member in castList.items {
-        print("\(member.role): \(member.name)")
+let discovery = ProjectDiscovery()
+if let projectMd = discovery.findProjectMd(from: screenplayURL) {
+    let cast = try discovery.readCast(from: projectMd)
+    for member in cast {
+        print("\(member.character): \(member.voices)")
     }
-
-    // Add to custom pages
-    let container = try CustomPageContainer(page: castList, type: .castList)
-    snapshot.customPages = [container]
-} else {
-    // Fallback to simple extraction
-    let characters = snapshot.characters
 }
 ```
 
-**Features:**
-- 🤖 **On-device AI** - Privacy-first, no cloud, zero API costs
-- 📝 **Role Descriptions** - AI-generated character summaries
-- 🎯 **Importance Ranking** - Characters sorted by dialogue frequency
-- ✅ **Graceful Fallback** - Simple extraction when AI unavailable
-
-See [Cast List Generation Guide](./Docs/CAST_LIST_GENERATION.md) for complete documentation.
+See [SwiftProyecto documentation](https://github.com/intrusive-memory/SwiftProyecto) for details.
 
 ### 💾 TypedDataStorage
 
