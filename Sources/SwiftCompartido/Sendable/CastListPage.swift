@@ -25,30 +25,37 @@
 
 import Foundation
 
-/// A cast list custom page that maps screenplay characters to actor names
+/// Highland 2 compatible cast list page model
 ///
-/// Cast lists are commonly used in screenplays to document which actors
-/// are playing which roles. This page type is fully supported for reading,
-/// writing, and editing.
+/// ## Deprecation Notice
 ///
-/// ## Example
+/// **This model is deprecated and kept only for Highland file format compatibility.**
+///
+/// For new projects, use `SwiftProyecto.CastMember` as the canonical cast model.
+/// `CastListPage` is only used when importing/exporting Highland .textbundle files.
+///
+/// ### Migration Path
+///
+/// If you're using `CastListPage` for cast management, migrate to SwiftProyecto:
 ///
 /// ```swift
-/// let castList = CastListPage(
-///     id: UUID().uuidString,
-///     title: "Cast List",
-///     position: 0,
-///     printDots: true,
-///     items: [
-///         CastListPage.CastMember(
-///             id: UUID().uuidString,
-///             role: "BERNARD",
-///             name: "Jason Manino",
-///             position: 0
-///         )
-///     ]
-/// )
+/// import SwiftProyecto
+///
+/// // Old approach (deprecated):
+/// let castPage = CastListPage(items: [...])
+///
+/// // New approach (recommended):
+/// let discovery = ProjectDiscovery()
+/// if let projectMd = discovery.findProjectMd(from: screenplayURL) {
+///     let cast = try discovery.readCast(from: projectMd)
+/// }
 /// ```
+///
+/// ### Future Plans
+///
+/// This model will be removed in a future release if Highland support is dropped.
+/// Consider migrating to PROJECT.md-based cast management now.
+@available(*, deprecated, message: "Use SwiftProyecto.CastMember for PROJECT.md-based cast management")
 public struct CastListPage: CustomPage, Identifiable {
     public let id: String
     public var title: String
