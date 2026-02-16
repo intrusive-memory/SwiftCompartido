@@ -42,5 +42,15 @@ let package = Package(
                 .enableUpcomingFeature("StrictConcurrency"),
             ]
         ),
+        .testTarget(
+            name: "SwiftCompartidoPDFTests",
+            dependencies: [
+                "SwiftCompartido",
+                .product(name: "SwiftFijos", package: "SwiftFijos")
+            ],
+            swiftSettings: [
+                .enableUpcomingFeature("StrictConcurrency"),
+            ]
+        ),
     ]
 )

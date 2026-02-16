@@ -29,10 +29,6 @@ jobs:
           xcodebuild test \
             -scheme SwiftCompartido \
             -destination 'platform=macOS' \
-            -skip-testing:SwiftCompartidoTests/PDFScreenplayParserAITests \
-            -skip-testing:SwiftCompartidoTests/PDFScreenplayParserTests \
+            -only-testing:SwiftCompartidoTests \
             -skip-testing:SwiftCompartidoTests/GuionDocumentSnapshotCastListTests \
-            -skip-testing:SwiftCompartidoTests/CastListGenerationIntegrationTests \
-            -skip-testing:SwiftCompartidoTests/PandocIntegrationTests \
-            -skip-testing:SwiftCompartidoTests/PandocDocumentParserTests \
-            -skip-testing:SwiftCompartidoTests/GuionParsedElementCollectionPandocTests
+            -skip-testing:SwiftCompartidoTests/CastListGenerationIntegrationTests
