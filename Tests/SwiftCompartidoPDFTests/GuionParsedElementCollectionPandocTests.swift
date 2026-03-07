@@ -24,22 +24,15 @@ struct GuionParsedElementCollectionPandocTests {
     /// - Parameter filename: Filename relative to Fixtures/pandoc-documents/
     /// - Returns: Full path to the fixture file
     static func fixturePath(_ filename: String) -> String {
-        let bundle: Bundle
-        #if SWIFT_PACKAGE
-        bundle = Bundle.module
-        #else
-        bundle = Bundle(for: GuionParsedElementCollectionPandocTests.self as! AnyClass)
-        #endif
-
-        guard let resourcePath = bundle.resourcePath else {
-            fatalError("Could not find resource path")
-        }
-
-        return URL(fileURLWithPath: resourcePath)
+        let fixturesPath = URL(fileURLWithPath: #filePath)
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
             .appendingPathComponent("Fixtures")
             .appendingPathComponent("pandoc-documents")
             .appendingPathComponent(filename)
-            .path
+
+        return fixturesPath.path
     }
 
     // MARK: - DOCX Integration Tests

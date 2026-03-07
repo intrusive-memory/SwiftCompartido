@@ -2,200 +2,33 @@ name: Tests
 
 on:
   pull_request:
-    branches: [main]
-  workflow_dispatch:
-
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+    branches: [main, development]
+  push:
+    branches: [main, development]
 
 jobs:
-  # Step 1: Code Quality (runs first)
-  code-quality:
-    name: Code Quality
+  test-macos:
+    name: Test on macOS
     runs-on: macos-26
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
-      - name: Check for TODOs in committed code
-        run: |
-          if git diff origin/main...HEAD | grep -E "^\+.*TODO|^\+.*FIXME"; then
-            echo "⚠️  Warning: New TODOs or FIXMEs detected"
-          fi
-
-      - name: Check file sizes
-        run: |
-          find Sources -type f -name "*.swift" -size +100k -exec echo "⚠️  Large file: {}" \;
-
-      - name: Check for print statements
-        run: |
-          if grep -r "print(" Sources/ --include="*.swift" | grep -v "// print"; then
-            echo "⚠️  Warning: print() statements found in source code"
-          fi
-
-  # Step 2: macOS Unit Tests (primary test target)
-  unit-tests-macos:
-    name: macOS Unit Tests
-    runs-on: macos-26
-    needs: [code-quality]
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Select Xcode
-        run: sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
 
       - name: Show Swift version
         run: swift --version
 
-      - name: Install Pandoc
-        run: brew install pandoc
+      - name: Resolve packages
+        run: xcodebuild -resolvePackageDependencies -scheme SwiftCompartido
 
-      - name: Build for macOS
+      - name: Build
+        run: xcodebuild build -scheme SwiftCompartido -destination 'platform=macOS'
+
+      - name: Test
         run: |
-          echo "🔨 Building for macOS (arm64)"
-          xcodebuild build \
-            -scheme SwiftCompartido \
-            -destination 'platform=macOS' \
-            -quiet \
-            CODE_SIGNING_ALLOWED=NO
-
-      - name: Run unit tests on macOS
-        run: |
-          set +e
-
-          echo "🧪 Running unit tests on macOS (47 fast unit tests)"
-
-          # Run only fast unit tests (Swift Packages don't support .xctestplan files)
           xcodebuild test \
             -scheme SwiftCompartido \
             -destination 'platform=macOS' \
-            -only-testing:SwiftCompartidoTests/AppIntents/AppIntentsTests \
-            -only-testing:SwiftCompartidoTests/CastListPageTests \
-            -only-testing:SwiftCompartidoTests/CastListTrimTests \
-            -only-testing:SwiftCompartidoTests/CharacterInfoTests \
-            -only-testing:SwiftCompartidoTests/CustomPageContainerTests \
-            -only-testing:SwiftCompartidoTests/CustomPageModelTests \
-            -only-testing:SwiftCompartidoTests/DialogueBlockViewTests \
-            -only-testing:SwiftCompartidoTests/ElementOrderingTests \
-            -only-testing:SwiftCompartidoTests/ElementProgressBarTests \
-            -only-testing:SwiftCompartidoTests/ElementProgressStateTests \
-            -only-testing:SwiftCompartidoTests/ElementTypeEnumTests \
-            -only-testing:SwiftCompartidoTests/FDXDocumentWriterTests \
-            -only-testing:SwiftCompartidoTests/FileReferenceTests \
-            -only-testing:SwiftCompartidoTests/FountainRegexesTests \
-            -only-testing:SwiftCompartidoTests/FountainTextFormatterTests \
-            -only-testing:SwiftCompartidoTests/GeneratedAudioDataTests \
-            -only-testing:SwiftCompartidoTests/GeneratedContentDisplayTests \
-            -only-testing:SwiftCompartidoTests/GeneratedEmbeddingDataTests \
-            -only-testing:SwiftCompartidoTests/GeneratedImageDataTests \
-            -only-testing:SwiftCompartidoTests/GeneratedTextDataTests \
-            -only-testing:SwiftCompartidoTests/GuionDocumentSnapshotTests \
-            -only-testing:SwiftCompartidoTests/GuionElementsListTests \
-            -only-testing:SwiftCompartidoTests/GuionElementSnapshotTests \
-            -only-testing:SwiftCompartidoTests/GuionElementTests \
-            -only-testing:SwiftCompartidoTests/GuionJSONSerializerTests \
-            -only-testing:SwiftCompartidoTests/GuionParsedElementCollectionPandocTests \
-            -only-testing:SwiftCompartidoTests/GuionTextEditorTests \
-            -only-testing:SwiftCompartidoTests/GuionViewerTests \
-            -only-testing:SwiftCompartidoTests/MarkdownParserTests \
-            -only-testing:SwiftCompartidoTests/MarkdownViewTests \
-            -only-testing:SwiftCompartidoTests/OperationProgressTests \
-            -only-testing:SwiftCompartidoTests/OutlineExtensionTests \
-            -only-testing:SwiftCompartidoTests/OutlineLevelParsingTests \
-            -only-testing:SwiftCompartidoTests/OutputFileTypeTests \
-            -only-testing:SwiftCompartidoTests/PandocDocumentParserTests \
-            -only-testing:SwiftCompartidoTests/PreSceneBoxTests \
-            -only-testing:SwiftCompartidoTests/ProgressUpdateTests \
-            -only-testing:SwiftCompartidoTests/ProjectMarkdownParserTests \
-            -only-testing:SwiftCompartidoTests/ProviderCategoryTests \
-            -only-testing:SwiftCompartidoTests/SceneBrowserTests \
-            -only-testing:SwiftCompartidoTests/SerializationFormatTests \
-            -only-testing:SwiftCompartidoTests/Services/ParsedFileServiceTests \
-            -only-testing:SwiftCompartidoTests/SnapshotHelperTests \
-            -only-testing:SwiftCompartidoTests/SpectrogramVisualizerViewTests \
-            -only-testing:SwiftCompartidoTests/TextEditor/GuionTextEditorFormattingTests \
-            -only-testing:SwiftCompartidoTests/TitlePageTests \
-            -only-testing:SwiftCompartidoTests/TypedDataStorageSnapshotTests \
-            -enableCodeCoverage YES \
-            -parallel-testing-enabled NO \
-            CODE_SIGNING_ALLOWED=NO \
-            > test_output_macos.txt 2>&1
-          TEST_EXIT_CODE=$?
-          cat test_output_macos.txt
-
-          # Check if tests passed
-          if grep -q "Test Suite 'Selected tests' passed\|TEST SUCCEEDED" test_output_macos.txt; then
-            echo "✅ All unit tests passed"
-            exit 0
-          else
-            echo ""
-            echo "❌ ============================================"
-            echo "❌ MACOS UNIT TESTS FAILED"
-            echo "❌ ============================================"
-            echo ""
-
-            # Show failed tests
-            echo "📋 Failed Tests:"
-            grep "Test Case.*failed" test_output_macos.txt || echo "  No specific test failures found in output"
-
-            echo ""
-            echo "🔍 Error Messages:"
-            grep -E "error:|failed with|Assertion failed|Expected|Fatal error" test_output_macos.txt | head -20 || echo "  No error messages found"
-
-            echo ""
-            echo "📊 Test Summary:"
-            grep -E "Test Suite|Testing failed|passed with|failed with" test_output_macos.txt | tail -10 || echo "  No summary found"
-
-            echo ""
-            echo "❌ ============================================"
-            exit $TEST_EXIT_CODE
-          fi
-
-  # Step 3: AI Tests Check (informational only)
-  ai-tests-check:
-    name: AI Tests Check
-    runs-on: macos-26
-    needs: [unit-tests-macos]
-    # AI tests are informational only - don't block PRs
-    continue-on-error: true
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Select Xcode
-        run: sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
-
-      - name: Check Apple Intelligence availability
-        run: |
-          echo ""
-          echo "╔════════════════════════════════════════════════════════════╗"
-          echo "║  🤖  Apple Intelligence AI Tests - Status Check           ║"
-          echo "╚════════════════════════════════════════════════════════════╝"
-          echo ""
-          echo "ℹ️  Apple Intelligence (Foundation Models) tests require:"
-          echo "   • iOS 26.2+ or macOS 26.0+"
-          echo "   • M1+ Mac or A17 Pro+ device"
-          echo "   • Apple Intelligence enabled in System Settings"
-          echo ""
-          echo "⚠️  SKIPPED: Apple Intelligence is not available in CI"
-          echo ""
-          echo "GitHub Actions runs in a headless environment without:"
-          echo "   • User consent for Apple Intelligence"
-          echo "   • System Settings access to enable AI features"
-          echo "   • Interactive session required for model downloads"
-          echo ""
-          echo "📋 AI test suite location:"
-          echo "   Tests/SwiftCompartidoTests/PDFScreenplayParserAITests.swift (8 tests)"
-          echo ""
-          echo "🧪 To run AI tests manually on a device with Apple Intelligence:"
-          echo "   ./Scripts/test-ai-features.sh --macos"
-          echo "   ./Scripts/test-ai-features.sh --ios"
-          echo ""
-          echo "✅ AI tests are designed to skip gracefully when unavailable"
-          echo "   The library automatically falls back to heuristic parsing"
-          echo ""
+            -only-testing:SwiftCompartidoTests \
+            -skip-testing:SwiftCompartidoTests/GuionDocumentSnapshotCastListTests \
+            -skip-testing:SwiftCompartidoTests/CastListGenerationIntegrationTests

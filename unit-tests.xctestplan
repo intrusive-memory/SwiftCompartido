@@ -1,0 +1,26 @@
+{
+  "configurations" : [
+    {
+      "id" : "1",
+      "name" : "Configuration 1",
+      "options" : {}
+    }
+  ],
+  "defaultOptions" : {
+    "targetForVariableExpansion" : {
+      "containerPath" : "container:",
+      "identifier" : "SwiftCompartidoTests",
+      "name" : "SwiftCompartidoTests"
+    }
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "SwiftCompartidoTests",
+        "name" : "SwiftCompartidoTests"
+      }
+    }
+  ],
+  "version" : 1
+}

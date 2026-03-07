@@ -17,8 +17,8 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/mcritz/TextBundle.git", from: "1.0.0"),
         .package(url: "https://github.com/weichsel/ZIPFoundation", from: "0.9.0"),
-        .package(url: "https://github.com/intrusive-memory/SwiftFijos.git", from: "1.0.0"),
-        .package(url: "https://github.com/intrusive-memory/swift-markdown.git", branch: "development")
+        .package(url: "https://github.com/intrusive-memory/SwiftFijos.git", branch: "main"),
+        .package(url: "https://github.com/swiftlang/swift-markdown.git", from: "0.7.0")
     ],
     targets: [
         .target(
@@ -38,9 +38,15 @@ let package = Package(
                 "SwiftCompartido",
                 .product(name: "SwiftFijos", package: "SwiftFijos")
             ],
-            path: "Tests/SwiftCompartidoTests",
-            resources: [
-                .copy("../../Fixtures")
+            swiftSettings: [
+                .enableUpcomingFeature("StrictConcurrency"),
+            ]
+        ),
+        .testTarget(
+            name: "SwiftCompartidoPDFTests",
+            dependencies: [
+                "SwiftCompartido",
+                .product(name: "SwiftFijos", package: "SwiftFijos")
             ],
             swiftSettings: [
                 .enableUpcomingFeature("StrictConcurrency"),

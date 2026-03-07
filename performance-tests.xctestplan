@@ -1,0 +1,38 @@
+{
+  "configurations" : [
+    {
+      "id" : "1",
+      "name" : "Configuration 1",
+      "options" : {
+        "performanceMetrics" : [
+          {
+            "identifier" : "com.apple.dt.XCTMetric_Clock.time.monotonic"
+          },
+          {
+            "identifier" : "com.apple.dt.XCTMetric_Memory.physical"
+          },
+          {
+            "identifier" : "com.apple.dt.XCTMetric_CPU.time"
+          }
+        ]
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "targetForVariableExpansion" : {
+      "containerPath" : "container:",
+      "identifier" : "SwiftCompartidoTests",
+      "name" : "SwiftCompartidoTests"
+    }
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "SwiftCompartidoTests",
+        "name" : "SwiftCompartidoTests"
+      }
+    }
+  ],
+  "version" : 1
+}

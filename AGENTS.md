@@ -257,6 +257,42 @@ TypedDataStorage (SwiftData model)
 - Centered Text
 - Lyrics
 
+## Cast Management
+
+**Deprecated**: SwiftCompartido no longer handles cast management via custom-pages.json files.
+
+### Current Approach (Deprecated)
+
+`CastListPage` is kept for Highland .textbundle compatibility only. This model is deprecated.
+
+### Recommended Approach
+
+Use **SwiftProyecto** for all cast management:
+
+```swift
+import SwiftProyecto
+
+let discovery = ProjectDiscovery()
+if let projectMd = discovery.findProjectMd(from: screenplayURL) {
+    let cast = try discovery.readCast(from: projectMd)
+}
+```
+
+See [SwiftProyecto documentation](https://github.com/intrusive-memory/SwiftProyecto) for details.
+
+### Migration from custom-pages.json
+
+If you have existing custom-pages.json files:
+1. Convert cast data to PROJECT.md frontmatter (YAML format)
+2. Use SwiftProyecto's `ProjectMarkdownParser` to read/write cast
+3. Remove custom-pages.json files
+
+**Breaking Changes**:
+- Sidecar JSON loading removed (`loadCustomPagesForFile`, `tryLoadCustomPagesJSON`)
+- Sidecar JSON writing removed (`writeCustomPagesSidecar`)
+- Highland custom-pages loading removed (`loadCustomPages`)
+- TextBundle custom-pages export removed (`writeCustomPagesJSON`)
+
 ## Version History
 
 **6.3.0** (Current):

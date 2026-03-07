@@ -213,7 +213,6 @@ public final class GuionParsedElementCollection {
         } else {
             // Default to Fountain parser
             let fountainParser = try FountainParser(file: path)
-            // REMOVED: Automatic sidecar loading - customPages must be loaded manually if needed
             self.init(
                 filename: filename,
                 elements: fountainParser.elements,
@@ -480,15 +479,11 @@ public final class GuionParsedElementCollection {
     public func write(toFile path: String) throws {
         let document = FountainWriter.document(from: self)
         try document.write(toFile: path, atomically: true, encoding: .utf8)
-
-        // REMOVED: Automatic sidecar writing - write customPages manually if needed
     }
 
     public func write(to url: URL) throws {
         let document = FountainWriter.document(from: self)
         try document.write(to: url, atomically: true, encoding: .utf8)
-
-        // REMOVED: Automatic sidecar writing - write customPages manually if needed
     }
 
     /// Get guión elements from this screenplay
@@ -677,97 +672,6 @@ extension GuionParsedElementCollection: CustomStringConvertible {
 /// ```
 @available(*, deprecated, renamed: "GuionParsedElementCollection", message: "Use GuionParsedElementCollection instead. GuionParsedScreenplay is deprecated.")
 public typealias GuionParsedScreenplay = GuionParsedElementCollection
-
-// MARK: - Custom Pages Helpers
-
-extension GuionParsedElementCollection {
-    /// Load custom pages from a sidecar JSON file
-    ///
-    /// Searches for custom pages JSON in the following order:
-    /// 1. `{basename}-custom-pages.json` (document-specific)
-    /// 2. `custom-pages.json` (shared)
-    ///
-    /// For example, for `script.fountain`:
-    /// - First tries: `script-custom-pages.json`
-    /// - Then tries: `custom-pages.json`
-    ///
-    /// - Parameter url: URL to the screenplay file
-    /// - Returns: Array of CustomPageContainer objects
-    static func loadCustomPagesForFile(url: URL) -> [CustomPageContainer] {
-        // DISABLED: Sidecar JSON file loading is temporarily disabled
-        // Will be re-implemented with a different approach
-        return []
-
-        /* DISABLED CODE:
-        let directory = url.deletingLastPathComponent()
-        let basename = url.deletingPathExtension().lastPathComponent
-
-        // Try document-specific file first
-        let specificURL = directory.appendingPathComponent("\(basename)-custom-pages.json")
-        #if DEBUG
-        print("🔍 Looking for custom pages at: \(specificURL.path(percentEncoded: false))")
-        #endif
-        if let pages = tryLoadCustomPagesJSON(from: specificURL) {
-            return pages
-        }
-
-        // Fall back to shared file
-        let sharedURL = directory.appendingPathComponent("custom-pages.json")
-        #if DEBUG
-        print("🔍 Looking for shared custom pages at: \(sharedURL.path(percentEncoded: false))")
-        #endif
-        if let pages = tryLoadCustomPagesJSON(from: sharedURL) {
-            return pages
-        }
-
-        return []
-        */
-    }
-
-    /// Try to load custom pages from a JSON file
-    private static func tryLoadCustomPagesJSON(from url: URL) -> [CustomPageContainer]? {
-        // Use path(percentEncoded:) for better compatibility
-        let filePath = url.path(percentEncoded: false)
-        guard FileManager.default.fileExists(atPath: filePath) else {
-            return nil
-        }
-
-        do {
-            let data = try Data(contentsOf: url)
-            let jsonArray = try JSONSerialization.jsonObject(with: data) as? [[String: Any]] ?? []
-            let containers = try jsonArray.compactMap { try CustomPageContainer(from: $0) }
-            return containers.isEmpty ? nil : containers
-        } catch {
-            // Log error for debugging - this should be visible in CI logs
-            print("⚠️ CustomPages load error for \(url.lastPathComponent): \(error.localizedDescription)")
-            return nil
-        }
-    }
-
-    /// Write custom pages to a sidecar JSON file
-    ///
-    /// Writes to `{basename}-custom-pages.json` in the same directory as the screenplay file.
-    ///
-    /// - Parameters:
-    ///   - url: URL to the screenplay file (e.g., `script.fountain`)
-    func writeCustomPagesSidecar(for url: URL) throws {
-        // DISABLED: Sidecar JSON file writing is temporarily disabled
-        // Will be re-implemented with a different approach
-        return
-
-        /* DISABLED CODE:
-        guard !customPages.isEmpty else { return }
-
-        let directory = url.deletingLastPathComponent()
-        let basename = url.deletingPathExtension().lastPathComponent
-        let sidecarURL = directory.appendingPathComponent("\(basename)-custom-pages.json")
-
-        let jsonArray = try customPages.map { try $0.toDictionary() }
-        let jsonData = try JSONSerialization.data(withJSONObject: jsonArray, options: [.prettyPrinted, .sortedKeys])
-        try jsonData.write(to: sidecarURL)
-        */
-    }
-}
 
 // MARK: - Error Types
 

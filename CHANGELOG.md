@@ -22,6 +22,43 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [7.0.0] - 2026-02-15
+
+### Breaking Changes
+
+- **REMOVED**: Custom-pages.json sidecar support
+  - `loadCustomPagesForFile()` method removed
+  - `tryLoadCustomPagesJSON()` method removed
+  - `writeCustomPagesSidecar()` method removed
+  - Highland `loadCustomPages()` method removed
+  - TextBundle `writeCustomPagesJSON()` method removed
+
+### Deprecated
+
+- `CastListPage` model now deprecated
+  - Kept only for Highland .textbundle compatibility
+  - Use `SwiftProyecto.CastMember` for new projects
+  - Will be removed in future release if Highland support is dropped
+
+### Migration Guide
+
+**From custom-pages.json to PROJECT.md**:
+
+1. Install SwiftProyecto package
+2. Convert cast data to PROJECT.md YAML frontmatter:
+   ```yaml
+   cast:
+     - character: NARRATOR
+       voices:
+         apple: com.apple.voice.compact.en-US.Aaron
+   ```
+3. Use SwiftProyecto's API for cast management
+4. Remove custom-pages.json files
+
+See [SwiftProyecto documentation](https://github.com/intrusive-memory/SwiftProyecto) for details.
+
+---
+
 ## [6.6.0] - 2026-01-15
 
 ### Added - Voice Download Tools & PDF Improvements 🎙️
