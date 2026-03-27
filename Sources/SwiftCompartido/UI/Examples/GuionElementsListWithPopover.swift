@@ -5,90 +5,90 @@
 //  Example usage of GuionElementsList with interactive popovers
 //
 
-import SwiftUI
 @preconcurrency import SwiftData
+import SwiftUI
 
 /// Example view demonstrating popover usage with GuionElementsList
 ///
 /// This example shows how to add interactive popovers that display
 /// element metadata and a GENERATE button for audio generation.
 public struct GuionElementsListWithPopover: View {
-    let document: GuionDocumentModel
-    @State private var isGenerating: Set<PersistentIdentifier> = []
+  let document: GuionDocumentModel
+  @State private var isGenerating: Set<PersistentIdentifier> = []
 
-    public init(document: GuionDocumentModel) {
-        self.document = document
-    }
+  public init(document: GuionDocumentModel) {
+    self.document = document
+  }
 
-    public var body: some View {
-        GuionElementsList(document: document)
-            .guionElementPopover { element in
-                popoverContent(for: element)
-            }
-    }
+  public var body: some View {
+    GuionElementsList(document: document)
+      .guionElementPopover { element in
+        popoverContent(for: element)
+      }
+  }
 
-    /// Creates popover content for an element
-    @ViewBuilder
-    private func popoverContent(for element: GuionElementModel) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
-            // Element metadata
-            Text(element.elementText.prefix(50))
-                .font(.caption)
-                .lineLimit(2)
+  /// Creates popover content for an element
+  @ViewBuilder
+  private func popoverContent(for element: GuionElementModel) -> some View {
+    VStack(alignment: .leading, spacing: 8) {
+      // Element metadata
+      Text(element.elementText.prefix(50))
+        .font(.caption)
+        .lineLimit(2)
 
-            HStack {
-                // Chapter and order info
-                Text("Ch \(element.chapterIndex), #\(element.orderIndex)")
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
+      HStack {
+        // Chapter and order info
+        Text("Ch \(element.chapterIndex), #\(element.orderIndex)")
+          .font(.caption2)
+          .foregroundStyle(.secondary)
 
-                Spacer()
+        Spacer()
 
-                // Generate button
-                if element.elementType == .dialogue || element.elementType == .action {
-                    generateButton(for: element)
-                }
-            }
+        // Generate button
+        if element.elementType == .dialogue || element.elementType == .action {
+          generateButton(for: element)
         }
+      }
     }
+  }
 
-    /// Creates the GENERATE button for audio generation
-    @ViewBuilder
-    private func generateButton(for element: GuionElementModel) -> some View {
-        Button {
-            generateAudio(for: element)
-        } label: {
-            if isGenerating.contains(element.id) {
-                ProgressView()
-                    .controlSize(.small)
-            } else {
-                Label("Generate", systemImage: "waveform")
-            }
-        }
-        .buttonStyle(.borderedProminent)
-        .controlSize(.small)
-        .disabled(isGenerating.contains(element.id))
+  /// Creates the GENERATE button for audio generation
+  @ViewBuilder
+  private func generateButton(for element: GuionElementModel) -> some View {
+    Button {
+      generateAudio(for: element)
+    } label: {
+      if isGenerating.contains(element.id) {
+        ProgressView()
+          .controlSize(.small)
+      } else {
+        Label("Generate", systemImage: "waveform")
+      }
     }
+    .buttonStyle(.borderedProminent)
+    .controlSize(.small)
+    .disabled(isGenerating.contains(element.id))
+  }
 
-    /// Generates audio for the element
-    private func generateAudio(for element: GuionElementModel) {
-        isGenerating.insert(element.id)
+  /// Generates audio for the element
+  private func generateAudio(for element: GuionElementModel) {
+    isGenerating.insert(element.id)
 
-        // Simulate async generation
-        Task {
-            try? await Task.sleep(for: .seconds(2))
-            isGenerating.remove(element.id)
-        }
+    // Simulate async generation
+    Task {
+      try? await Task.sleep(for: .seconds(2))
+      isGenerating.remove(element.id)
     }
+  }
 }
 
 // MARK: - Preview
 
 #Preview("GuionElementsList with Popover") {
-    @Previewable @State var document = GuionDocumentModel(filename: "Example.guion")
+  @Previewable @State var document = GuionDocumentModel(filename: "Example.guion")
 
-    GuionElementsListWithPopover(document: document)
-        .modelContainer(for: [GuionDocumentModel.self, GuionElementModel.self], inMemory: true)
+  GuionElementsListWithPopover(document: document)
+    .modelContainer(for: [GuionDocumentModel.self, GuionElementModel.self], inMemory: true)
 }
 
 // MARK: - Usage Examples

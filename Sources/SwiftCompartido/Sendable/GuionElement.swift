@@ -62,59 +62,59 @@ import Foundation
 /// - ``sectionDepth``
 /// - ``sceneId``
 public protocol GuionElementProtocol {
-    /// The type of screenplay element.
-    ///
-    /// Uses a strongly-typed enum for compile-time safety and pattern matching.
-    ///
-    /// Common element types include:
-    /// - ``ElementType/sceneHeading``: INT. LOCATION - DAY
-    /// - ``ElementType/action``: Narrative description
-    /// - ``ElementType/character``: Character name
-    /// - ``ElementType/dialogue``: Character speech
-    /// - ``ElementType/parenthetical``: (action while speaking)
-    /// - ``ElementType/transition``: FADE TO:
-    /// - ``ElementType/sectionHeading(level:)``: # Act One
-    var elementType: ElementType { get set }
+  /// The type of screenplay element.
+  ///
+  /// Uses a strongly-typed enum for compile-time safety and pattern matching.
+  ///
+  /// Common element types include:
+  /// - ``ElementType/sceneHeading``: INT. LOCATION - DAY
+  /// - ``ElementType/action``: Narrative description
+  /// - ``ElementType/character``: Character name
+  /// - ``ElementType/dialogue``: Character speech
+  /// - ``ElementType/parenthetical``: (action while speaking)
+  /// - ``ElementType/transition``: FADE TO:
+  /// - ``ElementType/sectionHeading(level:)``: # Act One
+  var elementType: ElementType { get set }
 
-    /// The actual text content of the element.
-    var elementText: String { get set }
+  /// The actual text content of the element.
+  var elementText: String { get set }
 
-    /// Whether this element should be centered on the page.
-    ///
-    /// Centered elements are typically used for titles or special formatting.
-    var isCentered: Bool { get set }
+  /// Whether this element should be centered on the page.
+  ///
+  /// Centered elements are typically used for titles or special formatting.
+  var isCentered: Bool { get set }
 
-    /// Whether this element is part of dual dialogue.
-    ///
-    /// Dual dialogue allows two characters to speak simultaneously,
-    /// displayed in side-by-side columns.
-    var isDualDialogue: Bool { get set }
+  /// Whether this element is part of dual dialogue.
+  ///
+  /// Dual dialogue allows two characters to speak simultaneously,
+  /// displayed in side-by-side columns.
+  var isDualDialogue: Bool { get set }
 
-    /// The scene number, if this is a scene heading.
-    ///
-    /// Scene numbers can be automatic (1, 2, 3...) or custom (#123A#).
-    var sceneNumber: String? { get set }
+  /// The scene number, if this is a scene heading.
+  ///
+  /// Scene numbers can be automatic (1, 2, 3...) or custom (#123A#).
+  var sceneNumber: String? { get set }
 
-    /// The depth level for section headings.
-    ///
-    /// Section headings use `#` characters to indicate hierarchy:
-    /// - `# Act One` = depth 1
-    /// - `## Scene 1` = depth 2
-    /// - `### Beat` = depth 3
-    var sectionDepth: Int { get set }
+  /// The depth level for section headings.
+  ///
+  /// Section headings use `#` characters to indicate hierarchy:
+  /// - `# Act One` = depth 1
+  /// - `## Scene 1` = depth 2
+  /// - `### Beat` = depth 3
+  var sectionDepth: Int { get set }
 
-    /// Unique identifier for the scene, used to correlate elements across parsing.
-    ///
-    /// This UUID helps track scenes even when their text changes or when
-    /// multiple scenes have identical headings.
-    var sceneId: String? { get set }
+  /// Unique identifier for the scene, used to correlate elements across parsing.
+  ///
+  /// This UUID helps track scenes even when their text changes or when
+  /// multiple scenes have identical headings.
+  var sceneId: String? { get set }
 
-    /// AI-generated summary of the scene content (for Scene Heading elements).
-    ///
-    /// This field contains a concise summary of what happens in the scene,
-    /// generated using Apple Intelligence or extractive summarization.
-    /// Only populated for Scene Heading elements when summarization is enabled.
-    var summary: String? { get set }
+  /// AI-generated summary of the scene content (for Scene Heading elements).
+  ///
+  /// This field contains a concise summary of what happens in the scene,
+  /// generated using Apple Intelligence or extractive summarization.
+  /// Only populated for Scene Heading elements when summarization is enabled.
+  var summary: String? { get set }
 }
 
 /// Lightweight struct representing a screenplay element.
@@ -158,136 +158,136 @@ public protocol GuionElementProtocol {
 /// - ``sectionDepth``
 /// - ``sceneId``
 public struct GuionElement: GuionElementProtocol {
-    public var elementType: ElementType
-    public var elementText: String
-    public var isCentered: Bool
-    public var isDualDialogue: Bool
-    public var sceneNumber: String?
+  public var elementType: ElementType
+  public var elementText: String
+  public var isCentered: Bool
+  public var isDualDialogue: Bool
+  public var sceneNumber: String?
 
-    /// The depth level for section headings.
-    ///
-    /// **Deprecated**: Use `elementType.level` instead. This property is maintained
-    /// for backward compatibility but will be removed in a future version.
-    ///
-    /// Section headings use `#` characters to indicate hierarchy:
-    /// - `# Act One` = depth 1
-    /// - `## Scene 1` = depth 2
-    /// - `### Beat` = depth 3
-    @available(*, deprecated, message: "Use elementType.level instead")
-    public var sectionDepth: Int {
-        get {
-            return elementType.level
-        }
-        set {
-            // If setting a new depth on a section heading, update the enum
-            if case .sectionHeading = elementType {
-                elementType = .sectionHeading(level: newValue)
-            }
-        }
+  /// The depth level for section headings.
+  ///
+  /// **Deprecated**: Use `elementType.level` instead. This property is maintained
+  /// for backward compatibility but will be removed in a future version.
+  ///
+  /// Section headings use `#` characters to indicate hierarchy:
+  /// - `# Act One` = depth 1
+  /// - `## Scene 1` = depth 2
+  /// - `### Beat` = depth 3
+  @available(*, deprecated, message: "Use elementType.level instead")
+  public var sectionDepth: Int {
+    get {
+      return elementType.level
+    }
+    set {
+      // If setting a new depth on a section heading, update the enum
+      if case .sectionHeading = elementType {
+        elementType = .sectionHeading(level: newValue)
+      }
+    }
+  }
+
+  public var sceneId: String?
+  public var summary: String?
+
+  /// Creates a new screenplay element with the specified type and text.
+  ///
+  /// - Parameters:
+  ///   - elementType: The type of element (default: `.action`)
+  ///   - elementText: The text content (default: empty string)
+  ///
+  /// - Returns: A new `GuionElement` with default formatting properties
+  ///
+  /// ## Example
+  /// ```swift
+  /// let action = GuionElement(
+  ///     elementType: .action,
+  ///     elementText: "The door swings open."
+  /// )
+  /// ```
+  public init(elementType: ElementType = .action, elementText: String = "") {
+    self.elementType = elementType
+    self.elementText = elementText
+    self.isCentered = false
+    self.sceneNumber = nil
+    self.isDualDialogue = false
+    self.sceneId = nil
+    self.summary = nil
+  }
+
+  /// Creates a new screenplay element with the specified type and text.
+  ///
+  /// This is a convenience initializer with shorter parameter names.
+  ///
+  /// - Parameters:
+  ///   - type: The type of element
+  ///   - text: The text content
+  public init(type: ElementType, text: String) {
+    self.init(elementType: type, elementText: text)
+  }
+
+  /// Initialize from any `GuionElementProtocol` conforming type.
+  ///
+  /// This initializer allows conversion between different implementations
+  /// of screenplay elements (e.g., from ``GuionElementModel`` to ``GuionElement``).
+  ///
+  /// - Parameter element: Any type conforming to `GuionElementProtocol`
+  ///
+  /// ## Example
+  /// ```swift
+  /// let model: GuionElementModel = // ... from SwiftData
+  /// let element = GuionElement(from: model)
+  /// ```
+  public init<T: GuionElementProtocol>(from element: T) {
+    // Handle section depth from deprecated property by updating element type if needed
+    var elementType = element.elementType
+    if case .sectionHeading = elementType {
+      // Element type already has the correct level
+    } else if elementType.isSectionHeading {
+      // Should not happen, but handle it anyway
+      elementType = .sectionHeading(level: element.elementType.level)
     }
 
-    public var sceneId: String?
-    public var summary: String?
-
-    /// Creates a new screenplay element with the specified type and text.
-    ///
-    /// - Parameters:
-    ///   - elementType: The type of element (default: `.action`)
-    ///   - elementText: The text content (default: empty string)
-    ///
-    /// - Returns: A new `GuionElement` with default formatting properties
-    ///
-    /// ## Example
-    /// ```swift
-    /// let action = GuionElement(
-    ///     elementType: .action,
-    ///     elementText: "The door swings open."
-    /// )
-    /// ```
-    public init(elementType: ElementType = .action, elementText: String = "") {
-        self.elementType = elementType
-        self.elementText = elementText
-        self.isCentered = false
-        self.sceneNumber = nil
-        self.isDualDialogue = false
-        self.sceneId = nil
-        self.summary = nil
-    }
-
-    /// Creates a new screenplay element with the specified type and text.
-    ///
-    /// This is a convenience initializer with shorter parameter names.
-    ///
-    /// - Parameters:
-    ///   - type: The type of element
-    ///   - text: The text content
-    public init(type: ElementType, text: String) {
-        self.init(elementType: type, elementText: text)
-    }
-
-    /// Initialize from any `GuionElementProtocol` conforming type.
-    ///
-    /// This initializer allows conversion between different implementations
-    /// of screenplay elements (e.g., from ``GuionElementModel`` to ``GuionElement``).
-    ///
-    /// - Parameter element: Any type conforming to `GuionElementProtocol`
-    ///
-    /// ## Example
-    /// ```swift
-    /// let model: GuionElementModel = // ... from SwiftData
-    /// let element = GuionElement(from: model)
-    /// ```
-    public init<T: GuionElementProtocol>(from element: T) {
-        // Handle section depth from deprecated property by updating element type if needed
-        var elementType = element.elementType
-        if case .sectionHeading = elementType {
-            // Element type already has the correct level
-        } else if elementType.isSectionHeading {
-            // Should not happen, but handle it anyway
-            elementType = .sectionHeading(level: element.elementType.level)
-        }
-
-        self.elementType = elementType
-        self.elementText = element.elementText
-        self.isCentered = element.isCentered
-        self.isDualDialogue = element.isDualDialogue
-        self.sceneNumber = element.sceneNumber
-        self.sceneId = element.sceneId
-        self.summary = element.summary
-    }
+    self.elementType = elementType
+    self.elementText = element.elementText
+    self.isCentered = element.isCentered
+    self.isDualDialogue = element.isDualDialogue
+    self.sceneNumber = element.sceneNumber
+    self.sceneId = element.sceneId
+    self.summary = element.summary
+  }
 }
 
 extension GuionElement: Sendable {}
 
 extension GuionElement: CustomStringConvertible {
-    public var description: String {
-        var typeOutput = elementType.description
+  public var description: String {
+    var typeOutput = elementType.description
 
-        if isCentered {
-            typeOutput.append(" (centered)")
-        } else if isDualDialogue {
-            typeOutput.append(" (dual dialogue)")
-        } else if elementType.level > 0 {
-            typeOutput.append(" (\(elementType.level))")
-        }
-
-        return "\(typeOutput): \(elementText)"
+    if isCentered {
+      typeOutput.append(" (centered)")
+    } else if isDualDialogue {
+      typeOutput.append(" (dual dialogue)")
+    } else if elementType.level > 0 {
+      typeOutput.append(" (\(elementType.level))")
     }
+
+    return "\(typeOutput): \(elementText)"
+  }
 }
 
 // MARK: - Protocol Extensions
 extension GuionElementProtocol {
-    public var description: String {
-        var typeOutput = elementType.description
+  public var description: String {
+    var typeOutput = elementType.description
 
-        if isCentered {
-            typeOutput.append(" (centered)")
-        } else if isDualDialogue {
-            typeOutput.append(" (dual dialogue)")
-        } else if elementType.level > 0 {
-            typeOutput.append(" (\(elementType.level))")
-        }
-
-        return "\(typeOutput): \(elementText)"
+    if isCentered {
+      typeOutput.append(" (centered)")
+    } else if isDualDialogue {
+      typeOutput.append(" (dual dialogue)")
+    } else if elementType.level > 0 {
+      typeOutput.append(" (\(elementType.level))")
     }
+
+    return "\(typeOutput): \(elementText)"
+  }
 }

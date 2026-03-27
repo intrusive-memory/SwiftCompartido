@@ -73,214 +73,215 @@ import Foundation
 /// ```
 public struct StorageAreaReference: Sendable, Codable, Equatable, Hashable {
 
-    // MARK: - Properties
+  // MARK: - Properties
 
-    /// Unique identifier for this request
-    ///
-    /// Used as directory name within the bundle's assets folder.
-    public let requestID: UUID
+  /// Unique identifier for this request
+  ///
+  /// Used as directory name within the bundle's assets folder.
+  public let requestID: UUID
 
-    /// Base URL for the storage area
-    ///
-    /// Points to the request-specific directory:
-    /// `{bundle}/assets/{requestID}/`
-    ///
-    /// **Thread Safety**: File URLs are safe to use from any thread
-    public let baseURL: URL
+  /// Base URL for the storage area
+  ///
+  /// Points to the request-specific directory:
+  /// `{bundle}/assets/{requestID}/`
+  ///
+  /// **Thread Safety**: File URLs are safe to use from any thread
+  public let baseURL: URL
 
-    /// Bundle identifier for tracking
-    ///
-    /// Optional identifier of the `.guion` bundle that owns this storage area.
-    /// Used for logging and debugging.
-    public let bundleIdentifier: String?
+  /// Bundle identifier for tracking
+  ///
+  /// Optional identifier of the `.guion` bundle that owns this storage area.
+  /// Used for logging and debugging.
+  public let bundleIdentifier: String?
 
-    // MARK: - Initialization
+  // MARK: - Initialization
 
-    /// Creates a storage area reference for a request
-    ///
-    /// - Parameters:
-    ///   - requestID: Unique identifier for the request
-    ///   - baseURL: Base URL for the storage area directory
-    ///   - bundleIdentifier: Optional bundle identifier for tracking
-    public init(
-        requestID: UUID,
-        baseURL: URL,
-        bundleIdentifier: String? = nil
-    ) {
-        self.requestID = requestID
-        self.baseURL = baseURL
-        self.bundleIdentifier = bundleIdentifier
+  /// Creates a storage area reference for a request
+  ///
+  /// - Parameters:
+  ///   - requestID: Unique identifier for the request
+  ///   - baseURL: Base URL for the storage area directory
+  ///   - bundleIdentifier: Optional bundle identifier for tracking
+  public init(
+    requestID: UUID,
+    baseURL: URL,
+    bundleIdentifier: String? = nil
+  ) {
+    self.requestID = requestID
+    self.baseURL = baseURL
+    self.bundleIdentifier = bundleIdentifier
+  }
+
+  // MARK: - File Operations
+
+  /// Returns the file URL for a named file in this storage area
+  ///
+  /// Thread-safe: Can be called from any thread.
+  ///
+  /// - Parameter fileName: Name of the file (e.g., "audio.mp3", "data.json")
+  /// - Returns: Full URL to the file within this storage area
+  public func fileURL(for fileName: String) -> URL {
+    baseURL.appendingPathComponent(fileName)
+  }
+
+  /// Returns the file URL for a file with specific extension
+  ///
+  /// Thread-safe: Can be called from any thread.
+  ///
+  /// - Parameters:
+  ///   - baseName: Base name of the file (e.g., "data")
+  ///   - fileExtension: File extension (e.g., "mp3", "json")
+  /// - Returns: Full URL to the file within this storage area
+  public func fileURL(baseName: String, fileExtension: String) -> URL {
+    baseURL
+      .appendingPathComponent(baseName)
+      .appendingPathExtension(fileExtension)
+  }
+
+  /// Returns the default data file URL for this storage area
+  ///
+  /// Uses format: `data.{extension}`
+  ///
+  /// - Parameter fileExtension: File extension (e.g., "mp3", "json")
+  /// - Returns: URL to the default data file
+  public func defaultDataFileURL(extension fileExtension: String) -> URL {
+    fileURL(baseName: "data", fileExtension: fileExtension)
+  }
+
+  // MARK: - Directory Operations
+
+  /// Creates the storage directory if it doesn't exist
+  ///
+  /// Thread-safe: Can be called from any thread.
+  /// **Important**: Must be called before writing files.
+  ///
+  /// - Throws: File system errors if directory cannot be created
+  public func createDirectoryIfNeeded() throws {
+    try FileManager.default.createDirectory(
+      at: baseURL,
+      withIntermediateDirectories: true,
+      attributes: nil
+    )
+  }
+
+  /// Checks if the storage directory exists
+  ///
+  /// Thread-safe: Can be called from any thread.
+  ///
+  /// - Returns: `true` if the directory exists, `false` otherwise
+  public func directoryExists() -> Bool {
+    var isDirectory: ObjCBool = false
+    let exists = FileManager.default.fileExists(
+      atPath: baseURL.path,
+      isDirectory: &isDirectory
+    )
+    return exists && isDirectory.boolValue
+  }
+
+  /// Lists all files in this storage area
+  ///
+  /// Thread-safe: Can be called from any thread.
+  ///
+  /// - Returns: Array of file URLs in this storage area
+  /// - Throws: File system errors if directory cannot be read
+  public func listFiles() throws -> [URL] {
+    try FileManager.default.contentsOfDirectory(
+      at: baseURL,
+      includingPropertiesForKeys: [.fileSizeKey, .contentTypeKey],
+      options: [.skipsHiddenFiles, .skipsSubdirectoryDescendants]
+    )
+  }
+
+  // MARK: - Codable
+
+  private enum CodingKeys: String, CodingKey {
+    case requestID
+    case baseURL
+    case bundleIdentifier
+  }
+
+  public init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+    self.requestID = try container.decode(UUID.self, forKey: .requestID)
+
+    // Decode URL from path string
+    let urlString = try container.decode(String.self, forKey: .baseURL)
+    guard let url = URL(string: urlString) else {
+      throw DecodingError.dataCorruptedError(
+        forKey: .baseURL,
+        in: container,
+        debugDescription: "Invalid URL string: \(urlString)"
+      )
     }
+    self.baseURL = url
 
-    // MARK: - File Operations
+    self.bundleIdentifier = try container.decodeIfPresent(String.self, forKey: .bundleIdentifier)
+  }
 
-    /// Returns the file URL for a named file in this storage area
-    ///
-    /// Thread-safe: Can be called from any thread.
-    ///
-    /// - Parameter fileName: Name of the file (e.g., "audio.mp3", "data.json")
-    /// - Returns: Full URL to the file within this storage area
-    public func fileURL(for fileName: String) -> URL {
-        baseURL.appendingPathComponent(fileName)
-    }
-
-    /// Returns the file URL for a file with specific extension
-    ///
-    /// Thread-safe: Can be called from any thread.
-    ///
-    /// - Parameters:
-    ///   - baseName: Base name of the file (e.g., "data")
-    ///   - fileExtension: File extension (e.g., "mp3", "json")
-    /// - Returns: Full URL to the file within this storage area
-    public func fileURL(baseName: String, fileExtension: String) -> URL {
-        baseURL
-            .appendingPathComponent(baseName)
-            .appendingPathExtension(fileExtension)
-    }
-
-    /// Returns the default data file URL for this storage area
-    ///
-    /// Uses format: `data.{extension}`
-    ///
-    /// - Parameter fileExtension: File extension (e.g., "mp3", "json")
-    /// - Returns: URL to the default data file
-    public func defaultDataFileURL(extension fileExtension: String) -> URL {
-        fileURL(baseName: "data", fileExtension: fileExtension)
-    }
-
-    // MARK: - Directory Operations
-
-    /// Creates the storage directory if it doesn't exist
-    ///
-    /// Thread-safe: Can be called from any thread.
-    /// **Important**: Must be called before writing files.
-    ///
-    /// - Throws: File system errors if directory cannot be created
-    public func createDirectoryIfNeeded() throws {
-        try FileManager.default.createDirectory(
-            at: baseURL,
-            withIntermediateDirectories: true,
-            attributes: nil
-        )
-    }
-
-    /// Checks if the storage directory exists
-    ///
-    /// Thread-safe: Can be called from any thread.
-    ///
-    /// - Returns: `true` if the directory exists, `false` otherwise
-    public func directoryExists() -> Bool {
-        var isDirectory: ObjCBool = false
-        let exists = FileManager.default.fileExists(
-            atPath: baseURL.path,
-            isDirectory: &isDirectory
-        )
-        return exists && isDirectory.boolValue
-    }
-
-    /// Lists all files in this storage area
-    ///
-    /// Thread-safe: Can be called from any thread.
-    ///
-    /// - Returns: Array of file URLs in this storage area
-    /// - Throws: File system errors if directory cannot be read
-    public func listFiles() throws -> [URL] {
-        try FileManager.default.contentsOfDirectory(
-            at: baseURL,
-            includingPropertiesForKeys: [.fileSizeKey, .contentTypeKey],
-            options: [.skipsHiddenFiles, .skipsSubdirectoryDescendants]
-        )
-    }
-
-    // MARK: - Codable
-
-    private enum CodingKeys: String, CodingKey {
-        case requestID
-        case baseURL
-        case bundleIdentifier
-    }
-
-    public init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        self.requestID = try container.decode(UUID.self, forKey: .requestID)
-
-        // Decode URL from path string
-        let urlString = try container.decode(String.self, forKey: .baseURL)
-        guard let url = URL(string: urlString) else {
-            throw DecodingError.dataCorruptedError(
-                forKey: .baseURL,
-                in: container,
-                debugDescription: "Invalid URL string: \(urlString)"
-            )
-        }
-        self.baseURL = url
-
-        self.bundleIdentifier = try container.decodeIfPresent(String.self, forKey: .bundleIdentifier)
-    }
-
-    public func encode(to encoder: Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(requestID, forKey: .requestID)
-        try container.encode(baseURL.absoluteString, forKey: .baseURL)
-        try container.encodeIfPresent(bundleIdentifier, forKey: .bundleIdentifier)
-    }
+  public func encode(to encoder: Encoder) throws {
+    var container = encoder.container(keyedBy: CodingKeys.self)
+    try container.encode(requestID, forKey: .requestID)
+    try container.encode(baseURL.absoluteString, forKey: .baseURL)
+    try container.encodeIfPresent(bundleIdentifier, forKey: .bundleIdentifier)
+  }
 }
 
 // MARK: - Convenience Constructors
 
 extension StorageAreaReference {
 
-    /// Creates a temporary storage area for testing
-    ///
-    /// Uses a temporary directory that will be cleaned up by the system.
-    ///
-    /// - Parameter requestID: Optional request ID (generates new UUID if not provided)
-    /// - Returns: Storage area reference in a temporary directory
-    public static func temporary(requestID: UUID = UUID()) -> StorageAreaReference {
-        let tempDir = FileManager.default.temporaryDirectory
-            .appendingPathComponent("SwiftHablare-\(UUID().uuidString)")
-            .appendingPathComponent("assets")
-            .appendingPathComponent(requestID.uuidString)
+  /// Creates a temporary storage area for testing
+  ///
+  /// Uses a temporary directory that will be cleaned up by the system.
+  ///
+  /// - Parameter requestID: Optional request ID (generates new UUID if not provided)
+  /// - Returns: Storage area reference in a temporary directory
+  public static func temporary(requestID: UUID = UUID()) -> StorageAreaReference {
+    let tempDir = FileManager.default.temporaryDirectory
+      .appendingPathComponent("SwiftHablare-\(UUID().uuidString)")
+      .appendingPathComponent("assets")
+      .appendingPathComponent(requestID.uuidString)
 
-        return StorageAreaReference(
-            requestID: requestID,
-            baseURL: tempDir,
-            bundleIdentifier: nil
-        )
-    }
+    return StorageAreaReference(
+      requestID: requestID,
+      baseURL: tempDir,
+      bundleIdentifier: nil
+    )
+  }
 
-    /// Creates a storage area within a bundle's assets directory
-    ///
-    /// - Parameters:
-    ///   - requestID: Request identifier
-    ///   - bundleURL: URL to the .guion bundle
-    ///   - bundleIdentifier: Optional bundle identifier
-    /// - Returns: Storage area reference within the bundle
-    public static func inBundle(
-        requestID: UUID,
-        bundleURL: URL,
-        bundleIdentifier: String? = nil
-    ) -> StorageAreaReference {
-        let assetsDir = bundleURL
-            .appendingPathComponent("assets")
-            .appendingPathComponent(requestID.uuidString)
+  /// Creates a storage area within a bundle's assets directory
+  ///
+  /// - Parameters:
+  ///   - requestID: Request identifier
+  ///   - bundleURL: URL to the .guion bundle
+  ///   - bundleIdentifier: Optional bundle identifier
+  /// - Returns: Storage area reference within the bundle
+  public static func inBundle(
+    requestID: UUID,
+    bundleURL: URL,
+    bundleIdentifier: String? = nil
+  ) -> StorageAreaReference {
+    let assetsDir =
+      bundleURL
+      .appendingPathComponent("assets")
+      .appendingPathComponent(requestID.uuidString)
 
-        return StorageAreaReference(
-            requestID: requestID,
-            baseURL: assetsDir,
-            bundleIdentifier: bundleIdentifier
-        )
-    }
+    return StorageAreaReference(
+      requestID: requestID,
+      baseURL: assetsDir,
+      bundleIdentifier: bundleIdentifier
+    )
+  }
 }
 
 // MARK: - CustomStringConvertible
 
 extension StorageAreaReference: CustomStringConvertible {
-    public var description: String {
-        if let bundleID = bundleIdentifier {
-            return "StorageAreaReference(requestID: \(requestID), bundle: \(bundleID))"
-        } else {
-            return "StorageAreaReference(requestID: \(requestID), url: \(baseURL.path))"
-        }
+  public var description: String {
+    if let bundleID = bundleIdentifier {
+      return "StorageAreaReference(requestID: \(requestID), bundle: \(bundleID))"
+    } else {
+      return "StorageAreaReference(requestID: \(requestID), url: \(baseURL.path))"
     }
+  }
 }

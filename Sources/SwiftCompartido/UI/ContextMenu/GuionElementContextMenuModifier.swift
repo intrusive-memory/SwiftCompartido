@@ -29,66 +29,69 @@ import SwiftUI
 ///     }
 /// ```
 public struct GuionElementContextMenuModifier<MenuContent: View>: ViewModifier {
-    let menuBuilder: @Sendable @MainActor (GuionElementModel) -> MenuContent
+  let menuBuilder: @Sendable @MainActor (GuionElementModel) -> MenuContent
 
-    public func body(content: Content) -> some View {
-        content
-            .environment(\.guionElementContextMenu, GuionElementContextMenuProvider(menuBuilder: menuBuilder))
-    }
+  public func body(content: Content) -> some View {
+    content
+      .environment(
+        \.guionElementContextMenu, GuionElementContextMenuProvider(menuBuilder: menuBuilder))
+  }
 }
 
 // MARK: - View Extension
 
 extension View {
-    /// Add context menu to screenplay elements in GuionElementsList
-    ///
-    /// Context menus appear on:
-    /// - **macOS**: Right-click
-    /// - **iOS**: Long-press
-    ///
-    /// ## Example
-    /// ```swift
-    /// GuionElementsList(document: screenplay)
-    ///     .guionElementContextMenu { element in
-    ///         if element.isSpeakable {
-    ///             Button("Generate Audio", systemImage: "waveform") {
-    ///                 generateAudio(for: element)
-    ///             }
-    ///         }
-    ///     }
-    /// ```
-    ///
-    /// - Parameter content: Closure that builds menu items for an element
-    /// - Returns: View with context menu support
-    public func guionElementContextMenu<Content: View>(
-        @ViewBuilder content: @escaping @Sendable @MainActor (GuionElementModel) -> Content
-    ) -> some View {
-        modifier(GuionElementContextMenuModifier(menuBuilder: content))
-    }
+  /// Add context menu to screenplay elements in GuionElementsList
+  ///
+  /// Context menus appear on:
+  /// - **macOS**: Right-click
+  /// - **iOS**: Long-press
+  ///
+  /// ## Example
+  /// ```swift
+  /// GuionElementsList(document: screenplay)
+  ///     .guionElementContextMenu { element in
+  ///         if element.isSpeakable {
+  ///             Button("Generate Audio", systemImage: "waveform") {
+  ///                 generateAudio(for: element)
+  ///             }
+  ///         }
+  ///     }
+  /// ```
+  ///
+  /// - Parameter content: Closure that builds menu items for an element
+  /// - Returns: View with context menu support
+  public func guionElementContextMenu<Content: View>(
+    @ViewBuilder content: @escaping @Sendable @MainActor (GuionElementModel) -> Content
+  ) -> some View {
+    modifier(GuionElementContextMenuModifier(menuBuilder: content))
+  }
 }
 
 // MARK: - Environment Support
 
 /// Provider for context menu content
 public struct GuionElementContextMenuProvider: Sendable {
-    let menuBuilder: @Sendable @MainActor (GuionElementModel) -> AnyView
+  let menuBuilder: @Sendable @MainActor (GuionElementModel) -> AnyView
 
-    public init<Content: View>(menuBuilder: @escaping @Sendable @MainActor (GuionElementModel) -> Content) {
-        self.menuBuilder = { element in
-            AnyView(menuBuilder(element))
-        }
+  public init<Content: View>(
+    menuBuilder: @escaping @Sendable @MainActor (GuionElementModel) -> Content
+  ) {
+    self.menuBuilder = { element in
+      AnyView(menuBuilder(element))
     }
+  }
 }
 
 /// Environment key for context menu provider
 private struct GuionElementContextMenuKey: EnvironmentKey {
-    static let defaultValue: GuionElementContextMenuProvider? = nil
+  static let defaultValue: GuionElementContextMenuProvider? = nil
 }
 
 extension EnvironmentValues {
-    /// Context menu provider for screenplay elements
-    public var guionElementContextMenu: GuionElementContextMenuProvider? {
-        get { self[GuionElementContextMenuKey.self] }
-        set { self[GuionElementContextMenuKey.self] = newValue }
-    }
+  /// Context menu provider for screenplay elements
+  public var guionElementContextMenu: GuionElementContextMenuProvider? {
+    get { self[GuionElementContextMenuKey.self] }
+    set { self[GuionElementContextMenuKey.self] = newValue }
+  }
 }

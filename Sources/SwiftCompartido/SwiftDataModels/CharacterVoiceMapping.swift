@@ -6,53 +6,54 @@
 //
 
 import Foundation
-#if canImport(SwiftData)
-@preconcurrency import SwiftData
 
-/// SwiftData model representing a character's voice assignment.
-///
-/// This model maps a screenplay character to a specific voice for audio generation.
-/// Used by SwiftHablare to generate dialogue audio with the correct voice for each character.
-///
-/// ## Overview
-///
-/// Voice mappings are stored in the document's `casting` relationship. Each mapping
-/// specifies which voice to use when generating audio for a character's dialogue.
-///
-/// ## Voice URI Format
-///
-/// Voice URIs follow the SwiftHablare standard: `<provider>://<voiceId>?lang=<languageCode>`
-/// - **macOS System Voices**: `macos://Samantha?lang=en`
-/// - **ElevenLabs**: `elevenlabs://21m00Tcm4TlvDq8ikWAM?lang=en`
-/// - **OpenAI**: `openai://alloy?lang=en`
-///
-/// ## Example
-///
-/// ```swift
-/// let mapping = CharacterVoiceMapping(
-///     characterName: "JANE",
-///     voiceURI: "macos://Samantha?lang=en",
-///     voiceName: "Samantha",
-///     providerID: "macos"
-/// )
-/// document.casting.append(mapping)
-/// ```
-///
-/// ## Topics
-///
-/// ### Creating Mappings
-/// - ``init(characterName:voiceURI:voiceName:providerID:)``
-///
-/// ### Properties
-/// - ``characterName``
-/// - ``voiceURI``
-/// - ``voiceName``
-/// - ``providerID``
-///
-/// ### Relationships
-/// - ``document``
-@Model
-public final class CharacterVoiceMapping {
+#if canImport(SwiftData)
+  @preconcurrency import SwiftData
+
+  /// SwiftData model representing a character's voice assignment.
+  ///
+  /// This model maps a screenplay character to a specific voice for audio generation.
+  /// Used by SwiftHablare to generate dialogue audio with the correct voice for each character.
+  ///
+  /// ## Overview
+  ///
+  /// Voice mappings are stored in the document's `casting` relationship. Each mapping
+  /// specifies which voice to use when generating audio for a character's dialogue.
+  ///
+  /// ## Voice URI Format
+  ///
+  /// Voice URIs follow the SwiftHablare standard: `<provider>://<voiceId>?lang=<languageCode>`
+  /// - **macOS System Voices**: `macos://Samantha?lang=en`
+  /// - **ElevenLabs**: `elevenlabs://21m00Tcm4TlvDq8ikWAM?lang=en`
+  /// - **OpenAI**: `openai://alloy?lang=en`
+  ///
+  /// ## Example
+  ///
+  /// ```swift
+  /// let mapping = CharacterVoiceMapping(
+  ///     characterName: "JANE",
+  ///     voiceURI: "macos://Samantha?lang=en",
+  ///     voiceName: "Samantha",
+  ///     providerID: "macos"
+  /// )
+  /// document.casting.append(mapping)
+  /// ```
+  ///
+  /// ## Topics
+  ///
+  /// ### Creating Mappings
+  /// - ``init(characterName:voiceURI:voiceName:providerID:)``
+  ///
+  /// ### Properties
+  /// - ``characterName``
+  /// - ``voiceURI``
+  /// - ``voiceName``
+  /// - ``providerID``
+  ///
+  /// ### Relationships
+  /// - ``document``
+  @Model
+  public final class CharacterVoiceMapping {
 
     /// Character name (e.g., "JANE", "JOHN")
     ///
@@ -102,25 +103,25 @@ public final class CharacterVoiceMapping {
     ///   - voiceName: Human-readable name (e.g., "Samantha")
     ///   - providerID: Provider ID (e.g., "macos")
     public init(characterName: String, voiceURI: String, voiceName: String, providerID: String) {
-        self.characterName = characterName
-        self.voiceURI = voiceURI
-        self.voiceName = voiceName
-        self.providerID = providerID
+      self.characterName = characterName
+      self.voiceURI = voiceURI
+      self.voiceName = voiceName
+      self.providerID = providerID
     }
-}
+  }
 
-// MARK: - Snapshot Conversion
+  // MARK: - Snapshot Conversion
 
-extension CharacterVoiceMapping {
+  extension CharacterVoiceMapping {
     /// Convert this SwiftData model to a Codable snapshot
     ///
     /// - Returns: Snapshot ready for JSON serialization
     public func toSnapshot() -> CharacterVoiceMappingSnapshot {
-        CharacterVoiceMappingSnapshot(
-            voiceURI: voiceURI,
-            voiceName: voiceName,
-            providerID: providerID
-        )
+      CharacterVoiceMappingSnapshot(
+        voiceURI: voiceURI,
+        voiceName: voiceName,
+        providerID: providerID
+      )
     }
 
     /// Create SwiftData model from a Codable snapshot
@@ -131,19 +132,19 @@ extension CharacterVoiceMapping {
     ///   - document: Parent document (for relationship)
     /// - Returns: SwiftData model ready for insertion
     public static func from(
-        characterName: String,
-        _ snapshot: CharacterVoiceMappingSnapshot,
-        document: GuionDocumentModel? = nil
+      characterName: String,
+      _ snapshot: CharacterVoiceMappingSnapshot,
+      document: GuionDocumentModel? = nil
     ) -> CharacterVoiceMapping {
-        let mapping = CharacterVoiceMapping(
-            characterName: characterName,
-            voiceURI: snapshot.voiceURI,
-            voiceName: snapshot.voiceName,
-            providerID: snapshot.providerID
-        )
-        mapping.document = document
-        return mapping
+      let mapping = CharacterVoiceMapping(
+        characterName: characterName,
+        voiceURI: snapshot.voiceURI,
+        voiceName: snapshot.voiceName,
+        providerID: snapshot.providerID
+      )
+      mapping.document = document
+      return mapping
     }
-}
+  }
 
 #endif

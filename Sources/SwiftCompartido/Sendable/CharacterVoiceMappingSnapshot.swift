@@ -53,43 +53,43 @@ import Foundation
 /// - ``providerID``
 public struct CharacterVoiceMappingSnapshot: Codable, Sendable, Hashable {
 
-    /// Voice URI identifying the specific voice
-    ///
-    /// Format: `<provider>://<voiceId>?lang=<languageCode>`
-    ///
-    /// ## Examples
-    ///
-    /// - `macos://Samantha?lang=en` - macOS system voice
-    /// - `elevenlabs://21m00Tcm4TlvDq8ikWAM?lang=en` - ElevenLabs voice ID
-    /// - `openai://alloy?lang=en` - OpenAI voice name
-    public var voiceURI: String
+  /// Voice URI identifying the specific voice
+  ///
+  /// Format: `<provider>://<voiceId>?lang=<languageCode>`
+  ///
+  /// ## Examples
+  ///
+  /// - `macos://Samantha?lang=en` - macOS system voice
+  /// - `elevenlabs://21m00Tcm4TlvDq8ikWAM?lang=en` - ElevenLabs voice ID
+  /// - `openai://alloy?lang=en` - OpenAI voice name
+  public var voiceURI: String
 
-    /// Human-readable voice name
-    ///
-    /// Displayed in UI for voice selection. Examples:
-    /// - "Samantha" (macOS)
-    /// - "Rachel" (ElevenLabs)
-    /// - "Alloy" (OpenAI)
-    public var voiceName: String
+  /// Human-readable voice name
+  ///
+  /// Displayed in UI for voice selection. Examples:
+  /// - "Samantha" (macOS)
+  /// - "Rachel" (ElevenLabs)
+  /// - "Alloy" (OpenAI)
+  public var voiceName: String
 
-    /// Provider identifier
-    ///
-    /// Identifies which audio generation provider owns this voice:
-    /// - `macos` - macOS system TTS
-    /// - `elevenlabs` - ElevenLabs
-    /// - `openai` - OpenAI TTS
-    /// - Custom provider IDs
-    public var providerID: String
+  /// Provider identifier
+  ///
+  /// Identifies which audio generation provider owns this voice:
+  /// - `macos` - macOS system TTS
+  /// - `elevenlabs` - ElevenLabs
+  /// - `openai` - OpenAI TTS
+  /// - Custom provider IDs
+  public var providerID: String
 
-    /// Initialize a new character voice mapping
-    ///
-    /// - Parameters:
-    ///   - voiceURI: Voice URI (e.g., "macos://Samantha?lang=en")
-    ///   - voiceName: Human-readable name (e.g., "Samantha")
-    ///   - providerID: Provider ID (e.g., "macos")
-    public init(voiceURI: String, voiceName: String, providerID: String) {
-        self.voiceURI = voiceURI
-        self.voiceName = voiceName
-        self.providerID = providerID
-    }
+  /// Initialize a new character voice mapping
+  ///
+  /// - Parameters:
+  ///   - voiceURI: Voice URI (e.g., "macos://Samantha?lang=en")
+  ///   - voiceName: Human-readable name (e.g., "Samantha")
+  ///   - providerID: Provider ID (e.g., "macos")
+  public init(voiceURI: String, voiceName: String, providerID: String) {
+    self.voiceURI = voiceURI
+    self.voiceName = voiceName
+    self.providerID = providerID
+  }
 }

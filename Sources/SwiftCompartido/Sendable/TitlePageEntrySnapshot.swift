@@ -52,33 +52,33 @@ import Foundation
 /// - ``values``
 public struct TitlePageEntrySnapshot: Codable, Sendable, Hashable {
 
-    /// The title page key (e.g., "TITLE", "AUTHOR", "CONTACT")
-    ///
-    /// Keys are normalized to uppercase for consistent lookup.
-    public var key: String
+  /// The title page key (e.g., "TITLE", "AUTHOR", "CONTACT")
+  ///
+  /// Keys are normalized to uppercase for consistent lookup.
+  public var key: String
 
-    /// The values for this key
-    ///
-    /// Supports multiple values for co-authors, multiple contact methods, etc.
-    ///
-    /// ## Example
-    ///
-    /// ```swift
-    /// // Single value
-    /// TitlePageEntrySnapshot(key: "TITLE", values: ["My Screenplay"])
-    ///
-    /// // Multiple values
-    /// TitlePageEntrySnapshot(key: "AUTHOR", values: ["Jane Doe", "John Smith"])
-    /// ```
-    public var values: [String]
+  /// The values for this key
+  ///
+  /// Supports multiple values for co-authors, multiple contact methods, etc.
+  ///
+  /// ## Example
+  ///
+  /// ```swift
+  /// // Single value
+  /// TitlePageEntrySnapshot(key: "TITLE", values: ["My Screenplay"])
+  ///
+  /// // Multiple values
+  /// TitlePageEntrySnapshot(key: "AUTHOR", values: ["Jane Doe", "John Smith"])
+  /// ```
+  public var values: [String]
 
-    /// Initialize a new title page entry
-    ///
-    /// - Parameters:
-    ///   - key: The entry key (will be normalized to uppercase)
-    ///   - values: One or more values for this key
-    public init(key: String, values: [String]) {
-        self.key = key.uppercased()
-        self.values = values
-    }
+  /// Initialize a new title page entry
+  ///
+  /// - Parameters:
+  ///   - key: The entry key (will be normalized to uppercase)
+  ///   - values: One or more values for this key
+  public init(key: String, values: [String]) {
+    self.key = key.uppercased()
+    self.values = values
+  }
 }

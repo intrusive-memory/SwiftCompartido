@@ -27,47 +27,50 @@ import Foundation
 
 /// Information about a character in a guión
 public struct CharacterInfo: Codable {
-    public var color: String?
-    public var counts: CharacterCounts
-    public var gender: CharacterGender
-    public var scenes: [Int]
+  public var color: String?
+  public var counts: CharacterCounts
+  public var gender: CharacterGender
+  public var scenes: [Int]
 
-    public init(color: String? = nil, counts: CharacterCounts = CharacterCounts(), gender: CharacterGender = CharacterGender(), scenes: [Int] = []) {
-        self.color = color
-        self.counts = counts
-        self.gender = gender
-        self.scenes = scenes
-    }
+  public init(
+    color: String? = nil, counts: CharacterCounts = CharacterCounts(),
+    gender: CharacterGender = CharacterGender(), scenes: [Int] = []
+  ) {
+    self.color = color
+    self.counts = counts
+    self.gender = gender
+    self.scenes = scenes
+  }
 }
 
 /// Statistics about a character's dialogue
 public struct CharacterCounts: Codable {
-    public var lineCount: Int
-    public var wordCount: Int
+  public var lineCount: Int
+  public var wordCount: Int
 
-    public init(lineCount: Int = 0, wordCount: Int = 0) {
-        self.lineCount = lineCount
-        self.wordCount = wordCount
-    }
+  public init(lineCount: Int = 0, wordCount: Int = 0) {
+    self.lineCount = lineCount
+    self.wordCount = wordCount
+  }
 }
 
 /// Gender specification for a character
 public struct CharacterGender: Codable {
-    public var unspecified: [String: String]?
+  public var unspecified: [String: String]?
 
-    public init(unspecified: [String: String]? = [:]) {
-        self.unspecified = unspecified
-    }
+  public init(unspecified: [String: String]? = [:]) {
+    self.unspecified = unspecified
+  }
 
-    public func encode(to encoder: Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        // Encode as empty object if unspecified
-        try container.encode(unspecified ?? [:], forKey: .unspecified)
-    }
+  public func encode(to encoder: Encoder) throws {
+    var container = encoder.container(keyedBy: CodingKeys.self)
+    // Encode as empty object if unspecified
+    try container.encode(unspecified ?? [:], forKey: .unspecified)
+  }
 
-    private enum CodingKeys: String, CodingKey {
-        case unspecified
-    }
+  private enum CodingKeys: String, CodingKey {
+    case unspecified
+  }
 }
 
 /// Collection of all characters in a guión

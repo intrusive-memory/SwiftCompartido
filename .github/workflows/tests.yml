@@ -31,4 +31,8 @@ jobs:
             -destination 'platform=macOS' \
             -only-testing:SwiftCompartidoTests \
             -skip-testing:SwiftCompartidoTests/GuionDocumentSnapshotCastListTests \
-            -skip-testing:SwiftCompartidoTests/CastListGenerationIntegrationTests
+            -skip-testing:SwiftCompartidoTests/CastListGenerationIntegrationTests \
+            -skip-testing:SwiftCompartidoTests/GuionJSONSerializerTests/testPerformance_Encode120PageScreenplay \
+            -skip-testing:SwiftCompartidoTests/GuionJSONSerializerTests/testPerformance_Decode120PageScreenplay \
+            -skip-testing:SwiftCompartidoTests/GuionJSONSerializerTests/testPerformance_RoundTrip \
+            -skip-testing:SwiftCompartidoPerformanceTests

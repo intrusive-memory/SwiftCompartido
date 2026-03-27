@@ -8,7 +8,7 @@
     <img src="https://img.shields.io/badge/Swift-6.2+-orange.svg" />
     <img src="https://img.shields.io/badge/Platform-iOS%2026.0+%20|%20macOS%2026.0+-lightgrey.svg" />
     <img src="https://img.shields.io/badge/License-MIT-blue.svg" />
-    <img src="https://img.shields.io/badge/Version-6.3.0-blue.svg" />
+    <img src="https://img.shields.io/badge/Version-7.0.2-blue.svg" />
 </p>
 
 **SwiftCompartido** is a Swift package for parsing, storing, and displaying screenplays and AI-generated content. Built with SwiftData and SwiftUI.
@@ -35,16 +35,14 @@ SwiftCompartido has **two core missions**:
 
 ## ⚡ What's New
 
-**Version 6.3.0** adds voice casting support for character-to-voice assignments. Key highlights:
+**Version 7.0.2** fixes PDF parsing progress reporting and updates CI/CD. Key highlights:
 
-- 🎤 **Voice Casting System**: Assign voices to screenplay characters for audio generation
-  - CharacterVoiceMapping data model with SwiftData persistence
-  - App Intents for Shortcuts automation (GetVoiceCasting, SetVoiceCasting)
-  - Support for multiple TTS providers (macOS, ElevenLabs, OpenAI)
-  - JSON .guion format stores casting assignments
-- 🔗 **SwiftHablare Integration Ready**: Voice mappings ready for TTS workflows
-- 📝 **API-First Design**: Voice casting works via Shortcuts without UI layer
-- ✅ **Full Test Coverage**: Round-trip persistence, UUID preservation, large documents
+- 🔧 **PDF Progress Bar Fix**: Progress bar now advances correctly during page-by-page parsing
+- 📄 **PDF Attributed Strings**: Extract attributed strings for richer AI parsing context
+- 🔄 **CI/CD Updates**: Streamlined test suite (macOS unit tests only) for faster PR feedback
+  - Disabled iOS simulator tests (macOS coverage sufficient for library code)
+  - Performance tests moved to separate target (excluded from CI)
+  - Branch protection updated to match new test configuration
 
 See [CHANGELOG.md](./CHANGELOG.md) for complete version history and detailed release notes.
 

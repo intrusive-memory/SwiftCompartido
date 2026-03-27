@@ -45,21 +45,21 @@ import Foundation
 ///
 @Model
 public final class TitlePageEntryModel {
-    /// The title page key (e.g., "Title", "Author", "Contact")
-    public var key: String
+  /// The title page key (e.g., "Title", "Author", "Contact")
+  public var key: String
 
-    /// The values for this key (supports multiple values for co-authors, etc.)
-    public var values: [String]
+  /// The values for this key (supports multiple values for co-authors, etc.)
+  public var values: [String]
 
-    /// Reference to the parent document
-    public var document: GuionDocumentModel?
+  /// Reference to the parent document
+  public var document: GuionDocumentModel?
 
-    /// Initialize a new title page entry
-    /// - Parameters:
-    ///   - key: The entry key (will be normalized to uppercase for consistent lookup)
-    ///   - values: One or more values for this key
-    public init(key: String, values: [String]) {
-        self.key = key.uppercased()
-        self.values = values
-    }
+  /// Initialize a new title page entry
+  /// - Parameters:
+  ///   - key: The entry key (will be normalized to uppercase for consistent lookup)
+  ///   - values: One or more values for this key
+  public init(key: String, values: [String]) {
+    self.key = key.uppercased()
+    self.values = values
+  }
 }

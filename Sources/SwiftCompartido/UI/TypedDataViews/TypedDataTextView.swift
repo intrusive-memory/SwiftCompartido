@@ -5,8 +5,8 @@
 //  SwiftUI view for displaying text content from TypedDataStorage
 //
 
-import SwiftUI
 @preconcurrency import SwiftData
+import SwiftUI
 
 /// SwiftUI view for displaying text content from TypedDataStorage
 ///
@@ -19,134 +19,135 @@ import SwiftUI
 /// ```
 public struct TypedDataTextView: View {
 
-    // MARK: - Properties
+  // MARK: - Properties
 
-    /// The text storage record to display
-    let record: TypedDataStorage
+  /// The text storage record to display
+  let record: TypedDataStorage
 
-    /// Optional storage area for file-based content
-    let storageArea: StorageAreaReference?
+  /// Optional storage area for file-based content
+  let storageArea: StorageAreaReference?
 
-    /// Loaded text content
-    @State private var text: String = ""
+  /// Loaded text content
+  @State private var text: String = ""
 
-    /// Error state
-    @State private var error: Error?
+  /// Error state
+  @State private var error: Error?
 
-    /// Loading state
-    @State private var isLoading: Bool = true
+  /// Loading state
+  @State private var isLoading: Bool = true
 
-    // MARK: - Initialization
+  // MARK: - Initialization
 
-    /// Creates a text view for a TypedDataStorage record
-    ///
-    /// - Parameters:
-    ///   - record: The text storage record
-    ///   - storageArea: Optional storage area for file-based content
-    public init(record: TypedDataStorage, storageArea: StorageAreaReference? = nil) {
-        self.record = record
-        self.storageArea = storageArea
+  /// Creates a text view for a TypedDataStorage record
+  ///
+  /// - Parameters:
+  ///   - record: The text storage record
+  ///   - storageArea: Optional storage area for file-based content
+  public init(record: TypedDataStorage, storageArea: StorageAreaReference? = nil) {
+    self.record = record
+    self.storageArea = storageArea
+  }
+
+  // MARK: - Body
+
+  public var body: some View {
+    Group {
+      if isLoading {
+        ProgressView("Loading text...")
+          .accessibilityLabel("Loading text content")
+          .accessibilityValue("Please wait")
+      } else if let error = error {
+        ErrorView(error: error)
+          .accessibilityLabel("Text load error")
+          .accessibilityValue(error.localizedDescription)
+      } else {
+        ScrollView {
+          Text(text)
+            .padding()
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .accessibilityLabel(accessibilityLabelForText)
+        }
+      }
+    }
+    .task {
+      await loadText()
+    }
+  }
+
+  // MARK: - Accessibility Helpers
+
+  /// Accessibility label for the loaded text
+  private var accessibilityLabelForText: String {
+    var label = "Generated text"
+
+    if !record.prompt.isEmpty {
+      label += " for: \(record.prompt)"
     }
 
-    // MARK: - Body
-
-    public var body: some View {
-        Group {
-            if isLoading {
-                ProgressView("Loading text...")
-                    .accessibilityLabel("Loading text content")
-                    .accessibilityValue("Please wait")
-            } else if let error = error {
-                ErrorView(error: error)
-                    .accessibilityLabel("Text load error")
-                    .accessibilityValue(error.localizedDescription)
-            } else {
-                ScrollView {
-                    Text(text)
-                        .padding()
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .accessibilityLabel(accessibilityLabelForText)
-                }
-            }
-        }
-        .task {
-            await loadText()
-        }
+    if let wordCount = record.wordCount {
+      label += ", \(wordCount) words"
     }
 
-    // MARK: - Accessibility Helpers
+    label += ". Content: \(text)"
 
-    /// Accessibility label for the loaded text
-    private var accessibilityLabelForText: String {
-        var label = "Generated text"
+    return label
+  }
 
-        if !record.prompt.isEmpty {
-            label += " for: \(record.prompt)"
-        }
+  // MARK: - Loading
 
-        if let wordCount = record.wordCount {
-            label += ", \(wordCount) words"
-        }
-
-        label += ". Content: \(text)"
-
-        return label
+  /// Loads text from the record
+  private func loadText() async {
+    do {
+      text = try record.getText(from: storageArea)
+      isLoading = false
+    } catch {
+      self.error = error
+      isLoading = false
     }
-
-    // MARK: - Loading
-
-    /// Loads text from the record
-    private func loadText() async {
-        do {
-            text = try record.getText(from: storageArea)
-            isLoading = false
-        } catch {
-            self.error = error
-            isLoading = false
-        }
-    }
+  }
 }
 
 /// Error view for displaying load errors
 private struct ErrorView: View {
-    let error: Error
+  let error: Error
 
-    var body: some View {
-        VStack(spacing: 12) {
-            Image(systemName: "exclamationmark.triangle")
-                .font(.system(size: 48))
-                .foregroundColor(.red)
+  var body: some View {
+    VStack(spacing: 12) {
+      Image(systemName: "exclamationmark.triangle")
+        .font(.system(size: 48))
+        .foregroundColor(.red)
 
-            Text("Failed to load text")
-                .font(.headline)
+      Text("Failed to load text")
+        .font(.headline)
 
-            Text(error.localizedDescription)
-                .font(.caption)
-                .foregroundColor(.secondary)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal)
-        }
-        .padding()
+      Text(error.localizedDescription)
+        .font(.caption)
+        .foregroundColor(.secondary)
+        .multilineTextAlignment(.center)
+        .padding(.horizontal)
     }
+    .padding()
+  }
 }
 
 // MARK: - Preview
 
 #if DEBUG
-struct TypedDataTextView_Previews: PreviewProvider {
+  struct TypedDataTextView_Previews: PreviewProvider {
     static var previews: some View {
-        let record = TypedDataStorage(
-            providerId: "openai",
-            requestorID: "gpt-4",
-            mimeType: "text/plain",
-            textValue: "This is a sample text content that was generated by an AI model. It demonstrates how the TypedDataTextView component displays text content from a TypedDataStorage record.",
-            prompt: "Generate sample text",
-            wordCount: 25,
-            characterCount: 150
-        )
+      let record = TypedDataStorage(
+        providerId: "openai",
+        requestorID: "gpt-4",
+        mimeType: "text/plain",
+        textValue:
+          "This is a sample text content that was generated by an AI model. It demonstrates how the TypedDataTextView component displays text content from a TypedDataStorage record.",
+        prompt: "Generate sample text",
+        wordCount: 25,
+        characterCount: 150
+      )
 
-        TypedDataTextView(record: record)
-            .frame(width: 400, height: 300)
+      TypedDataTextView(record: record)
+        .frame(width: 400, height: 300)
     }
-}
+  }
 #endif

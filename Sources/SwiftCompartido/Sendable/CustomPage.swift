@@ -30,17 +30,17 @@ import Foundation
 /// Custom pages are additional non-screenplay pages that can be included
 /// when printing or exporting a screenplay (e.g., cast lists, production notes).
 public protocol CustomPage: Codable, Sendable {
-    var id: String { get }
-    var title: String { get set }
-    var position: Int { get set }
+  var id: String { get }
+  var title: String { get set }
+  var position: Int { get set }
 }
 
 /// Types of custom pages supported by Highland
 public enum CustomPageType: String, Codable, Sendable {
-    case castList
-    case advanced
-    case empty
-    case unknown
+  case castList
+  case advanced
+  case empty
+  case unknown
 }
 
 /// Container for custom pages that preserves type information and raw JSON
@@ -55,64 +55,64 @@ public enum CustomPageType: String, Codable, Sendable {
 /// serialization. All custom page data is preserved in `rawJSON` and must be serialized using
 /// the dictionary-based methods.
 public struct CustomPageContainer: Sendable {
-    public let type: CustomPageType
-    public let rawJSON: Data
+  public let type: CustomPageType
+  public let rawJSON: Data
 
-    /// Initialize from a typed custom page
-    public init<T: CustomPage>(page: T, type: CustomPageType) throws {
-        self.type = type
-        self.rawJSON = try JSONEncoder().encode(page)
-    }
+  /// Initialize from a typed custom page
+  public init<T: CustomPage>(page: T, type: CustomPageType) throws {
+    self.type = type
+    self.rawJSON = try JSONEncoder().encode(page)
+  }
 
-    /// Initialize from raw JSON data (for unsupported types)
-    public init(type: CustomPageType, rawJSON: Data) {
-        self.type = type
-        self.rawJSON = rawJSON
-    }
+  /// Initialize from raw JSON data (for unsupported types)
+  public init(type: CustomPageType, rawJSON: Data) {
+    self.type = type
+    self.rawJSON = rawJSON
+  }
 
-    /// Initialize from a dictionary (parsed from JSON file)
-    public init(from dictionary: [String: Any]) throws {
-        let typeString = dictionary["type"] as? String ?? "unknown"
-        self.type = CustomPageType(rawValue: typeString) ?? .unknown
-        self.rawJSON = try JSONSerialization.data(withJSONObject: dictionary)
-    }
+  /// Initialize from a dictionary (parsed from JSON file)
+  public init(from dictionary: [String: Any]) throws {
+    let typeString = dictionary["type"] as? String ?? "unknown"
+    self.type = CustomPageType(rawValue: typeString) ?? .unknown
+    self.rawJSON = try JSONSerialization.data(withJSONObject: dictionary)
+  }
 
-    /// Convert to dictionary for JSON serialization
-    public func toDictionary() throws -> [String: Any] {
-        try JSONSerialization.jsonObject(with: rawJSON) as? [String: Any] ?? [:]
-    }
+  /// Convert to dictionary for JSON serialization
+  public func toDictionary() throws -> [String: Any] {
+    try JSONSerialization.jsonObject(with: rawJSON) as? [String: Any] ?? [:]
+  }
 
-    /// Decode as a Cast List page
-    public func asCastList() throws -> CastListPage? {
-        guard type == .castList else { return nil }
-        return try JSONDecoder().decode(CastListPage.self, from: rawJSON)
-    }
+  /// Decode as a Cast List page
+  public func asCastList() throws -> CastListPage? {
+    guard type == .castList else { return nil }
+    return try JSONDecoder().decode(CastListPage.self, from: rawJSON)
+  }
 
-    /// Get the raw JSON as a dictionary
-    public func asRawJSON() throws -> [String: Any] {
-        try JSONSerialization.jsonObject(with: rawJSON) as? [String: Any] ?? [:]
-    }
+  /// Get the raw JSON as a dictionary
+  public func asRawJSON() throws -> [String: Any] {
+    try JSONSerialization.jsonObject(with: rawJSON) as? [String: Any] ?? [:]
+  }
 
-    /// Get the page ID without fully deserializing
-    public var id: String? {
-        try? asRawJSON()["id"] as? String
-    }
+  /// Get the page ID without fully deserializing
+  public var id: String? {
+    try? asRawJSON()["id"] as? String
+  }
 
-    /// Get the page title without fully deserializing
-    public var title: String? {
-        try? asRawJSON()["title"] as? String
-    }
+  /// Get the page title without fully deserializing
+  public var title: String? {
+    try? asRawJSON()["title"] as? String
+  }
 
-    /// Get the page position without fully deserializing
-    public var positionValue: Int? {
-        try? asRawJSON()["position"] as? Int
-    }
+  /// Get the page position without fully deserializing
+  public var positionValue: Int? {
+    try? asRawJSON()["position"] as? Int
+  }
 }
 
 /// Error types for custom page operations
 public enum CustomPageError: Error {
-    case invalidJSON
-    case unsupportedPageType
-    case missingRequiredField(String)
-    case decodingFailed(String)
+  case invalidJSON
+  case unsupportedPageType
+  case missingRequiredField(String)
+  case decodingFailed(String)
 }

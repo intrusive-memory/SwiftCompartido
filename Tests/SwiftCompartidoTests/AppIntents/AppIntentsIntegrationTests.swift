@@ -5,8 +5,9 @@
 //  Simple integration tests verifying App Intents can be initialized.
 //
 
-import Testing
 import Foundation
+import Testing
+
 @testable import SwiftCompartido
 
 /// Simple integration tests for App Intents.
@@ -17,94 +18,93 @@ import Foundation
 @MainActor
 struct AppIntentsIntegrationTests {
 
-    // MARK: - Test Fixtures
+  // MARK: - Test Fixtures
 
-    /// Get URL for a test fixture file
-    private func fixtureURL(named filename: String) throws -> URL {
-        let fixturesPath = URL(fileURLWithPath: #filePath)
-            .deletingLastPathComponent() // AppIntents
-            .deletingLastPathComponent() // SwiftCompartidoTests
-            .deletingLastPathComponent() // Tests
-            .deletingLastPathComponent() // SwiftCompartido
-            .appendingPathComponent("Fixtures")
-            .appendingPathComponent(filename)
+  /// Get URL for a test fixture file
+  private func fixtureURL(named filename: String) throws -> URL {
+    let fixturesPath = URL(fileURLWithPath: #filePath)
+      .deletingLastPathComponent()  // AppIntents
+      .deletingLastPathComponent()  // SwiftCompartidoTests
+      .deletingLastPathComponent()  // Tests
+      .deletingLastPathComponent()  // SwiftCompartido
+      .appendingPathComponent("Fixtures")
+      .appendingPathComponent(filename)
 
-        guard FileManager.default.fileExists(atPath: fixturesPath.path) else {
-            throw IntegrationTestError.fixtureNotFound(filename)
-        }
-
-        return fixturesPath
+    guard FileManager.default.fileExists(atPath: fixturesPath.path) else {
+      throw IntegrationTestError.fixtureNotFound(filename)
     }
 
-    // MARK: - Intent Initialization Tests
+    return fixturesPath
+  }
 
-    @Test("ParseScreenplayFileIntent: Fountain file initialization")
-    func testParseScreenplayFileIntent_Init() async throws {
-        let fileURL = try fixtureURL(named: "bigfish.fountain")
+  // MARK: - Intent Initialization Tests
 
-        // Create intent with parameters
-        var intent = ParseScreenplayFileIntent()
-        intent.fileURL = fileURL
-        intent.elementTypes = [ElementTypeEntity(id: "Dialogue", elementType: .dialogue)]
-        intent.chapterIndex = 0
-        intent.searchText = "Edward"
+  @Test("ParseScreenplayFileIntent: Fountain file initialization")
+  func testParseScreenplayFileIntent_Init() async throws {
+    let fileURL = try fixtureURL(named: "bigfish.fountain")
 
-        // Verify parameters set correctly
-        #expect(intent.fileURL == fileURL)
-        #expect(intent.elementTypes?.count == 1)
-        #expect(intent.chapterIndex == 0)
-        #expect(intent.searchText == "Edward")
-    }
+    // Create intent with parameters
+    var intent = ParseScreenplayFileIntent()
+    intent.fileURL = fileURL
+    intent.elementTypes = [ElementTypeEntity(id: "Dialogue", elementType: .dialogue)]
+    intent.chapterIndex = 0
+    intent.searchText = "Edward"
 
-    @Test("QueryScreenplayElementsIntent: Initialization")
-    func testQueryScreenplayElementsIntent_Init() async throws {
-        // Create intent with parameters
-        let documentIDString = "test-document-id"
-        let intent = QueryScreenplayElementsIntent(
-            documentIDString: documentIDString,
-            elementTypes: [ElementTypeEntity(id: "Dialogue", elementType: .dialogue)],
-            chapterIndex: 0,
-            characterName: "EDWARD",
-            searchText: "test"
-        )
+    // Verify parameters set correctly
+    #expect(intent.fileURL == fileURL)
+    #expect(intent.elementTypes?.count == 1)
+    #expect(intent.chapterIndex == 0)
+    #expect(intent.searchText == "Edward")
+  }
 
-        // Verify parameters
-        #expect(intent.documentIDString == documentIDString)
-        #expect(intent.elementTypes?.count == 1)
-        #expect(intent.chapterIndex == 0)
-        #expect(intent.characterName == "EDWARD")
-        #expect(intent.searchText == "test")
-    }
+  @Test("QueryScreenplayElementsIntent: Initialization")
+  func testQueryScreenplayElementsIntent_Init() async throws {
+    // Create intent with parameters
+    let documentIDString = "test-document-id"
+    let intent = QueryScreenplayElementsIntent(
+      documentIDString: documentIDString,
+      elementTypes: [ElementTypeEntity(id: "Dialogue", elementType: .dialogue)],
+      chapterIndex: 0,
+      characterName: "EDWARD",
+      searchText: "test"
+    )
 
-    @Test("ElementTypeEntity: Query all types")
-    func testElementTypeEntityQuery() async throws {
-        let query = ElementTypeQuery()
+    // Verify parameters
+    #expect(intent.documentIDString == documentIDString)
+    #expect(intent.elementTypes?.count == 1)
+    #expect(intent.chapterIndex == 0)
+    #expect(intent.characterName == "EDWARD")
+    #expect(intent.searchText == "test")
+  }
 
-        let allTypes = try await query.suggestedEntities()
+  @Test("ElementTypeEntity: Query all types")
+  func testElementTypeEntityQuery() async throws {
+    let query = ElementTypeQuery()
 
-        // Verify all screenplay element types are available
-        #expect(allTypes.count == 7)
-        #expect(allTypes.contains(where: { $0.elementType == .dialogue }))
-        #expect(allTypes.contains(where: { $0.elementType == .action }))
-        #expect(allTypes.contains(where: { $0.elementType == .sceneHeading }))
-        #expect(allTypes.contains(where: { $0.elementType == .character }))
-    }
+    let allTypes = try await query.suggestedEntities()
 
-    @Test("ElementTypeEntity: Query by ID")
-    func testElementTypeEntityQueryByID() async throws {
-        let query = ElementTypeQuery()
+    // Verify all screenplay element types are available
+    #expect(allTypes.count == 7)
+    #expect(allTypes.contains(where: { $0.elementType == .dialogue }))
+    #expect(allTypes.contains(where: { $0.elementType == .action }))
+    #expect(allTypes.contains(where: { $0.elementType == .sceneHeading }))
+    #expect(allTypes.contains(where: { $0.elementType == .character }))
+  }
 
-        let entities = try await query.entities(for: ["Dialogue", "Action"])
+  @Test("ElementTypeEntity: Query by ID")
+  func testElementTypeEntityQueryByID() async throws {
+    let query = ElementTypeQuery()
 
-        #expect(entities.count == 2)
-        #expect(entities.contains(where: { $0.elementType == .dialogue }))
-        #expect(entities.contains(where: { $0.elementType == .action }))
-    }
+    let entities = try await query.entities(for: ["Dialogue", "Action"])
+
+    #expect(entities.count == 2)
+    #expect(entities.contains(where: { $0.elementType == .dialogue }))
+    #expect(entities.contains(where: { $0.elementType == .action }))
+  }
 }
 
 // MARK: - Test Errors
 
 enum IntegrationTestError: Error {
-    case fixtureNotFound(String)
+  case fixtureNotFound(String)
 }
-

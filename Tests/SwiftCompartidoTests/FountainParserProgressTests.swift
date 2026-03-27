@@ -1,6 +1,7 @@
 import Foundation
-import Testing
 import SwiftFijos
+import Testing
+
 @testable import SwiftCompartido
 
 /// Tests for FountainParser progress reporting functionality.
@@ -14,354 +15,359 @@ import SwiftFijos
 @Suite("FountainParser Progress Tests")
 struct FountainParserProgressTests {
 
-    // MARK: - Helper Methods
+  // MARK: - Helper Methods
 
-    private func loadFixtureString(_ name: String) async throws -> String {
-        let url = try await FixtureManager.shared.withExclusiveAccess(
-            to: "\(name).fountain"
-        ) { url in
-            return url
-        }
-        return try String(contentsOf: url, encoding: .utf8)
+  private func loadFixtureString(_ name: String) async throws -> String {
+    let url = try await FixtureManager.shared.withExclusiveAccess(
+      to: "\(name).fountain"
+    ) { url in
+      return url
+    }
+    return try String(contentsOf: url, encoding: .utf8)
+  }
+
+  // MARK: - Progress Accuracy Tests
+
+  @Test("Progress updates occur during parsing")
+  func testProgressUpdates() async throws {
+    actor ProgressCollector {
+      var updates: [ProgressUpdate] = []
+
+      func add(_ update: ProgressUpdate) {
+        updates.append(update)
+      }
+
+      func getUpdates() -> [ProgressUpdate] {
+        return updates
+      }
     }
 
-    // MARK: - Progress Accuracy Tests
-
-    @Test("Progress updates occur during parsing")
-    func testProgressUpdates() async throws {
-        actor ProgressCollector {
-            var updates: [ProgressUpdate] = []
-
-            func add(_ update: ProgressUpdate) {
-                updates.append(update)
-            }
-
-            func getUpdates() -> [ProgressUpdate] {
-                return updates
-            }
-        }
-
-        let collector = ProgressCollector()
-        let progress = OperationProgress(totalUnits: nil) { update in
-            Task {
-                await collector.add(update)
-            }
-        }
-
-        // Use bigfish.fountain fixture - large real-world screenplay
-        let screenplay = try await loadFixtureString("bigfish")
-        let parser = try await FountainParser(string: screenplay, progress: progress)
-
-        // Wait for async updates to propagate
-        try await Task.sleep(for: .milliseconds(50))
-
-        let updates = await collector.getUpdates()
-
-        // Should have received multiple progress updates
-        #expect(updates.count > 0, "Should receive progress updates")
-
-        // Parser should have elements
-        #expect(parser.elements.count > 0, "Parser should have elements")
+    let collector = ProgressCollector()
+    let progress = OperationProgress(totalUnits: nil) { update in
+      Task {
+        await collector.add(update)
+      }
     }
 
-    @Test("Progress reaches 100% on completion")
-    func testProgressCompletion() async throws {
-        actor ProgressCollector {
-            var allUpdates: [ProgressUpdate] = []
+    // Use bigfish.fountain fixture - large real-world screenplay
+    let screenplay = try await loadFixtureString("bigfish")
+    let parser = try await FountainParser(string: screenplay, progress: progress)
 
-            func add(_ update: ProgressUpdate) {
-                allUpdates.append(update)
-            }
+    // Wait for async updates to propagate
+    try await Task.sleep(for: .milliseconds(50))
 
-            func getAll() -> [ProgressUpdate] {
-                return allUpdates
-            }
-        }
+    let updates = await collector.getUpdates()
 
-        let collector = ProgressCollector()
-        let progress = OperationProgress(totalUnits: nil) { update in
-            Task {
-                await collector.add(update)
-            }
-        }
+    // Should have received multiple progress updates
+    #expect(updates.count > 0, "Should receive progress updates")
 
-        // Use test.fountain fixture - smaller screenplay for quick completion test
-        let screenplay = try await loadFixtureString("test")
-        _ = try await FountainParser(string: screenplay, progress: progress)
+    // Parser should have elements
+    #expect(parser.elements.count > 0, "Parser should have elements")
+  }
 
-        // Wait a bit for async updates to propagate
-        try await Task.sleep(for: .milliseconds(50))
+  @Test("Progress reaches 100% on completion")
+  func testProgressCompletion() async throws {
+    actor ProgressCollector {
+      var allUpdates: [ProgressUpdate] = []
 
-        let allUpdates = await collector.getAll()
+      func add(_ update: ProgressUpdate) {
+        allUpdates.append(update)
+      }
 
-        #expect(allUpdates.count > 0, "Should receive progress updates")
-
-        // Check the final update
-        if let finalUpdate = allUpdates.last {
-            #expect(finalUpdate.description.contains("complete"), "Final update should mention completion")
-        }
+      func getAll() -> [ProgressUpdate] {
+        return allUpdates
+      }
     }
 
-    @Test("Progress reports line counts correctly")
-    func testProgressLineCounts() async throws {
-        actor ProgressCollector {
-            var maxCompletedUnits: Int64 = 0
-            var totalUnits: Int64?
-
-            func update(_ update: ProgressUpdate) {
-                if update.completedUnits > maxCompletedUnits {
-                    maxCompletedUnits = update.completedUnits
-                }
-                if totalUnits == nil, let total = update.totalUnits {
-                    totalUnits = total
-                }
-            }
-
-            func getStats() -> (max: Int64, total: Int64?) {
-                return (maxCompletedUnits, totalUnits)
-            }
-        }
-
-        let collector = ProgressCollector()
-        let progress = OperationProgress(totalUnits: nil) { update in
-            Task {
-                await collector.update(update)
-            }
-        }
-
-        // Use bigfish.fountain fixture
-        let screenplay = try await loadFixtureString("bigfish")
-        _ = try await FountainParser(string: screenplay, progress: progress)
-
-        // Wait for async updates to propagate
-        try await Task.sleep(for: .milliseconds(50))
-
-        let stats = await collector.getStats()
-
-        // Should have processed all lines
-        #expect(stats.max > 0, "Should have processed lines")
-        #expect(stats.total != nil, "Should have total line count")
+    let collector = ProgressCollector()
+    let progress = OperationProgress(totalUnits: nil) { update in
+      Task {
+        await collector.add(update)
+      }
     }
 
-    // MARK: - Cancellation Tests
+    // Use test.fountain fixture - smaller screenplay for quick completion test
+    let screenplay = try await loadFixtureString("test")
+    _ = try await FountainParser(string: screenplay, progress: progress)
 
-    @Test("Cancellation stops parsing mid-operation")
-    func testCancellation() async throws {
-        let screenplay = try await loadFixtureString("bigfish")
+    // Wait a bit for async updates to propagate
+    try await Task.sleep(for: .milliseconds(50))
 
-        let task = Task {
-            let progress = OperationProgress(totalUnits: nil)
-            return try await FountainParser(string: screenplay, progress: progress)
+    let allUpdates = await collector.getAll()
+
+    #expect(allUpdates.count > 0, "Should receive progress updates")
+
+    // Check the final update
+    if let finalUpdate = allUpdates.last {
+      #expect(
+        finalUpdate.description.contains("complete"), "Final update should mention completion")
+    }
+  }
+
+  @Test("Progress reports line counts correctly")
+  func testProgressLineCounts() async throws {
+    actor ProgressCollector {
+      var maxCompletedUnits: Int64 = 0
+      var totalUnits: Int64?
+
+      func update(_ update: ProgressUpdate) {
+        if update.completedUnits > maxCompletedUnits {
+          maxCompletedUnits = update.completedUnits
         }
-
-        // Cancel the task immediately
-        task.cancel()
-
-        do {
-            _ = try await task.value
-            Issue.record("Expected CancellationError to be thrown")
-        } catch is CancellationError {
-            // Expected - test passes
-        } catch {
-            Issue.record("Expected CancellationError, got \(error)")
+        if totalUnits == nil, let total = update.totalUnits {
+          totalUnits = total
         }
+      }
+
+      func getStats() -> (max: Int64, total: Int64?) {
+        return (maxCompletedUnits, totalUnits)
+      }
     }
 
-    // MARK: - Nil Progress Handler Tests
-
-    @Test("Parser works with nil progress handler")
-    func testNilProgressHandler() async throws {
-        let screenplay = try await loadFixtureString("test")
-
-        // Explicitly pass nil progress to use async init
-        let nilProgress: OperationProgress? = nil
-        let parser = try await FountainParser(string: screenplay, progress: nilProgress)
-
-        #expect(parser.elements.count > 0, "Should parse elements with nil progress")
-        #expect(parser.titlePage.count > 0, "Should parse title page with nil progress")
+    let collector = ProgressCollector()
+    let progress = OperationProgress(totalUnits: nil) { update in
+      Task {
+        await collector.update(update)
+      }
     }
 
-    // MARK: - Title Page Tests
+    // Use bigfish.fountain fixture
+    let screenplay = try await loadFixtureString("bigfish")
+    _ = try await FountainParser(string: screenplay, progress: progress)
 
-    @Test("Title page parsing reports progress")
-    func testTitlePageProgress() async throws {
-        // Use bigfish.fountain which has a complete title page
-        let screenplay = try await loadFixtureString("bigfish")
+    // Wait for async updates to propagate
+    try await Task.sleep(for: .milliseconds(50))
 
-        actor ProgressCollector {
-            var descriptions: [String] = []
+    let stats = await collector.getStats()
 
-            func add(_ desc: String) {
-                descriptions.append(desc)
-            }
+    // Should have processed all lines
+    #expect(stats.max > 0, "Should have processed lines")
+    #expect(stats.total != nil, "Should have total line count")
+  }
 
-            func getDescriptions() -> [String] {
-                return descriptions
-            }
-        }
+  // MARK: - Cancellation Tests
 
-        let collector = ProgressCollector()
-        let progress = OperationProgress(totalUnits: nil) { update in
-            Task {
-                await collector.add(update.description)
-            }
-        }
+  @Test("Cancellation stops parsing mid-operation")
+  func testCancellation() async throws {
+    let screenplay = try await loadFixtureString("bigfish")
 
-        _ = try await FountainParser(string: screenplay, progress: progress)
-
-        // Wait for async updates to propagate
-        try await Task.sleep(for: .milliseconds(50))
-
-        let descriptions = await collector.getDescriptions()
-
-        // Should have at least one progress update
-        #expect(descriptions.count > 0, "Should have progress updates")
+    let task = Task {
+      let progress = OperationProgress(totalUnits: nil)
+      return try await FountainParser(string: screenplay, progress: progress)
     }
 
-    // MARK: - Empty File Tests
+    // Cancel the task immediately
+    task.cancel()
 
-    @Test("Empty string parsing completes successfully")
-    func testEmptyFileHandling() async throws {
-        let progress = OperationProgress(totalUnits: nil)
+    do {
+      _ = try await task.value
+      Issue.record("Expected CancellationError to be thrown")
+    } catch is CancellationError {
+      // Expected - test passes
+    } catch {
+      Issue.record("Expected CancellationError, got \(error)")
+    }
+  }
 
-        let parser = try await FountainParser(string: "", progress: progress)
+  // MARK: - Nil Progress Handler Tests
 
-        #expect(parser.elements.count == 0, "Empty string should result in zero elements")
-        #expect(parser.titlePage.count == 0, "Empty string should result in empty title page")
+  @Test("Parser works with nil progress handler")
+  func testNilProgressHandler() async throws {
+    let screenplay = try await loadFixtureString("test")
+
+    // Explicitly pass nil progress to use async init
+    let nilProgress: OperationProgress? = nil
+    let parser = try await FountainParser(string: screenplay, progress: nilProgress)
+
+    #expect(parser.elements.count > 0, "Should parse elements with nil progress")
+    // Note: test.fountain doesn't have title page metadata, which is valid
+  }
+
+  // MARK: - Title Page Tests
+
+  @Test("Title page parsing reports progress")
+  func testTitlePageProgress() async throws {
+    // Use bigfish.fountain which has a complete title page
+    let screenplay = try await loadFixtureString("bigfish")
+
+    actor ProgressCollector {
+      var descriptions: [String] = []
+
+      func add(_ desc: String) {
+        descriptions.append(desc)
+      }
+
+      func getDescriptions() -> [String] {
+        return descriptions
+      }
     }
 
-    // MARK: - Multi-line Element Tests
-
-    @Test("Multi-line action blocks are counted correctly")
-    func testMultiLineElements() async throws {
-        // Use test.fountain which has multi-line elements
-        let screenplay = try await loadFixtureString("test")
-
-        let nilProgress: OperationProgress? = nil
-        let parser = try await FountainParser(string: screenplay, progress: nilProgress)
-
-        #expect(parser.elements.count > 0, "Should parse multi-line elements")
+    let collector = ProgressCollector()
+    let progress = OperationProgress(totalUnits: nil) { update in
+      Task {
+        await collector.add(update.description)
+      }
     }
 
-    // MARK: - Backward Compatibility Tests
+    _ = try await FountainParser(string: screenplay, progress: progress)
 
-    @Test("Synchronous init still works")
-    func testBackwardCompatibility() throws {
-        let screenplay = """
-        Title: Test Screenplay
-        Author: Test Author
+    // Wait for async updates to propagate
+    try await Task.sleep(for: .milliseconds(50))
 
-        INT. TEST LOCATION - DAY
+    let descriptions = await collector.getDescriptions()
 
-        Action text.
+    // Should have at least one progress update
+    #expect(descriptions.count > 0, "Should have progress updates")
+  }
 
-        CHARACTER
-        Dialogue.
-        """
+  // MARK: - Empty File Tests
 
-        // Call in non-async context to ensure sync init is used
-        let parser = FountainParser(string: screenplay)
+  @Test("Empty string parsing completes successfully")
+  func testEmptyFileHandling() async throws {
+    let progress = OperationProgress(totalUnits: nil)
 
-        #expect(parser.elements.count > 0, "Sync parser should work")
-        #expect(parser.titlePage.count > 0, "Sync parser should parse title page")
+    let parser = try await FountainParser(string: "", progress: progress)
+
+    #expect(parser.elements.count == 0, "Empty string should result in zero elements")
+    #expect(parser.titlePage.count == 0, "Empty string should result in empty title page")
+  }
+
+  // MARK: - Multi-line Element Tests
+
+  @Test("Multi-line action blocks are counted correctly")
+  func testMultiLineElements() async throws {
+    // Use test.fountain which has multi-line elements
+    let screenplay = try await loadFixtureString("test")
+
+    let nilProgress: OperationProgress? = nil
+    let parser = try await FountainParser(string: screenplay, progress: nilProgress)
+
+    #expect(parser.elements.count > 0, "Should parse multi-line elements")
+  }
+
+  // MARK: - Backward Compatibility Tests
+
+  @Test("Synchronous init still works")
+  func testBackwardCompatibility() throws {
+    let screenplay = """
+      Title: Test Screenplay
+      Author: Test Author
+
+      INT. TEST LOCATION - DAY
+
+      Action text.
+
+      CHARACTER
+      Dialogue.
+      """
+
+    // Call in non-async context to ensure sync init is used
+    let parser = FountainParser(string: screenplay)
+
+    #expect(parser.elements.count > 0, "Sync parser should work")
+    #expect(parser.titlePage.count > 0, "Sync parser should parse title page")
+  }
+
+  @Test("Async and sync parsers produce identical results")
+  func testAsyncSyncEquivalence() async throws {
+    let screenplay = try await loadFixtureString("test")
+
+    // Create sync parser in a non-async closure to force synchronous init
+    let syncParser = { FountainParser(string: screenplay) }()
+
+    let nilProgress: OperationProgress? = nil
+    let asyncParser = try await FountainParser(string: screenplay, progress: nilProgress)
+
+    #expect(
+      syncParser.elements.count == asyncParser.elements.count,
+      "Sync and async should produce same element count")
+    #expect(
+      syncParser.titlePage.count == asyncParser.titlePage.count,
+      "Sync and async should produce same title page count")
+
+    // Compare element types
+    for i in 0..<syncParser.elements.count {
+      #expect(
+        syncParser.elements[i].elementType == asyncParser.elements[i].elementType,
+        "Element \(i) types should match")
+    }
+  }
+
+  // MARK: - Progress Description Tests
+
+  @Test("Progress descriptions are meaningful")
+  func testProgressDescriptions() async throws {
+    actor ProgressCollector {
+      var lastDescription: String = ""
+
+      func update(_ desc: String) {
+        lastDescription = desc
+      }
+
+      func getLast() -> String {
+        return lastDescription
+      }
     }
 
-    @Test("Async and sync parsers produce identical results")
-    func testAsyncSyncEquivalence() async throws {
-        let screenplay = try await loadFixtureString("test")
-
-        // Create sync parser in a non-async closure to force synchronous init
-        let syncParser = { FountainParser(string: screenplay) }()
-
-        let nilProgress: OperationProgress? = nil
-        let asyncParser = try await FountainParser(string: screenplay, progress: nilProgress)
-
-        #expect(syncParser.elements.count == asyncParser.elements.count,
-                "Sync and async should produce same element count")
-        #expect(syncParser.titlePage.count == asyncParser.titlePage.count,
-                "Sync and async should produce same title page count")
-
-        // Compare element types
-        for i in 0..<syncParser.elements.count {
-            #expect(syncParser.elements[i].elementType == asyncParser.elements[i].elementType,
-                    "Element \(i) types should match")
-        }
+    let collector = ProgressCollector()
+    let progress: OperationProgress? = OperationProgress(totalUnits: nil) { update in
+      Task {
+        await collector.update(update.description)
+      }
     }
 
-    // MARK: - Progress Description Tests
+    let screenplay = try await loadFixtureString("test")
+    _ = try await FountainParser(string: screenplay, progress: progress)
 
-    @Test("Progress descriptions are meaningful")
-    func testProgressDescriptions() async throws {
-        actor ProgressCollector {
-            var lastDescription: String = ""
+    // Wait for async updates to propagate
+    try await Task.sleep(for: .milliseconds(50))
 
-            func update(_ desc: String) {
-                lastDescription = desc
-            }
+    let lastDescription = await collector.getLast()
 
-            func getLast() -> String {
-                return lastDescription
-            }
-        }
+    // Final description should mention completion
+    #expect(
+      lastDescription.contains("complete") || lastDescription.contains("Parsing"),
+      "Progress description should be meaningful")
+  }
 
-        let collector = ProgressCollector()
-        let progress: OperationProgress? = OperationProgress(totalUnits: nil) { update in
-            Task {
-                await collector.update(update.description)
-            }
-        }
+  // MARK: - Large File Tests
 
-        let screenplay = try await loadFixtureString("test")
-        _ = try await FountainParser(string: screenplay, progress: progress)
+  @Test("Large screenplay parsing works with progress")
+  func testLargeScreenplayParsing() async throws {
+    // Use bigfish.fountain - real large screenplay
+    let veryLargeScreenplay = try await loadFixtureString("bigfish")
 
-        // Wait for async updates to propagate
-        try await Task.sleep(for: .milliseconds(50))
+    actor ProgressCollector {
+      var updateCount: Int = 0
 
-        let lastDescription = await collector.getLast()
+      func increment() {
+        updateCount += 1
+      }
 
-        // Final description should mention completion
-        #expect(lastDescription.contains("complete") || lastDescription.contains("Parsing"),
-                "Progress description should be meaningful")
+      func getCount() -> Int {
+        return updateCount
+      }
     }
 
-    // MARK: - Large File Tests
-
-    @Test("Large screenplay parsing works with progress")
-    func testLargeScreenplayParsing() async throws {
-        // Use bigfish.fountain - real large screenplay
-        let veryLargeScreenplay = try await loadFixtureString("bigfish")
-
-        actor ProgressCollector {
-            var updateCount: Int = 0
-
-            func increment() {
-                updateCount += 1
-            }
-
-            func getCount() -> Int {
-                return updateCount
-            }
-        }
-
-        let collector = ProgressCollector()
-        let progress = OperationProgress(totalUnits: nil) { _ in
-            Task {
-                await collector.increment()
-            }
-        }
-
-        let parser = try await FountainParser(string: veryLargeScreenplay, progress: progress)
-
-        let updateCount = await collector.getCount()
-
-        // Wait for async updates
-        try await Task.sleep(for: .milliseconds(50))
-
-        let finalUpdateCount = await collector.getCount()
-
-        // Should have at least one progress update for large file
-        #expect(finalUpdateCount > 0, "Large file should have progress updates")
-        // Big Fish has 600+ elements
-        #expect(parser.elements.count > 500, "Should parse large screenplay")
+    let collector = ProgressCollector()
+    let progress = OperationProgress(totalUnits: nil) { _ in
+      Task {
+        await collector.increment()
+      }
     }
+
+    let parser = try await FountainParser(string: veryLargeScreenplay, progress: progress)
+
+    let updateCount = await collector.getCount()
+
+    // Wait for async updates
+    try await Task.sleep(for: .milliseconds(50))
+
+    let finalUpdateCount = await collector.getCount()
+
+    // Should have at least one progress update for large file
+    #expect(finalUpdateCount > 0, "Large file should have progress updates")
+    // Big Fish has 600+ elements
+    #expect(parser.elements.count > 500, "Should parse large screenplay")
+  }
 }

@@ -24,32 +24,33 @@
 //
 
 import Foundation
-#if canImport(SwiftData)
-@preconcurrency import SwiftData
 
-/// SwiftData model for custom pages (Cast List, Advanced, Empty, etc.)
-///
-/// This model stores custom pages as raw JSON data to support:
-/// - Full round-trip fidelity for all page types
-/// - Preservation of unsupported page types
-/// - Future extensibility without schema migrations
-///
-/// ## Usage
-///
-/// ```swift
-/// // Create from a cast list
-/// let castList = CastListPage(title: "Cast List", position: 0)
-/// let container = try CustomPageContainer(page: castList, type: .castList)
-/// let model = CustomPageModel.from(container)
-///
-/// modelContext.insert(model)
-///
-/// // Convert back to DTO
-/// let restoredContainer = model.toDTO()
-/// let restoredCastList = try restoredContainer.asCastList()
-/// ```
-@Model
-public final class CustomPageModel {
+#if canImport(SwiftData)
+  @preconcurrency import SwiftData
+
+  /// SwiftData model for custom pages (Cast List, Advanced, Empty, etc.)
+  ///
+  /// This model stores custom pages as raw JSON data to support:
+  /// - Full round-trip fidelity for all page types
+  /// - Preservation of unsupported page types
+  /// - Future extensibility without schema migrations
+  ///
+  /// ## Usage
+  ///
+  /// ```swift
+  /// // Create from a cast list
+  /// let castList = CastListPage(title: "Cast List", position: 0)
+  /// let container = try CustomPageContainer(page: castList, type: .castList)
+  /// let model = CustomPageModel.from(container)
+  ///
+  /// modelContext.insert(model)
+  ///
+  /// // Convert back to DTO
+  /// let restoredContainer = model.toDTO()
+  /// let restoredCastList = try restoredContainer.asCastList()
+  /// ```
+  @Model
+  public final class CustomPageModel {
     /// Unique identifier for the custom page
     public var id: String
 
@@ -71,34 +72,34 @@ public final class CustomPageModel {
     public var document: GuionDocumentModel?
 
     public init(
-        id: String,
-        title: String,
-        position: Int,
-        pageType: String,
-        jsonData: Data
+      id: String,
+      title: String,
+      position: Int,
+      pageType: String,
+      jsonData: Data
     ) {
-        self.id = id
-        self.title = title
-        self.position = position
-        self.pageType = pageType
-        self.jsonData = jsonData
+      self.id = id
+      self.title = title
+      self.position = position
+      self.pageType = pageType
+      self.jsonData = jsonData
     }
 
     /// Create from a CustomPageContainer
     public static func from(_ container: CustomPageContainer) -> CustomPageModel {
-        // Deserialize JSON once instead of calling computed properties multiple times
-        let jsonDict = try? container.asRawJSON()
-        let id = jsonDict?["id"] as? String ?? UUID().uuidString
-        let title = jsonDict?["title"] as? String ?? "Untitled Page"
-        let position = jsonDict?["position"] as? Int ?? 0
+      // Deserialize JSON once instead of calling computed properties multiple times
+      let jsonDict = try? container.asRawJSON()
+      let id = jsonDict?["id"] as? String ?? UUID().uuidString
+      let title = jsonDict?["title"] as? String ?? "Untitled Page"
+      let position = jsonDict?["position"] as? Int ?? 0
 
-        return CustomPageModel(
-            id: id,
-            title: title,
-            position: position,
-            pageType: container.type.rawValue,
-            jsonData: container.rawJSON
-        )
+      return CustomPageModel(
+        id: id,
+        title: title,
+        position: position,
+        pageType: container.type.rawValue,
+        jsonData: container.rawJSON
+      )
     }
 
     /// Convert to a CustomPageContainer
@@ -106,59 +107,59 @@ public final class CustomPageModel {
     /// This method never throws - it gracefully handles unknown page types by
     /// returning a container with type `.unknown`.
     public func toDTO() -> CustomPageContainer {
-        guard let type = CustomPageType(rawValue: pageType) else {
-            return CustomPageContainer(type: .unknown, rawJSON: jsonData)
-        }
-        return CustomPageContainer(type: type, rawJSON: jsonData)
+      guard let type = CustomPageType(rawValue: pageType) else {
+        return CustomPageContainer(type: .unknown, rawJSON: jsonData)
+      }
+      return CustomPageContainer(type: type, rawJSON: jsonData)
     }
 
     /// Convenience: Get as CastListPage if type is castList
     public func asCastList() throws -> CastListPage? {
-        try toDTO().asCastList()
+      try toDTO().asCastList()
     }
 
     /// Convenience: Get raw JSON as dictionary
     public func asRawJSON() throws -> [String: Any] {
-        try JSONSerialization.jsonObject(with: jsonData) as? [String: Any] ?? [:]
+      try JSONSerialization.jsonObject(with: jsonData) as? [String: Any] ?? [:]
     }
 
     /// Update from a CustomPageContainer
     public func update(from container: CustomPageContainer) throws {
-        // Deserialize JSON once instead of calling computed properties multiple times
-        let jsonDict = try? container.asRawJSON()
+      // Deserialize JSON once instead of calling computed properties multiple times
+      let jsonDict = try? container.asRawJSON()
 
-        self.title = jsonDict?["title"] as? String ?? self.title
-        self.position = jsonDict?["position"] as? Int ?? self.position
-        self.pageType = container.type.rawValue
-        self.jsonData = container.rawJSON
+      self.title = jsonDict?["title"] as? String ?? self.title
+      self.position = jsonDict?["position"] as? Int ?? self.position
+      self.pageType = container.type.rawValue
+      self.jsonData = container.rawJSON
 
-        // Update ID if it changed (rare, but possible)
-        if let newID = jsonDict?["id"] as? String {
-            self.id = newID
-        }
+      // Update ID if it changed (rare, but possible)
+      if let newID = jsonDict?["id"] as? String {
+        self.id = newID
+      }
     }
 
     /// Validate the stored JSON data
     public func validate() throws {
-        let json = try JSONSerialization.jsonObject(with: jsonData)
-        guard let dict = json as? [String: Any] else {
-            throw CustomPageError.invalidJSON
-        }
+      let json = try JSONSerialization.jsonObject(with: jsonData)
+      guard let dict = json as? [String: Any] else {
+        throw CustomPageError.invalidJSON
+      }
 
-        // Verify required fields
-        guard dict["id"] is String else {
-            throw CustomPageError.missingRequiredField("id")
-        }
-        guard dict["title"] is String else {
-            throw CustomPageError.missingRequiredField("title")
-        }
-        guard dict["position"] is Int else {
-            throw CustomPageError.missingRequiredField("position")
-        }
-        guard dict["type"] is String else {
-            throw CustomPageError.missingRequiredField("type")
-        }
+      // Verify required fields
+      guard dict["id"] is String else {
+        throw CustomPageError.missingRequiredField("id")
+      }
+      guard dict["title"] is String else {
+        throw CustomPageError.missingRequiredField("title")
+      }
+      guard dict["position"] is Int else {
+        throw CustomPageError.missingRequiredField("position")
+      }
+      guard dict["type"] is String else {
+        throw CustomPageError.missingRequiredField("type")
+      }
     }
-}
+  }
 
 #endif

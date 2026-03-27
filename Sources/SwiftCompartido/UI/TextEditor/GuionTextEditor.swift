@@ -6,8 +6,8 @@
 //  with full screenplay and markdown formatting
 //
 
-import SwiftUI
 @preconcurrency import SwiftData
+import SwiftUI
 
 /// Read-only text view for screenplay documents
 ///
@@ -53,43 +53,43 @@ import SwiftUI
 /// - `*italic*` → *italic*
 /// - `_underline_` → underline
 public struct GuionTextEditor: View {
-    let document: GuionDocumentModel
+  let document: GuionDocumentModel
 
-    @Environment(\.screenplayFontSize) var fontSize
-    @State private var attributedText: NSAttributedString = NSAttributedString()
+  @Environment(\.screenplayFontSize) var fontSize
+  @State private var attributedText: NSAttributedString = NSAttributedString()
 
-    public init(document: GuionDocumentModel) {
-        self.document = document
+  public init(document: GuionDocumentModel) {
+    self.document = document
+  }
+
+  public var body: some View {
+    GuionTextEditorRepresentable(
+      attributedText: attributedText,
+      fontSize: fontSize
+    )
+    .onAppear {
+      rebuildText()
     }
-
-    public var body: some View {
-        GuionTextEditorRepresentable(
-            attributedText: attributedText,
-            fontSize: fontSize
-        )
-        .onAppear {
-            rebuildText()
-        }
-        .onChange(of: document.sortedElements.count) { _, _ in
-            rebuildText()
-        }
-        .onChange(of: fontSize) { _, _ in
-            rebuildText()
-        }
+    .onChange(of: document.sortedElements.count) { _, _ in
+      rebuildText()
     }
-
-    private func rebuildText() {
-        attributedText = GuionTextElementMapper.buildAttributedText(
-            from: document.sortedElements,
-            fontSize: fontSize
-        )
+    .onChange(of: fontSize) { _, _ in
+      rebuildText()
     }
+  }
+
+  private func rebuildText() {
+    attributedText = GuionTextElementMapper.buildAttributedText(
+      from: document.sortedElements,
+      fontSize: fontSize
+    )
+  }
 }
 
 // MARK: - Preview
 
 #Preview("TextKit 2 Editor - Formatted") {
-    GuionTextEditor(document: GuionDocumentModel())
-        .modelContainer(for: [GuionDocumentModel.self, GuionElementModel.self])
-        .environment(\.screenplayFontSize, 12)
+  GuionTextEditor(document: GuionDocumentModel())
+    .modelContainer(for: [GuionDocumentModel.self, GuionElementModel.self])
+    .environment(\.screenplayFontSize, 12)
 }

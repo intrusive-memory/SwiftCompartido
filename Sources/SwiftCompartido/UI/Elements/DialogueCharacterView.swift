@@ -13,32 +13,32 @@ import SwiftUI
 /// allowing it to be used with both `GuionElementModel` and `ElementReference`.
 @available(iOS 26.0, macOS 26.0, *)
 public struct DialogueCharacterView<Element: DisplayableElement>: View {
-    let element: Element
-    @Environment(\.screenplayFontSize) var fontSize
+  let element: Element
+  @Environment(\.screenplayFontSize) var fontSize
 
-    public init(element: Element) {
-        self.element = element
+  public init(element: Element) {
+    self.element = element
+  }
+
+  public var body: some View {
+    // Calculate fixed character widths instead of using GeometryReader
+    // This eliminates layout calculations during scroll
+    let characterWidth = fontSize * ScreenplayPageFormat.courierCharacterAspectRatio
+    let leftMarginWidth = characterWidth * (ScreenplayPageFormat.charactersPerLine * 0.40)  // 40% of 65 characters
+    let contentMaxWidth = characterWidth * (ScreenplayPageFormat.charactersPerLine * 0.60)  // 60% of 65 characters
+
+    HStack(alignment: .bottom, spacing: 0) {
+      // 40% left margin for character names (26 characters)
+      Spacer()
+        .frame(width: leftMarginWidth)
+
+      Text(element.elementText)
+        .font(.custom("Courier New", size: fontSize * 0.75).weight(.heavy))
+        .textCase(.uppercase)
+        .foregroundStyle(.primary)
+        .frame(maxWidth: contentMaxWidth, alignment: .leading)
+
+      Spacer()
     }
-
-    public var body: some View {
-        // Calculate fixed character widths instead of using GeometryReader
-        // This eliminates layout calculations during scroll
-        let characterWidth = fontSize * ScreenplayPageFormat.courierCharacterAspectRatio
-        let leftMarginWidth = characterWidth * (ScreenplayPageFormat.charactersPerLine * 0.40)  // 40% of 65 characters
-        let contentMaxWidth = characterWidth * (ScreenplayPageFormat.charactersPerLine * 0.60)  // 60% of 65 characters
-
-        HStack(alignment: .bottom, spacing: 0) {
-            // 40% left margin for character names (26 characters)
-            Spacer()
-                .frame(width: leftMarginWidth)
-
-            Text(element.elementText)
-                .font(.custom("Courier New", size: fontSize * 0.75).weight(.heavy))
-                .textCase(.uppercase)
-                .foregroundStyle(.primary)
-                .frame(maxWidth: contentMaxWidth, alignment: .leading)
-
-            Spacer()
-        }
-    }
+  }
 }

@@ -7,106 +7,107 @@
 
 import Foundation
 import SwiftUI
-#if canImport(SwiftData)
-@preconcurrency import SwiftData
 
-/// SwiftData model representing a complete screenplay document.
-///
-/// This is the root model for screenplay storage, containing all elements,
-/// title page entries, document metadata, and source file tracking.
-///
-/// ## Overview
-///
-/// `GuionDocumentModel` is the persistent storage representation of a screenplay,
-/// designed to work seamlessly with SwiftData for automatic persistence and iCloud sync.
-///
-/// ## Features
-///
-/// - **Screenplay Storage**: Complete element tree with title page metadata
-/// - **SwiftData Integration**: Automatic persistence and iCloud sync
-/// - **Source File Tracking** (NEW in 1.4.3): Track and detect changes to imported files
-/// - **Location Management**: Parse and cache scene locations
-/// - **Serialization**: Save and load to various formats
-///
-/// ## Example - Basic Usage
-///
-/// ```swift
-/// let document = GuionDocumentModel(filename: "MyScript.guion")
-///
-/// let sceneHeading = GuionElementModel(
-///     elementText: "INT. COFFEE SHOP - DAY",
-///     elementType: "Scene Heading"
-/// )
-/// document.elements.append(sceneHeading)
-///
-/// modelContext.insert(document)
-/// ```
-///
-/// ## Example - Source File Tracking
-///
-/// ```swift
-/// // When importing a screenplay file
-/// let parser = try await FountainParser(string: fountainText)
-/// let document = await GuionDocumentParserSwiftData.parse(
-///     script: parser.screenplay,
-///     in: modelContext
-/// )
-///
-/// // Track the source file
-/// let success = document.setSourceFile(sourceURL)
-/// try modelContext.save()
-///
-/// // Later: check for updates
-/// switch document.sourceFileStatus() {
-/// case .modified:
-///     // Source file has changed - prompt user to re-import
-///     showUpdatePrompt()
-/// case .upToDate:
-///     // All good
-///     break
-/// case .fileNotFound, .fileNotAccessible:
-///     // Handle errors
-///     showError()
-/// case .noSourceFile:
-///     // Document wasn't imported from a file
-///     break
-/// }
-/// ```
-///
-/// ## Topics
-///
-/// ### Creating Documents
-/// - ``init(filename:rawContent:suppressSceneNumbers:)``
-///
-/// ### Document Properties
-/// - ``filename``
-/// - ``rawContent``
-/// - ``suppressSceneNumbers``
-///
-/// ### Content
-/// - ``elements``
-/// - ``titlePage``
-///
-/// ### Source File Tracking (NEW in 1.4.3)
-/// - ``sourceFileBookmark``
-/// - ``lastImportDate``
-/// - ``sourceFileModificationDate``
-/// - ``setSourceFile(_:)``
-/// - ``resolveSourceFileURL()``
-/// - ``isSourceFileModified()``
-/// - ``sourceFileStatus()``
-/// - ``SourceFileStatus``
-///
-/// ### Location Management
-/// - ``reparseAllLocations()``
-/// - ``sceneLocations``
-///
-/// ### Serialization
-/// - ``save(to:)``
-/// - ``load(from:in:)``
-/// - ``validate()``
-@Model
-public final class GuionDocumentModel {
+#if canImport(SwiftData)
+  @preconcurrency import SwiftData
+
+  /// SwiftData model representing a complete screenplay document.
+  ///
+  /// This is the root model for screenplay storage, containing all elements,
+  /// title page entries, document metadata, and source file tracking.
+  ///
+  /// ## Overview
+  ///
+  /// `GuionDocumentModel` is the persistent storage representation of a screenplay,
+  /// designed to work seamlessly with SwiftData for automatic persistence and iCloud sync.
+  ///
+  /// ## Features
+  ///
+  /// - **Screenplay Storage**: Complete element tree with title page metadata
+  /// - **SwiftData Integration**: Automatic persistence and iCloud sync
+  /// - **Source File Tracking** (NEW in 1.4.3): Track and detect changes to imported files
+  /// - **Location Management**: Parse and cache scene locations
+  /// - **Serialization**: Save and load to various formats
+  ///
+  /// ## Example - Basic Usage
+  ///
+  /// ```swift
+  /// let document = GuionDocumentModel(filename: "MyScript.guion")
+  ///
+  /// let sceneHeading = GuionElementModel(
+  ///     elementText: "INT. COFFEE SHOP - DAY",
+  ///     elementType: "Scene Heading"
+  /// )
+  /// document.elements.append(sceneHeading)
+  ///
+  /// modelContext.insert(document)
+  /// ```
+  ///
+  /// ## Example - Source File Tracking
+  ///
+  /// ```swift
+  /// // When importing a screenplay file
+  /// let parser = try await FountainParser(string: fountainText)
+  /// let document = await GuionDocumentParserSwiftData.parse(
+  ///     script: parser.screenplay,
+  ///     in: modelContext
+  /// )
+  ///
+  /// // Track the source file
+  /// let success = document.setSourceFile(sourceURL)
+  /// try modelContext.save()
+  ///
+  /// // Later: check for updates
+  /// switch document.sourceFileStatus() {
+  /// case .modified:
+  ///     // Source file has changed - prompt user to re-import
+  ///     showUpdatePrompt()
+  /// case .upToDate:
+  ///     // All good
+  ///     break
+  /// case .fileNotFound, .fileNotAccessible:
+  ///     // Handle errors
+  ///     showError()
+  /// case .noSourceFile:
+  ///     // Document wasn't imported from a file
+  ///     break
+  /// }
+  /// ```
+  ///
+  /// ## Topics
+  ///
+  /// ### Creating Documents
+  /// - ``init(filename:rawContent:suppressSceneNumbers:)``
+  ///
+  /// ### Document Properties
+  /// - ``filename``
+  /// - ``rawContent``
+  /// - ``suppressSceneNumbers``
+  ///
+  /// ### Content
+  /// - ``elements``
+  /// - ``titlePage``
+  ///
+  /// ### Source File Tracking (NEW in 1.4.3)
+  /// - ``sourceFileBookmark``
+  /// - ``lastImportDate``
+  /// - ``sourceFileModificationDate``
+  /// - ``setSourceFile(_:)``
+  /// - ``resolveSourceFileURL()``
+  /// - ``isSourceFileModified()``
+  /// - ``sourceFileStatus()``
+  /// - ``SourceFileStatus``
+  ///
+  /// ### Location Management
+  /// - ``reparseAllLocations()``
+  /// - ``sceneLocations``
+  ///
+  /// ### Serialization
+  /// - ``save(to:)``
+  /// - ``load(from:in:)``
+  /// - ``validate()``
+  @Model
+  public final class GuionDocumentModel {
     public var filename: String?
     public var rawContent: String?
     public var suppressSceneNumbers: Bool
@@ -136,12 +137,12 @@ public final class GuionDocumentModel {
     ///
     /// - SeeAlso: `GuionElementModel.chapterIndex`, `GuionElementModel.orderIndex`
     public var sortedElements: [GuionElementModel] {
-        elements.sorted {
-            if $0.chapterIndex != $1.chapterIndex {
-                return $0.chapterIndex < $1.chapterIndex
-            }
-            return $0.orderIndex < $1.orderIndex
+      elements.sorted {
+        if $0.chapterIndex != $1.chapterIndex {
+          return $0.chapterIndex < $1.chapterIndex
         }
+        return $0.orderIndex < $1.orderIndex
+      }
     }
 
     @Relationship(deleteRule: .cascade)
@@ -173,7 +174,7 @@ public final class GuionDocumentModel {
     /// the correct print order. The `customPages` relationship array does NOT
     /// guarantee order in SwiftData.
     public var sortedCustomPages: [CustomPageModel] {
-        customPages.sorted { $0.position < $1.position }
+      customPages.sorted { $0.position < $1.position }
     }
 
     /// The title of the screenplay
@@ -295,33 +296,36 @@ public final class GuionDocumentModel {
     @Transient
     public var parsingDescription: String?
 
-    public init(filename: String? = nil, rawContent: String? = nil, suppressSceneNumbers: Bool = false, title: String? = nil) {
-        self.filename = filename
-        self.rawContent = rawContent
-        self.suppressSceneNumbers = suppressSceneNumbers
-        self.title = title
-        self.elements = []
-        self.titlePage = []
-        self.customPages = []
-        self.sourceFileBookmark = nil
-        self.lastImportDate = nil
-        self.sourceFileModificationDate = nil
-        self.lastOpenedDate = nil
+    public init(
+      filename: String? = nil, rawContent: String? = nil, suppressSceneNumbers: Bool = false,
+      title: String? = nil
+    ) {
+      self.filename = filename
+      self.rawContent = rawContent
+      self.suppressSceneNumbers = suppressSceneNumbers
+      self.title = title
+      self.elements = []
+      self.titlePage = []
+      self.customPages = []
+      self.sourceFileBookmark = nil
+      self.lastImportDate = nil
+      self.sourceFileModificationDate = nil
+      self.lastOpenedDate = nil
     }
 
     /// Reparse all scene heading locations (useful for migration or updates)
     public func reparseAllLocations() {
-        for element in sortedElements where element.elementType == .sceneHeading {
-            element.reparseLocation()
-        }
+      for element in sortedElements where element.elementType == .sceneHeading {
+        element.reparseLocation()
+      }
     }
 
     /// Get all scene elements with their cached locations in screenplay order
     public var sceneLocations: [(element: GuionElementModel, location: SceneLocation)] {
-        return sortedElements.compactMap { element in
-            guard let location = element.cachedSceneLocation else { return nil }
-            return (element, location)
-        }
+      return sortedElements.compactMap { element in
+        guard let location = element.cachedSceneLocation else { return nil }
+        return (element, location)
+      }
     }
 
     // MARK: - Generated Content Access (NEW in 2.0.1)
@@ -358,28 +362,29 @@ public final class GuionDocumentModel {
     ///
     /// - SeeAlso: `generatedContent`, `sortedElements`
     public var sortedElementGeneratedContent: [TypedDataStorage] {
-        // Collect all generated content from all elements
-        var allContent: [(storage: TypedDataStorage, chapterIndex: Int, orderIndex: Int)] = []
+      // Collect all generated content from all elements
+      var allContent: [(storage: TypedDataStorage, chapterIndex: Int, orderIndex: Int)] = []
 
-        for element in elements {
-            if let content = element.generatedContent {
-                for item in content {
-                    allContent.append((
-                        storage: item,
-                        chapterIndex: element.chapterIndex,
-                        orderIndex: element.orderIndex
-                    ))
-                }
-            }
+      for element in elements {
+        if let content = element.generatedContent {
+          for item in content {
+            allContent.append(
+              (
+                storage: item,
+                chapterIndex: element.chapterIndex,
+                orderIndex: element.orderIndex
+              ))
+          }
         }
+      }
 
-        // Sort by composite key (chapterIndex, orderIndex)
-        return allContent.sorted { lhs, rhs in
-            if lhs.chapterIndex != rhs.chapterIndex {
-                return lhs.chapterIndex < rhs.chapterIndex
-            }
-            return lhs.orderIndex < rhs.orderIndex
-        }.map { $0.storage }
+      // Sort by composite key (chapterIndex, orderIndex)
+      return allContent.sorted { lhs, rhs in
+        if lhs.chapterIndex != rhs.chapterIndex {
+          return lhs.chapterIndex < rhs.chapterIndex
+        }
+        return lhs.orderIndex < rhs.orderIndex
+      }.map { $0.storage }
     }
 
     /// Get TypedDataStorage items for this document filtered by MIME type, sorted by element order
@@ -400,7 +405,7 @@ public final class GuionDocumentModel {
     /// let textContent = document.sortedElementGeneratedContent(mimeTypePrefix: "text/")
     /// ```
     public func sortedElementGeneratedContent(mimeTypePrefix: String) -> [TypedDataStorage] {
-        return sortedElementGeneratedContent.filter { $0.mimeType.hasPrefix(mimeTypePrefix) }
+      return sortedElementGeneratedContent.filter { $0.mimeType.hasPrefix(mimeTypePrefix) }
     }
 
     /// Get TypedDataStorage items for a specific element type, sorted by element order
@@ -428,26 +433,27 @@ public final class GuionDocumentModel {
     /// }
     /// ```
     public func sortedElementGeneratedContent(for elementType: ElementType) -> [TypedDataStorage] {
-        var allContent: [(storage: TypedDataStorage, chapterIndex: Int, orderIndex: Int)] = []
+      var allContent: [(storage: TypedDataStorage, chapterIndex: Int, orderIndex: Int)] = []
 
-        for element in elements where element.elementType == elementType {
-            if let content = element.generatedContent {
-                for item in content {
-                    allContent.append((
-                        storage: item,
-                        chapterIndex: element.chapterIndex,
-                        orderIndex: element.orderIndex
-                    ))
-                }
-            }
+      for element in elements where element.elementType == elementType {
+        if let content = element.generatedContent {
+          for item in content {
+            allContent.append(
+              (
+                storage: item,
+                chapterIndex: element.chapterIndex,
+                orderIndex: element.orderIndex
+              ))
+          }
         }
+      }
 
-        return allContent.sorted { lhs, rhs in
-            if lhs.chapterIndex != rhs.chapterIndex {
-                return lhs.chapterIndex < rhs.chapterIndex
-            }
-            return lhs.orderIndex < rhs.orderIndex
-        }.map { $0.storage }
+      return allContent.sorted { lhs, rhs in
+        if lhs.chapterIndex != rhs.chapterIndex {
+          return lhs.chapterIndex < rhs.chapterIndex
+        }
+        return lhs.orderIndex < rhs.orderIndex
+      }.map { $0.storage }
     }
 
     // MARK: - Source File Tracking Methods (NEW in 1.4.3)
@@ -480,32 +486,32 @@ public final class GuionDocumentModel {
     ///
     /// - SeeAlso: `setSourceFile(_:)`, `sourceFileStatus()`
     public func resolveSourceFileURL() -> URL? {
-        guard let bookmarkData = sourceFileBookmark else { return nil }
+      guard let bookmarkData = sourceFileBookmark else { return nil }
 
-        var isStale = false
-        do {
-            let url = try URL(
-                resolvingBookmarkData: bookmarkData,
-                options: [],
-                relativeTo: nil,
-                bookmarkDataIsStale: &isStale
-            )
+      var isStale = false
+      do {
+        let url = try URL(
+          resolvingBookmarkData: bookmarkData,
+          options: [],
+          relativeTo: nil,
+          bookmarkDataIsStale: &isStale
+        )
 
-            if isStale {
-                // Bookmark is stale, try to recreate it
-                if let newBookmark = try? url.bookmarkData(
-                    options: [],
-                    includingResourceValuesForKeys: nil,
-                    relativeTo: nil
-                ) {
-                    sourceFileBookmark = newBookmark
-                }
-            }
-
-            return url
-        } catch {
-            return nil
+        if isStale {
+          // Bookmark is stale, try to recreate it
+          if let newBookmark = try? url.bookmarkData(
+            options: [],
+            includingResourceValuesForKeys: nil,
+            relativeTo: nil
+          ) {
+            sourceFileBookmark = newBookmark
+          }
         }
+
+        return url
+      } catch {
+        return nil
+      }
     }
 
     /// Set the source file from a URL, creating a bookmark
@@ -550,25 +556,25 @@ public final class GuionDocumentModel {
     /// - SeeAlso: `resolveSourceFileURL()`, `isSourceFileModified()`, `sourceFileStatus()`
     @discardableResult
     public func setSourceFile(_ url: URL) -> Bool {
-        do {
-            // Create bookmark
-            let bookmarkData = try url.bookmarkData(
-                options: [],
-                includingResourceValuesForKeys: nil,
-                relativeTo: nil
-            )
+      do {
+        // Create bookmark
+        let bookmarkData = try url.bookmarkData(
+          options: [],
+          includingResourceValuesForKeys: nil,
+          relativeTo: nil
+        )
 
-            sourceFileBookmark = bookmarkData
-            lastImportDate = Date()
+        sourceFileBookmark = bookmarkData
+        lastImportDate = Date()
 
-            // Get file modification date
-            let resourceValues = try url.resourceValues(forKeys: [.contentModificationDateKey])
-            sourceFileModificationDate = resourceValues.contentModificationDate
+        // Get file modification date
+        let resourceValues = try url.resourceValues(forKeys: [.contentModificationDateKey])
+        sourceFileModificationDate = resourceValues.contentModificationDate
 
-            return true
-        } catch {
-            return false
-        }
+        return true
+      } catch {
+        return false
+      }
     }
 
     /// Check if the source file has been modified since last import
@@ -604,22 +610,23 @@ public final class GuionDocumentModel {
     ///
     /// - SeeAlso: `sourceFileStatus()`, `setSourceFile(_:)`
     public func isSourceFileModified() -> Bool {
-        guard let url = resolveSourceFileURL(),
-              let lastModDate = sourceFileModificationDate else {
-            return false
+      guard let url = resolveSourceFileURL(),
+        let lastModDate = sourceFileModificationDate
+      else {
+        return false
+      }
+
+      do {
+        let resourceValues = try url.resourceValues(forKeys: [.contentModificationDateKey])
+        guard let currentModDate = resourceValues.contentModificationDate else {
+          return false
         }
 
-        do {
-            let resourceValues = try url.resourceValues(forKeys: [.contentModificationDateKey])
-            guard let currentModDate = resourceValues.contentModificationDate else {
-                return false
-            }
-
-            // File is modified if current date is newer than stored date
-            return currentModDate > lastModDate
-        } catch {
-            return false
-        }
+        // File is modified if current date is newer than stored date
+        return currentModDate > lastModDate
+      } catch {
+        return false
+      }
     }
 
     /// Get detailed information about the source file status
@@ -683,24 +690,24 @@ public final class GuionDocumentModel {
     ///
     /// - SeeAlso: `SourceFileStatus`, `isSourceFileModified()`, `setSourceFile(_:)`
     public func sourceFileStatus() -> SourceFileStatus {
-        guard sourceFileBookmark != nil else {
-            return .noSourceFile
-        }
+      guard sourceFileBookmark != nil else {
+        return .noSourceFile
+      }
 
-        guard let url = resolveSourceFileURL() else {
-            return .fileNotAccessible
-        }
+      guard let url = resolveSourceFileURL() else {
+        return .fileNotAccessible
+      }
 
-        // Check if file still exists
-        guard FileManager.default.fileExists(atPath: url.path) else {
-            return .fileNotFound
-        }
+      // Check if file still exists
+      guard FileManager.default.fileExists(atPath: url.path) else {
+        return .fileNotFound
+      }
 
-        if isSourceFileModified() {
-            return .modified
-        }
+      if isSourceFileModified() {
+        return .modified
+      }
 
-        return .upToDate
+      return .upToDate
     }
 
     // MARK: - Conversion Methods
@@ -723,21 +730,21 @@ public final class GuionDocumentModel {
     ///
     /// - Returns: Tuple of (chapterIndex, orderIndex)
     private static func calculateOrderIndex(
-        for element: GuionElement,
-        currentChapter: inout Int,
-        positionInChapter: inout Int
+      for element: GuionElement,
+      currentChapter: inout Int,
+      positionInChapter: inout Int
     ) -> (chapterIndex: Int, orderIndex: Int) {
-        // Check if this is a chapter heading (section heading level 2)
-        if case .sectionHeading(let level) = element.elementType, level == 2 {
-            // New chapter found
-            currentChapter += 1
-            positionInChapter = 1  // Chapter heading gets position 1
-            return (chapterIndex: currentChapter, orderIndex: positionInChapter)
-        }
-
-        // Regular element - use current chapter and increment position
-        positionInChapter += 1
+      // Check if this is a chapter heading (section heading level 2)
+      if case .sectionHeading(let level) = element.elementType, level == 2 {
+        // New chapter found
+        currentChapter += 1
+        positionInChapter = 1  // Chapter heading gets position 1
         return (chapterIndex: currentChapter, orderIndex: positionInChapter)
+      }
+
+      // Regular element - use current chapter and increment position
+      positionInChapter += 1
+      return (chapterIndex: currentChapter, orderIndex: positionInChapter)
     }
 
     /// Create a GuionDocumentModel from a GuionParsedElementCollection
@@ -747,11 +754,12 @@ public final class GuionDocumentModel {
     ///   - generateSummaries: Whether to generate AI summaries for scene headings (default: false)
     /// - Returns: The created GuionDocumentModel
     nonisolated public static func from(
-        _ screenplay: GuionParsedElementCollection,
-        in context: ModelContext,
-        generateSummaries: Bool = false
+      _ screenplay: GuionParsedElementCollection,
+      in context: ModelContext,
+      generateSummaries: Bool = false
     ) async -> GuionDocumentModel {
-        return await from(screenplay, in: context, generateSummaries: generateSummaries, progress: nil)
+      return await from(
+        screenplay, in: context, generateSummaries: generateSummaries, progress: nil)
     }
 
     /// Extract title from a screenplay using fallback strategy
@@ -763,27 +771,27 @@ public final class GuionDocumentModel {
     /// - Parameter screenplay: The screenplay to extract title from
     /// - Returns: The extracted title, or nil if none can be determined
     private static func extractTitle(from screenplay: GuionParsedElementCollection) -> String? {
-        // Priority 1: TITLE from title page (check both cases for safety)
-        for dictionary in screenplay.titlePage {
-            // Parsers normalize keys to lowercase, so check "title" first
-            if let titleValues = dictionary["title"], let title = titleValues.first {
-                return title
-            }
-            // Fallback to uppercase in case of Fountain title pages
-            if let titleValues = dictionary["TITLE"], let title = titleValues.first {
-                return title
-            }
+      // Priority 1: TITLE from title page (check both cases for safety)
+      for dictionary in screenplay.titlePage {
+        // Parsers normalize keys to lowercase, so check "title" first
+        if let titleValues = dictionary["title"], let title = titleValues.first {
+          return title
         }
-
-        // Priority 2: Filename without extension
-        if let filename = screenplay.filename {
-            let basename = (filename as NSString).deletingPathExtension
-            if !basename.isEmpty {
-                return basename
-            }
+        // Fallback to uppercase in case of Fountain title pages
+        if let titleValues = dictionary["TITLE"], let title = titleValues.first {
+          return title
         }
+      }
 
-        return nil
+      // Priority 2: Filename without extension
+      if let filename = screenplay.filename {
+        let basename = (filename as NSString).deletingPathExtension
+        if !basename.isEmpty {
+          return basename
+        }
+      }
+
+      return nil
     }
 
     /// Create a GuionDocumentModel from a GuionParsedElementCollection with progress reporting
@@ -814,203 +822,219 @@ public final class GuionDocumentModel {
     /// )
     /// ```
     nonisolated public static func from(
-        _ screenplay: GuionParsedElementCollection,
-        in context: ModelContext,
-        generateSummaries: Bool = false,
-        progress: OperationProgress?
+      _ screenplay: GuionParsedElementCollection,
+      in context: ModelContext,
+      generateSummaries: Bool = false,
+      progress: OperationProgress?
     ) async -> GuionDocumentModel {
-        // Calculate total work units
-        let titlePageWork = screenplay.titlePage.reduce(0) { $0 + $1.count }
-        let totalUnits = Int64(titlePageWork + screenplay.elements.count)
-        progress?.setTotalUnitCount(totalUnits)
+      // Calculate total work units
+      let titlePageWork = screenplay.titlePage.reduce(0) { $0 + $1.count }
+      let totalUnits = Int64(titlePageWork + screenplay.elements.count)
+      progress?.setTotalUnitCount(totalUnits)
 
-        var completedUnits: Int64 = 0
+      var completedUnits: Int64 = 0
 
-        // Extract title from screenplay
-        let extractedTitle = Self.extractTitle(from: screenplay)
+      // Extract title from screenplay
+      let extractedTitle = Self.extractTitle(from: screenplay)
 
-        let document = GuionDocumentModel(
-            filename: screenplay.filename,
-            rawContent: screenplay.stringFromDocument(),
-            suppressSceneNumbers: screenplay.suppressSceneNumbers,
-            title: extractedTitle
-        )
+      let document = GuionDocumentModel(
+        filename: screenplay.filename,
+        rawContent: screenplay.stringFromDocument(),
+        suppressSceneNumbers: screenplay.suppressSceneNumbers,
+        title: extractedTitle
+      )
 
-        // Convert title page entries
-        progress?.update(completedUnits: completedUnits, description: "Converting title page...")
+      // Convert title page entries
+      progress?.update(completedUnits: completedUnits, description: "Converting title page...")
 
-        for dictionary in screenplay.titlePage {
-            for (key, values) in dictionary {
-                let entry = TitlePageEntryModel(key: key, values: values)
-                entry.document = document
-                document.titlePage.append(entry)
+      for dictionary in screenplay.titlePage {
+        for (key, values) in dictionary {
+          let entry = TitlePageEntryModel(key: key, values: values)
+          entry.document = document
+          document.titlePage.append(entry)
 
-                completedUnits += 1
-                if completedUnits % 5 == 0 {
-                    progress?.update(completedUnits: completedUnits, description: "Converting title page...")
-                }
-            }
+          completedUnits += 1
+          if completedUnits % 5 == 0 {
+            progress?.update(
+              completedUnits: completedUnits, description: "Converting title page...")
+          }
+        }
+      }
+
+      // Generate summaries for scene headings if requested
+      if generateSummaries {
+        progress?.update(
+          completedUnits: completedUnits, description: "Extracting scene structure...")
+
+        let outline = screenplay.extractOutline()
+        var elementsWithSummaries: [GuionElement] = []
+        var skipIndices = Set<Int>()
+        var sceneCount = 0
+
+        for (index, element) in screenplay.elements.enumerated() {
+          // Check for cancellation every 10 elements
+          if index % 10 == 0 {
+            try? Task.checkCancellation()
+          }
+
+          // Skip if already processed (e.g., OVER BLACK that was handled with scene)
+          if skipIndices.contains(index) {
+            continue
+          }
+
+          // Add the original element
+          elementsWithSummaries.append(element)
+
+          completedUnits += 1
+          if completedUnits % 10 == 0 {
+            progress?.update(
+              completedUnits: completedUnits,
+              description: "Converting elements (\(index + 1)/\(screenplay.elements.count))...")
+          }
+
+          // Check if this is a scene heading that needs a summary
+          if element.elementType == .sceneHeading,
+            let sceneId = element.sceneId,
+            let scene = outline.first(where: { $0.sceneId == sceneId })
+          {
+
+            sceneCount += 1
+            progress?.update(
+              completedUnits: completedUnits, description: "Processing scene \(sceneCount)...")
+          }
         }
 
-        // Generate summaries for scene headings if requested
-        if generateSummaries {
-            progress?.update(completedUnits: completedUnits, description: "Extracting scene structure...")
+        // Convert all elements including inserted summaries to models with chapter-based ordering
+        progress?.update(
+          completedUnits: completedUnits, description: "Creating SwiftData models...")
 
-            let outline = screenplay.extractOutline()
-            var elementsWithSummaries: [GuionElement] = []
-            var skipIndices = Set<Int>()
-            var sceneCount = 0
+        var currentChapter = 0
+        var positionInChapter = 0
 
-            for (index, element) in screenplay.elements.enumerated() {
-                // Check for cancellation every 10 elements
-                if index % 10 == 0 {
-                    try? Task.checkCancellation()
-                }
+        // Pre-compute formatted text for better rendering performance (NEW in 5.4.0)
+        let baseFont = Font.custom("Courier New", size: 12)
 
-                // Skip if already processed (e.g., OVER BLACK that was handled with scene)
-                if skipIndices.contains(index) {
-                    continue
-                }
+        // Batch creation: Create all element models first (NEW in 5.4.0)
+        var elementModels: [GuionElementModel] = []
+        elementModels.reserveCapacity(elementsWithSummaries.count)
 
-                // Add the original element
-                elementsWithSummaries.append(element)
+        for (index, element) in elementsWithSummaries.enumerated() {
+          if index % 10 == 0 {
+            try? Task.checkCancellation()
+          }
 
-                completedUnits += 1
-                if completedUnits % 10 == 0 {
-                    progress?.update(completedUnits: completedUnits, description: "Converting elements (\(index + 1)/\(screenplay.elements.count))...")
-                }
+          let (chapterIndex, orderIndex) = Self.calculateOrderIndex(
+            for: element,
+            currentChapter: &currentChapter,
+            positionInChapter: &positionInChapter
+          )
 
-                // Check if this is a scene heading that needs a summary
-                if element.elementType == .sceneHeading,
-                   let sceneId = element.sceneId,
-                   let scene = outline.first(where: { $0.sceneId == sceneId }) {
+          let elementModel = GuionElementModel(
+            from: element, chapterIndex: chapterIndex, orderIndex: orderIndex)
 
-                    sceneCount += 1
-                    progress?.update(completedUnits: completedUnits, description: "Processing scene \(sceneCount)...")
-                }
-            }
+          // Pre-compute formatted text (eliminates runtime formatting overhead)
+          elementModel.formattedText = FountainTextFormatter.format(
+            element.elementText, baseFont: baseFont)
 
-            // Convert all elements including inserted summaries to models with chapter-based ordering
-            progress?.update(completedUnits: completedUnits, description: "Creating SwiftData models...")
-
-            var currentChapter = 0
-            var positionInChapter = 0
-
-            // Pre-compute formatted text for better rendering performance (NEW in 5.4.0)
-            let baseFont = Font.custom("Courier New", size: 12)
-
-            // Batch creation: Create all element models first (NEW in 5.4.0)
-            var elementModels: [GuionElementModel] = []
-            elementModels.reserveCapacity(elementsWithSummaries.count)
-
-            for (index, element) in elementsWithSummaries.enumerated() {
-                if index % 10 == 0 {
-                    try? Task.checkCancellation()
-                }
-
-                let (chapterIndex, orderIndex) = Self.calculateOrderIndex(
-                    for: element,
-                    currentChapter: &currentChapter,
-                    positionInChapter: &positionInChapter
-                )
-
-                let elementModel = GuionElementModel(from: element, chapterIndex: chapterIndex, orderIndex: orderIndex)
-
-                // Pre-compute formatted text (eliminates runtime formatting overhead)
-                elementModel.formattedText = FountainTextFormatter.format(element.elementText, baseFont: baseFont)
-
-                elementModels.append(elementModel)
-            }
-
-            // Batch assignment: Set document relationship and add to array (NEW in 5.4.0)
-            // This is much faster than appending one-by-one
-            for elementModel in elementModels {
-                elementModel.document = document
-            }
-            document.elements.append(contentsOf: elementModels)
-        } else {
-            // Convert elements without summaries with chapter-based ordering
-            progress?.update(completedUnits: completedUnits, description: "Converting elements...")
-
-            var currentChapter = 0
-            var positionInChapter = 0
-
-            // Pre-compute formatted text for better rendering performance (NEW in 5.4.0)
-            let baseFont = Font.custom("Courier New", size: 12)
-
-            // Batch creation: Create all element models first (NEW in 5.4.0)
-            var elementModels: [GuionElementModel] = []
-            elementModels.reserveCapacity(screenplay.elements.count)
-
-            for (index, element) in screenplay.elements.enumerated() {
-                // Check for cancellation every 10 elements
-                if index % 10 == 0 {
-                    try? Task.checkCancellation()
-                }
-
-                let (chapterIndex, orderIndex) = Self.calculateOrderIndex(
-                    for: element,
-                    currentChapter: &currentChapter,
-                    positionInChapter: &positionInChapter
-                )
-
-                let elementModel = GuionElementModel(from: element, chapterIndex: chapterIndex, orderIndex: orderIndex)
-
-                // Pre-compute formatted text (eliminates runtime formatting overhead)
-                elementModel.formattedText = FountainTextFormatter.format(element.elementText, baseFont: baseFont)
-
-                elementModels.append(elementModel)
-
-                completedUnits += 1
-                if completedUnits % 10 == 0 {
-                    progress?.update(completedUnits: completedUnits, description: "Converting elements (\(index + 1)/\(screenplay.elements.count))...")
-                }
-            }
-
-            // Batch assignment: Set document relationship and add to array (NEW in 5.4.0)
-            // This is much faster than appending one-by-one
-            for elementModel in elementModels {
-                elementModel.document = document
-            }
-            document.elements.append(contentsOf: elementModels)
+          elementModels.append(elementModel)
         }
 
-        // Convert custom pages
-        progress?.update(completedUnits: completedUnits, description: "Converting custom pages...")
-        for pageContainer in screenplay.customPages {
-            let pageModel = CustomPageModel.from(pageContainer)
-            pageModel.document = document
-            document.customPages.append(pageModel)
+        // Batch assignment: Set document relationship and add to array (NEW in 5.4.0)
+        // This is much faster than appending one-by-one
+        for elementModel in elementModels {
+          elementModel.document = document
+        }
+        document.elements.append(contentsOf: elementModels)
+      } else {
+        // Convert elements without summaries with chapter-based ordering
+        progress?.update(completedUnits: completedUnits, description: "Converting elements...")
+
+        var currentChapter = 0
+        var positionInChapter = 0
+
+        // Pre-compute formatted text for better rendering performance (NEW in 5.4.0)
+        let baseFont = Font.custom("Courier New", size: 12)
+
+        // Batch creation: Create all element models first (NEW in 5.4.0)
+        var elementModels: [GuionElementModel] = []
+        elementModels.reserveCapacity(screenplay.elements.count)
+
+        for (index, element) in screenplay.elements.enumerated() {
+          // Check for cancellation every 10 elements
+          if index % 10 == 0 {
+            try? Task.checkCancellation()
+          }
+
+          let (chapterIndex, orderIndex) = Self.calculateOrderIndex(
+            for: element,
+            currentChapter: &currentChapter,
+            positionInChapter: &positionInChapter
+          )
+
+          let elementModel = GuionElementModel(
+            from: element, chapterIndex: chapterIndex, orderIndex: orderIndex)
+
+          // Pre-compute formatted text (eliminates runtime formatting overhead)
+          elementModel.formattedText = FountainTextFormatter.format(
+            element.elementText, baseFont: baseFont)
+
+          elementModels.append(elementModel)
+
+          completedUnits += 1
+          if completedUnits % 10 == 0 {
+            progress?.update(
+              completedUnits: completedUnits,
+              description: "Converting elements (\(index + 1)/\(screenplay.elements.count))...")
+          }
         }
 
-        progress?.complete(description: "Conversion complete - \(document.elements.count) elements, \(document.customPages.count) custom pages")
-        context.insert(document)
-        return document
+        // Batch assignment: Set document relationship and add to array (NEW in 5.4.0)
+        // This is much faster than appending one-by-one
+        for elementModel in elementModels {
+          elementModel.document = document
+        }
+        document.elements.append(contentsOf: elementModels)
+      }
+
+      // Convert custom pages
+      progress?.update(completedUnits: completedUnits, description: "Converting custom pages...")
+      for pageContainer in screenplay.customPages {
+        let pageModel = CustomPageModel.from(pageContainer)
+        pageModel.document = document
+        document.customPages.append(pageModel)
+      }
+
+      progress?.complete(
+        description:
+          "Conversion complete - \(document.elements.count) elements, \(document.customPages.count) custom pages"
+      )
+      context.insert(document)
+      return document
     }
 
     /// Convert this GuionDocumentModel to a GuionParsedElementCollection
     /// - Returns: GuionParsedElementCollection instance containing the document data
     public func toGuionParsedElementCollection() -> GuionParsedElementCollection {
-        // Convert title page
-        var titlePageDict: [String: [String]] = [:]
-        for entry in titlePage {
-            titlePageDict[entry.key] = entry.values
-        }
-        let titlePageArray = titlePageDict.isEmpty ? [] : [titlePageDict]
+      // Convert title page
+      var titlePageDict: [String: [String]] = [:]
+      for entry in titlePage {
+        titlePageDict[entry.key] = entry.values
+      }
+      let titlePageArray = titlePageDict.isEmpty ? [] : [titlePageDict]
 
-        // Convert elements using protocol-based conversion (MUST use sortedElements!)
-        let convertedElements = sortedElements.map { GuionElement(from: $0) }
+      // Convert elements using protocol-based conversion (MUST use sortedElements!)
+      let convertedElements = sortedElements.map { GuionElement(from: $0) }
 
-        // Convert custom pages (MUST use sortedCustomPages!)
-        let convertedCustomPages = sortedCustomPages.map { $0.toDTO() }
+      // Convert custom pages (MUST use sortedCustomPages!)
+      let convertedCustomPages = sortedCustomPages.map { $0.toDTO() }
 
-        return GuionParsedElementCollection(
-            filename: filename,
-            elements: convertedElements,
-            titlePage: titlePageArray,
-            suppressSceneNumbers: suppressSceneNumbers,
-            customPages: convertedCustomPages
-        )
+      return GuionParsedElementCollection(
+        filename: filename,
+        elements: convertedElements,
+        titlePage: titlePageArray,
+        suppressSceneNumbers: suppressSceneNumbers,
+        customPages: convertedCustomPages
+      )
     }
 
     /// Extract hierarchical scene browser data from SwiftData models
@@ -1023,125 +1047,133 @@ public final class GuionDocumentModel {
     ///
     /// - Returns: SceneBrowserData with model references
     public func extractSceneBrowserData() -> SceneBrowserData {
-        // For Phase 1: Convert to screenplay and use existing extraction logic
-        // TODO: Phase 2 will implement direct SwiftData traversal for better performance
-        let screenplay = toGuionParsedElementCollection()
-        let valueBasedData = screenplay.extractSceneBrowserData()
+      // For Phase 1: Convert to screenplay and use existing extraction logic
+      // TODO: Phase 2 will implement direct SwiftData traversal for better performance
+      let screenplay = toGuionParsedElementCollection()
+      let valueBasedData = screenplay.extractSceneBrowserData()
 
-        // Map value-based structure to model-based structure
-        return mapToModelBased(valueData: valueBasedData)
+      // Map value-based structure to model-based structure
+      return mapToModelBased(valueData: valueBasedData)
     }
 
     /// Map value-based SceneBrowserData to model-based SceneBrowserData
     private func mapToModelBased(valueData: SceneBrowserData) -> SceneBrowserData {
-        // Build lookup dictionary: sceneId -> GuionElementModel (for scene headings)
-        var sceneHeadingLookup: [String: GuionElementModel] = [:]
-        for element in elements {
-            if let sceneId = element.sceneId, element.elementType == .sceneHeading {
-                sceneHeadingLookup[sceneId] = element
-            }
+      // Build lookup dictionary: sceneId -> GuionElementModel (for scene headings)
+      var sceneHeadingLookup: [String: GuionElementModel] = [:]
+      for element in elements {
+        if let sceneId = element.sceneId, element.elementType == .sceneHeading {
+          sceneHeadingLookup[sceneId] = element
         }
+      }
 
-        // Build lookup for all elements by text+type (for scene content matching)
-        // This allows us to find model equivalents of value-based elements
-        var elementLookup: [[String: String]: [GuionElementModel]] = [:]
-        for element in elements {
-            let key = ["text": element.elementText, "type": element.elementType.description]
-            if elementLookup[key] == nil {
-                elementLookup[key] = []
-            }
-            elementLookup[key]?.append(element)
+      // Build lookup for all elements by text+type (for scene content matching)
+      // This allows us to find model equivalents of value-based elements
+      var elementLookup: [[String: String]: [GuionElementModel]] = [:]
+      for element in elements {
+        let key = ["text": element.elementText, "type": element.elementType.description]
+        if elementLookup[key] == nil {
+          elementLookup[key] = []
         }
+        elementLookup[key]?.append(element)
+      }
 
-        // Map chapters
-        let mappedChapters = valueData.chapters.map { chapter in
-            // Map scene groups
-            let mappedSceneGroups = chapter.sceneGroups.map { sceneGroup in
-                // Map scenes
-                let mappedScenes = sceneGroup.scenes.map { scene in
-                    // Find the scene heading model by sceneId
-                    let sceneHeadingModel = scene.sceneId.flatMap { sceneHeadingLookup[$0] }
+      // Map chapters
+      let mappedChapters = valueData.chapters.map { chapter in
+        // Map scene groups
+        let mappedSceneGroups = chapter.sceneGroups.map { sceneGroup in
+          // Map scenes
+          let mappedScenes = sceneGroup.scenes.map { scene in
+            // Find the scene heading model by sceneId
+            let sceneHeadingModel = scene.sceneId.flatMap { sceneHeadingLookup[$0] }
 
-                    // Find scene content element models
-                    var sceneElementModels: [GuionElementModel] = []
+            // Find scene content element models
+            var sceneElementModels: [GuionElementModel] = []
 
-                    // Add the scene heading first
-                    if let heading = sceneHeadingModel {
-                        sceneElementModels.append(heading)
-                    }
+            // Add the scene heading first
+            if let heading = sceneHeadingModel {
+              sceneElementModels.append(heading)
+            }
 
-                    // Add all scene content elements
-                    if let valueElements = scene.sceneElements {
-                        // Track which models we've already used to avoid duplicates
-                        var usedModels = Set<ObjectIdentifier>()
-                        if let heading = sceneHeadingModel {
-                            usedModels.insert(ObjectIdentifier(heading))
-                        }
+            // Add all scene content elements
+            if let valueElements = scene.sceneElements {
+              // Track which models we've already used to avoid duplicates
+              var usedModels = Set<ObjectIdentifier>()
+              if let heading = sceneHeadingModel {
+                usedModels.insert(ObjectIdentifier(heading))
+              }
 
-                        for valueElement in valueElements {
-                            let key = ["text": valueElement.elementText, "type": valueElement.elementType.description]
-                            if let candidates = elementLookup[key] {
-                                // Find first unused match
-                                if let match = candidates.first(where: { !usedModels.contains(ObjectIdentifier($0)) }) {
-                                    sceneElementModels.append(match)
-                                    usedModels.insert(ObjectIdentifier(match))
-                                }
-                            }
-                        }
-                    }
-
-                    // Find preScene element models
-                    var preSceneElementModels: [GuionElementModel]? = nil
-                    if let preSceneValues = scene.preSceneElements {
-                        var preSceneModels: [GuionElementModel] = []
-                        var usedModels = Set<ObjectIdentifier>()
-
-                        for valueElement in preSceneValues {
-                            let key = ["text": valueElement.elementText, "type": valueElement.elementType.description]
-                            if let candidates = elementLookup[key] {
-                                if let match = candidates.first(where: { !usedModels.contains(ObjectIdentifier($0)) }) {
-                                    preSceneModels.append(match)
-                                    usedModels.insert(ObjectIdentifier(match))
-                                }
-                            }
-                        }
-
-                        if !preSceneModels.isEmpty {
-                            preSceneElementModels = preSceneModels
-                        }
-                    }
-
-                    return SceneData(
-                        sceneHeadingModel: sceneHeadingModel,
-                        sceneElementModels: sceneElementModels,
-                        preSceneElementModels: preSceneElementModels,
-                        sceneLocation: scene.sceneLocation
-                    )
+              for valueElement in valueElements {
+                let key = [
+                  "text": valueElement.elementText, "type": valueElement.elementType.description,
+                ]
+                if let candidates = elementLookup[key] {
+                  // Find first unused match
+                  if let match = candidates.first(where: {
+                    !usedModels.contains(ObjectIdentifier($0))
+                  }) {
+                    sceneElementModels.append(match)
+                    usedModels.insert(ObjectIdentifier(match))
+                  }
                 }
-
-                return SceneGroupData(
-                    element: sceneGroup.element,
-                    scenes: mappedScenes
-                )
+              }
             }
 
-            return ChapterData(
-                element: chapter.element,
-                sceneGroups: mappedSceneGroups
+            // Find preScene element models
+            var preSceneElementModels: [GuionElementModel]? = nil
+            if let preSceneValues = scene.preSceneElements {
+              var preSceneModels: [GuionElementModel] = []
+              var usedModels = Set<ObjectIdentifier>()
+
+              for valueElement in preSceneValues {
+                let key = [
+                  "text": valueElement.elementText, "type": valueElement.elementType.description,
+                ]
+                if let candidates = elementLookup[key] {
+                  if let match = candidates.first(where: {
+                    !usedModels.contains(ObjectIdentifier($0))
+                  }) {
+                    preSceneModels.append(match)
+                    usedModels.insert(ObjectIdentifier(match))
+                  }
+                }
+              }
+
+              if !preSceneModels.isEmpty {
+                preSceneElementModels = preSceneModels
+              }
+            }
+
+            return SceneData(
+              sceneHeadingModel: sceneHeadingModel,
+              sceneElementModels: sceneElementModels,
+              preSceneElementModels: preSceneElementModels,
+              sceneLocation: scene.sceneLocation
             )
+          }
+
+          return SceneGroupData(
+            element: sceneGroup.element,
+            scenes: mappedScenes
+          )
         }
 
-        return SceneBrowserData(
-            title: valueData.title,
-            chapters: mappedChapters
+        return ChapterData(
+          element: chapter.element,
+          sceneGroups: mappedSceneGroups
         )
+      }
+
+      return SceneBrowserData(
+        title: valueData.title,
+        chapters: mappedChapters
+      )
     }
-}
+  }
 
-// MARK: - Source File Status
+  // MARK: - Source File Status
 
-/// Status of the source file associated with a GuionDocumentModel
-public enum SourceFileStatus: Sendable {
+  /// Status of the source file associated with a GuionDocumentModel
+  public enum SourceFileStatus: Sendable {
     /// No source file has been set
     case noSourceFile
 
@@ -1159,24 +1191,24 @@ public enum SourceFileStatus: Sendable {
 
     /// Human-readable description
     public var description: String {
-        switch self {
-        case .noSourceFile:
-            return "No source file"
-        case .fileNotAccessible:
-            return "Cannot access source file"
-        case .fileNotFound:
-            return "Source file not found"
-        case .modified:
-            return "Source file has been modified"
-        case .upToDate:
-            return "Up to date"
-        }
+      switch self {
+      case .noSourceFile:
+        return "No source file"
+      case .fileNotAccessible:
+        return "Cannot access source file"
+      case .fileNotFound:
+        return "Source file not found"
+      case .modified:
+        return "Source file has been modified"
+      case .upToDate:
+        return "Up to date"
+      }
     }
 
     /// Whether the user should be prompted to update
     public var shouldPromptForUpdate: Bool {
-        return self == .modified
+      return self == .modified
     }
-}
+  }
 
 #endif

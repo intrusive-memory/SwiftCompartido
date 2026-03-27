@@ -5,12 +5,13 @@
 //  SwiftUI view for displaying image content from TypedDataStorage
 //
 
-import SwiftUI
 @preconcurrency import SwiftData
+import SwiftUI
+
 #if canImport(UIKit)
-import UIKit
+  import UIKit
 #elseif canImport(AppKit)
-import AppKit
+  import AppKit
 #endif
 
 /// SwiftUI view for displaying image content from TypedDataStorage
@@ -25,192 +26,193 @@ import AppKit
 /// ```
 public struct TypedDataImageView: View {
 
-    // MARK: - Properties
+  // MARK: - Properties
 
-    /// The image storage record to display
-    let record: TypedDataStorage
+  /// The image storage record to display
+  let record: TypedDataStorage
 
-    /// Optional storage area for file-based content
-    let storageArea: StorageAreaReference?
+  /// Optional storage area for file-based content
+  let storageArea: StorageAreaReference?
 
-    /// Content mode for the image
-    let contentMode: ContentMode
+  /// Content mode for the image
+  let contentMode: ContentMode
 
-    /// Loaded SwiftUI image
-    @State private var image: Image?
+  /// Loaded SwiftUI image
+  @State private var image: Image?
 
-    /// Error state
-    @State private var error: Error?
+  /// Error state
+  @State private var error: Error?
 
-    /// Loading state
-    @State private var isLoading: Bool = true
+  /// Loading state
+  @State private var isLoading: Bool = true
 
-    // MARK: - Initialization
+  // MARK: - Initialization
 
-    /// Creates an image view for a TypedDataStorage record
-    ///
-    /// - Parameters:
-    ///   - record: The image storage record
-    ///   - storageArea: Optional storage area for file-based content
-    ///   - contentMode: How to fit the image (default: .fit)
-    public init(
-        record: TypedDataStorage,
-        storageArea: StorageAreaReference? = nil,
-        contentMode: ContentMode = .fit
-    ) {
-        self.record = record
-        self.storageArea = storageArea
-        self.contentMode = contentMode
+  /// Creates an image view for a TypedDataStorage record
+  ///
+  /// - Parameters:
+  ///   - record: The image storage record
+  ///   - storageArea: Optional storage area for file-based content
+  ///   - contentMode: How to fit the image (default: .fit)
+  public init(
+    record: TypedDataStorage,
+    storageArea: StorageAreaReference? = nil,
+    contentMode: ContentMode = .fit
+  ) {
+    self.record = record
+    self.storageArea = storageArea
+    self.contentMode = contentMode
+  }
+
+  // MARK: - Body
+
+  public var body: some View {
+    Group {
+      if isLoading {
+        ProgressView("Loading image...")
+          .accessibilityLabel("Loading image")
+          .accessibilityValue("Please wait")
+      } else if let error = error {
+        ErrorView(error: error)
+          .accessibilityLabel("Image load error")
+          .accessibilityValue(error.localizedDescription)
+      } else if let image = image {
+        image
+          .resizable()
+          .aspectRatio(contentMode: contentMode)
+          .accessibilityLabel(accessibilityLabelForImage)
+          .accessibilityAddTraits(.isImage)
+      } else {
+        Text("No image available")
+          .foregroundColor(.secondary)
+          .accessibilityLabel("No image available")
+      }
+    }
+    .task {
+      await loadImage()
+    }
+  }
+
+  // MARK: - Accessibility Helpers
+
+  /// Accessibility label for the loaded image
+  private var accessibilityLabelForImage: String {
+    var label = "Generated image"
+
+    if !record.prompt.isEmpty {
+      label += ": \(record.prompt)"
     }
 
-    // MARK: - Body
-
-    public var body: some View {
-        Group {
-            if isLoading {
-                ProgressView("Loading image...")
-                    .accessibilityLabel("Loading image")
-                    .accessibilityValue("Please wait")
-            } else if let error = error {
-                ErrorView(error: error)
-                    .accessibilityLabel("Image load error")
-                    .accessibilityValue(error.localizedDescription)
-            } else if let image = image {
-                image
-                    .resizable()
-                    .aspectRatio(contentMode: contentMode)
-                    .accessibilityLabel(accessibilityLabelForImage)
-                    .accessibilityAddTraits(.isImage)
-            } else {
-                Text("No image available")
-                    .foregroundColor(.secondary)
-                    .accessibilityLabel("No image available")
-            }
-        }
-        .task {
-            await loadImage()
-        }
+    if let width = record.width, let height = record.height {
+      label += ", Size: \(width) by \(height) pixels"
     }
 
-    // MARK: - Accessibility Helpers
+    return label
+  }
 
-    /// Accessibility label for the loaded image
-    private var accessibilityLabelForImage: String {
-        var label = "Generated image"
+  // MARK: - Loading
 
-        if !record.prompt.isEmpty {
-            label += ": \(record.prompt)"
+  /// Loads image from the record
+  private func loadImage() async {
+    do {
+      let imageData = try record.getBinary(from: storageArea)
+
+      #if canImport(UIKit)
+        if let uiImage = UIImage(data: imageData) {
+          image = Image(uiImage: uiImage)
+        } else {
+          throw TypedDataError.typeConversionFailed(
+            fromType: "Data",
+            toType: "UIImage",
+            reason: "Invalid image data"
+          )
         }
-
-        if let width = record.width, let height = record.height {
-            label += ", Size: \(width) by \(height) pixels"
+      #elseif canImport(AppKit)
+        if let nsImage = NSImage(data: imageData) {
+          image = Image(nsImage: nsImage)
+        } else {
+          throw TypedDataError.typeConversionFailed(
+            fromType: "Data",
+            toType: "NSImage",
+            reason: "Invalid image data"
+          )
         }
+      #endif
 
-        return label
+      isLoading = false
+    } catch {
+      self.error = error
+      isLoading = false
     }
-
-    // MARK: - Loading
-
-    /// Loads image from the record
-    private func loadImage() async {
-        do {
-            let imageData = try record.getBinary(from: storageArea)
-
-            #if canImport(UIKit)
-            if let uiImage = UIImage(data: imageData) {
-                image = Image(uiImage: uiImage)
-            } else {
-                throw TypedDataError.typeConversionFailed(
-                    fromType: "Data",
-                    toType: "UIImage",
-                    reason: "Invalid image data"
-                )
-            }
-            #elseif canImport(AppKit)
-            if let nsImage = NSImage(data: imageData) {
-                image = Image(nsImage: nsImage)
-            } else {
-                throw TypedDataError.typeConversionFailed(
-                    fromType: "Data",
-                    toType: "NSImage",
-                    reason: "Invalid image data"
-                )
-            }
-            #endif
-
-            isLoading = false
-        } catch {
-            self.error = error
-            isLoading = false
-        }
-    }
+  }
 }
 
 /// Error view for displaying load errors
 private struct ErrorView: View {
-    let error: Error
+  let error: Error
 
-    var body: some View {
-        VStack(spacing: 12) {
-            Image(systemName: "photo")
-                .font(.system(size: 48))
-                .foregroundColor(.red)
+  var body: some View {
+    VStack(spacing: 12) {
+      Image(systemName: "photo")
+        .font(.system(size: 48))
+        .foregroundColor(.red)
 
-            Text("Failed to load image")
-                .font(.headline)
+      Text("Failed to load image")
+        .font(.headline)
 
-            Text(error.localizedDescription)
-                .font(.caption)
-                .foregroundColor(.secondary)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal)
-        }
-        .padding()
+      Text(error.localizedDescription)
+        .font(.caption)
+        .foregroundColor(.secondary)
+        .multilineTextAlignment(.center)
+        .padding(.horizontal)
     }
+    .padding()
+  }
 }
 
 // MARK: - Preview
 
 #if DEBUG
-struct TypedDataImageView_Previews: PreviewProvider {
+  struct TypedDataImageView_Previews: PreviewProvider {
     static var previews: some View {
-        // Create a simple 100x100 red square as sample image data
-        let imageData: Data = {
-            #if canImport(UIKit)
-            let renderer = UIGraphicsImageRenderer(size: CGSize(width: 100, height: 100))
-            let image = renderer.image { context in
-                UIColor.red.setFill()
-                context.fill(CGRect(x: 0, y: 0, width: 100, height: 100))
-            }
-            return image.pngData() ?? Data()
-            #elseif canImport(AppKit)
-            let image = NSImage(size: NSSize(width: 100, height: 100))
-            image.lockFocus()
-            NSColor.red.setFill()
-            NSRect(x: 0, y: 0, width: 100, height: 100).fill()
-            image.unlockFocus()
-            if let tiffData = image.tiffRepresentation,
-               let bitmap = NSBitmapImageRep(data: tiffData),
-               let pngData = bitmap.representation(using: .png, properties: [:]) {
-                return pngData
-            }
-            return Data()
-            #endif
-        }()
+      // Create a simple 100x100 red square as sample image data
+      let imageData: Data = {
+        #if canImport(UIKit)
+          let renderer = UIGraphicsImageRenderer(size: CGSize(width: 100, height: 100))
+          let image = renderer.image { context in
+            UIColor.red.setFill()
+            context.fill(CGRect(x: 0, y: 0, width: 100, height: 100))
+          }
+          return image.pngData() ?? Data()
+        #elseif canImport(AppKit)
+          let image = NSImage(size: NSSize(width: 100, height: 100))
+          image.lockFocus()
+          NSColor.red.setFill()
+          NSRect(x: 0, y: 0, width: 100, height: 100).fill()
+          image.unlockFocus()
+          if let tiffData = image.tiffRepresentation,
+            let bitmap = NSBitmapImageRep(data: tiffData),
+            let pngData = bitmap.representation(using: .png, properties: [:])
+          {
+            return pngData
+          }
+          return Data()
+        #endif
+      }()
 
-        let record = TypedDataStorage(
-            providerId: "openai",
-            requestorID: "dalle-3",
-            mimeType: "image/png",
-            binaryValue: imageData,
-            prompt: "Generate a red square",
-            imageFormat: "png",
-            width: 100,
-            height: 100
-        )
+      let record = TypedDataStorage(
+        providerId: "openai",
+        requestorID: "dalle-3",
+        mimeType: "image/png",
+        binaryValue: imageData,
+        prompt: "Generate a red square",
+        imageFormat: "png",
+        width: 100,
+        height: 100
+      )
 
-        TypedDataImageView(record: record)
-            .frame(width: 200, height: 200)
+      TypedDataImageView(record: record)
+        .frame(width: 200, height: 200)
     }
-}
+  }
 #endif

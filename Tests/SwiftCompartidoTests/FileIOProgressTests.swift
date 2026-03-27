@@ -1,5 +1,6 @@
-import Testing
 import Foundation
+import Testing
+
 @testable import SwiftCompartido
 
 /// Tests for File I/O progress reporting functionality (Phase 6).
@@ -15,530 +16,531 @@ import Foundation
 @Suite("File I/O Progress Tests")
 struct FileIOProgressTests {
 
-    // MARK: - Helper Methods
+  // MARK: - Helper Methods
 
-    private func createLargeAudioData(megabytes: Int) -> Data {
-        // Create audio data of specified size
-        let bytesPerMB = 1024 * 1024
-        let totalBytes = megabytes * bytesPerMB
-        var data = Data(count: totalBytes)
-        data.withUnsafeMutableBytes { (buffer: UnsafeMutableRawBufferPointer) in
-            for i in 0..<totalBytes {
-                buffer[i] = UInt8(i % 256)
-            }
-        }
-        return data
+  private func createLargeAudioData(megabytes: Int) -> Data {
+    // Create audio data of specified size
+    let bytesPerMB = 1024 * 1024
+    let totalBytes = megabytes * bytesPerMB
+    var data = Data(count: totalBytes)
+    data.withUnsafeMutableBytes { (buffer: UnsafeMutableRawBufferPointer) in
+      for i in 0..<totalBytes {
+        buffer[i] = UInt8(i % 256)
+      }
+    }
+    return data
+  }
+
+  private func createLargeImageData(megabytes: Int) -> Data {
+    // Create image data of specified size
+    return createLargeAudioData(megabytes: megabytes)
+  }
+
+  private func createTempStorage() -> StorageAreaReference {
+    return .temporary(requestID: UUID())
+  }
+
+  // MARK: - Large Audio Save Tests
+
+  @Test("Large audio save reports byte-level progress")
+  func testLargeAudioSaveProgress() async throws {
+    actor ProgressCollector {
+      var updates: [ProgressUpdate] = []
+
+      func add(_ update: ProgressUpdate) {
+        updates.append(update)
+      }
+
+      func getUpdates() -> [ProgressUpdate] {
+        return updates
+      }
     }
 
-    private func createLargeImageData(megabytes: Int) -> Data {
-        // Create image data of specified size
-        return createLargeAudioData(megabytes: megabytes)
+    let collector = ProgressCollector()
+    let progress = OperationProgress(totalUnits: nil) { update in
+      Task {
+        await collector.add(update)
+      }
     }
 
-    private func createTempStorage() -> StorageAreaReference {
-        return .temporary(requestID: UUID())
+    // Create 5MB audio file
+    let audioData = createLargeAudioData(megabytes: 5)
+    let storage = createTempStorage()
+
+    let record = GeneratedAudioRecord(
+      providerId: "elevenlabs",
+      requestorID: "tts.test",
+      mimeType: "audio/mpeg",
+      binaryValue: nil,
+      prompt: "Test",
+      audioFormat: "mp3",
+      voiceID: "test-voice",
+      voiceName: "Test Voice"
+    )
+
+    try await record.saveBinary(audioData, to: storage, fileName: "audio.mp3", progress: progress)
+
+    // Wait for async updates
+    try await Task.sleep(for: .milliseconds(100))
+
+    let updates = await collector.getUpdates()
+
+    #expect(updates.count > 0, "Should receive progress updates")
+
+    // Verify byte-level progress
+    if let firstUpdate = updates.first, let lastUpdate = updates.last {
+      #expect(firstUpdate.totalUnits == Int64(audioData.count), "Total should be file size")
+      #expect(lastUpdate.completedUnits == Int64(audioData.count), "Should complete all bytes")
     }
 
-    // MARK: - Large Audio Save Tests
+    // Verify file was created
+    #expect(record.fileReference != nil, "Should create file reference")
+  }
 
-    @Test("Large audio save reports byte-level progress")
-    func testLargeAudioSaveProgress() async throws {
-        actor ProgressCollector {
-            var updates: [ProgressUpdate] = []
+  @Test("Large audio save works in chunks")
+  func testChunkedAudioWriting() async throws {
+    actor ProgressCollector {
+      var chunkCount: Int = 0
 
-            func add(_ update: ProgressUpdate) {
-                updates.append(update)
-            }
+      func increment() {
+        chunkCount += 1
+      }
 
-            func getUpdates() -> [ProgressUpdate] {
-                return updates
-            }
-        }
-
-        let collector = ProgressCollector()
-        let progress = OperationProgress(totalUnits: nil) { update in
-            Task {
-                await collector.add(update)
-            }
-        }
-
-        // Create 5MB audio file
-        let audioData = createLargeAudioData(megabytes: 5)
-        let storage = createTempStorage()
-
-        let record = GeneratedAudioRecord(
-            providerId: "elevenlabs",
-            requestorID: "tts.test",
-            mimeType: "audio/mpeg",
-            binaryValue: nil,
-            prompt: "Test",
-            audioFormat: "mp3",
-            voiceID: "test-voice",
-            voiceName: "Test Voice"
-        )
-
-        try await record.saveBinary(audioData, to: storage, fileName: "audio.mp3", progress: progress)
-
-        // Wait for async updates
-        try await Task.sleep(for: .milliseconds(100))
-
-        let updates = await collector.getUpdates()
-
-        #expect(updates.count > 0, "Should receive progress updates")
-
-        // Verify byte-level progress
-        if let firstUpdate = updates.first, let lastUpdate = updates.last {
-            #expect(firstUpdate.totalUnits == Int64(audioData.count), "Total should be file size")
-            #expect(lastUpdate.completedUnits == Int64(audioData.count), "Should complete all bytes")
-        }
-
-        // Verify file was created
-        #expect(record.fileReference != nil, "Should create file reference")
+      func getCount() -> Int {
+        return chunkCount
+      }
     }
 
-    @Test("Large audio save works in chunks")
-    func testChunkedAudioWriting() async throws {
-        actor ProgressCollector {
-            var chunkCount: Int = 0
-
-            func increment() {
-                chunkCount += 1
-            }
-
-            func getCount() -> Int {
-                return chunkCount
-            }
-        }
-
-        let collector = ProgressCollector()
-        let progress = OperationProgress(totalUnits: nil) { _ in
-            Task {
-                await collector.increment()
-            }
-        }
-
-        // Create 10MB audio to ensure multiple chunks (1MB each)
-        let audioData = createLargeAudioData(megabytes: 10)
-        let storage = createTempStorage()
-
-        let record = GeneratedAudioRecord(
-            providerId: "elevenlabs",
-            requestorID: "tts.test",
-            mimeType: "audio/mpeg",
-            binaryValue: nil,
-            prompt: "Test",
-            audioFormat: "mp3",
-            voiceID: "test-voice",
-            voiceName: "Test Voice"
-        )
-
-        try await record.saveBinary(audioData, to: storage, fileName: "audio.mp3", progress: progress)
-
-        // Wait for async updates to propagate
-        try await Task.sleep(for: .milliseconds(500))
-
-        let chunkCount = await collector.getCount()
-
-        // Should have progress updates (relaxed expectation - async detached Tasks may not all complete)
-        #expect(chunkCount > 0, "Should write with progress updates")
-
-        // Verify file was written correctly in chunks (file size check)
-        #expect(record.fileReference != nil, "Should create file reference")
-        let fileURL = record.fileReference!.fileURL(in: storage)
-        let fileSize = try FileManager.default.attributesOfItem(atPath: fileURL.path)[.size] as? Int64
-        #expect(fileSize == Int64(audioData.count), "Should write complete file")
-
+    let collector = ProgressCollector()
+    let progress = OperationProgress(totalUnits: nil) { _ in
+      Task {
+        await collector.increment()
+      }
     }
 
-    // MARK: - Large Image Save Tests
+    // Create 10MB audio to ensure multiple chunks (1MB each)
+    let audioData = createLargeAudioData(megabytes: 10)
+    let storage = createTempStorage()
 
-    @Test("Large image save reports byte-level progress")
-    func testLargeImageSaveProgress() async throws {
-        actor ProgressCollector {
-            var updates: [ProgressUpdate] = []
+    let record = GeneratedAudioRecord(
+      providerId: "elevenlabs",
+      requestorID: "tts.test",
+      mimeType: "audio/mpeg",
+      binaryValue: nil,
+      prompt: "Test",
+      audioFormat: "mp3",
+      voiceID: "test-voice",
+      voiceName: "Test Voice"
+    )
 
-            func add(_ update: ProgressUpdate) {
-                updates.append(update)
-            }
+    try await record.saveBinary(audioData, to: storage, fileName: "audio.mp3", progress: progress)
 
-            func getUpdates() -> [ProgressUpdate] {
-                return updates
-            }
-        }
+    // Wait for async updates to propagate
+    try await Task.sleep(for: .milliseconds(500))
 
-        let collector = ProgressCollector()
-        let progress = OperationProgress(totalUnits: nil) { update in
-            Task {
-                await collector.add(update)
-            }
-        }
+    let chunkCount = await collector.getCount()
 
-        // Create 20MB image file
-        let imageData = createLargeImageData(megabytes: 20)
-        let storage = createTempStorage()
+    // Should have progress updates (relaxed expectation - async detached Tasks may not all complete)
+    #expect(chunkCount > 0, "Should write with progress updates")
 
-        let record = GeneratedImageRecord(
-            providerId: "openai",
-            requestorID: "dalle.test",
-            mimeType: "image/png",
-            binaryValue: nil,
-            prompt: "Test",
-            width: 1024,
-            height: 1024
-        )
+    // Verify file was written correctly in chunks (file size check)
+    #expect(record.fileReference != nil, "Should create file reference")
+    let fileURL = record.fileReference!.fileURL(in: storage)
+    let fileSize = try FileManager.default.attributesOfItem(atPath: fileURL.path)[.size] as? Int64
+    #expect(fileSize == Int64(audioData.count), "Should write complete file")
 
-        try await record.saveBinary(imageData, to: storage, fileName: "image.png", progress: progress)
+  }
 
-        // Wait for async updates
-        try await Task.sleep(for: .milliseconds(100))
+  // MARK: - Large Image Save Tests
 
-        let updates = await collector.getUpdates()
+  @Test("Large image save reports byte-level progress")
+  func testLargeImageSaveProgress() async throws {
+    actor ProgressCollector {
+      var updates: [ProgressUpdate] = []
 
-        #expect(updates.count > 0, "Should receive progress updates")
+      func add(_ update: ProgressUpdate) {
+        updates.append(update)
+      }
 
-        // Verify byte-level progress
-        if let firstUpdate = updates.first, let lastUpdate = updates.last {
-            #expect(firstUpdate.totalUnits == Int64(imageData.count), "Total should be file size")
-            #expect(lastUpdate.completedUnits == Int64(imageData.count), "Should complete all bytes")
-        }
-
-        // Verify file was created
-        #expect(record.fileReference != nil, "Should create file reference")
+      func getUpdates() -> [ProgressUpdate] {
+        return updates
+      }
     }
 
-    @Test("Large image save works in chunks")
-    func testChunkedImageWriting() async throws {
-        actor ProgressCollector {
-            var updateCount: Int = 0
-
-            func increment() {
-                updateCount += 1
-            }
-
-            func getCount() -> Int {
-                return updateCount
-            }
-        }
-
-        let collector = ProgressCollector()
-        let progress = OperationProgress(totalUnits: nil) { _ in
-            Task {
-                await collector.increment()
-            }
-        }
-
-        // Create 15MB image to ensure multiple chunks
-        let imageData = createLargeImageData(megabytes: 15)
-        let storage = createTempStorage()
-
-        let record = GeneratedImageRecord(
-            providerId: "openai",
-            requestorID: "dalle.test",
-            mimeType: "image/png",
-            binaryValue: nil,
-            prompt: "Test",
-            width: 2048,
-            height: 2048
-        )
-
-        try await record.saveBinary(imageData, to: storage, fileName: "image.png", progress: progress)
-
-        // Wait for async updates to propagate
-        try await Task.sleep(for: .milliseconds(500))
-
-        let updateCount = await collector.getCount()
-
-        // Should have progress updates (relaxed expectation - async detached Tasks may not all complete)
-        #expect(updateCount > 0, "Should write with progress updates")
-
-        // Verify file was written correctly
-        #expect(record.fileReference != nil, "Should create file reference")
-        let fileURL = record.fileReference!.fileURL(in: storage)
-        let fileSize = try FileManager.default.attributesOfItem(atPath: fileURL.path)[.size] as? Int64
-        #expect(fileSize == Int64(imageData.count), "Should write complete file")
-
+    let collector = ProgressCollector()
+    let progress = OperationProgress(totalUnits: nil) { update in
+      Task {
+        await collector.add(update)
+      }
     }
 
-    // MARK: - Cancellation Tests
+    // Create 20MB image file
+    let imageData = createLargeImageData(megabytes: 20)
+    let storage = createTempStorage()
 
-    @Test("Cancellation during audio write cleans up partial file")
-    func testAudioWriteCancellation() async throws {
-        let storage = createTempStorage()
-        let audioData = createLargeAudioData(megabytes: 50) // Large file to allow cancellation
+    let record = GeneratedImageRecord(
+      providerId: "openai",
+      requestorID: "dalle.test",
+      mimeType: "image/png",
+      binaryValue: nil,
+      prompt: "Test",
+      width: 1024,
+      height: 1024
+    )
 
-        let record = GeneratedAudioRecord(
-            providerId: "elevenlabs",
-            requestorID: "tts.test",
-            mimeType: "audio/mpeg",
-            binaryValue: nil,
-            prompt: "Test",
-            audioFormat: "mp3",
-            voiceID: "test-voice",
-            voiceName: "Test Voice"
-        )
+    try await record.saveBinary(imageData, to: storage, fileName: "image.png", progress: progress)
 
-        let task = Task {
-            let progress = OperationProgress(totalUnits: nil)
-            try await record.saveBinary(audioData, to: storage, fileName: "audio.mp3", progress: progress)
-        }
+    // Wait for async updates
+    try await Task.sleep(for: .milliseconds(100))
 
-        // Cancel quickly
-        try await Task.sleep(for: .milliseconds(10))
-        task.cancel()
+    let updates = await collector.getUpdates()
 
-        do {
-            try await task.value
-            // May complete before cancellation
-        } catch is CancellationError {
-            // Expected - verify no partial file left
-            let fileURL = storage.defaultDataFileURL(extension: "mp3")
-            let fileExists = FileManager.default.fileExists(atPath: fileURL.path)
-            #expect(!fileExists, "Partial file should be cleaned up on cancellation")
-        } catch {
-            // Other errors may occur
-        }
+    #expect(updates.count > 0, "Should receive progress updates")
 
+    // Verify byte-level progress
+    if let firstUpdate = updates.first, let lastUpdate = updates.last {
+      #expect(firstUpdate.totalUnits == Int64(imageData.count), "Total should be file size")
+      #expect(lastUpdate.completedUnits == Int64(imageData.count), "Should complete all bytes")
     }
 
-    @Test("Cancellation during image write cleans up partial file")
-    func testImageWriteCancellation() async throws {
-        let storage = createTempStorage()
-        let imageData = createLargeImageData(megabytes: 50) // Large file to allow cancellation
+    // Verify file was created
+    #expect(record.fileReference != nil, "Should create file reference")
+  }
 
-        let record = GeneratedImageRecord(
-            providerId: "openai",
-            requestorID: "dalle.test",
-            mimeType: "image/png",
-            binaryValue: nil,
-            prompt: "Test",
-            width: 4096,
-            height: 4096
-        )
+  @Test("Large image save works in chunks")
+  func testChunkedImageWriting() async throws {
+    actor ProgressCollector {
+      var updateCount: Int = 0
 
-        let task = Task {
-            let progress = OperationProgress(totalUnits: nil)
-            try await record.saveBinary(imageData, to: storage, fileName: "image.png", progress: progress)
-        }
+      func increment() {
+        updateCount += 1
+      }
 
-        // Cancel quickly
-        try await Task.sleep(for: .milliseconds(10))
-        task.cancel()
-
-        do {
-            try await task.value
-            // May complete before cancellation
-        } catch is CancellationError {
-            // Expected - verify no partial file left
-            let fileURL = storage.defaultDataFileURL(extension: "png")
-            let fileExists = FileManager.default.fileExists(atPath: fileURL.path)
-            #expect(!fileExists, "Partial file should be cleaned up on cancellation")
-        } catch {
-            // Other errors may occur
-        }
-
+      func getCount() -> Int {
+        return updateCount
+      }
     }
 
-
-    // MARK: - File Loading Progress Tests
-
-    @Test("Loading large audio file reports progress")
-    func testAudioLoadProgress() async throws {
-        actor ProgressCollector {
-            var updates: [ProgressUpdate] = []
-
-            func add(_ update: ProgressUpdate) {
-                updates.append(update)
-            }
-
-            func getUpdates() -> [ProgressUpdate] {
-                return updates
-            }
-        }
-
-        // First save a file
-        let audioData = createLargeAudioData(megabytes: 10)
-        let storage = createTempStorage()
-
-        let record = GeneratedAudioRecord(
-            providerId: "elevenlabs",
-            requestorID: "tts.test",
-            mimeType: "audio/mpeg",
-            binaryValue: nil,
-            prompt: "Test",
-            audioFormat: "mp3",
-            voiceID: "test-voice",
-            voiceName: "Test Voice"
-        )
-
-        try await record.saveBinary(audioData, to: storage, fileName: "audio.mp3", progress: nil)
-
-        // Now load with progress
-        let collector = ProgressCollector()
-        let loadProgress = OperationProgress(totalUnits: nil) { update in
-            Task {
-                await collector.add(update)
-            }
-        }
-
-        let loaded = try record.getBinary(from: storage, progress: loadProgress)
-
-        // Wait for async updates
-        try await Task.sleep(for: .milliseconds(100))
-
-        let updates = await collector.getUpdates()
-
-        #expect(loaded.count == audioData.count, "Should load correct data")
-        #expect(updates.count > 0, "Should report progress during load")
-
-        // Verify byte-level progress
-        if let lastUpdate = updates.last {
-            #expect(lastUpdate.completedUnits == Int64(audioData.count), "Should complete all bytes")
-        }
-
+    let collector = ProgressCollector()
+    let progress = OperationProgress(totalUnits: nil) { _ in
+      Task {
+        await collector.increment()
+      }
     }
 
-    @Test("Loading large image file reports progress", .disabled("Async progress updates have timing issues on CI simulators"))
-    func testImageLoadProgress() async throws {
-        actor ProgressCollector {
-            var bytesRead: [Int64] = []
+    // Create 15MB image to ensure multiple chunks
+    let imageData = createLargeImageData(megabytes: 15)
+    let storage = createTempStorage()
 
-            func add(_ bytes: Int64) {
-                bytesRead.append(bytes)
-            }
+    let record = GeneratedImageRecord(
+      providerId: "openai",
+      requestorID: "dalle.test",
+      mimeType: "image/png",
+      binaryValue: nil,
+      prompt: "Test",
+      width: 2048,
+      height: 2048
+    )
 
-            func getBytes() -> [Int64] {
-                return bytesRead
-            }
-        }
+    try await record.saveBinary(imageData, to: storage, fileName: "image.png", progress: progress)
 
-        // First save a file
-        let imageData = createLargeImageData(megabytes: 15)
-        let storage = createTempStorage()
+    // Wait for async updates to propagate
+    try await Task.sleep(for: .milliseconds(500))
 
-        let record = GeneratedImageRecord(
-            providerId: "openai",
-            requestorID: "dalle.test",
-            mimeType: "image/png",
-            binaryValue: nil,
-            prompt: "Test",
-            width: 2048,
-            height: 2048
-        )
+    let updateCount = await collector.getCount()
 
-        try await record.saveBinary(imageData, to: storage, fileName: "image.png", progress: nil)
+    // Should have progress updates (relaxed expectation - async detached Tasks may not all complete)
+    #expect(updateCount > 0, "Should write with progress updates")
 
-        // Now load with progress
-        let collector = ProgressCollector()
-        let loadProgress = OperationProgress(totalUnits: nil) { update in
-            Task {
-                await collector.add(update.completedUnits)
-            }
-        }
+    // Verify file was written correctly
+    #expect(record.fileReference != nil, "Should create file reference")
+    let fileURL = record.fileReference!.fileURL(in: storage)
+    let fileSize = try FileManager.default.attributesOfItem(atPath: fileURL.path)[.size] as? Int64
+    #expect(fileSize == Int64(imageData.count), "Should write complete file")
 
-        let loaded = try record.getBinary(from: storage, progress: loadProgress)
+  }
 
-        // Wait for async updates
-        try await Task.sleep(for: .milliseconds(100))
+  // MARK: - Cancellation Tests
 
-        let bytesRead = await collector.getBytes()
+  @Test("Cancellation during audio write cleans up partial file")
+  func testAudioWriteCancellation() async throws {
+    let storage = createTempStorage()
+    let audioData = createLargeAudioData(megabytes: 50)  // Large file to allow cancellation
 
-        #expect(loaded.count == imageData.count, "Should load correct data")
-        #expect(bytesRead.count > 0, "Should report progress during load")
+    let record = GeneratedAudioRecord(
+      providerId: "elevenlabs",
+      requestorID: "tts.test",
+      mimeType: "audio/mpeg",
+      binaryValue: nil,
+      prompt: "Test",
+      audioFormat: "mp3",
+      voiceID: "test-voice",
+      voiceName: "Test Voice"
+    )
 
-        // Progress should increase monotonically
-        var lastBytes: Int64 = 0
-        for bytes in bytesRead {
-            #expect(bytes >= lastBytes, "Progress should increase")
-            lastBytes = bytes
-        }
-
+    let task = Task {
+      let progress = OperationProgress(totalUnits: nil)
+      try await record.saveBinary(audioData, to: storage, fileName: "audio.mp3", progress: progress)
     }
 
-    // MARK: - Nil Progress Handler Tests
+    // Cancel quickly
+    try await Task.sleep(for: .milliseconds(10))
+    task.cancel()
 
-    @Test("Save and load work with nil progress")
-    func testNilProgressHandler() async throws {
-        let audioData = createLargeAudioData(megabytes: 5)
-        let storage = createTempStorage()
-
-        let record = GeneratedAudioRecord(
-            providerId: "elevenlabs",
-            requestorID: "tts.test",
-            mimeType: "audio/mpeg",
-            binaryValue: nil,
-            prompt: "Test",
-            audioFormat: "mp3",
-            voiceID: "test-voice",
-            voiceName: "Test Voice"
-        )
-
-        // Save with nil progress
-        try await record.saveBinary(audioData, to: storage, fileName: "audio.mp3", progress: nil)
-
-        #expect(record.fileReference != nil, "Should save without progress")
-
-        // Load with nil progress
-        let loaded = try record.getBinary(from: storage)
-
-        #expect(loaded.count == audioData.count, "Should load without progress")
-
+    do {
+      try await task.value
+      // May complete before cancellation
+    } catch is CancellationError {
+      // Expected - verify no partial file left
+      let fileURL = storage.defaultDataFileURL(extension: "mp3")
+      let fileExists = FileManager.default.fileExists(atPath: fileURL.path)
+      #expect(!fileExists, "Partial file should be cleaned up on cancellation")
+    } catch {
+      // Other errors may occur
     }
 
-    // MARK: - Progress Accuracy Tests
+  }
 
-    @Test("Progress fractions are accurate for large files")
-    func testProgressAccuracy() async throws {
-        actor ProgressCollector {
-            var fractions: [Double] = []
+  @Test("Cancellation during image write cleans up partial file")
+  func testImageWriteCancellation() async throws {
+    let storage = createTempStorage()
+    let imageData = createLargeImageData(megabytes: 50)  // Large file to allow cancellation
 
-            func add(_ fraction: Double?) {
-                if let f = fraction {
-                    fractions.append(f)
-                }
-            }
+    let record = GeneratedImageRecord(
+      providerId: "openai",
+      requestorID: "dalle.test",
+      mimeType: "image/png",
+      binaryValue: nil,
+      prompt: "Test",
+      width: 4096,
+      height: 4096
+    )
 
-            func getFractions() -> [Double] {
-                return fractions
-            }
-        }
-
-        let collector = ProgressCollector()
-        let progress = OperationProgress(totalUnits: nil) { update in
-            Task {
-                await collector.add(update.fractionCompleted)
-            }
-        }
-
-        let audioData = createLargeAudioData(megabytes: 10)
-        let storage = createTempStorage()
-
-        let record = GeneratedAudioRecord(
-            providerId: "elevenlabs",
-            requestorID: "tts.test",
-            mimeType: "audio/mpeg",
-            binaryValue: nil,
-            prompt: "Test",
-            audioFormat: "mp3",
-            voiceID: "test-voice",
-            voiceName: "Test Voice"
-        )
-
-        try await record.saveBinary(audioData, to: storage, fileName: "audio.mp3", progress: progress)
-
-        // Wait for async updates
-        try await Task.sleep(for: .milliseconds(100))
-
-        let fractions = await collector.getFractions()
-
-        #expect(fractions.count > 0, "Should have progress fractions")
-
-        // Verify fractions are valid and increasing
-        var lastFraction = 0.0
-        for fraction in fractions {
-            #expect(fraction >= lastFraction, "Progress should increase monotonically")
-            #expect(fraction >= 0.0 && fraction <= 1.0, "Fraction should be between 0 and 1")
-            lastFraction = fraction
-        }
-
+    let task = Task {
+      let progress = OperationProgress(totalUnits: nil)
+      try await record.saveBinary(imageData, to: storage, fileName: "image.png", progress: progress)
     }
+
+    // Cancel quickly
+    try await Task.sleep(for: .milliseconds(10))
+    task.cancel()
+
+    do {
+      try await task.value
+      // May complete before cancellation
+    } catch is CancellationError {
+      // Expected - verify no partial file left
+      let fileURL = storage.defaultDataFileURL(extension: "png")
+      let fileExists = FileManager.default.fileExists(atPath: fileURL.path)
+      #expect(!fileExists, "Partial file should be cleaned up on cancellation")
+    } catch {
+      // Other errors may occur
+    }
+
+  }
+
+  // MARK: - File Loading Progress Tests
+
+  @Test("Loading large audio file reports progress")
+  func testAudioLoadProgress() async throws {
+    actor ProgressCollector {
+      var updates: [ProgressUpdate] = []
+
+      func add(_ update: ProgressUpdate) {
+        updates.append(update)
+      }
+
+      func getUpdates() -> [ProgressUpdate] {
+        return updates
+      }
+    }
+
+    // First save a file
+    let audioData = createLargeAudioData(megabytes: 10)
+    let storage = createTempStorage()
+
+    let record = GeneratedAudioRecord(
+      providerId: "elevenlabs",
+      requestorID: "tts.test",
+      mimeType: "audio/mpeg",
+      binaryValue: nil,
+      prompt: "Test",
+      audioFormat: "mp3",
+      voiceID: "test-voice",
+      voiceName: "Test Voice"
+    )
+
+    try await record.saveBinary(audioData, to: storage, fileName: "audio.mp3", progress: nil)
+
+    // Now load with progress
+    let collector = ProgressCollector()
+    let loadProgress = OperationProgress(totalUnits: nil) { update in
+      Task {
+        await collector.add(update)
+      }
+    }
+
+    let loaded = try record.getBinary(from: storage, progress: loadProgress)
+
+    // Wait for async updates
+    try await Task.sleep(for: .milliseconds(100))
+
+    let updates = await collector.getUpdates()
+
+    #expect(loaded.count == audioData.count, "Should load correct data")
+    #expect(updates.count > 0, "Should report progress during load")
+
+    // Verify byte-level progress
+    if let lastUpdate = updates.last {
+      #expect(lastUpdate.completedUnits == Int64(audioData.count), "Should complete all bytes")
+    }
+
+  }
+
+  @Test(
+    "Loading large image file reports progress",
+    .disabled("Async progress updates have timing issues on CI simulators"))
+  func testImageLoadProgress() async throws {
+    actor ProgressCollector {
+      var bytesRead: [Int64] = []
+
+      func add(_ bytes: Int64) {
+        bytesRead.append(bytes)
+      }
+
+      func getBytes() -> [Int64] {
+        return bytesRead
+      }
+    }
+
+    // First save a file
+    let imageData = createLargeImageData(megabytes: 15)
+    let storage = createTempStorage()
+
+    let record = GeneratedImageRecord(
+      providerId: "openai",
+      requestorID: "dalle.test",
+      mimeType: "image/png",
+      binaryValue: nil,
+      prompt: "Test",
+      width: 2048,
+      height: 2048
+    )
+
+    try await record.saveBinary(imageData, to: storage, fileName: "image.png", progress: nil)
+
+    // Now load with progress
+    let collector = ProgressCollector()
+    let loadProgress = OperationProgress(totalUnits: nil) { update in
+      Task {
+        await collector.add(update.completedUnits)
+      }
+    }
+
+    let loaded = try record.getBinary(from: storage, progress: loadProgress)
+
+    // Wait for async updates
+    try await Task.sleep(for: .milliseconds(100))
+
+    let bytesRead = await collector.getBytes()
+
+    #expect(loaded.count == imageData.count, "Should load correct data")
+    #expect(bytesRead.count > 0, "Should report progress during load")
+
+    // Progress should increase monotonically
+    var lastBytes: Int64 = 0
+    for bytes in bytesRead {
+      #expect(bytes >= lastBytes, "Progress should increase")
+      lastBytes = bytes
+    }
+
+  }
+
+  // MARK: - Nil Progress Handler Tests
+
+  @Test("Save and load work with nil progress")
+  func testNilProgressHandler() async throws {
+    let audioData = createLargeAudioData(megabytes: 5)
+    let storage = createTempStorage()
+
+    let record = GeneratedAudioRecord(
+      providerId: "elevenlabs",
+      requestorID: "tts.test",
+      mimeType: "audio/mpeg",
+      binaryValue: nil,
+      prompt: "Test",
+      audioFormat: "mp3",
+      voiceID: "test-voice",
+      voiceName: "Test Voice"
+    )
+
+    // Save with nil progress
+    try await record.saveBinary(audioData, to: storage, fileName: "audio.mp3", progress: nil)
+
+    #expect(record.fileReference != nil, "Should save without progress")
+
+    // Load with nil progress
+    let loaded = try record.getBinary(from: storage)
+
+    #expect(loaded.count == audioData.count, "Should load without progress")
+
+  }
+
+  // MARK: - Progress Accuracy Tests
+
+  @Test("Progress fractions are accurate for large files")
+  func testProgressAccuracy() async throws {
+    actor ProgressCollector {
+      var fractions: [Double] = []
+
+      func add(_ fraction: Double?) {
+        if let f = fraction {
+          fractions.append(f)
+        }
+      }
+
+      func getFractions() -> [Double] {
+        return fractions
+      }
+    }
+
+    let collector = ProgressCollector()
+    let progress = OperationProgress(totalUnits: nil) { update in
+      Task {
+        await collector.add(update.fractionCompleted)
+      }
+    }
+
+    let audioData = createLargeAudioData(megabytes: 10)
+    let storage = createTempStorage()
+
+    let record = GeneratedAudioRecord(
+      providerId: "elevenlabs",
+      requestorID: "tts.test",
+      mimeType: "audio/mpeg",
+      binaryValue: nil,
+      prompt: "Test",
+      audioFormat: "mp3",
+      voiceID: "test-voice",
+      voiceName: "Test Voice"
+    )
+
+    try await record.saveBinary(audioData, to: storage, fileName: "audio.mp3", progress: progress)
+
+    // Wait for async updates
+    try await Task.sleep(for: .milliseconds(100))
+
+    let fractions = await collector.getFractions()
+
+    #expect(fractions.count > 0, "Should have progress fractions")
+
+    // Verify fractions are valid and increasing
+    var lastFraction = 0.0
+    for fraction in fractions {
+      #expect(fraction >= lastFraction, "Progress should increase monotonically")
+      #expect(fraction >= 0.0 && fraction <= 1.0, "Fraction should be between 0 and 1")
+      lastFraction = fraction
+    }
+
+  }
 }
