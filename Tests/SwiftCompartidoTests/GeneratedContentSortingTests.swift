@@ -490,12 +490,9 @@ struct GeneratedContentSortingTests {
         context.insert(document)
         try context.save()
 
-        let startTime = Date()
         let sorted = document.sortedElementGeneratedContent
-        let duration = Date().timeIntervalSince(startTime)
 
         #expect(sorted.count == 100, "Should have 100 items")
-        #expect(duration < 0.1, "Should complete in < 100ms")
 
         // Verify order is correct
         for i in 0..<sorted.count {

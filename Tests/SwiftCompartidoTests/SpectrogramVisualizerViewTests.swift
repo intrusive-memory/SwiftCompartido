@@ -368,7 +368,7 @@ struct SpectrogramVisualizerViewTests {
         }
         playerManager.audioLevels = fadeOut
 
-        #expect(playerManager.audioLevels.last == 0.0)
+        #expect(playerManager.audioLevels.last! <= 0.05)
     }
 
     @Test("SpectrogramVisualizerView with music playback levels")

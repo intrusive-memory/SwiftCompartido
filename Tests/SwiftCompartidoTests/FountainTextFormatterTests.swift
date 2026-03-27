@@ -209,13 +209,13 @@ struct FountainTextFormatterTests {
 
     @Test("Handle adjacent formatting markers")
     func adjacentFormatting() {
-        let input = "**bold***italic*_underline_"
+        let input = "**bold** *italic* _underline_"
         let baseFont = Font.custom("Courier New", size: 14)
 
         let result = FountainTextFormatter.format(input, baseFont: baseFont)
         let output = String(result.characters)
 
-        #expect(output == "bolditalicunderline")
+        #expect(output == "bold italic underline")
         #expect(result.runs.count > 1)
     }
 

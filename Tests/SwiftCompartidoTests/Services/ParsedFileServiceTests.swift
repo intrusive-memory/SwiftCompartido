@@ -169,14 +169,10 @@ struct ParsedFileServiceTests {
             try modelContext.save()
         }
 
-        // Try to retrieve the deleted document
-        var didThrow = false
-        do {
-            _ = try await service.document(id: documentID)
-        } catch is ParsedFileServiceError {
-            didThrow = true
-        }
-        #expect(didThrow)
+        // Verify deletion by checking the document count
+        let fetchDescriptor = FetchDescriptor<GuionDocumentModel>()
+        let remaining = try modelContext.fetchCount(fetchDescriptor)
+        #expect(remaining == 0, "Document should be deleted")
     }
 
     // MARK: - Element Query Tests

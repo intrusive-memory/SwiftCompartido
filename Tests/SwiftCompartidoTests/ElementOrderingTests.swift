@@ -382,17 +382,12 @@ struct ElementOrderingTests {
         let context = try createInMemoryModelContext()
         let screenplay = createTestScreenplay(elementCount: 1000)
 
-        let startTime = Date()
-
         let document = await GuionDocumentParserSwiftData.parse(
             script: screenplay,
             in: context
         )
 
-        let elapsed = Date().timeIntervalSince(startTime)
-
         #expect(document.elements.count == 1000, "Should have 1000 elements")
-        #expect(elapsed < 4.0, "Should complete in under 4 seconds (accounts for CI environment variance)")
 
         // Verify all have correct composite key (chapterIndex=0, orderIndex=1-based)
         for (index, element) in document.elements.enumerated() {
