@@ -35,7 +35,10 @@ import Foundation
 ///     characterCount: 5
 /// )
 /// ```
-@available(*, deprecated, renamed: "TypedDataStorage", message: "Use TypedDataStorage with mimeType 'text/plain' instead")
+@available(
+  *, deprecated, renamed: "TypedDataStorage",
+  message: "Use TypedDataStorage with mimeType 'text/plain' instead"
+)
 public typealias GeneratedTextRecord = TypedDataStorage
 
 /// Legacy type alias for GeneratedAudioRecord
@@ -66,7 +69,10 @@ public typealias GeneratedTextRecord = TypedDataStorage
 ///     voiceName: "Rachel"
 /// )
 /// ```
-@available(*, deprecated, renamed: "TypedDataStorage", message: "Use TypedDataStorage with audio/* mimeType instead")
+@available(
+  *, deprecated, renamed: "TypedDataStorage",
+  message: "Use TypedDataStorage with audio/* mimeType instead"
+)
 public typealias GeneratedAudioRecord = TypedDataStorage
 
 /// Legacy type alias for GeneratedImageRecord
@@ -97,7 +103,10 @@ public typealias GeneratedAudioRecord = TypedDataStorage
 ///     height: 1024
 /// )
 /// ```
-@available(*, deprecated, renamed: "TypedDataStorage", message: "Use TypedDataStorage with image/* mimeType instead")
+@available(
+  *, deprecated, renamed: "TypedDataStorage",
+  message: "Use TypedDataStorage with image/* mimeType instead"
+)
 public typealias GeneratedImageRecord = TypedDataStorage
 
 /// Legacy type alias for GeneratedEmbeddingRecord
@@ -126,5 +135,8 @@ public typealias GeneratedImageRecord = TypedDataStorage
 ///     inputText: "Test"
 /// )
 /// ```
-@available(*, deprecated, renamed: "TypedDataStorage", message: "Use TypedDataStorage with mimeType 'application/x-embedding' instead")
+@available(
+  *, deprecated, renamed: "TypedDataStorage",
+  message: "Use TypedDataStorage with mimeType 'application/x-embedding' instead"
+)
 public typealias GeneratedEmbeddingRecord = TypedDataStorage

@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+---
+
+## [7.0.2] - 2026-03-27
+
 ### Fixed
 
 - **PDF Progress Bar** - Fixed progress bar not advancing during page-by-page parsing

@@ -11,22 +11,22 @@ import SwiftUI
 ///
 /// Displays as a visual divider. Doesn't need element data.
 public struct PageBreakView: View {
-    @Environment(\.screenplayFontSize) var fontSize
+  @Environment(\.screenplayFontSize) var fontSize
 
-    public init() {}
+  public init() {}
 
-    public var body: some View {
-        VStack(spacing: 4) {
-            Divider()
-                .background(Color.secondary.opacity(0.3))
+  public var body: some View {
+    VStack(spacing: 4) {
+      Divider()
+        .background(Color.secondary.opacity(0.3))
 
-            Text("• • •")
-                .font(.custom("Courier New", size: fontSize * 0.75))
-                .foregroundStyle(.secondary.opacity(0.5))
+      Text("• • •")
+        .font(.custom("Courier New", size: fontSize * 0.75))
+        .foregroundStyle(.secondary.opacity(0.5))
 
-            Divider()
-                .background(Color.secondary.opacity(0.3))
-        }
-        .frame(maxWidth: .infinity)
+      Divider()
+        .background(Color.secondary.opacity(0.3))
     }
+    .frame(maxWidth: .infinity)
+  }
 }

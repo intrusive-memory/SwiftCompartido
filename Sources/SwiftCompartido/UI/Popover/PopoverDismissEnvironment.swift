@@ -35,43 +35,45 @@ import SwiftUI
 /// }
 /// ```
 private struct PopoverDismissActionKey: EnvironmentKey {
-    nonisolated(unsafe) static let defaultValue: (() -> Void)? = nil
+  nonisolated(unsafe) static let defaultValue: (() -> Void)? = nil
 }
 
 private struct PopoverDismissIDKey: EnvironmentKey {
-    static let defaultValue = UUID()
+  static let defaultValue = UUID()
 }
 
 extension EnvironmentValues {
-    /// Closure to trigger popover dismissal
-    public var popoverDismissAction: (() -> Void)? {
-        get { self[PopoverDismissActionKey.self] }
-        set { self[PopoverDismissActionKey.self] = newValue }
-    }
+  /// Closure to trigger popover dismissal
+  public var popoverDismissAction: (() -> Void)? {
+    get { self[PopoverDismissActionKey.self] }
+    set { self[PopoverDismissActionKey.self] = newValue }
+  }
 
-    /// ID that changes when popovers should dismiss
-    public var popoverDismissID: UUID {
-        get { self[PopoverDismissIDKey.self] }
-        set { self[PopoverDismissIDKey.self] = newValue }
-    }
+  /// ID that changes when popovers should dismiss
+  public var popoverDismissID: UUID {
+    get { self[PopoverDismissIDKey.self] }
+    set { self[PopoverDismissIDKey.self] = newValue }
+  }
 }
 
 /// Legacy coordinator for backward compatibility
 ///
 /// This class is deprecated in favor of the environment key approach.
 /// Existing code can continue using it, but new code should use the environment keys.
-@available(*, deprecated, message: "Use environment keys popoverDismissAction and popoverDismissID instead")
+@available(
+  *, deprecated, message: "Use environment keys popoverDismissAction and popoverDismissID instead"
+)
 @MainActor
 public class PopoverDismissCoordinator: ObservableObject {
-    @Published public var shouldDismiss: Bool = false
+  @Published public var shouldDismiss: Bool = false
 
-    public init() {}
+  public init() {}
 
-    public func triggerDismiss() {
-        shouldDismiss = true
-        Task { @MainActor [weak self] in
-            try? await Task.sleep(for: .milliseconds(50))
-            self?.shouldDismiss = false
-        }
+  public func triggerDismiss() {
+    shouldDismiss = true
+    Task { @MainActor [weak self] in
+      try? await Task.sleep(for: .milliseconds(50))
+      self?.shouldDismiss = false
     }
+  }
 }

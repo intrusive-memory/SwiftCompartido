@@ -10,15 +10,15 @@ import SwiftUI
 /// Consolidated state for popover interaction
 /// Reduces memory footprint by grouping related boolean flags
 private struct PopoverState {
-    var isHoveringElement = false
-    var isHoveringPopover = false
-    var isVisible = false
-    var isLongPressing = false
+  var isHoveringElement = false
+  var isHoveringPopover = false
+  var isVisible = false
+  var isLongPressing = false
 
-    /// Combined hover state: hovering either element OR popover
-    var isHovering: Bool {
-        isHoveringElement || isHoveringPopover
-    }
+  /// Combined hover state: hovering either element OR popover
+  var isHovering: Bool {
+    isHoveringElement || isHoveringPopover
+  }
 }
 
 /// Row view that displays a GuionElementModel with optional popover support
@@ -27,487 +27,491 @@ private struct PopoverState {
 /// and adds hover detection and popover display capabilities.
 @MainActor
 struct GuionElementRow<TrailingContent: View>: View {
-    let element: GuionElementModel
-    let trailingContent: ((GuionElementModel) -> TrailingContent)?
+  let element: GuionElementModel
+  let trailingContent: ((GuionElementModel) -> TrailingContent)?
 
-    @Environment(\.guionElementPopover) private var popoverProvider
-    @Environment(\.guionElementContextMenu) private var contextMenuProvider
-    @Environment(\.popoverDismissAction) private var dismissAction
-    @Environment(\.popoverDismissID) private var dismissID
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @Environment(ElementProgressState.self) private var progressState
-    @Environment(ScrollDetectionState.self) private var scrollState
+  @Environment(\.guionElementPopover) private var popoverProvider
+  @Environment(\.guionElementContextMenu) private var contextMenuProvider
+  @Environment(\.popoverDismissAction) private var dismissAction
+  @Environment(\.popoverDismissID) private var dismissID
+  @Environment(\.accessibilityReduceMotion) private var reduceMotion
+  @Environment(ElementProgressState.self) private var progressState
+  @Environment(ScrollDetectionState.self) private var scrollState
 
-    /// Check if this element's document is a markdown file
-    private var isMarkdownDocument: Bool {
-        guard let filename = element.document?.filename else { return false }
-        let lowercased = filename.lowercased()
-        return lowercased.hasSuffix(".md") || lowercased.hasSuffix(".markdown")
-    }
+  /// Check if this element's document is a markdown file
+  private var isMarkdownDocument: Bool {
+    guard let filename = element.document?.filename else { return false }
+    let lowercased = filename.lowercased()
+    return lowercased.hasSuffix(".md") || lowercased.hasSuffix(".markdown")
+  }
 
-    // Consolidated popover state (reduces memory footprint from 7 properties to 3)
-    @State private var popoverState = PopoverState()
-    @State private var hoverTask: Task<Void, Never>?
-    @State private var gracePeriodTask: Task<Void, Never>?
+  // Consolidated popover state (reduces memory footprint from 7 properties to 3)
+  @State private var popoverState = PopoverState()
+  @State private var hoverTask: Task<Void, Never>?
+  @State private var gracePeriodTask: Task<Void, Never>?
 
-    // Hover delay in seconds (will be configurable via environment in future phases)
-    private let hoverDelay: TimeInterval = 0.3
+  // Hover delay in seconds (will be configurable via environment in future phases)
+  private let hoverDelay: TimeInterval = 0.3
 
-    // Grace period when transitioning from element to popover (for interactive support)
-    private let gracePeriod: TimeInterval = 0.1
+  // Grace period when transitioning from element to popover (for interactive support)
+  private let gracePeriod: TimeInterval = 0.1
 
-    // Long-press duration for touch devices
-    private let longPressDuration: TimeInterval = 0.5
+  // Long-press duration for touch devices
+  private let longPressDuration: TimeInterval = 0.5
 
-    var body: some View {
-        VStack(spacing: 0) {
-            // Main row with element content and trailing column
-            HStack(alignment: .top, spacing: 0) {
-                // Content area that dismisses popover on tap (iOS only)
-                HStack(alignment: .top, spacing: 0) {
-                    elementView
-                        .accessibilityElement(children: .combine)
-                        .accessibilityLabel(accessibilityLabelForElement)
-
-                    // Add trailing column content if provided
-                    if let trailingContent = trailingContent {
-                        trailingContent(element)
-                    }
-
-                    Spacer()
-                }
-                #if os(iOS)
-                .contentShape(Rectangle())
-                .onTapGesture {
-                    // Tap on content area (not hover target) dismisses popover
-                    if popoverState.isVisible {
-                        dismissPopover()
-                    }
-                }
-                .allowsHitTesting(!scrollState.isScrolling)
-                #endif
-
-                // Hover target area (only shown if popover is available)
-                if popoverProvider != nil {
-                    hoverTarget
-                        .accessibilityHidden(true) // Hide from VoiceOver, use accessibility action instead
-                }
-            }
-            .background(
-                // Visual feedback during long-press
-                popoverState.isLongPressing ? Color.primary.opacity(0.05) : Color.clear
-            )
-            #if os(macOS)
-            // macOS: Keep long-press as fallback for non-trackpad interactions
-            .onLongPressGesture(minimumDuration: longPressDuration, perform: {
-                handleLongPressComplete()
-            }, onPressingChanged: { pressing in
-                handleLongPressChanged(pressing)
-            })
-            .allowsHitTesting(!scrollState.isScrolling)
-            #endif
-            .overlay(alignment: .topTrailing) {
-                if popoverState.isVisible, let provider = popoverProvider {
-                    popoverView(content: provider(element))
-                        .onHover { hoveringPopover in
-                            handlePopoverHover(hoveringPopover)
-                        }
-                        .onTapGesture {
-                            // Allow taps inside popover (prevent dismissal)
-                        }
-                        .allowsHitTesting(!scrollState.isScrolling)
-                }
-            }
-
-            // Progress bar row (only rendered when there's active progress)
-            if progressState.isActive {
-                ElementProgressBar(element: element)
-            }
-        }
-        .onChange(of: dismissID) { _, _ in
-            // Dismiss popover when dismissID changes
-            if popoverState.isVisible {
-                dismissPopover()
-            }
-        }
-        .onDisappear {
-            // Trigger dismissal of all popovers when row disappears
-            if popoverState.isVisible {
-                dismissAction?()
-            }
-        }
-        .contextMenu {
-            // Add context menu if provider is available
-            // Works on both macOS (right-click) and iOS (long-press)
-            if let provider = contextMenuProvider {
-                provider.menuBuilder(element)
-            }
-        } preview: {
-            // Empty preview to enable context menu with allowsHitTesting
-            EmptyView()
-        }
-        .allowsHitTesting(!scrollState.isScrolling)
-        .accessibilityAction(named: popoverState.isVisible ? "Hide details" : "Show details") {
-            if popoverState.isVisible {
-                dismissPopover()
-            } else {
-                popoverState.isVisible = true
-            }
-        }
-    }
-
-    // MARK: - Accessibility Helpers
-
-    /// Accessibility label for the element based on its type
-    private var accessibilityLabelForElement: String {
-        let typeDescription = element.elementType.description
-        let text = element.elementText.prefix(100)
-        return "\(typeDescription): \(text)"
-    }
-
-    // MARK: - Hover Target
-
-    /// Hover/tap area that triggers the popover
-    /// - Width: 120pt (fixed)
-    /// - Height: Expands to match row height
-    /// - macOS: Hover to show popover
-    /// - iOS: Tap to toggle popover
-    @ViewBuilder
-    private var hoverTarget: some View {
-        Rectangle()
-            .fill(Color.clear)
-            .frame(width: 120)
-            .frame(maxHeight: .infinity)
-            .contentShape(Rectangle())
-            .onHover { hovering in
-                handleElementHover(hovering)
-            }
-            #if os(iOS)
-            .onTapGesture {
-                handleTap()
-            }
-            #endif
-            .allowsHitTesting(!scrollState.isScrolling)
-    }
-
-    // MARK: - Element View
-
-    /// Returns the appropriate view for the element type
-    @ViewBuilder
-    private var elementView: some View {
-        // Use GitHub-style markdown views for .md/.markdown files
-        if isMarkdownDocument {
-            switch element.elementType {
-            case .action:
-                MarkdownActionView(element: element)
-                    .debugBorder()
-            case .sectionHeading:
-                MarkdownSectionHeadingView(element: element)
-                    .debugBorder()
-            case .unorderedListItem, .orderedListItem:
-                MarkdownListItemView(element: element, document: element.document)
-                    .debugBorder()
-            // For other types in markdown, fall through to standard views
-            default:
-                standardElementView
-            }
-        } else {
-            standardElementView
-        }
-    }
-
-    /// Standard screenplay element views (Fountain format)
-    @ViewBuilder
-    private var standardElementView: some View {
-        switch element.elementType {
-        case .action:
-            ActionView(element: element)
-                .debugBorder()
-        case .sceneHeading:
-            SceneHeadingView(element: element)
-                .debugBorder()
-        case .character:
-            DialogueCharacterView(element: element)
-                .debugBorder()
-        case .dialogue:
-            DialogueTextView(element: element)
-                .debugBorder()
-        case .parenthetical:
-            DialogueParentheticalView(element: element)
-                .debugBorder()
-        case .lyrics:
-            DialogueLyricsView(element: element)
-                .debugBorder()
-        case .transition:
-            TransitionView(element: element)
-                .debugBorder()
-        case .sectionHeading:
-            SectionHeadingView(element: element)
-                .debugBorder()
-        case .synopsis:
-            SynopsisView(element: element)
-                .debugBorder()
-        case .comment:
-            CommentView(element: element)
-                .debugBorder()
-        case .boneyard:
-            BoneyardView(element: element)
-                .debugBorder()
-        case .pageBreak:
-            PageBreakView()
-                .debugBorder()
-        case .unorderedListItem, .orderedListItem:
-            // List items in non-markdown files (shouldn't normally happen)
-            // Fall back to action view
-            ActionView(element: element)
-                .debugBorder()
-        }
-    }
-
-    // MARK: - Popover View
-
-    /// Creates the styled popover view with size constraints
-    @ViewBuilder
-    private func popoverView(content: AnyView) -> some View {
-        content
-            .fixedSize()
-            .padding(12)
-            .background(.ultraThinMaterial)
-            .cornerRadius(12)
-            .shadow(color: .black.opacity(0.35), radius: 12, x: 0, y: 6)
-            .offset(x: -12, y: -8)
-            .transition(reduceMotion ? .identity : .opacity.combined(with: .scale(scale: 0.95)))
-            .animation(reduceMotion ? .none : .easeInOut(duration: 0.2), value: popoverState.isVisible)
+  var body: some View {
+    VStack(spacing: 0) {
+      // Main row with element content and trailing column
+      HStack(alignment: .top, spacing: 0) {
+        // Content area that dismisses popover on tap (iOS only)
+        HStack(alignment: .top, spacing: 0) {
+          elementView
             .accessibilityElement(children: .combine)
-            .accessibilityLabel("Additional information")
-    }
+            .accessibilityLabel(accessibilityLabelForElement)
 
-    // MARK: - Hover Handling
+          // Add trailing column content if provided
+          if let trailingContent = trailingContent {
+            trailingContent(element)
+          }
 
-    /// Handles hover state changes on the element
-    private func handleElementHover(_ hovering: Bool) {
-        popoverState.isHoveringElement = hovering
-
-        if hovering {
-            // Cancel any pending dismissal
-            gracePeriodTask?.cancel()
-
-            // Start hover delay to show popover
-            hoverTask?.cancel()
-            hoverTask = Task { @MainActor in
-                do {
-                    try await Task.sleep(for: .milliseconds(Int(hoverDelay * 1000)))
-                    if popoverState.isHoveringElement {
-                        popoverState.isVisible = true
-                    }
-                } catch {
-                    // Task was cancelled, do nothing
-                }
-            }
-        } else {
-            // Cancel hover delay task
-            hoverTask?.cancel()
-
-            // Start grace period before dismissing
-            // This allows user to move mouse from element to popover
-            gracePeriodTask?.cancel()
-            gracePeriodTask = Task { @MainActor in
-                do {
-                    try await Task.sleep(for: .milliseconds(Int(gracePeriod * 1000)))
-                    // Only hide if not hovering either element or popover
-                    if !popoverState.isHovering {
-                        popoverState.isVisible = false
-                    }
-                } catch {
-                    // Task was cancelled, do nothing
-                }
-            }
+          Spacer()
         }
-    }
-
-    /// Handles hover state changes on the popover
-    private func handlePopoverHover(_ hovering: Bool) {
-        popoverState.isHoveringPopover = hovering
-
-        if hovering {
-            // Cancel any pending dismissal - user is now hovering popover
-            gracePeriodTask?.cancel()
-        } else {
-            // Start grace period before dismissing
-            gracePeriodTask?.cancel()
-            gracePeriodTask = Task { @MainActor in
-                do {
-                    try await Task.sleep(for: .milliseconds(Int(gracePeriod * 1000)))
-                    // Only hide if not hovering either element or popover
-                    if !popoverState.isHovering {
-                        popoverState.isVisible = false
-                    }
-                } catch {
-                    // Task was cancelled, do nothing
-                }
+        #if os(iOS)
+          .contentShape(Rectangle())
+          .onTapGesture {
+            // Tap on content area (not hover target) dismisses popover
+            if popoverState.isVisible {
+              dismissPopover()
             }
+          }
+          .allowsHitTesting(!scrollState.isScrolling)
+        #endif
+
+        // Hover target area (only shown if popover is available)
+        if popoverProvider != nil {
+          hoverTarget
+            .accessibilityHidden(true)  // Hide from VoiceOver, use accessibility action instead
         }
-    }
-
-    // MARK: - Long-Press Handling (Touch Support)
-
-    /// Handles changes in long-press state (visual feedback)
-    private func handleLongPressChanged(_ pressing: Bool) {
-        popoverState.isLongPressing = pressing
-
-        if !pressing {
-            // Long-press was cancelled (finger moved or lifted too early)
-            // Reset state
-            popoverState.isLongPressing = false
+      }
+      .background(
+        // Visual feedback during long-press
+        popoverState.isLongPressing ? Color.primary.opacity(0.05) : Color.clear
+      )
+      #if os(macOS)
+        // macOS: Keep long-press as fallback for non-trackpad interactions
+        .onLongPressGesture(
+          minimumDuration: longPressDuration,
+          perform: {
+            handleLongPressComplete()
+          },
+          onPressingChanged: { pressing in
+            handleLongPressChanged(pressing)
+          }
+        )
+        .allowsHitTesting(!scrollState.isScrolling)
+      #endif
+      .overlay(alignment: .topTrailing) {
+        if popoverState.isVisible, let provider = popoverProvider {
+          popoverView(content: provider(element))
+            .onHover { hoveringPopover in
+              handlePopoverHover(hoveringPopover)
+            }
+            .onTapGesture {
+              // Allow taps inside popover (prevent dismissal)
+            }
+            .allowsHitTesting(!scrollState.isScrolling)
         }
+      }
+
+      // Progress bar row (only rendered when there's active progress)
+      if progressState.isActive {
+        ElementProgressBar(element: element)
+      }
     }
-
-    /// Handles completion of long-press gesture (triggers popover)
-    private func handleLongPressComplete() {
-        popoverState.isLongPressing = false
-
-        // Show popover
+    .onChange(of: dismissID) { _, _ in
+      // Dismiss popover when dismissID changes
+      if popoverState.isVisible {
+        dismissPopover()
+      }
+    }
+    .onDisappear {
+      // Trigger dismissal of all popovers when row disappears
+      if popoverState.isVisible {
+        dismissAction?()
+      }
+    }
+    .contextMenu {
+      // Add context menu if provider is available
+      // Works on both macOS (right-click) and iOS (long-press)
+      if let provider = contextMenuProvider {
+        provider.menuBuilder(element)
+      }
+    } preview: {
+      // Empty preview to enable context menu with allowsHitTesting
+      EmptyView()
+    }
+    .allowsHitTesting(!scrollState.isScrolling)
+    .accessibilityAction(named: popoverState.isVisible ? "Hide details" : "Show details") {
+      if popoverState.isVisible {
+        dismissPopover()
+      } else {
         popoverState.isVisible = true
-
-        // Trigger haptic feedback on iOS
-        #if os(iOS)
-        let generator = UIImpactFeedbackGenerator(style: .medium)
-        generator.impactOccurred()
-        #endif
+      }
     }
+  }
 
-    // MARK: - Tap Handling (iOS Touch Support)
+  // MARK: - Accessibility Helpers
 
-    /// Handles tap gesture on hover target (iOS only)
-    /// Toggles popover visibility with haptic feedback
-    private func handleTap() {
-        #if os(iOS)
-        // Toggle popover
-        popoverState.isVisible.toggle()
+  /// Accessibility label for the element based on its type
+  private var accessibilityLabelForElement: String {
+    let typeDescription = element.elementType.description
+    let text = element.elementText.prefix(100)
+    return "\(typeDescription): \(text)"
+  }
 
-        // Trigger haptic feedback
-        let generator = UIImpactFeedbackGenerator(style: .light)
-        generator.impactOccurred()
-        #endif
+  // MARK: - Hover Target
+
+  /// Hover/tap area that triggers the popover
+  /// - Width: 120pt (fixed)
+  /// - Height: Expands to match row height
+  /// - macOS: Hover to show popover
+  /// - iOS: Tap to toggle popover
+  @ViewBuilder
+  private var hoverTarget: some View {
+    Rectangle()
+      .fill(Color.clear)
+      .frame(width: 120)
+      .frame(maxHeight: .infinity)
+      .contentShape(Rectangle())
+      .onHover { hovering in
+        handleElementHover(hovering)
+      }
+      #if os(iOS)
+        .onTapGesture {
+          handleTap()
+        }
+      #endif
+      .allowsHitTesting(!scrollState.isScrolling)
+  }
+
+  // MARK: - Element View
+
+  /// Returns the appropriate view for the element type
+  @ViewBuilder
+  private var elementView: some View {
+    // Use GitHub-style markdown views for .md/.markdown files
+    if isMarkdownDocument {
+      switch element.elementType {
+      case .action:
+        MarkdownActionView(element: element)
+          .debugBorder()
+      case .sectionHeading:
+        MarkdownSectionHeadingView(element: element)
+          .debugBorder()
+      case .unorderedListItem, .orderedListItem:
+        MarkdownListItemView(element: element, document: element.document)
+          .debugBorder()
+      // For other types in markdown, fall through to standard views
+      default:
+        standardElementView
+      }
+    } else {
+      standardElementView
     }
+  }
 
-    /// Dismisses the popover
-    private func dismissPopover() {
-        popoverState.isVisible = false
-        popoverState.isHoveringElement = false
-        popoverState.isHoveringPopover = false
-        hoverTask?.cancel()
-        gracePeriodTask?.cancel()
+  /// Standard screenplay element views (Fountain format)
+  @ViewBuilder
+  private var standardElementView: some View {
+    switch element.elementType {
+    case .action:
+      ActionView(element: element)
+        .debugBorder()
+    case .sceneHeading:
+      SceneHeadingView(element: element)
+        .debugBorder()
+    case .character:
+      DialogueCharacterView(element: element)
+        .debugBorder()
+    case .dialogue:
+      DialogueTextView(element: element)
+        .debugBorder()
+    case .parenthetical:
+      DialogueParentheticalView(element: element)
+        .debugBorder()
+    case .lyrics:
+      DialogueLyricsView(element: element)
+        .debugBorder()
+    case .transition:
+      TransitionView(element: element)
+        .debugBorder()
+    case .sectionHeading:
+      SectionHeadingView(element: element)
+        .debugBorder()
+    case .synopsis:
+      SynopsisView(element: element)
+        .debugBorder()
+    case .comment:
+      CommentView(element: element)
+        .debugBorder()
+    case .boneyard:
+      BoneyardView(element: element)
+        .debugBorder()
+    case .pageBreak:
+      PageBreakView()
+        .debugBorder()
+    case .unorderedListItem, .orderedListItem:
+      // List items in non-markdown files (shouldn't normally happen)
+      // Fall back to action view
+      ActionView(element: element)
+        .debugBorder()
     }
+  }
+
+  // MARK: - Popover View
+
+  /// Creates the styled popover view with size constraints
+  @ViewBuilder
+  private func popoverView(content: AnyView) -> some View {
+    content
+      .fixedSize()
+      .padding(12)
+      .background(.ultraThinMaterial)
+      .cornerRadius(12)
+      .shadow(color: .black.opacity(0.35), radius: 12, x: 0, y: 6)
+      .offset(x: -12, y: -8)
+      .transition(reduceMotion ? .identity : .opacity.combined(with: .scale(scale: 0.95)))
+      .animation(reduceMotion ? .none : .easeInOut(duration: 0.2), value: popoverState.isVisible)
+      .accessibilityElement(children: .combine)
+      .accessibilityLabel("Additional information")
+  }
+
+  // MARK: - Hover Handling
+
+  /// Handles hover state changes on the element
+  private func handleElementHover(_ hovering: Bool) {
+    popoverState.isHoveringElement = hovering
+
+    if hovering {
+      // Cancel any pending dismissal
+      gracePeriodTask?.cancel()
+
+      // Start hover delay to show popover
+      hoverTask?.cancel()
+      hoverTask = Task { @MainActor in
+        do {
+          try await Task.sleep(for: .milliseconds(Int(hoverDelay * 1000)))
+          if popoverState.isHoveringElement {
+            popoverState.isVisible = true
+          }
+        } catch {
+          // Task was cancelled, do nothing
+        }
+      }
+    } else {
+      // Cancel hover delay task
+      hoverTask?.cancel()
+
+      // Start grace period before dismissing
+      // This allows user to move mouse from element to popover
+      gracePeriodTask?.cancel()
+      gracePeriodTask = Task { @MainActor in
+        do {
+          try await Task.sleep(for: .milliseconds(Int(gracePeriod * 1000)))
+          // Only hide if not hovering either element or popover
+          if !popoverState.isHovering {
+            popoverState.isVisible = false
+          }
+        } catch {
+          // Task was cancelled, do nothing
+        }
+      }
+    }
+  }
+
+  /// Handles hover state changes on the popover
+  private func handlePopoverHover(_ hovering: Bool) {
+    popoverState.isHoveringPopover = hovering
+
+    if hovering {
+      // Cancel any pending dismissal - user is now hovering popover
+      gracePeriodTask?.cancel()
+    } else {
+      // Start grace period before dismissing
+      gracePeriodTask?.cancel()
+      gracePeriodTask = Task { @MainActor in
+        do {
+          try await Task.sleep(for: .milliseconds(Int(gracePeriod * 1000)))
+          // Only hide if not hovering either element or popover
+          if !popoverState.isHovering {
+            popoverState.isVisible = false
+          }
+        } catch {
+          // Task was cancelled, do nothing
+        }
+      }
+    }
+  }
+
+  // MARK: - Long-Press Handling (Touch Support)
+
+  /// Handles changes in long-press state (visual feedback)
+  private func handleLongPressChanged(_ pressing: Bool) {
+    popoverState.isLongPressing = pressing
+
+    if !pressing {
+      // Long-press was cancelled (finger moved or lifted too early)
+      // Reset state
+      popoverState.isLongPressing = false
+    }
+  }
+
+  /// Handles completion of long-press gesture (triggers popover)
+  private func handleLongPressComplete() {
+    popoverState.isLongPressing = false
+
+    // Show popover
+    popoverState.isVisible = true
+
+    // Trigger haptic feedback on iOS
+    #if os(iOS)
+      let generator = UIImpactFeedbackGenerator(style: .medium)
+      generator.impactOccurred()
+    #endif
+  }
+
+  // MARK: - Tap Handling (iOS Touch Support)
+
+  /// Handles tap gesture on hover target (iOS only)
+  /// Toggles popover visibility with haptic feedback
+  private func handleTap() {
+    #if os(iOS)
+      // Toggle popover
+      popoverState.isVisible.toggle()
+
+      // Trigger haptic feedback
+      let generator = UIImpactFeedbackGenerator(style: .light)
+      generator.impactOccurred()
+    #endif
+  }
+
+  /// Dismisses the popover
+  private func dismissPopover() {
+    popoverState.isVisible = false
+    popoverState.isHoveringElement = false
+    popoverState.isHoveringPopover = false
+    hoverTask?.cancel()
+    gracePeriodTask?.cancel()
+  }
 }
 
 // MARK: - Preview
 
 #Preview("Element Row with Popover") {
-    @Previewable @State var element = GuionElementModel(
-        elementText: "INT. COFFEE SHOP - DAY",
-        elementType: .sceneHeading,
-        chapterIndex: 0,
-        orderIndex: 1
-    )
+  @Previewable @State var element = GuionElementModel(
+    elementText: "INT. COFFEE SHOP - DAY",
+    elementType: .sceneHeading,
+    chapterIndex: 0,
+    orderIndex: 1
+  )
 
-    return GuionElementRow<EmptyView>(element: element, trailingContent: nil)
-        .guionElementPopover { element in
-            VStack(alignment: .leading, spacing: 4) {
-                Text("Scene Heading")
-                    .font(.caption.bold())
-                Text("Chapter \(element.chapterIndex), Order \(element.orderIndex)")
-                    .font(.caption2)
-            }
-        }
-        .padding()
+  return GuionElementRow<EmptyView>(element: element, trailingContent: nil)
+    .guionElementPopover { element in
+      VStack(alignment: .leading, spacing: 4) {
+        Text("Scene Heading")
+          .font(.caption.bold())
+        Text("Chapter \(element.chapterIndex), Order \(element.orderIndex)")
+          .font(.caption2)
+      }
+    }
+    .padding()
 }
 
 #Preview("Element Row with Interactive Popover") {
-    @Previewable @State var element = GuionElementModel(
-        elementText: "JOHN walks into the coffee shop.",
-        elementType: .action,
-        chapterIndex: 0,
-        orderIndex: 2
-    )
-    @Previewable @State var clickCount = 0
+  @Previewable @State var element = GuionElementModel(
+    elementText: "JOHN walks into the coffee shop.",
+    elementType: .action,
+    chapterIndex: 0,
+    orderIndex: 2
+  )
+  @Previewable @State var clickCount = 0
 
-    return GuionElementRow<EmptyView>(element: element, trailingContent: nil)
-        .guionElementPopover { element in
-            VStack(alignment: .leading, spacing: 6) {
-                Text("Generate Audio")
-                    .font(.caption.bold())
-                HStack {
-                    Button("Generate") {
-                        clickCount += 1
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .controlSize(.small)
+  return GuionElementRow<EmptyView>(element: element, trailingContent: nil)
+    .guionElementPopover { element in
+      VStack(alignment: .leading, spacing: 6) {
+        Text("Generate Audio")
+          .font(.caption.bold())
+        HStack {
+          Button("Generate") {
+            clickCount += 1
+          }
+          .buttonStyle(.borderedProminent)
+          .controlSize(.small)
 
-                    if clickCount > 0 {
-                        Text("Clicked \(clickCount)x")
-                            .font(.caption2)
-                            .foregroundStyle(.secondary)
-                    }
-                }
-            }
+          if clickCount > 0 {
+            Text("Clicked \(clickCount)x")
+              .font(.caption2)
+              .foregroundStyle(.secondary)
+          }
         }
-        .padding()
+      }
+    }
+    .padding()
 }
 
 #Preview("Element Row with Trailing Content") {
-    @Previewable @State var element = GuionElementModel(
-        elementText: "JOHN walks into the room.",
-        elementType: .action,
-        chapterIndex: 0,
-        orderIndex: 2
-    )
+  @Previewable @State var element = GuionElementModel(
+    elementText: "JOHN walks into the room.",
+    elementType: .action,
+    chapterIndex: 0,
+    orderIndex: 2
+  )
 
-    return GuionElementRow(element: element) { element in
-        VStack(alignment: .trailing, spacing: 4) {
-            Text("\(element.chapterIndex)")
-                .font(.caption)
-                .foregroundStyle(.secondary)
-            Text("\(element.orderIndex)")
-                .font(.caption2)
-                .foregroundStyle(.tertiary)
-        }
-        .frame(width: 50)
+  return GuionElementRow(element: element) { element in
+    VStack(alignment: .trailing, spacing: 4) {
+      Text("\(element.chapterIndex)")
+        .font(.caption)
+        .foregroundStyle(.secondary)
+      Text("\(element.orderIndex)")
+        .font(.caption2)
+        .foregroundStyle(.tertiary)
     }
-    .guionElementPopover { element in
-        Text("Action element")
-            .font(.caption)
-    }
-    .padding()
+    .frame(width: 50)
+  }
+  .guionElementPopover { element in
+    Text("Action element")
+      .font(.caption)
+  }
+  .padding()
 }
 
 #Preview("Element Row with Tap (iOS Touch)") {
-    @Previewable @State var element = GuionElementModel(
-        elementText: "SARAH enters the building.",
-        elementType: .action,
-        chapterIndex: 0,
-        orderIndex: 3
-    )
+  @Previewable @State var element = GuionElementModel(
+    elementText: "SARAH enters the building.",
+    elementType: .action,
+    chapterIndex: 0,
+    orderIndex: 3
+  )
 
-    return VStack(spacing: 16) {
-        Text("Instructions: Tap the right side to toggle popover")
-            .font(.caption)
-            .foregroundStyle(.secondary)
+  return VStack(spacing: 16) {
+    Text("Instructions: Tap the right side to toggle popover")
+      .font(.caption)
+      .foregroundStyle(.secondary)
 
-        GuionElementRow<EmptyView>(element: element, trailingContent: nil)
-            .guionElementPopover { element in
-                VStack(alignment: .leading, spacing: 6) {
-                    Text("Tap Activated!")
-                        .font(.caption.bold())
-                    Button("Generate Audio") {
-                        #if DEBUG
-                        print("Generate tapped")
-                        #endif
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .controlSize(.small)
-                }
-            }
-    }
-    .padding()
+    GuionElementRow<EmptyView>(element: element, trailingContent: nil)
+      .guionElementPopover { element in
+        VStack(alignment: .leading, spacing: 6) {
+          Text("Tap Activated!")
+            .font(.caption.bold())
+          Button("Generate Audio") {
+            #if DEBUG
+              print("Generate tapped")
+            #endif
+          }
+          .buttonStyle(.borderedProminent)
+          .controlSize(.small)
+        }
+      }
+  }
+  .padding()
 }

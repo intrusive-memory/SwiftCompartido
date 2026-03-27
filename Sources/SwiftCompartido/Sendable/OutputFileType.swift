@@ -58,343 +58,345 @@ import UniformTypeIdentifiers
 /// ```
 public struct OutputFileType: Codable, Sendable, Equatable, Hashable {
 
-    // MARK: - Properties
+  // MARK: - Properties
 
-    /// MIME type for this file type
-    ///
-    /// Examples:
-    /// - "text/plain"
-    /// - "application/json"
-    /// - "audio/mpeg"
-    /// - "image/png"
-    public let mimeType: String
+  /// MIME type for this file type
+  ///
+  /// Examples:
+  /// - "text/plain"
+  /// - "application/json"
+  /// - "audio/mpeg"
+  /// - "image/png"
+  public let mimeType: String
 
-    /// File extension (without leading dot)
-    ///
-    /// Examples:
-    /// - "txt"
-    /// - "json"
-    /// - "mp3"
-    /// - "png"
-    public let fileExtension: String
+  /// File extension (without leading dot)
+  ///
+  /// Examples:
+  /// - "txt"
+  /// - "json"
+  /// - "mp3"
+  /// - "png"
+  public let fileExtension: String
 
-    /// Uniform Type Identifier (UTType)
-    ///
-    /// Used for system integration and file type identification.
-    /// May be `nil` for custom formats not registered with the system.
-    public let utType: UTType?
+  /// Uniform Type Identifier (UTType)
+  ///
+  /// Used for system integration and file type identification.
+  /// May be `nil` for custom formats not registered with the system.
+  public let utType: UTType?
 
-    /// Category of data this file type represents
-    ///
-    /// Used for UI organization and filtering.
-    public let category: ProviderCategory
+  /// Category of data this file type represents
+  ///
+  /// Used for UI organization and filtering.
+  public let category: ProviderCategory
 
-    /// Preferred serialization format for typed data
-    ///
-    /// Indicates how the typed data should be serialized when written to file.
-    public let serializationFormat: SerializationFormat
+  /// Preferred serialization format for typed data
+  ///
+  /// Indicates how the typed data should be serialized when written to file.
+  public let serializationFormat: SerializationFormat
 
-    /// Size threshold (in bytes) for file storage
-    ///
-    /// - If data size ≥ threshold: Write to .guion bundle
-    /// - If data size < threshold: Store in SwiftData model
-    /// - If `nil`: Always store in SwiftData (no file storage)
-    ///
-    /// **Default thresholds**:
-    /// - Text/JSON: 50KB (most text responses fit in memory)
-    /// - Audio: 100KB (most audio is large)
-    /// - Images: 100KB (most images are large)
-    /// - Binary: 10KB (depends on data type)
-    public let storeAsFileThreshold: Int64?
+  /// Size threshold (in bytes) for file storage
+  ///
+  /// - If data size ≥ threshold: Write to .guion bundle
+  /// - If data size < threshold: Store in SwiftData model
+  /// - If `nil`: Always store in SwiftData (no file storage)
+  ///
+  /// **Default thresholds**:
+  /// - Text/JSON: 50KB (most text responses fit in memory)
+  /// - Audio: 100KB (most audio is large)
+  /// - Images: 100KB (most images are large)
+  /// - Binary: 10KB (depends on data type)
+  public let storeAsFileThreshold: Int64?
 
-    // MARK: - Initialization
+  // MARK: - Initialization
 
-    /// Creates a custom output file type
-    ///
-    /// - Parameters:
-    ///   - mimeType: MIME type for the file
-    ///   - fileExtension: File extension without leading dot
-    ///   - utType: Optional UTType for system integration
-    ///   - category: Category of data this file represents
-    ///   - serializationFormat: Preferred serialization format
-    ///   - storeAsFileThreshold: Optional size threshold for file storage (bytes)
-    public init(
-        mimeType: String,
-        fileExtension: String,
-        utType: UTType?,
-        category: ProviderCategory,
-        serializationFormat: SerializationFormat,
-        storeAsFileThreshold: Int64?
-    ) {
-        self.mimeType = mimeType
-        self.fileExtension = fileExtension
-        self.utType = utType
-        self.category = category
-        self.serializationFormat = serializationFormat
-        self.storeAsFileThreshold = storeAsFileThreshold
+  /// Creates a custom output file type
+  ///
+  /// - Parameters:
+  ///   - mimeType: MIME type for the file
+  ///   - fileExtension: File extension without leading dot
+  ///   - utType: Optional UTType for system integration
+  ///   - category: Category of data this file represents
+  ///   - serializationFormat: Preferred serialization format
+  ///   - storeAsFileThreshold: Optional size threshold for file storage (bytes)
+  public init(
+    mimeType: String,
+    fileExtension: String,
+    utType: UTType?,
+    category: ProviderCategory,
+    serializationFormat: SerializationFormat,
+    storeAsFileThreshold: Int64?
+  ) {
+    self.mimeType = mimeType
+    self.fileExtension = fileExtension
+    self.utType = utType
+    self.category = category
+    self.serializationFormat = serializationFormat
+    self.storeAsFileThreshold = storeAsFileThreshold
+  }
+
+  // MARK: - Storage Decision
+
+  /// Determines if data should be stored as a file
+  ///
+  /// - Parameter estimatedSize: Estimated size of the data in bytes
+  /// - Returns: `true` if data should be written to file, `false` if it should be stored in model
+  public func shouldStoreAsFile(estimatedSize: Int64?) -> Bool {
+    guard let threshold = storeAsFileThreshold else {
+      // No threshold means never store as file
+      return false
     }
 
-    // MARK: - Storage Decision
-
-    /// Determines if data should be stored as a file
-    ///
-    /// - Parameter estimatedSize: Estimated size of the data in bytes
-    /// - Returns: `true` if data should be written to file, `false` if it should be stored in model
-    public func shouldStoreAsFile(estimatedSize: Int64?) -> Bool {
-        guard let threshold = storeAsFileThreshold else {
-            // No threshold means never store as file
-            return false
-        }
-
-        guard let size = estimatedSize else {
-            // Unknown size: use category default
-            return category.typicallyNeedsFileStorage
-        }
-
-        return size >= threshold
+    guard let size = estimatedSize else {
+      // Unknown size: use category default
+      return category.typicallyNeedsFileStorage
     }
 
-    // MARK: - Codable
+    return size >= threshold
+  }
 
-    private enum CodingKeys: String, CodingKey {
-        case mimeType
-        case fileExtension
-        case utTypeIdentifier
-        case category
-        case serializationFormat
-        case storeAsFileThreshold
+  // MARK: - Codable
+
+  private enum CodingKeys: String, CodingKey {
+    case mimeType
+    case fileExtension
+    case utTypeIdentifier
+    case category
+    case serializationFormat
+    case storeAsFileThreshold
+  }
+
+  public init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+    self.mimeType = try container.decode(String.self, forKey: .mimeType)
+    self.fileExtension = try container.decode(String.self, forKey: .fileExtension)
+
+    // Decode UTType from identifier string
+    if let identifier = try container.decodeIfPresent(String.self, forKey: .utTypeIdentifier) {
+      self.utType = UTType(identifier)
+    } else {
+      self.utType = nil
     }
 
-    public init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        self.mimeType = try container.decode(String.self, forKey: .mimeType)
-        self.fileExtension = try container.decode(String.self, forKey: .fileExtension)
+    self.category = try container.decode(ProviderCategory.self, forKey: .category)
+    self.serializationFormat = try container.decode(
+      SerializationFormat.self, forKey: .serializationFormat)
+    self.storeAsFileThreshold = try container.decodeIfPresent(
+      Int64.self, forKey: .storeAsFileThreshold)
+  }
 
-        // Decode UTType from identifier string
-        if let identifier = try container.decodeIfPresent(String.self, forKey: .utTypeIdentifier) {
-            self.utType = UTType(identifier)
-        } else {
-            self.utType = nil
-        }
+  public func encode(to encoder: Encoder) throws {
+    var container = encoder.container(keyedBy: CodingKeys.self)
+    try container.encode(mimeType, forKey: .mimeType)
+    try container.encode(fileExtension, forKey: .fileExtension)
 
-        self.category = try container.decode(ProviderCategory.self, forKey: .category)
-        self.serializationFormat = try container.decode(SerializationFormat.self, forKey: .serializationFormat)
-        self.storeAsFileThreshold = try container.decodeIfPresent(Int64.self, forKey: .storeAsFileThreshold)
+    // Encode UTType as identifier string
+    if let utType = utType {
+      try container.encode(utType.identifier, forKey: .utTypeIdentifier)
     }
 
-    public func encode(to encoder: Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(mimeType, forKey: .mimeType)
-        try container.encode(fileExtension, forKey: .fileExtension)
-
-        // Encode UTType as identifier string
-        if let utType = utType {
-            try container.encode(utType.identifier, forKey: .utTypeIdentifier)
-        }
-
-        try container.encode(category, forKey: .category)
-        try container.encode(serializationFormat, forKey: .serializationFormat)
-        try container.encodeIfPresent(storeAsFileThreshold, forKey: .storeAsFileThreshold)
-    }
+    try container.encode(category, forKey: .category)
+    try container.encode(serializationFormat, forKey: .serializationFormat)
+    try container.encodeIfPresent(storeAsFileThreshold, forKey: .storeAsFileThreshold)
+  }
 }
 
 // MARK: - Common File Types
 
 extension OutputFileType {
 
-    // MARK: - Text Formats
+  // MARK: - Text Formats
 
-    /// Plain text file
-    ///
-    /// - MIME: text/plain
-    /// - Extension: .txt
-    /// - Threshold: 50KB
-    public static func plainText(storeAsFileThreshold: Int64? = 50_000) -> OutputFileType {
-        OutputFileType(
-            mimeType: "text/plain",
-            fileExtension: "txt",
-            utType: .plainText,
-            category: .text,
-            serializationFormat: .json,
-            storeAsFileThreshold: storeAsFileThreshold
-        )
-    }
+  /// Plain text file
+  ///
+  /// - MIME: text/plain
+  /// - Extension: .txt
+  /// - Threshold: 50KB
+  public static func plainText(storeAsFileThreshold: Int64? = 50_000) -> OutputFileType {
+    OutputFileType(
+      mimeType: "text/plain",
+      fileExtension: "txt",
+      utType: .plainText,
+      category: .text,
+      serializationFormat: .json,
+      storeAsFileThreshold: storeAsFileThreshold
+    )
+  }
 
-    /// JSON file
-    ///
-    /// - MIME: application/json
-    /// - Extension: .json
-    /// - Threshold: 50KB
-    public static func json(
-        category: ProviderCategory = .text,
-        storeAsFileThreshold: Int64? = 50_000
-    ) -> OutputFileType {
-        OutputFileType(
-            mimeType: "application/json",
-            fileExtension: "json",
-            utType: .json,
-            category: category,
-            serializationFormat: .json,
-            storeAsFileThreshold: storeAsFileThreshold
-        )
-    }
+  /// JSON file
+  ///
+  /// - MIME: application/json
+  /// - Extension: .json
+  /// - Threshold: 50KB
+  public static func json(
+    category: ProviderCategory = .text,
+    storeAsFileThreshold: Int64? = 50_000
+  ) -> OutputFileType {
+    OutputFileType(
+      mimeType: "application/json",
+      fileExtension: "json",
+      utType: .json,
+      category: category,
+      serializationFormat: .json,
+      storeAsFileThreshold: storeAsFileThreshold
+    )
+  }
 
-    // MARK: - Audio Formats
+  // MARK: - Audio Formats
 
-    /// MP3 audio file
-    ///
-    /// - MIME: audio/mpeg
-    /// - Extension: .mp3
-    /// - Threshold: 100KB
-    public static func mp3(storeAsFileThreshold: Int64? = 100_000) -> OutputFileType {
-        OutputFileType(
-            mimeType: "audio/mpeg",
-            fileExtension: "mp3",
-            utType: .mp3,
-            category: .audio,
-            serializationFormat: .binary,
-            storeAsFileThreshold: storeAsFileThreshold
-        )
-    }
+  /// MP3 audio file
+  ///
+  /// - MIME: audio/mpeg
+  /// - Extension: .mp3
+  /// - Threshold: 100KB
+  public static func mp3(storeAsFileThreshold: Int64? = 100_000) -> OutputFileType {
+    OutputFileType(
+      mimeType: "audio/mpeg",
+      fileExtension: "mp3",
+      utType: .mp3,
+      category: .audio,
+      serializationFormat: .binary,
+      storeAsFileThreshold: storeAsFileThreshold
+    )
+  }
 
-    /// WAV audio file
-    ///
-    /// - MIME: audio/wav
-    /// - Extension: .wav
-    /// - Threshold: 100KB
-    public static func wav(storeAsFileThreshold: Int64? = 100_000) -> OutputFileType {
-        OutputFileType(
-            mimeType: "audio/wav",
-            fileExtension: "wav",
-            utType: .wav,
-            category: .audio,
-            serializationFormat: .binary,
-            storeAsFileThreshold: storeAsFileThreshold
-        )
-    }
+  /// WAV audio file
+  ///
+  /// - MIME: audio/wav
+  /// - Extension: .wav
+  /// - Threshold: 100KB
+  public static func wav(storeAsFileThreshold: Int64? = 100_000) -> OutputFileType {
+    OutputFileType(
+      mimeType: "audio/wav",
+      fileExtension: "wav",
+      utType: .wav,
+      category: .audio,
+      serializationFormat: .binary,
+      storeAsFileThreshold: storeAsFileThreshold
+    )
+  }
 
-    /// MPEG-4 audio file
-    ///
-    /// - MIME: audio/mp4
-    /// - Extension: .m4a
-    /// - Threshold: 100KB
-    public static func m4a(storeAsFileThreshold: Int64? = 100_000) -> OutputFileType {
-        OutputFileType(
-            mimeType: "audio/mp4",
-            fileExtension: "m4a",
-            utType: .mpeg4Audio,
-            category: .audio,
-            serializationFormat: .binary,
-            storeAsFileThreshold: storeAsFileThreshold
-        )
-    }
+  /// MPEG-4 audio file
+  ///
+  /// - MIME: audio/mp4
+  /// - Extension: .m4a
+  /// - Threshold: 100KB
+  public static func m4a(storeAsFileThreshold: Int64? = 100_000) -> OutputFileType {
+    OutputFileType(
+      mimeType: "audio/mp4",
+      fileExtension: "m4a",
+      utType: .mpeg4Audio,
+      category: .audio,
+      serializationFormat: .binary,
+      storeAsFileThreshold: storeAsFileThreshold
+    )
+  }
 
-    // MARK: - Image Formats
+  // MARK: - Image Formats
 
-    /// PNG image file
-    ///
-    /// - MIME: image/png
-    /// - Extension: .png
-    /// - Threshold: 100KB
-    public static func png(storeAsFileThreshold: Int64? = 100_000) -> OutputFileType {
-        OutputFileType(
-            mimeType: "image/png",
-            fileExtension: "png",
-            utType: .png,
-            category: .image,
-            serializationFormat: .binary,
-            storeAsFileThreshold: storeAsFileThreshold
-        )
-    }
+  /// PNG image file
+  ///
+  /// - MIME: image/png
+  /// - Extension: .png
+  /// - Threshold: 100KB
+  public static func png(storeAsFileThreshold: Int64? = 100_000) -> OutputFileType {
+    OutputFileType(
+      mimeType: "image/png",
+      fileExtension: "png",
+      utType: .png,
+      category: .image,
+      serializationFormat: .binary,
+      storeAsFileThreshold: storeAsFileThreshold
+    )
+  }
 
-    /// JPEG image file
-    ///
-    /// - MIME: image/jpeg
-    /// - Extension: .jpg
-    /// - Threshold: 100KB
-    public static func jpeg(storeAsFileThreshold: Int64? = 100_000) -> OutputFileType {
-        OutputFileType(
-            mimeType: "image/jpeg",
-            fileExtension: "jpg",
-            utType: .jpeg,
-            category: .image,
-            serializationFormat: .binary,
-            storeAsFileThreshold: storeAsFileThreshold
-        )
-    }
+  /// JPEG image file
+  ///
+  /// - MIME: image/jpeg
+  /// - Extension: .jpg
+  /// - Threshold: 100KB
+  public static func jpeg(storeAsFileThreshold: Int64? = 100_000) -> OutputFileType {
+    OutputFileType(
+      mimeType: "image/jpeg",
+      fileExtension: "jpg",
+      utType: .jpeg,
+      category: .image,
+      serializationFormat: .binary,
+      storeAsFileThreshold: storeAsFileThreshold
+    )
+  }
 
-    // MARK: - Video Formats
+  // MARK: - Video Formats
 
-    /// MPEG-4 video file
-    ///
-    /// - MIME: video/mp4
-    /// - Extension: .mp4
-    /// - Threshold: 1MB
-    public static func mp4(storeAsFileThreshold: Int64? = 1_000_000) -> OutputFileType {
-        OutputFileType(
-            mimeType: "video/mp4",
-            fileExtension: "mp4",
-            utType: .mpeg4Movie,
-            category: .video,
-            serializationFormat: .binary,
-            storeAsFileThreshold: storeAsFileThreshold
-        )
-    }
+  /// MPEG-4 video file
+  ///
+  /// - MIME: video/mp4
+  /// - Extension: .mp4
+  /// - Threshold: 1MB
+  public static func mp4(storeAsFileThreshold: Int64? = 1_000_000) -> OutputFileType {
+    OutputFileType(
+      mimeType: "video/mp4",
+      fileExtension: "mp4",
+      utType: .mpeg4Movie,
+      category: .video,
+      serializationFormat: .binary,
+      storeAsFileThreshold: storeAsFileThreshold
+    )
+  }
 
-    /// QuickTime video file
-    ///
-    /// - MIME: video/quicktime
-    /// - Extension: .mov
-    /// - Threshold: 1MB
-    public static func mov(storeAsFileThreshold: Int64? = 1_000_000) -> OutputFileType {
-        OutputFileType(
-            mimeType: "video/quicktime",
-            fileExtension: "mov",
-            utType: .quickTimeMovie,
-            category: .video,
-            serializationFormat: .binary,
-            storeAsFileThreshold: storeAsFileThreshold
-        )
-    }
+  /// QuickTime video file
+  ///
+  /// - MIME: video/quicktime
+  /// - Extension: .mov
+  /// - Threshold: 1MB
+  public static func mov(storeAsFileThreshold: Int64? = 1_000_000) -> OutputFileType {
+    OutputFileType(
+      mimeType: "video/quicktime",
+      fileExtension: "mov",
+      utType: .quickTimeMovie,
+      category: .video,
+      serializationFormat: .binary,
+      storeAsFileThreshold: storeAsFileThreshold
+    )
+  }
 
-    // MARK: - Structured Data Formats
+  // MARK: - Structured Data Formats
 
-    /// Property list file
-    ///
-    /// - MIME: application/x-plist
-    /// - Extension: .plist
-    /// - Threshold: 50KB
-    public static func plist(
-        category: ProviderCategory = .structuredData,
-        storeAsFileThreshold: Int64? = 50_000
-    ) -> OutputFileType {
-        OutputFileType(
-            mimeType: "application/x-plist",
-            fileExtension: "plist",
-            utType: .propertyList,
-            category: category,
-            serializationFormat: .plist,
-            storeAsFileThreshold: storeAsFileThreshold
-        )
-    }
+  /// Property list file
+  ///
+  /// - MIME: application/x-plist
+  /// - Extension: .plist
+  /// - Threshold: 50KB
+  public static func plist(
+    category: ProviderCategory = .structuredData,
+    storeAsFileThreshold: Int64? = 50_000
+  ) -> OutputFileType {
+    OutputFileType(
+      mimeType: "application/x-plist",
+      fileExtension: "plist",
+      utType: .propertyList,
+      category: category,
+      serializationFormat: .plist,
+      storeAsFileThreshold: storeAsFileThreshold
+    )
+  }
 
-    /// Binary data file
-    ///
-    /// - MIME: application/octet-stream
-    /// - Extension: .bin
-    /// - Threshold: 10KB
-    public static func binary(
-        category: ProviderCategory,
-        fileExtension: String = "bin",
-        storeAsFileThreshold: Int64? = 10_000
-    ) -> OutputFileType {
-        OutputFileType(
-            mimeType: "application/octet-stream",
-            fileExtension: fileExtension,
-            utType: UTType(filenameExtension: fileExtension),
-            category: category,
-            serializationFormat: .binary,
-            storeAsFileThreshold: storeAsFileThreshold
-        )
-    }
+  /// Binary data file
+  ///
+  /// - MIME: application/octet-stream
+  /// - Extension: .bin
+  /// - Threshold: 10KB
+  public static func binary(
+    category: ProviderCategory,
+    fileExtension: String = "bin",
+    storeAsFileThreshold: Int64? = 10_000
+  ) -> OutputFileType {
+    OutputFileType(
+      mimeType: "application/octet-stream",
+      fileExtension: fileExtension,
+      utType: UTType(filenameExtension: fileExtension),
+      category: category,
+      serializationFormat: .binary,
+      storeAsFileThreshold: storeAsFileThreshold
+    )
+  }
 }

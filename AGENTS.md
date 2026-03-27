@@ -2,7 +2,7 @@
 
 This file provides comprehensive documentation for AI agents working with the SwiftCompartido codebase.
 
-**Current Version**: 6.3.0 (February 2026)
+**Current Version**: 7.0.2 (March 2026)
 
 ---
 
@@ -295,7 +295,19 @@ If you have existing custom-pages.json files:
 
 ## Version History
 
-**6.3.0** (Current):
+**7.0.2** (Current):
+- Fixed PDF progress bar not advancing during page-by-page parsing
+- Extract PDF attributed strings for richer AI parsing context
+- CI/CD updates: Disabled iOS tests and performance tests (macOS unit tests only)
+
+**7.0.1**:
+- Switch dependencies to main branch
+
+**7.0.0**:
+- Removed custom-pages.json sidecar support
+- Deprecated CastListPage model (use SwiftProyecto for cast management)
+
+**6.3.0**:
 - Voice casting system for character-to-voice assignments
 - CharacterVoiceMapping data model
 - App Intents for Shortcuts automation (GetVoiceCasting, SetVoiceCasting)

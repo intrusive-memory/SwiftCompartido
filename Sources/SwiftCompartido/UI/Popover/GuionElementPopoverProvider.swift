@@ -26,24 +26,24 @@ import SwiftUI
 /// ```
 @MainActor
 public struct GuionElementPopoverProvider: Sendable {
-    private let _content: @Sendable @MainActor (GuionElementModel) -> AnyView
+  private let _content: @Sendable @MainActor (GuionElementModel) -> AnyView
 
-    /// Creates a popover provider with the given content closure
-    ///
-    /// - Parameter content: A closure that takes a GuionElementModel and returns a View
-    public init<Content: View>(
-        @ViewBuilder content: @escaping @Sendable @MainActor (GuionElementModel) -> Content
-    ) {
-        self._content = { element in
-            AnyView(content(element))
-        }
+  /// Creates a popover provider with the given content closure
+  ///
+  /// - Parameter content: A closure that takes a GuionElementModel and returns a View
+  public init<Content: View>(
+    @ViewBuilder content: @escaping @Sendable @MainActor (GuionElementModel) -> Content
+  ) {
+    self._content = { element in
+      AnyView(content(element))
     }
+  }
 
-    /// Returns the popover content for the given element
-    ///
-    /// - Parameter element: The element to generate popover content for
-    /// - Returns: The type-erased view content
-    public func callAsFunction(_ element: GuionElementModel) -> AnyView {
-        _content(element)
-    }
+  /// Returns the popover content for the given element
+  ///
+  /// - Parameter element: The element to generate popover content for
+  /// - Returns: The type-erased view content
+  public func callAsFunction(_ element: GuionElementModel) -> AnyView {
+    _content(element)
+  }
 }

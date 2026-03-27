@@ -1,6 +1,7 @@
-import Testing
 import Foundation
 import SwiftFijos
+import Testing
+
 @testable import SwiftCompartido
 
 /// Tests for TextPackWriter progress reporting functionality.
@@ -14,478 +15,486 @@ import SwiftFijos
 @Suite("TextPackWriter Progress Tests")
 struct TextPackWriterProgressTests {
 
-    // MARK: - Helper Methods
+  // MARK: - Helper Methods
 
-    private func loadFixtureScreenplay(_ name: String) async throws -> GuionParsedElementCollection {
-        let url = try await FixtureManager.shared.withExclusiveAccess(
-            to: "\(name).fountain"
-        ) { url in
-            return url
-        }
-        return try await GuionParsedElementCollection(file: url.path)
+  private func loadFixtureScreenplay(_ name: String) async throws -> GuionParsedElementCollection {
+    let url = try await FixtureManager.shared.withExclusiveAccess(
+      to: "\(name).fountain"
+    ) { url in
+      return url
+    }
+    return try await GuionParsedElementCollection(file: url.path)
+  }
+
+  private func createSimpleScreenplay() throws -> GuionParsedElementCollection {
+    let screenplay = """
+      Title: Test Screenplay
+      Author: Test Author
+
+      INT. LOCATION - DAY
+
+      Action text.
+
+      CHARACTER
+      Dialogue.
+      """
+
+    return try GuionParsedElementCollection(string: screenplay)
+  }
+
+  // MARK: - Multi-Stage Export Tests
+
+  @Test("Multi-stage export reports progress for all stages")
+  func testMultiStageExport() async throws {
+    actor ProgressCollector {
+      var updates: [ProgressUpdate] = []
+
+      func add(_ update: ProgressUpdate) {
+        updates.append(update)
+      }
+
+      func getUpdates() -> [ProgressUpdate] {
+        return updates
+      }
     }
 
-    private func createSimpleScreenplay() throws -> GuionParsedElementCollection {
-        let screenplay = """
-        Title: Test Screenplay
-        Author: Test Author
-
-        INT. LOCATION - DAY
-
-        Action text.
-
-        CHARACTER
-        Dialogue.
-        """
-
-        return try GuionParsedElementCollection(string: screenplay)
+    let collector = ProgressCollector()
+    let progress = OperationProgress(totalUnits: 5) { update in
+      Task {
+        await collector.add(update)
+      }
     }
 
-    // MARK: - Multi-Stage Export Tests
+    let screenplay = try createSimpleScreenplay()
+    let bundle = try await TextPackWriter.createTextPack(from: screenplay, progress: progress)
 
-    @Test("Multi-stage export reports progress for all stages")
-    func testMultiStageExport() async throws {
-        actor ProgressCollector {
-            var updates: [ProgressUpdate] = []
+    // Wait for async updates
+    try await Task.sleep(for: .milliseconds(50))
 
-            func add(_ update: ProgressUpdate) {
-                updates.append(update)
-            }
+    let updates = await collector.getUpdates()
 
-            func getUpdates() -> [ProgressUpdate] {
-                return updates
-            }
-        }
+    // Should have multiple progress updates for all stages
+    #expect(updates.count > 0, "Should receive progress updates")
+    #expect(bundle.isDirectory, "Should create directory bundle")
 
-        let collector = ProgressCollector()
-        let progress = OperationProgress(totalUnits: 5) { update in
-            Task {
-                await collector.add(update)
-            }
-        }
+    // Check that progress reached 100%
+    if let finalUpdate = updates.last, let total = finalUpdate.totalUnits {
+      #expect(finalUpdate.completedUnits == total, "Should complete all stages")
+    }
+  }
 
-        let screenplay = try createSimpleScreenplay()
-        let bundle = try await TextPackWriter.createTextPack(from: screenplay, progress: progress)
+  @Test("Progress includes correct stage descriptions")
+  func testStageDescriptions() async throws {
+    actor ProgressCollector {
+      var descriptions: [String] = []
 
-        // Wait for async updates
-        try await Task.sleep(for: .milliseconds(50))
+      func add(_ desc: String) {
+        descriptions.append(desc)
+      }
 
-        let updates = await collector.getUpdates()
-
-        // Should have multiple progress updates for all stages
-        #expect(updates.count > 0, "Should receive progress updates")
-        #expect(bundle.isDirectory, "Should create directory bundle")
-
-        // Check that progress reached 100%
-        if let finalUpdate = updates.last, let total = finalUpdate.totalUnits {
-            #expect(finalUpdate.completedUnits == total, "Should complete all stages")
-        }
+      func getDescriptions() -> [String] {
+        return descriptions
+      }
     }
 
-    @Test("Progress includes correct stage descriptions")
-    func testStageDescriptions() async throws {
-        actor ProgressCollector {
-            var descriptions: [String] = []
-
-            func add(_ desc: String) {
-                descriptions.append(desc)
-            }
-
-            func getDescriptions() -> [String] {
-                return descriptions
-            }
-        }
-
-        let collector = ProgressCollector()
-        let progress = OperationProgress(totalUnits: 5) { update in
-            Task {
-                await collector.add(update.description)
-            }
-        }
-
-        let screenplay = try createSimpleScreenplay()
-        _ = try await TextPackWriter.createTextPack(from: screenplay, progress: progress)
-
-        // Wait for async updates
-        try await Task.sleep(for: .milliseconds(50))
-
-        let descriptions = await collector.getDescriptions()
-
-        // Should have meaningful stage descriptions
-        #expect(descriptions.count > 0, "Should have progress descriptions")
-
-        // Check for key stage descriptions
-        let descriptionsString = descriptions.joined(separator: " ").lowercased()
-        let hasMetadata = descriptionsString.contains("metadata") || descriptionsString.contains("creating")
-        let hasScreenplay = descriptionsString.contains("screenplay") || descriptionsString.contains("generating")
-        let hasResources = descriptionsString.contains("resources") || descriptionsString.contains("extracting")
-
-        #expect(hasMetadata || hasScreenplay || hasResources,
-                "Should have meaningful stage descriptions")
+    let collector = ProgressCollector()
+    let progress = OperationProgress(totalUnits: 5) { update in
+      Task {
+        await collector.add(update.description)
+      }
     }
 
-    // MARK: - Character Extraction Tests
+    let screenplay = try createSimpleScreenplay()
+    _ = try await TextPackWriter.createTextPack(from: screenplay, progress: progress)
 
-    @Test("Character extraction reports progress")
-    func testCharacterExtractionProgress() async throws {
-        actor ProgressCollector {
-            var allDescriptions: [String] = []
+    // Wait for async updates
+    try await Task.sleep(for: .milliseconds(50))
 
-            func add(_ desc: String) {
-                allDescriptions.append(desc)
-            }
+    let descriptions = await collector.getDescriptions()
 
-            func getAll() -> [String] {
-                return allDescriptions
-            }
-        }
+    // Should have meaningful stage descriptions
+    #expect(descriptions.count > 0, "Should have progress descriptions")
 
-        let collector = ProgressCollector()
-        let progress = OperationProgress(totalUnits: 5) { update in
-            Task {
-                await collector.add(update.description)
-            }
-        }
+    // Check for key stage descriptions
+    let descriptionsString = descriptions.joined(separator: " ").lowercased()
+    let hasMetadata =
+      descriptionsString.contains("metadata") || descriptionsString.contains("creating")
+    let hasScreenplay =
+      descriptionsString.contains("screenplay") || descriptionsString.contains("generating")
+    let hasResources =
+      descriptionsString.contains("resources") || descriptionsString.contains("extracting")
 
-        // Use bigfish.fountain which has many characters
-        let screenplay = try await loadFixtureScreenplay("bigfish")
-        let bundle = try await TextPackWriter.createTextPack(from: screenplay, progress: progress)
+    #expect(
+      hasMetadata || hasScreenplay || hasResources,
+      "Should have meaningful stage descriptions")
+  }
 
-        // Wait for async updates
-        try await Task.sleep(for: .milliseconds(50))
+  // MARK: - Character Extraction Tests
 
-        let descriptions = await collector.getAll()
+  @Test("Character extraction reports progress")
+  func testCharacterExtractionProgress() async throws {
+    actor ProgressCollector {
+      var allDescriptions: [String] = []
 
-        // Check that we got progress updates and bundle was created
-        #expect(descriptions.count > 0, "Should have progress updates")
-        #expect(bundle.isDirectory, "Should create bundle")
+      func add(_ desc: String) {
+        allDescriptions.append(desc)
+      }
 
-        // Check that resources were created (character extraction happened)
-        if let resources = bundle.fileWrappers?["Resources"],
-           let charactersFile = resources.fileWrappers?["characters.json"] {
-            #expect(charactersFile.regularFileContents != nil, "Should have characters.json")
-        }
+      func getAll() -> [String] {
+        return allDescriptions
+      }
     }
 
-    // MARK: - Location Extraction Tests
-
-    @Test("Location extraction reports progress")
-    func testLocationExtractionProgress() async throws {
-        actor ProgressCollector {
-            var allDescriptions: [String] = []
-
-            func add(_ desc: String) {
-                allDescriptions.append(desc)
-            }
-
-            func getAll() -> [String] {
-                return allDescriptions
-            }
-        }
-
-        let collector = ProgressCollector()
-        let progress = OperationProgress(totalUnits: 5) { update in
-            Task {
-                await collector.add(update.description)
-            }
-        }
-
-        // Use bigfish.fountain which has many locations
-        let screenplay = try await loadFixtureScreenplay("bigfish")
-        let bundle = try await TextPackWriter.createTextPack(from: screenplay, progress: progress)
-
-        // Wait for async updates
-        try await Task.sleep(for: .milliseconds(50))
-
-        let descriptions = await collector.getAll()
-
-        // Check that we got progress updates and bundle was created
-        #expect(descriptions.count > 0, "Should have progress updates")
-        #expect(bundle.isDirectory, "Should create bundle")
-
-        // Check that resources were created (location extraction happened)
-        if let resources = bundle.fileWrappers?["Resources"],
-           let locationsFile = resources.fileWrappers?["locations.json"] {
-            #expect(locationsFile.regularFileContents != nil, "Should have locations.json")
-        }
+    let collector = ProgressCollector()
+    let progress = OperationProgress(totalUnits: 5) { update in
+      Task {
+        await collector.add(update.description)
+      }
     }
 
-    // MARK: - Large Screenplay Export Tests
+    // Use bigfish.fountain which has many characters
+    let screenplay = try await loadFixtureScreenplay("bigfish")
+    let bundle = try await TextPackWriter.createTextPack(from: screenplay, progress: progress)
 
-    @Test("Large screenplay export works with progress")
-    func testLargeScreenplayExport() async throws {
-        actor ProgressCollector {
-            var updateCount: Int = 0
+    // Wait for async updates
+    try await Task.sleep(for: .milliseconds(50))
 
-            func increment() {
-                updateCount += 1
-            }
+    let descriptions = await collector.getAll()
 
-            func getCount() -> Int {
-                return updateCount
-            }
-        }
+    // Check that we got progress updates and bundle was created
+    #expect(descriptions.count > 0, "Should have progress updates")
+    #expect(bundle.isDirectory, "Should create bundle")
 
-        let collector = ProgressCollector()
-        let progress = OperationProgress(totalUnits: 5) { _ in
-            Task {
-                await collector.increment()
-            }
-        }
+    // Check that resources were created (character extraction happened)
+    if let resources = bundle.fileWrappers?["Resources"],
+      let charactersFile = resources.fileWrappers?["characters.json"]
+    {
+      #expect(charactersFile.regularFileContents != nil, "Should have characters.json")
+    }
+  }
 
-        // Use bigfish.fountain - large real screenplay
-        let screenplay = try await loadFixtureScreenplay("bigfish")
-        let bundle = try await TextPackWriter.createTextPack(from: screenplay, progress: progress)
+  // MARK: - Location Extraction Tests
 
-        // Wait for async updates
-        try await Task.sleep(for: .milliseconds(50))
+  @Test("Location extraction reports progress")
+  func testLocationExtractionProgress() async throws {
+    actor ProgressCollector {
+      var allDescriptions: [String] = []
 
-        let updateCount = await collector.getCount()
+      func add(_ desc: String) {
+        allDescriptions.append(desc)
+      }
 
-        #expect(updateCount > 0, "Large export should have progress updates")
-        #expect(bundle.isDirectory, "Should create bundle")
-
-        // Verify bundle contents
-        #expect(bundle.fileWrappers?["info.json"] != nil, "Should have info.json")
-        #expect(bundle.fileWrappers?["screenplay.fountain"] != nil, "Should have screenplay.fountain")
-        #expect(bundle.fileWrappers?["Resources"] != nil, "Should have Resources directory")
+      func getAll() -> [String] {
+        return allDescriptions
+      }
     }
 
-    // MARK: - Cancellation Tests
-
-    @Test("Cancellation during export stops operation")
-    func testCancellationDuringExport() async throws {
-        actor ExportActor {
-            func performExport(_ screenplay: GuionParsedElementCollection) async throws {
-                let progress = OperationProgress(totalUnits: 5)
-                _ = try await TextPackWriter.createTextPack(from: screenplay, progress: progress)
-            }
-        }
-
-        let screenplay = try await loadFixtureScreenplay("bigfish")
-        let exportActor = ExportActor()
-
-        let task = Task {
-            try await exportActor.performExport(screenplay)
-        }
-
-        // Cancel the task immediately
-        task.cancel()
-
-        do {
-            try await task.value
-            // Export may complete before cancellation is checked
-        } catch is CancellationError {
-            // Expected if cancellation was caught
-        } catch {
-            // Other errors may occur during cancellation
-        }
+    let collector = ProgressCollector()
+    let progress = OperationProgress(totalUnits: 5) { update in
+      Task {
+        await collector.add(update.description)
+      }
     }
 
-    @Test("Cancellation during character extraction")
-    func testCancellationDuringCharacterExtraction() async throws {
-        actor ExportActor {
-            func performExport(_ screenplay: GuionParsedElementCollection) async throws {
-                let progress = OperationProgress(totalUnits: 5)
-                _ = try await TextPackWriter.createTextPack(from: screenplay, progress: progress)
-            }
-        }
+    // Use bigfish.fountain which has many locations
+    let screenplay = try await loadFixtureScreenplay("bigfish")
+    let bundle = try await TextPackWriter.createTextPack(from: screenplay, progress: progress)
 
-        let screenplay = try await loadFixtureScreenplay("bigfish")
-        let exportActor = ExportActor()
+    // Wait for async updates
+    try await Task.sleep(for: .milliseconds(50))
 
-        let task = Task {
-            try await exportActor.performExport(screenplay)
-        }
+    let descriptions = await collector.getAll()
 
-        // Small delay then cancel
-        try await Task.sleep(for: .milliseconds(1))
-        task.cancel()
+    // Check that we got progress updates and bundle was created
+    #expect(descriptions.count > 0, "Should have progress updates")
+    #expect(bundle.isDirectory, "Should create bundle")
 
-        do {
-            try await task.value
-            // May complete if cancellation wasn't checked in time
-        } catch is CancellationError {
-            // Expected
-        } catch {
-            // Other errors acceptable during cancellation
-        }
+    // Check that resources were created (location extraction happened)
+    if let resources = bundle.fileWrappers?["Resources"],
+      let locationsFile = resources.fileWrappers?["locations.json"]
+    {
+      #expect(locationsFile.regularFileContents != nil, "Should have locations.json")
+    }
+  }
+
+  // MARK: - Large Screenplay Export Tests
+
+  @Test("Large screenplay export works with progress")
+  func testLargeScreenplayExport() async throws {
+    actor ProgressCollector {
+      var updateCount: Int = 0
+
+      func increment() {
+        updateCount += 1
+      }
+
+      func getCount() -> Int {
+        return updateCount
+      }
     }
 
-    // MARK: - Empty Screenplay Tests
-
-    @Test("Empty screenplay export reaches 100%")
-    func testEmptyScreenplayExport() async throws {
-        actor ProgressCollector {
-            var finalProgress: ProgressUpdate?
-
-            func setFinal(_ update: ProgressUpdate) {
-                finalProgress = update
-            }
-
-            func getFinal() -> ProgressUpdate? {
-                return finalProgress
-            }
-        }
-
-        let collector = ProgressCollector()
-        let progress = OperationProgress(totalUnits: 5) { update in
-            Task {
-                await collector.setFinal(update)
-            }
-        }
-
-        // Create minimal screenplay
-        let screenplay = try await GuionParsedElementCollection(string: "")
-
-        let bundle = try await TextPackWriter.createTextPack(from: screenplay, progress: progress)
-
-        // Wait for async updates
-        try await Task.sleep(for: .milliseconds(50))
-
-        let finalUpdate = await collector.getFinal()
-
-        #expect(bundle.isDirectory, "Should create bundle even for empty screenplay")
-
-        // Check progress reached completion
-        if let final = finalUpdate, let total = final.totalUnits {
-            #expect(final.completedUnits >= 0, "Should have progress")
-            #expect(total == 5, "Should have 5 total stages")
-        }
+    let collector = ProgressCollector()
+    let progress = OperationProgress(totalUnits: 5) { _ in
+      Task {
+        await collector.increment()
+      }
     }
 
-    // MARK: - Nil Progress Handler Tests
+    // Use bigfish.fountain - large real screenplay
+    let screenplay = try await loadFixtureScreenplay("bigfish")
+    let bundle = try await TextPackWriter.createTextPack(from: screenplay, progress: progress)
 
-    @Test("Export works with nil progress handler")
-    func testNilProgressHandler() async throws {
-        let screenplay = try createSimpleScreenplay()
+    // Wait for async updates
+    try await Task.sleep(for: .milliseconds(50))
 
-        let nilProgress: OperationProgress? = nil
-        let bundle = try await TextPackWriter.createTextPack(from: screenplay, progress: nilProgress)
+    let updateCount = await collector.getCount()
 
-        #expect(bundle.isDirectory, "Should create bundle with nil progress")
-        #expect(bundle.fileWrappers?["info.json"] != nil, "Should have info.json")
-        #expect(bundle.fileWrappers?["screenplay.fountain"] != nil, "Should have screenplay.fountain")
-    }
+    #expect(updateCount > 0, "Large export should have progress updates")
+    #expect(bundle.isDirectory, "Should create bundle")
 
-    // MARK: - Backward Compatibility Tests
+    // Verify bundle contents
+    #expect(bundle.fileWrappers?["info.json"] != nil, "Should have info.json")
+    #expect(bundle.fileWrappers?["screenplay.fountain"] != nil, "Should have screenplay.fountain")
+    #expect(bundle.fileWrappers?["Resources"] != nil, "Should have Resources directory")
+  }
 
-    @Test("Synchronous export still works")
-    func testBackwardCompatibility() throws {
-        let screenplay = try createSimpleScreenplay()
+  // MARK: - Cancellation Tests
 
-        // Use synchronous method
-        let bundle = try TextPackWriter.createTextPack(from: screenplay)
-
-        #expect(bundle.isDirectory, "Sync export should work")
-        #expect(bundle.fileWrappers?["info.json"] != nil, "Should have info.json")
-        #expect(bundle.fileWrappers?["screenplay.fountain"] != nil, "Should have screenplay.fountain")
-        #expect(bundle.fileWrappers?["Resources"] != nil, "Should have Resources")
-    }
-
-    @Test("Async and sync exports produce identical bundles")
-    func testAsyncSyncEquivalence() async throws {
-        let screenplay = try createSimpleScreenplay()
-
-        // Sync export
-        let syncBundle = try TextPackWriter.createTextPack(from: screenplay)
-
-        // Async export
-        let nilProgress: OperationProgress? = nil
-        let asyncBundle = try await TextPackWriter.createTextPack(from: screenplay, progress: nilProgress)
-
-        // Both should be directories
-        #expect(syncBundle.isDirectory, "Sync bundle should be directory")
-        #expect(asyncBundle.isDirectory, "Async bundle should be directory")
-
-        // Both should have same files
-        #expect(syncBundle.fileWrappers?.keys.sorted() == asyncBundle.fileWrappers?.keys.sorted(),
-                "Should have same file structure")
-    }
-
-    // MARK: - Progress Accuracy Tests
-
-    @Test("Progress reports correct fractionCompleted")
-    func testProgressFractionCompleted() async throws {
-        actor ProgressCollector {
-            var fractions: [Double] = []
-
-            func add(_ fraction: Double?) {
-                if let f = fraction {
-                    fractions.append(f)
-                }
-            }
-
-            func getFractions() -> [Double] {
-                return fractions
-            }
-        }
-
-        let collector = ProgressCollector()
-        let progress = OperationProgress(totalUnits: 5) { update in
-            Task {
-                await collector.add(update.fractionCompleted)
-            }
-        }
-
-        let screenplay = try createSimpleScreenplay()
-        _ = try await TextPackWriter.createTextPack(from: screenplay, progress: progress)
-
-        // Wait for async updates
-        try await Task.sleep(for: .milliseconds(50))
-
-        let fractions = await collector.getFractions()
-
-        // Should have fractional progress
-        #expect(fractions.count > 0, "Should have progress fractions")
-
-        // Check fractions are increasing
-        var lastFraction = 0.0
-        for fraction in fractions {
-            #expect(fraction >= lastFraction, "Progress should increase monotonically")
-            #expect(fraction >= 0.0 && fraction <= 1.0, "Fraction should be between 0 and 1")
-            lastFraction = fraction
-        }
-    }
-
-    // MARK: - Resource Directory Tests
-
-    @Test("Resources directory contains all expected files")
-    func testResourcesDirectoryContents() async throws {
-        let screenplay = try await loadFixtureScreenplay("bigfish")
-
-        let bundle = try await TextPackWriter.createTextPack(from: screenplay, progress: nil)
-
-        guard let resourcesWrapper = bundle.fileWrappers?["Resources"] else {
-            Issue.record("Resources directory not found")
-            return
-        }
-
-        #expect(resourcesWrapper.isDirectory, "Resources should be a directory")
-
-        let resourceFiles = resourcesWrapper.fileWrappers?.keys.sorted() ?? []
-        #expect(resourceFiles.contains("characters.json"), "Should have characters.json")
-        #expect(resourceFiles.contains("locations.json"), "Should have locations.json")
-        #expect(resourceFiles.contains("elements.json"), "Should have elements.json")
-        #expect(resourceFiles.contains("titlepage.json"), "Should have titlepage.json")
-    }
-
-    // MARK: - GuionDocumentModel Tests
-
-    @Test("Export from GuionDocumentModel works with progress")
-    func testExportFromGuionDocumentModel() async throws {
-        // Create a GuionDocumentModel
-        let screenplay = try createSimpleScreenplay()
-
-        // Note: GuionDocumentModel.from() requires SwiftData context
-        // For now, test that the async method exists and can be called
-        // Full integration tests would require SwiftData setup
-
+  @Test("Cancellation during export stops operation")
+  func testCancellationDuringExport() async throws {
+    actor ExportActor {
+      func performExport(_ screenplay: GuionParsedElementCollection) async throws {
         let progress = OperationProgress(totalUnits: 5)
-
-        // Test the GuionParsedElementCollection path
-        let bundle = try await TextPackWriter.createTextPack(from: screenplay, progress: progress)
-
-        #expect(bundle.isDirectory, "Should create bundle")
+        _ = try await TextPackWriter.createTextPack(from: screenplay, progress: progress)
+      }
     }
+
+    let screenplay = try await loadFixtureScreenplay("bigfish")
+    let exportActor = ExportActor()
+
+    let task = Task {
+      try await exportActor.performExport(screenplay)
+    }
+
+    // Cancel the task immediately
+    task.cancel()
+
+    do {
+      try await task.value
+      // Export may complete before cancellation is checked
+    } catch is CancellationError {
+      // Expected if cancellation was caught
+    } catch {
+      // Other errors may occur during cancellation
+    }
+  }
+
+  @Test("Cancellation during character extraction")
+  func testCancellationDuringCharacterExtraction() async throws {
+    actor ExportActor {
+      func performExport(_ screenplay: GuionParsedElementCollection) async throws {
+        let progress = OperationProgress(totalUnits: 5)
+        _ = try await TextPackWriter.createTextPack(from: screenplay, progress: progress)
+      }
+    }
+
+    let screenplay = try await loadFixtureScreenplay("bigfish")
+    let exportActor = ExportActor()
+
+    let task = Task {
+      try await exportActor.performExport(screenplay)
+    }
+
+    // Small delay then cancel
+    try await Task.sleep(for: .milliseconds(1))
+    task.cancel()
+
+    do {
+      try await task.value
+      // May complete if cancellation wasn't checked in time
+    } catch is CancellationError {
+      // Expected
+    } catch {
+      // Other errors acceptable during cancellation
+    }
+  }
+
+  // MARK: - Empty Screenplay Tests
+
+  @Test("Empty screenplay export reaches 100%")
+  func testEmptyScreenplayExport() async throws {
+    actor ProgressCollector {
+      var finalProgress: ProgressUpdate?
+
+      func setFinal(_ update: ProgressUpdate) {
+        finalProgress = update
+      }
+
+      func getFinal() -> ProgressUpdate? {
+        return finalProgress
+      }
+    }
+
+    let collector = ProgressCollector()
+    let progress = OperationProgress(totalUnits: 5) { update in
+      Task {
+        await collector.setFinal(update)
+      }
+    }
+
+    // Create minimal screenplay
+    let screenplay = try await GuionParsedElementCollection(string: "")
+
+    let bundle = try await TextPackWriter.createTextPack(from: screenplay, progress: progress)
+
+    // Wait for async updates
+    try await Task.sleep(for: .milliseconds(50))
+
+    let finalUpdate = await collector.getFinal()
+
+    #expect(bundle.isDirectory, "Should create bundle even for empty screenplay")
+
+    // Check progress reached completion
+    if let final = finalUpdate, let total = final.totalUnits {
+      #expect(final.completedUnits >= 0, "Should have progress")
+      #expect(total == 5, "Should have 5 total stages")
+    }
+  }
+
+  // MARK: - Nil Progress Handler Tests
+
+  @Test("Export works with nil progress handler")
+  func testNilProgressHandler() async throws {
+    let screenplay = try createSimpleScreenplay()
+
+    let nilProgress: OperationProgress? = nil
+    let bundle = try await TextPackWriter.createTextPack(from: screenplay, progress: nilProgress)
+
+    #expect(bundle.isDirectory, "Should create bundle with nil progress")
+    #expect(bundle.fileWrappers?["info.json"] != nil, "Should have info.json")
+    #expect(bundle.fileWrappers?["screenplay.fountain"] != nil, "Should have screenplay.fountain")
+  }
+
+  // MARK: - Backward Compatibility Tests
+
+  @Test("Synchronous export still works")
+  func testBackwardCompatibility() throws {
+    let screenplay = try createSimpleScreenplay()
+
+    // Use synchronous method
+    let bundle = try TextPackWriter.createTextPack(from: screenplay)
+
+    #expect(bundle.isDirectory, "Sync export should work")
+    #expect(bundle.fileWrappers?["info.json"] != nil, "Should have info.json")
+    #expect(bundle.fileWrappers?["screenplay.fountain"] != nil, "Should have screenplay.fountain")
+    #expect(bundle.fileWrappers?["Resources"] != nil, "Should have Resources")
+  }
+
+  @Test("Async and sync exports produce identical bundles")
+  func testAsyncSyncEquivalence() async throws {
+    let screenplay = try createSimpleScreenplay()
+
+    // Sync export
+    let syncBundle = try TextPackWriter.createTextPack(from: screenplay)
+
+    // Async export
+    let nilProgress: OperationProgress? = nil
+    let asyncBundle = try await TextPackWriter.createTextPack(
+      from: screenplay, progress: nilProgress)
+
+    // Both should be directories
+    #expect(syncBundle.isDirectory, "Sync bundle should be directory")
+    #expect(asyncBundle.isDirectory, "Async bundle should be directory")
+
+    // Both should have same files
+    #expect(
+      syncBundle.fileWrappers?.keys.sorted() == asyncBundle.fileWrappers?.keys.sorted(),
+      "Should have same file structure")
+  }
+
+  // MARK: - Progress Accuracy Tests
+
+  @Test("Progress reports correct fractionCompleted")
+  func testProgressFractionCompleted() async throws {
+    actor ProgressCollector {
+      var fractions: [Double] = []
+
+      func add(_ fraction: Double?) {
+        if let f = fraction {
+          fractions.append(f)
+        }
+      }
+
+      func getFractions() -> [Double] {
+        return fractions
+      }
+    }
+
+    let collector = ProgressCollector()
+    let progress = OperationProgress(totalUnits: 5) { update in
+      Task {
+        await collector.add(update.fractionCompleted)
+      }
+    }
+
+    let screenplay = try createSimpleScreenplay()
+    _ = try await TextPackWriter.createTextPack(from: screenplay, progress: progress)
+
+    // Wait for async updates
+    try await Task.sleep(for: .milliseconds(50))
+
+    let fractions = await collector.getFractions()
+
+    // Should have fractional progress
+    #expect(fractions.count > 0, "Should have progress fractions")
+
+    // Check fractions are increasing
+    var lastFraction = 0.0
+    for fraction in fractions {
+      #expect(fraction >= lastFraction, "Progress should increase monotonically")
+      #expect(fraction >= 0.0 && fraction <= 1.0, "Fraction should be between 0 and 1")
+      lastFraction = fraction
+    }
+  }
+
+  // MARK: - Resource Directory Tests
+
+  @Test("Resources directory contains all expected files")
+  func testResourcesDirectoryContents() async throws {
+    let screenplay = try await loadFixtureScreenplay("bigfish")
+
+    let bundle = try await TextPackWriter.createTextPack(from: screenplay, progress: nil)
+
+    guard let resourcesWrapper = bundle.fileWrappers?["Resources"] else {
+      Issue.record("Resources directory not found")
+      return
+    }
+
+    #expect(resourcesWrapper.isDirectory, "Resources should be a directory")
+
+    let resourceFiles = resourcesWrapper.fileWrappers?.keys.sorted() ?? []
+    #expect(resourceFiles.contains("characters.json"), "Should have characters.json")
+    #expect(resourceFiles.contains("locations.json"), "Should have locations.json")
+    #expect(resourceFiles.contains("elements.json"), "Should have elements.json")
+    #expect(resourceFiles.contains("titlepage.json"), "Should have titlepage.json")
+  }
+
+  // MARK: - GuionDocumentModel Tests
+
+  @Test("Export from GuionDocumentModel works with progress")
+  func testExportFromGuionDocumentModel() async throws {
+    // Create a GuionDocumentModel
+    let screenplay = try createSimpleScreenplay()
+
+    // Note: GuionDocumentModel.from() requires SwiftData context
+    // For now, test that the async method exists and can be called
+    // Full integration tests would require SwiftData setup
+
+    let progress = OperationProgress(totalUnits: 5)
+
+    // Test the GuionParsedElementCollection path
+    let bundle = try await TextPackWriter.createTextPack(from: screenplay, progress: progress)
+
+    #expect(bundle.isDirectory, "Should create bundle")
+  }
 }

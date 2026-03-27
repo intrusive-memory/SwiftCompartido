@@ -5,43 +5,43 @@
 //  Master-detail view for browsing generated content with MIME type filtering
 //
 
-import SwiftUI
 @preconcurrency import SwiftData
+import SwiftUI
 
 /// MIME type filter options
 public enum ContentTypeFilter: String, CaseIterable, Identifiable {
-    case all = "All"
-    case text = "Text"
-    case audio = "Audio"
-    case image = "Image"
-    case video = "Video"
-    case embedding = "Embedding"
+  case all = "All"
+  case text = "Text"
+  case audio = "Audio"
+  case image = "Image"
+  case video = "Video"
+  case embedding = "Embedding"
 
-    public var id: String { rawValue }
+  public var id: String { rawValue }
 
-    /// MIME type prefix for filtering
-    var mimeTypePrefix: String? {
-        switch self {
-        case .all: return nil
-        case .text: return "text/"
-        case .audio: return "audio/"
-        case .image: return "image/"
-        case .video: return "video/"
-        case .embedding: return nil // Special case: exact match "application/x-embedding"
-        }
+  /// MIME type prefix for filtering
+  var mimeTypePrefix: String? {
+    switch self {
+    case .all: return nil
+    case .text: return "text/"
+    case .audio: return "audio/"
+    case .image: return "image/"
+    case .video: return "video/"
+    case .embedding: return nil  // Special case: exact match "application/x-embedding"
     }
+  }
 
-    /// Icon for the filter type
-    var icon: String {
-        switch self {
-        case .all: return "square.grid.2x2"
-        case .text: return "doc.text"
-        case .audio: return "waveform"
-        case .image: return "photo"
-        case .video: return "video"
-        case .embedding: return "point.3.connected.trianglepath.dotted"
-        }
+  /// Icon for the filter type
+  var icon: String {
+    switch self {
+    case .all: return "square.grid.2x2"
+    case .text: return "doc.text"
+    case .audio: return "waveform"
+    case .image: return "photo"
+    case .video: return "video"
+    case .embedding: return "point.3.connected.trianglepath.dotted"
     }
+  }
 }
 
 /// Master-detail view for browsing and previewing generated content
@@ -70,173 +70,174 @@ public enum ContentTypeFilter: String, CaseIterable, Identifiable {
 /// ```
 public struct GeneratedContentListView: View {
 
-    // MARK: - Properties
+  // MARK: - Properties
 
-    /// The document whose content to display
-    let document: GuionDocumentModel
+  /// The document whose content to display
+  let document: GuionDocumentModel
 
-    /// Optional storage area for file-based content
-    let storageArea: StorageAreaReference?
+  /// Optional storage area for file-based content
+  let storageArea: StorageAreaReference?
 
-    /// Current filter selection
-    @State private var selectedFilter: ContentTypeFilter = .all
+  /// Current filter selection
+  @State private var selectedFilter: ContentTypeFilter = .all
 
-    /// Currently selected item for preview
-    @State private var selectedItem: TypedDataStorage?
+  /// Currently selected item for preview
+  @State private var selectedItem: TypedDataStorage?
 
-    /// Audio player manager (injected via environment)
-    @EnvironmentObject private var audioPlayer: AudioPlayerManager
+  /// Audio player manager (injected via environment)
+  @EnvironmentObject private var audioPlayer: AudioPlayerManager
 
-    // MARK: - Initialization
+  // MARK: - Initialization
 
-    /// Creates a list view for a document's generated content
-    ///
-    /// - Parameters:
-    ///   - document: The document whose content to display
-    ///   - storageArea: Optional storage area for file-based content
-    public init(document: GuionDocumentModel, storageArea: StorageAreaReference? = nil) {
-        self.document = document
-        self.storageArea = storageArea
-    }
+  /// Creates a list view for a document's generated content
+  ///
+  /// - Parameters:
+  ///   - document: The document whose content to display
+  ///   - storageArea: Optional storage area for file-based content
+  public init(document: GuionDocumentModel, storageArea: StorageAreaReference? = nil) {
+    self.document = document
+    self.storageArea = storageArea
+  }
 
-    // MARK: - Body
+  // MARK: - Body
 
-    public var body: some View {
-        VStack(spacing: 0) {
-            // Preview pane (top)
-            if let selectedItem = selectedItem {
-                TypedDataDetailView(record: selectedItem, storageArea: storageArea)
-                    .frame(maxHeight: .infinity)
-                    .background(Color(white: 0.95))
+  public var body: some View {
+    VStack(spacing: 0) {
+      // Preview pane (top)
+      if let selectedItem = selectedItem {
+        TypedDataDetailView(record: selectedItem, storageArea: storageArea)
+          .frame(maxHeight: .infinity)
+          .background(Color(white: 0.95))
 
-                Divider()
-            } else {
-                emptyStateView
-                    .frame(maxHeight: .infinity)
-                    .background(Color(white: 0.95))
+        Divider()
+      } else {
+        emptyStateView
+          .frame(maxHeight: .infinity)
+          .background(Color(white: 0.95))
 
-                Divider()
-            }
+        Divider()
+      }
 
-            // Filter picker
-            Picker("Content Type", selection: $selectedFilter) {
-                ForEach(ContentTypeFilter.allCases) { filter in
-                    Label(filter.rawValue, systemImage: filter.icon)
-                        .tag(filter)
-                }
-            }
-            .pickerStyle(.segmented)
-            .padding()
-            .accessibilityLabel("Filter content by type")
-            .accessibilityHint("Select a content type to filter the list")
-            .accessibilityValue(selectedFilter.rawValue)
-            .onChange(of: selectedFilter) { _, newFilter in
-                // Clear selection when filter changes
-                selectedItem = nil
-            }
-
-            Divider()
-
-            // Content list (bottom)
-            ScrollView {
-                LazyVStack(spacing: 8) {
-                    ForEach(filteredContent) { item in
-                        TypedDataRowView(
-                            record: item,
-                            isSelected: selectedItem?.id == item.id
-                        )
-                        .contentShape(Rectangle())
-                        .onTapGesture {
-                            handleItemSelection(item)
-                        }
-                    }
-                }
-                .padding()
-            }
-            .frame(maxHeight: .infinity)
+      // Filter picker
+      Picker("Content Type", selection: $selectedFilter) {
+        ForEach(ContentTypeFilter.allCases) { filter in
+          Label(filter.rawValue, systemImage: filter.icon)
+            .tag(filter)
         }
-        .navigationTitle("Generated Content")
-        .navigationSubtitle("\(filteredContent.count) items")
-    }
+      }
+      .pickerStyle(.segmented)
+      .padding()
+      .accessibilityLabel("Filter content by type")
+      .accessibilityHint("Select a content type to filter the list")
+      .accessibilityValue(selectedFilter.rawValue)
+      .onChange(of: selectedFilter) { _, newFilter in
+        // Clear selection when filter changes
+        selectedItem = nil
+      }
 
-    // MARK: - Empty State
+      Divider()
 
-    private var emptyStateView: some View {
-        VStack(spacing: 16) {
-            Image(systemName: "photo.on.rectangle.angled")
-                .font(.system(size: 64))
-                .foregroundColor(.secondary)
-                .accessibilityHidden(true)
-
-            Text("No Selection")
-                .font(.title2)
-                .foregroundColor(.secondary)
-
-            Text("Select an item from the list below to preview")
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel("No item selected. Select an item from the list below to preview its content.")
-    }
-
-    // MARK: - Computed Properties
-
-    /// Filtered content based on selected filter
-    private var filteredContent: [TypedDataStorage] {
-        switch selectedFilter {
-        case .all:
-            return document.sortedElementGeneratedContent
-        case .text:
-            return document.sortedElementGeneratedContent(mimeTypePrefix: "text/")
-        case .audio:
-            return document.sortedElementGeneratedContent(mimeTypePrefix: "audio/")
-        case .image:
-            return document.sortedElementGeneratedContent(mimeTypePrefix: "image/")
-        case .video:
-            return document.sortedElementGeneratedContent(mimeTypePrefix: "video/")
-        case .embedding:
-            // Special case: exact match for embeddings
-            return document.sortedElementGeneratedContent.filter {
-                $0.mimeType == "application/x-embedding"
+      // Content list (bottom)
+      ScrollView {
+        LazyVStack(spacing: 8) {
+          ForEach(filteredContent) { item in
+            TypedDataRowView(
+              record: item,
+              isSelected: selectedItem?.id == item.id
+            )
+            .contentShape(Rectangle())
+            .onTapGesture {
+              handleItemSelection(item)
             }
+          }
         }
+        .padding()
+      }
+      .frame(maxHeight: .infinity)
     }
+    .navigationTitle("Generated Content")
+    .navigationSubtitle("\(filteredContent.count) items")
+  }
 
-    // MARK: - Actions
+  // MARK: - Empty State
 
-    /// Handles item selection and starts audio playback if needed
-    private func handleItemSelection(_ item: TypedDataStorage) {
-        // Update selection
-        selectedItem = item
+  private var emptyStateView: some View {
+    VStack(spacing: 16) {
+      Image(systemName: "photo.on.rectangle.angled")
+        .font(.system(size: 64))
+        .foregroundColor(.secondary)
+        .accessibilityHidden(true)
 
-        // If audio item, start playback
-        if item.mimeType.hasPrefix("audio/") {
-            do {
-                // AudioPlayerManager accepts TypedDataStorage for audio playback
-                try audioPlayer.play(record: item, storageArea: storageArea)
-            } catch {
-                #if DEBUG
-                print("Failed to play audio: \(error.localizedDescription)")
-                #endif
-            }
-        } else {
-            // Stop any current audio playback for non-audio items
-            audioPlayer.stop()
-        }
+      Text("No Selection")
+        .font(.title2)
+        .foregroundColor(.secondary)
+
+      Text("Select an item from the list below to preview")
+        .font(.subheadline)
+        .foregroundColor(.secondary)
     }
+    .frame(maxWidth: .infinity, maxHeight: .infinity)
+    .accessibilityElement(children: .combine)
+    .accessibilityLabel(
+      "No item selected. Select an item from the list below to preview its content.")
+  }
+
+  // MARK: - Computed Properties
+
+  /// Filtered content based on selected filter
+  private var filteredContent: [TypedDataStorage] {
+    switch selectedFilter {
+    case .all:
+      return document.sortedElementGeneratedContent
+    case .text:
+      return document.sortedElementGeneratedContent(mimeTypePrefix: "text/")
+    case .audio:
+      return document.sortedElementGeneratedContent(mimeTypePrefix: "audio/")
+    case .image:
+      return document.sortedElementGeneratedContent(mimeTypePrefix: "image/")
+    case .video:
+      return document.sortedElementGeneratedContent(mimeTypePrefix: "video/")
+    case .embedding:
+      // Special case: exact match for embeddings
+      return document.sortedElementGeneratedContent.filter {
+        $0.mimeType == "application/x-embedding"
+      }
+    }
+  }
+
+  // MARK: - Actions
+
+  /// Handles item selection and starts audio playback if needed
+  private func handleItemSelection(_ item: TypedDataStorage) {
+    // Update selection
+    selectedItem = item
+
+    // If audio item, start playback
+    if item.mimeType.hasPrefix("audio/") {
+      do {
+        // AudioPlayerManager accepts TypedDataStorage for audio playback
+        try audioPlayer.play(record: item, storageArea: storageArea)
+      } catch {
+        #if DEBUG
+          print("Failed to play audio: \(error.localizedDescription)")
+        #endif
+      }
+    } else {
+      // Stop any current audio playback for non-audio items
+      audioPlayer.stop()
+    }
+  }
 }
 
 // MARK: - Preview
 
 #if DEBUG
-struct GeneratedContentListView_Previews: PreviewProvider {
+  struct GeneratedContentListView_Previews: PreviewProvider {
     static var previews: some View {
-        // Preview requires full SwiftData setup with ModelContainer
-        // See tests for complete integration examples
-        Text("GeneratedContentListView Preview")
-            .frame(width: 800, height: 600)
+      // Preview requires full SwiftData setup with ModelContainer
+      // See tests for complete integration examples
+      Text("GeneratedContentListView Preview")
+        .frame(width: 800, height: 600)
     }
-}
+  }
 #endif
