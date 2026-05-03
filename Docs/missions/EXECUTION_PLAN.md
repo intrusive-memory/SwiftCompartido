@@ -203,7 +203,7 @@ public struct CastListPage: Codable, Sendable, Equatable {
    - Add Cast Management section with deprecation notice and SwiftProyecto reference
 
 3. **Update CHANGELOG.md**:
-   - Add `## [2.5.0] - 2026-02-XX` entry with Breaking Changes, Deprecated, and Migration Guide sections
+   - Add entry for our next minor release version with Breaking Changes, Deprecated, and Migration Guide sections
    - Use the template content provided below
 
 4. **Update README.md** -- line 108-110 contains custom-pages code example:
@@ -253,7 +253,7 @@ If you have existing custom-pages.json files:
 **CHANGELOG.md Entry**:
 
 ```markdown
-## [2.5.0] - 2026-02-XX
+## [NEXT_MINOR_VERSION] - YYYY-MM-DD
 
 ### Breaking Changes
 
@@ -292,7 +292,7 @@ See [SwiftProyecto documentation](https://github.com/intrusive-memory/SwiftProye
 **Exit criteria**:
 - [ ] Archive file exists: `test -f .archive/2025-02_CUSTOM_PAGES_REQUIREMENTS.md`
 - [ ] Original docs file removed: `test ! -f .claude/docs/CUSTOM_PAGES_REQUIREMENTS.md`
-- [ ] CHANGELOG.md contains v2.5.0 entry: `grep -c '## \[2.5.0\]' CHANGELOG.md` returns 1
+- [ ] CHANGELOG.md contains next minor version entry: Check that a new version section exists in CHANGELOG.md
 - [ ] README.md no longer references `CustomPageContainer`: `grep -c 'CustomPageContainer' README.md` returns 0
 - [ ] No references to `custom-pages.json` remain in non-archived markdown (excluding EXECUTION_PLAN.md and .archive/): `grep -rl 'custom-pages.json' --include='*.md' . | grep -v '.archive/' | grep -v 'EXECUTION_PLAN.md' | grep -v '.build/' | grep -v 'Docs/old/'` returns empty or only expected files
 - [ ] Git commit created with message: "docs: Update documentation for custom-pages removal"
@@ -308,7 +308,7 @@ See [SwiftProyecto documentation](https://github.com/intrusive-memory/SwiftProye
 **Type**: command
 
 **Entry criteria**:
-- [ ] Sprint 3 COMPLETED -- documentation updated, CHANGELOG.md has v2.5.0 entry
+- [ ] Sprint 3 COMPLETED -- documentation updated, CHANGELOG.md has next minor version entry
 
 **Tasks**:
 1. **Verify CI/CD testing infrastructure**:
@@ -316,13 +316,16 @@ See [SwiftProyecto documentation](https://github.com/intrusive-memory/SwiftProye
    - Verify unit tests trigger on `pull_request` from development → main
    - Check for `.github/workflows/performance-tests.yml` with `workflow_dispatch` (manual trigger)
    - If missing, create workflows following the standard pattern
-2. **Bump version tag**:
-   - Create git tag `v2.5.0` on the current HEAD
-3. **Push tag** (if remote is configured):
-   - `git push origin v2.5.0`
-4. **Create GitHub release**:
-   - Use `gh release create v2.5.0` with the CHANGELOG migration guide as release notes
-   - Title: "v2.5.0 - Remove custom-pages.json support"
+2. **Determine next version**:
+   - Get the latest semver tag from the repository: `git describe --tags --abbrev=0`
+   - Increment the minor version (e.g., if latest is v2.4.0, next minor is v2.5.0)
+3. **Bump version tag**:
+   - Create git tag for our next minor release version on the current HEAD
+4. **Push tag** (if remote is configured):
+   - Push the new version tag to origin
+5. **Create GitHub release**:
+   - Use `gh release create` with the CHANGELOG migration guide as release notes
+   - Title should reference the breaking changes (custom-pages.json removal)
    - Mark as latest release
 
 **Exit criteria**:
@@ -332,9 +335,9 @@ See [SwiftProyecto documentation](https://github.com/intrusive-memory/SwiftProye
   - [ ] Performance tests workflow exists: `test -f .github/workflows/performance-tests.yml`
   - [ ] Performance tests use manual trigger: `grep -q 'workflow_dispatch' .github/workflows/performance-tests.yml`
   - [ ] Workflows target correct branches: unit tests run on development → main PRs
-- [ ] Git tag exists: `git tag -l 'v2.5.0'` returns `v2.5.0`
-- [ ] GitHub release exists: `gh release view v2.5.0` succeeds (exit code 0)
-- [ ] Release title contains "custom-pages": `gh release view v2.5.0 --json name -q '.name'` contains relevant text
+- [ ] Git tag exists for the new version: `git describe --tags --abbrev=0` returns the newly created tag
+- [ ] GitHub release exists: `gh release view <new-version-tag>` succeeds (exit code 0)
+- [ ] Release title describes the breaking changes appropriately
 
 **Context fitness**: R=1 + B=0 + V=3 + 5 = 9 turns (18% of 50-turn budget) -- right-sized
 
