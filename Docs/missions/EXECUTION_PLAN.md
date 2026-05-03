@@ -317,8 +317,10 @@ See [SwiftProyecto documentation](https://github.com/intrusive-memory/SwiftProye
    - Check for `.github/workflows/performance-tests.yml` with `workflow_dispatch` (manual trigger)
    - If missing, create workflows following the standard pattern
 2. **Determine next version**:
-   - Get the latest semver tag from the repository: `git describe --tags --abbrev=0`
-   - Increment the minor version (e.g., if latest is v2.4.0, next minor is v2.5.0)
+   - Get all semver tags from the repository and find the numerically highest version
+   - Sort tags by semantic version (major.minor.patch), not by creation date
+   - Increment appropriately: for minor release, increment minor version of the numerically highest tag
+   - Example: if tags include v2.5.0, v3.0.0, v2.6.0, the highest is v3.0.0, so next minor is v3.1.0
 3. **Bump version tag**:
    - Create git tag for our next minor release version on the current HEAD
 4. **Push tag** (if remote is configured):
