@@ -120,7 +120,8 @@ public actor MemoryManager {
 
     /// Report current memory pressure state
     /// - Returns: A report containing resident memory, available memory, and pressure level
-    public func reportMemoryPressure() -> MemoryPressureReport {
+    public func reportMemoryPressure() async -> MemoryPressureReport {
+        // Get this process's resident memory
         var info = mach_task_basic_info()
         var count = mach_msg_type_number_t(MemoryLayout<mach_task_basic_info>.size) / 4
 
@@ -134,39 +135,75 @@ public actor MemoryManager {
         }
 
         guard kerr == KERN_SUCCESS else {
-            return MemoryPressureReport(residentMB: 0.0, availableMB: 0.0, pressureLevel: .low)
+            let report = MemoryPressureReport(residentMB: 0.0, availableMB: 0.0, pressureLevel: .low)
+            await telemetry?.capture(.memoryPressure(residentMB: 0.0, availableMB: 0.0))
+            return report
         }
 
         let residentMB = Double(info.resident_size) / (1024.0 * 1024.0)
 
-        // Get physical memory
+        // Get system-wide memory statistics
+        var vmStats = vm_statistics64()
+        var vmCount = mach_msg_type_number_t(MemoryLayout<vm_statistics64>.size / MemoryLayout<integer_t>.size)
+
+        let hostPort = mach_host_self()
+        let vmKerr = withUnsafeMutablePointer(to: &vmStats) {
+            $0.withMemoryRebound(to: integer_t.self, capacity: Int(vmCount)) {
+                host_statistics64(hostPort,
+                                 HOST_VM_INFO64,
+                                 $0,
+                                 &vmCount)
+            }
+        }
+
+        // Get page size
+        var pageSize: vm_size_t = 0
+        host_page_size(hostPort, &pageSize)
+
+        // Calculate available memory from system-wide statistics
+        let availableMB: Double
+        if vmKerr == KERN_SUCCESS {
+            // Available memory = free pages + inactive pages (can be reclaimed)
+            let availablePages = UInt64(vmStats.free_count) + UInt64(vmStats.inactive_count)
+            availableMB = Double(availablePages * UInt64(pageSize)) / (1024.0 * 1024.0)
+        } else {
+            // Fallback: use physical memory if host statistics fail
+            var physicalMemory: UInt64 = 0
+            var size = MemoryLayout<UInt64>.size
+            sysctlbyname("hw.memsize", &physicalMemory, &size, nil, 0)
+            availableMB = Double(physicalMemory) / (1024.0 * 1024.0)
+        }
+
+        // Get total physical memory for pressure calculation
         var physicalMemory: UInt64 = 0
         var size = MemoryLayout<UInt64>.size
         sysctlbyname("hw.memsize", &physicalMemory, &size, nil, 0)
         let totalMemoryMB = Double(physicalMemory) / (1024.0 * 1024.0)
 
-        // Calculate available memory (total - resident)
-        let availableMB = max(0.0, totalMemoryMB - residentMB)
-
-        // Determine pressure level based on resident memory percentage
-        let usagePercent = (residentMB / totalMemoryMB) * 100.0
+        // Determine pressure level based on available memory percentage
+        let availablePercent = (availableMB / totalMemoryMB) * 100.0
         let pressureLevel: MemoryPressureLevel
 
-        switch usagePercent {
-        case 0..<50:
+        switch availablePercent {
+        case 50...:
             pressureLevel = .low
-        case 50..<75:
+        case 25..<50:
             pressureLevel = .moderate
-        case 75..<90:
+        case 10..<25:
             pressureLevel = .high
         default:
             pressureLevel = .critical
         }
 
-        return MemoryPressureReport(
+        let report = MemoryPressureReport(
             residentMB: residentMB,
             availableMB: availableMB,
             pressureLevel: pressureLevel
         )
+
+        // Capture telemetry event
+        await telemetry?.capture(.memoryPressure(residentMB: residentMB, availableMB: availableMB))
+
+        return report
     }
 }

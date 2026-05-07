@@ -111,10 +111,8 @@ struct MemoryManagerTelemetryTests {
             }
         }, "Pressure level should be one of the valid levels")
 
-        // Verify resident + available is approximately total system memory
-        // (allowing for some variance due to system state changes)
-        let totalMemory = report.residentMB + report.availableMB
-        #expect(totalMemory > 0.0, "Total memory should be positive")
+        // Note: residentMB is process-specific, availableMB is system-wide
+        // They do NOT add up to total system memory (different scopes)
     }
 
     // MARK: - Memory Pressure Level Determination Tests
@@ -126,18 +124,23 @@ struct MemoryManagerTelemetryTests {
         // Get memory pressure report
         let report = await manager.reportMemoryPressure()
 
-        // Calculate expected pressure level based on resident memory percentage
-        let totalMemory = report.residentMB + report.availableMB
-        let usagePercent = (report.residentMB / totalMemory) * 100.0
+        // Get total physical memory for calculation
+        var physicalMemory: UInt64 = 0
+        var size = MemoryLayout<UInt64>.size
+        sysctlbyname("hw.memsize", &physicalMemory, &size, nil, 0)
+        let totalMemoryMB = Double(physicalMemory) / (1024.0 * 1024.0)
 
-        // Determine expected pressure level
+        // Calculate available memory percentage
+        let availablePercent = (report.availableMB / totalMemoryMB) * 100.0
+
+        // Determine expected pressure level based on available memory percentage
         let expectedLevel: MemoryPressureLevel
-        switch usagePercent {
-        case 0..<50:
+        switch availablePercent {
+        case 50...:
             expectedLevel = .low
-        case 50..<75:
+        case 25..<50:
             expectedLevel = .moderate
-        case 75..<90:
+        case 10..<25:
             expectedLevel = .high
         default:
             expectedLevel = .critical
@@ -149,8 +152,40 @@ struct MemoryManagerTelemetryTests {
             // Match expected
             break
         default:
-            Issue.record("Pressure level calculation mismatch")
+            Issue.record("Pressure level calculation mismatch: expected \(expectedLevel), got \(report.pressureLevel)")
         }
+    }
+
+    @Test("Memory pressure telemetry is captured")
+    func testMemoryPressureTelemetry() async throws {
+        let mockTelemetry = MockTelemetryReporter()
+        let manager = MemoryManager.shared
+
+        // Set the mock telemetry reporter
+        await manager.setTelemetry(mockTelemetry)
+
+        // Call reportMemoryPressure
+        let report = await manager.reportMemoryPressure()
+
+        // Give a small window for async events to complete
+        try? await Task.sleep(nanoseconds: 10_000_000) // 10ms
+
+        // Get the captured events
+        let events = mockTelemetry.getEvents()
+
+        // Verify we captured at least 1 event
+        #expect(events.count >= 1, "Should capture memory pressure event")
+
+        // Verify the event is memoryPressure with matching values
+        if case let .memoryPressure(residentMB, availableMB) = events[0] {
+            #expect(residentMB == report.residentMB, "Telemetry residentMB should match report")
+            #expect(availableMB == report.availableMB, "Telemetry availableMB should match report")
+        } else {
+            Issue.record("First event should be memoryPressure")
+        }
+
+        // Clean up telemetry
+        await manager.setTelemetry(nil)
     }
 
     // MARK: - Telemetry Optional Chaining Tests
