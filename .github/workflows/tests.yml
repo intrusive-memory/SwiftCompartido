@@ -6,6 +6,10 @@ on:
   push:
     branches: [main, development]
 
+concurrency:
+  group: ${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   test-macos:
     name: Test on macOS

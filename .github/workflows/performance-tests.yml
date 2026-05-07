@@ -3,6 +3,10 @@ name: Performance Tests
 on:
   workflow_dispatch:
 
+concurrency:
+  group: ${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   performance-macos:
     name: Performance Tests on macOS

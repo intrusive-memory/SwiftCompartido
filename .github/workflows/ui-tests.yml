@@ -10,7 +10,7 @@ on:
   workflow_dispatch:  # Allow manual triggering only
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: ${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
