@@ -27,6 +27,34 @@ public protocol CompartidoTelemetryReporter: Sendable {
     func capture(_ event: CompartidoTelemetryEvent) async
 }
 
+// MARK: - Memory Pressure Report
+
+/// Report of current memory pressure state
+public struct MemoryPressureReport: Sendable {
+    /// Resident memory in MB
+    public let residentMB: Double
+
+    /// Available memory in MB
+    public let availableMB: Double
+
+    /// Memory pressure level
+    public let pressureLevel: MemoryPressureLevel
+
+    public init(residentMB: Double, availableMB: Double, pressureLevel: MemoryPressureLevel) {
+        self.residentMB = residentMB
+        self.availableMB = availableMB
+        self.pressureLevel = pressureLevel
+    }
+}
+
+/// Memory pressure level classification
+public enum MemoryPressureLevel: Sendable {
+    case low
+    case moderate
+    case high
+    case critical
+}
+
 // MARK: - Memory Manager
 
 /// Actor responsible for managing memory and GPU cache operations
@@ -44,5 +72,101 @@ public actor MemoryManager {
     /// - Parameter reporter: The telemetry reporter to use, or nil to disable telemetry
     public func setTelemetry(_ reporter: CompartidoTelemetryReporter?) async {
         telemetry = reporter
+    }
+
+    // MARK: - GPU Memory Management
+
+    /// Get current Metal memory allocation in MB
+    /// - Returns: Current allocated Metal memory in megabytes
+    private func getCurrentMetalMemory() -> Double {
+        guard let device = MTLCreateSystemDefaultDevice() else {
+            return 0.0
+        }
+
+        let allocatedBytes = device.currentAllocatedSize
+        let allocatedMB = Double(allocatedBytes) / (1024.0 * 1024.0)
+        return allocatedMB
+    }
+
+    /// Clear GPU cache and report telemetry
+    public func clearGPUCache() async {
+        let startMemory = getCurrentMetalMemory()
+
+        // Capture telemetry start event
+        await telemetry?.capture(.gpuCacheClearStart(metalAllocatedMB: startMemory))
+
+        // Perform GPU cache clearing
+        // Note: Metal automatically manages most GPU memory, but we can force cleanup
+        // by releasing references and allowing the system to reclaim memory
+        guard let device = MTLCreateSystemDefaultDevice() else {
+            await telemetry?.capture(.gpuCacheClearComplete(freedMB: 0.0, metalAllocatedMB: 0.0))
+            return
+        }
+
+        // Force Metal to clean up by creating and destroying a command queue
+        // This encourages Metal to release unused resources
+        autoreleasepool {
+            _ = device.makeCommandQueue()
+        }
+
+        let endMemory = getCurrentMetalMemory()
+        let freedMB = max(0.0, startMemory - endMemory)
+
+        // Capture telemetry completion event
+        await telemetry?.capture(.gpuCacheClearComplete(freedMB: freedMB, metalAllocatedMB: endMemory))
+    }
+
+    // MARK: - Memory Pressure Monitoring
+
+    /// Report current memory pressure state
+    /// - Returns: A report containing resident memory, available memory, and pressure level
+    public func reportMemoryPressure() -> MemoryPressureReport {
+        var info = mach_task_basic_info()
+        var count = mach_msg_type_number_t(MemoryLayout<mach_task_basic_info>.size) / 4
+
+        let kerr = withUnsafeMutablePointer(to: &info) {
+            $0.withMemoryRebound(to: integer_t.self, capacity: 1) {
+                task_info(mach_task_self_,
+                         task_flavor_t(MACH_TASK_BASIC_INFO),
+                         $0,
+                         &count)
+            }
+        }
+
+        guard kerr == KERN_SUCCESS else {
+            return MemoryPressureReport(residentMB: 0.0, availableMB: 0.0, pressureLevel: .low)
+        }
+
+        let residentMB = Double(info.resident_size) / (1024.0 * 1024.0)
+
+        // Get physical memory
+        var physicalMemory: UInt64 = 0
+        var size = MemoryLayout<UInt64>.size
+        sysctlbyname("hw.memsize", &physicalMemory, &size, nil, 0)
+        let totalMemoryMB = Double(physicalMemory) / (1024.0 * 1024.0)
+
+        // Calculate available memory (total - resident)
+        let availableMB = max(0.0, totalMemoryMB - residentMB)
+
+        // Determine pressure level based on resident memory percentage
+        let usagePercent = (residentMB / totalMemoryMB) * 100.0
+        let pressureLevel: MemoryPressureLevel
+
+        switch usagePercent {
+        case 0..<50:
+            pressureLevel = .low
+        case 50..<75:
+            pressureLevel = .moderate
+        case 75..<90:
+            pressureLevel = .high
+        default:
+            pressureLevel = .critical
+        }
+
+        return MemoryPressureReport(
+            residentMB: residentMB,
+            availableMB: availableMB,
+            pressureLevel: pressureLevel
+        )
     }
 }
