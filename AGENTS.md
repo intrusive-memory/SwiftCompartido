@@ -2,7 +2,7 @@
 
 This file provides comprehensive documentation for AI agents working with the SwiftCompartido codebase.
 
-**Current Version**: 7.0.2 (March 2026)
+**Current Version**: 7.0.4 (May 2026)
 
 ---
 
@@ -295,7 +295,17 @@ If you have existing custom-pages.json files:
 
 ## Version History
 
-**7.0.2** (Current):
+**7.0.4** (Current):
+- Memory telemetry instrumentation for MemoryManager
+- Memory pressure event capture with system-wide stats
+- CI concurrency control (one run per branch)
+- SwiftFijos dependency updated to 1.4.1
+- Improved GPU cache telemetry test robustness
+
+**7.0.3**:
+- Intermediate release (patch)
+
+**7.0.2**:
 - Fixed PDF progress bar not advancing during page-by-page parsing
 - Extract PDF attributed strings for richer AI parsing context
 - CI/CD updates: Disabled iOS tests and performance tests (macOS unit tests only)
