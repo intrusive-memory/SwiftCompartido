@@ -8,7 +8,7 @@
     <img src="https://img.shields.io/badge/Swift-6.2+-orange.svg" />
     <img src="https://img.shields.io/badge/Platform-iOS%2026.0+%20|%20macOS%2026.0+-lightgrey.svg" />
     <img src="https://img.shields.io/badge/License-MIT-blue.svg" />
-    <img src="https://img.shields.io/badge/Version-7.0.2-blue.svg" />
+    <img src="https://img.shields.io/badge/Version-7.0.4-blue.svg" />
 </p>
 
 **SwiftCompartido** is a Swift package for parsing, storing, and displaying screenplays and AI-generated content. Built with SwiftData and SwiftUI.
@@ -35,14 +35,13 @@ SwiftCompartido has **two core missions**:
 
 ## ⚡ What's New
 
-**Version 7.0.2** fixes PDF parsing progress reporting and updates CI/CD. Key highlights:
+**Version 7.0.4** adds memory telemetry instrumentation and improves CI stability. Key highlights:
 
-- 🔧 **PDF Progress Bar Fix**: Progress bar now advances correctly during page-by-page parsing
-- 📄 **PDF Attributed Strings**: Extract attributed strings for richer AI parsing context
-- 🔄 **CI/CD Updates**: Streamlined test suite (macOS unit tests only) for faster PR feedback
-  - Disabled iOS simulator tests (macOS coverage sufficient for library code)
-  - Performance tests moved to separate target (excluded from CI)
-  - Branch protection updated to match new test configuration
+- 📊 **Memory Telemetry**: Core instrumentation for MemoryManager with event tracking and system-wide stats
+- 🔍 **Memory Pressure Events**: Capture and respond to system memory pressure notifications
+- 🔄 **CI Concurrency Control**: Only one CI run per branch to prevent resource conflicts
+- 📦 **Dependency Update**: SwiftFijos updated to 1.4.1 with versioned resolution
+- ✅ **Test Improvements**: Enhanced GPU cache telemetry test robustness
 
 See [CHANGELOG.md](./CHANGELOG.md) for complete version history and detailed release notes.
 
