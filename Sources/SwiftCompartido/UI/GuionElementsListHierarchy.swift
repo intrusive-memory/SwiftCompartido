@@ -74,6 +74,7 @@ public final class HierarchyBuilder: @unchecked Sendable {
   ///   - spacingMap: Pre-computed spacing map for elements
   ///   - progress: Optional progress tracker for reporting build progress
   /// - Returns: Array of root-level hierarchy nodes
+  @MainActor
   public static func buildHierarchy(
     from elements: [GuionElementModel],
     spacingMap: [PersistentIdentifier: Bool],

@@ -2,7 +2,7 @@
 
 This file provides comprehensive documentation for AI agents working with the SwiftCompartido codebase.
 
-**Current Version**: 7.0.4 (May 2026)
+**Current Version**: 7.0.5 (May 2026)
 
 ---
 
@@ -295,7 +295,12 @@ If you have existing custom-pages.json files:
 
 ## Version History
 
-**7.0.4** (Current):
+**7.0.5** (Current):
+- Swift 6 concurrency: Fixed actor isolation errors in HierarchyBuilder
+- Marked buildHierarchy parameters as `sending` for strict concurrency
+- Disabled flaky Foundation Models PDF parsing tests
+
+**7.0.4**:
 - Memory telemetry instrumentation for MemoryManager
 - Memory pressure event capture with system-wide stats
 - CI concurrency control (one run per branch)

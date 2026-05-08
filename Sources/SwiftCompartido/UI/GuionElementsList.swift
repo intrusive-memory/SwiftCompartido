@@ -309,16 +309,14 @@ public struct GuionElementsList<TrailingContent: View>: View {
         }
       }
 
-      // Build hierarchy on background thread
-      let roots = await Task.detached {
-        HierarchyBuilder.buildHierarchy(
-          from: elementsCopy,
-          spacingMap: spacingMapCopy,
-          progress: progress
-        )
-      }.value
+      // Build hierarchy (MainActor-isolated for Swift 6 concurrency)
+      let roots = HierarchyBuilder.buildHierarchy(
+        from: elementsCopy,
+        spacingMap: spacingMapCopy,
+        progress: progress
+      )
 
-      // Update UI on main thread
+      // Update UI
       hierarchyRoots = roots
       isBuilding = false
     }
