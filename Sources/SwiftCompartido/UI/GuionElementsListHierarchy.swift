@@ -75,9 +75,9 @@ public final class HierarchyBuilder: @unchecked Sendable {
   ///   - progress: Optional progress tracker for reporting build progress
   /// - Returns: Array of root-level hierarchy nodes
   public static func buildHierarchy(
-    from elements: [GuionElementModel],
-    spacingMap: [PersistentIdentifier: Bool],
-    progress: OperationProgress? = nil
+    from elements: sending [GuionElementModel],
+    spacingMap: sending [PersistentIdentifier: Bool],
+    progress: sending OperationProgress? = nil
   ) -> [HierarchyNode] {
     guard !elements.isEmpty else { return [] }
 
