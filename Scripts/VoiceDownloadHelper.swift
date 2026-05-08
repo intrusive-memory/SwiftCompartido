@@ -1,42 +1,44 @@
 import Foundation
-#if canImport(AppKit)
-import AppKit
 
-/// Helper for downloading Enhanced and Premium system voices
-///
-/// This utility launches an AppleScript that guides users through System Settings
-/// to download high-quality voices for Text-to-Speech.
-///
-/// Usage:
-/// ```swift
-/// VoiceDownloadHelper.promptUserToDownloadPremiumVoices { result in
-///     switch result {
-///     case .success(let launched):
-///         print("Voice download helper launched: \(launched)")
-///     case .failure(let error):
-///         print("Error: \(error)")
-///     }
-/// }
-/// ```
-@available(macOS 26.0, *)
-public enum VoiceDownloadHelper {
+#if canImport(AppKit)
+  import AppKit
+
+  /// Helper for downloading Enhanced and Premium system voices
+  ///
+  /// This utility launches an AppleScript that guides users through System Settings
+  /// to download high-quality voices for Text-to-Speech.
+  ///
+  /// Usage:
+  /// ```swift
+  /// VoiceDownloadHelper.promptUserToDownloadPremiumVoices { result in
+  ///     switch result {
+  ///     case .success(let launched):
+  ///         print("Voice download helper launched: \(launched)")
+  ///     case .failure(let error):
+  ///         print("Error: \(error)")
+  ///     }
+  /// }
+  /// ```
+  @available(macOS 26.0, *)
+  public enum VoiceDownloadHelper {
 
     /// Error types for voice download operations
     public enum VoiceDownloadError: LocalizedError {
-        case scriptNotFound
-        case scriptExecutionFailed(String)
-        case userCancelled
+      case scriptNotFound
+      case scriptExecutionFailed(String)
+      case userCancelled
 
-        public var errorDescription: String? {
-            switch self {
-            case .scriptNotFound:
-                return "Voice download script not found. Please ensure download-premium-voices.applescript is in the Scripts directory."
-            case .scriptExecutionFailed(let message):
-                return "Failed to execute voice download script: \(message)"
-            case .userCancelled:
-                return "User cancelled voice download"
-            }
+      public var errorDescription: String? {
+        switch self {
+        case .scriptNotFound:
+          return
+            "Voice download script not found. Please ensure download-premium-voices.applescript is in the Scripts directory."
+        case .scriptExecutionFailed(let message):
+          return "Failed to execute voice download script: \(message)"
+        case .userCancelled:
+          return "User cancelled voice download"
         }
+      }
     }
 
     /// Prompts user to download Enhanced and Premium voices for their system language
@@ -48,53 +50,55 @@ public enum VoiceDownloadHelper {
     /// 4. Optionally attempts automatic download
     ///
     /// - Parameter completion: Called when script completes or fails
-    public static func promptUserToDownloadPremiumVoices(completion: @escaping (Result<Bool, VoiceDownloadError>) -> Void) {
+    public static func promptUserToDownloadPremiumVoices(
+      completion: @escaping (Result<Bool, VoiceDownloadError>) -> Void
+    ) {
 
-        // Find the script path
-        guard let scriptPath = findScriptPath() else {
-            completion(.failure(.scriptNotFound))
-            return
-        }
+      // Find the script path
+      guard let scriptPath = findScriptPath() else {
+        completion(.failure(.scriptNotFound))
+        return
+      }
 
-        // Execute the AppleScript
-        DispatchQueue.global(qos: .userInitiated).async {
-            let process = Process()
-            process.executableURL = URL(fileURLWithPath: "/usr/bin/osascript")
-            process.arguments = [scriptPath]
+      // Execute the AppleScript
+      DispatchQueue.global(qos: .userInitiated).async {
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: "/usr/bin/osascript")
+        process.arguments = [scriptPath]
 
-            let outputPipe = Pipe()
-            let errorPipe = Pipe()
-            process.standardOutput = outputPipe
-            process.standardError = errorPipe
+        let outputPipe = Pipe()
+        let errorPipe = Pipe()
+        process.standardOutput = outputPipe
+        process.standardError = errorPipe
 
-            do {
-                try process.run()
-                process.waitUntilExit()
+        do {
+          try process.run()
+          process.waitUntilExit()
 
-                let exitCode = process.terminationStatus
+          let exitCode = process.terminationStatus
 
-                if exitCode == 0 {
-                    DispatchQueue.main.async {
-                        completion(.success(true))
-                    }
-                } else {
-                    let errorData = errorPipe.fileHandleForReading.readDataToEndOfFile()
-                    let errorMessage = String(data: errorData, encoding: .utf8) ?? "Unknown error"
-
-                    DispatchQueue.main.async {
-                        if errorMessage.contains("User canceled") || errorMessage.contains("Cancel") {
-                            completion(.failure(.userCancelled))
-                        } else {
-                            completion(.failure(.scriptExecutionFailed(errorMessage)))
-                        }
-                    }
-                }
-            } catch {
-                DispatchQueue.main.async {
-                    completion(.failure(.scriptExecutionFailed(error.localizedDescription)))
-                }
+          if exitCode == 0 {
+            DispatchQueue.main.async {
+              completion(.success(true))
             }
+          } else {
+            let errorData = errorPipe.fileHandleForReading.readDataToEndOfFile()
+            let errorMessage = String(data: errorData, encoding: .utf8) ?? "Unknown error"
+
+            DispatchQueue.main.async {
+              if errorMessage.contains("User canceled") || errorMessage.contains("Cancel") {
+                completion(.failure(.userCancelled))
+              } else {
+                completion(.failure(.scriptExecutionFailed(errorMessage)))
+              }
+            }
+          }
+        } catch {
+          DispatchQueue.main.async {
+            completion(.failure(.scriptExecutionFailed(error.localizedDescription)))
+          }
         }
+      }
     }
 
     /// Synchronous version that blocks until complete (use sparingly)
@@ -102,41 +106,41 @@ public enum VoiceDownloadHelper {
     /// - Throws: VoiceDownloadError if script fails
     /// - Returns: true if successful, false if user cancelled
     public static func promptUserToDownloadPremiumVoicesSync() throws -> Bool {
-        let semaphore = DispatchSemaphore(value: 0)
-        var result: Result<Bool, VoiceDownloadError>?
+      let semaphore = DispatchSemaphore(value: 0)
+      var result: Result<Bool, VoiceDownloadError>?
 
-        promptUserToDownloadPremiumVoices { downloadResult in
-            result = downloadResult
-            semaphore.signal()
-        }
+      promptUserToDownloadPremiumVoices { downloadResult in
+        result = downloadResult
+        semaphore.signal()
+      }
 
-        semaphore.wait()
+      semaphore.wait()
 
-        switch result {
-        case .success(let launched):
-            return launched
-        case .failure(let error):
-            throw error
-        case .none:
-            throw VoiceDownloadError.scriptExecutionFailed("No result returned")
-        }
+      switch result {
+      case .success(let launched):
+        return launched
+      case .failure(let error):
+        throw error
+      case .none:
+        throw VoiceDownloadError.scriptExecutionFailed("No result returned")
+      }
     }
 
     /// Checks if Premium/Enhanced voices are available for download
     ///
     /// - Returns: true if system supports Premium voices (macOS 26.0+)
     public static func arePremiumVoicesSupported() -> Bool {
-        if #available(macOS 26.0, *) {
-            return true
-        }
-        return false
+      if #available(macOS 26.0, *) {
+        return true
+      }
+      return false
     }
 
     /// Gets list of currently installed voices
     ///
     /// - Returns: Array of voice identifiers
     public static func getInstalledVoices() -> [String] {
-        return NSSpeechSynthesizer.availableVoices.map { $0.rawValue }
+      return NSSpeechSynthesizer.availableVoices.map { $0.rawValue }
     }
 
     /// Checks if a specific voice is installed
@@ -144,168 +148,171 @@ public enum VoiceDownloadHelper {
     /// - Parameter voiceIdentifier: Voice identifier (e.g., "com.apple.voice.premium.en-US.Jamie")
     /// - Returns: true if installed
     public static func isVoiceInstalled(_ voiceIdentifier: String) -> Bool {
-        return NSSpeechSynthesizer.availableVoices.contains { $0.rawValue == voiceIdentifier }
+      return NSSpeechSynthesizer.availableVoices.contains { $0.rawValue == voiceIdentifier }
     }
 
     /// Gets the current system voice identifier
     ///
     /// - Returns: Current system voice identifier, or nil if not set
     public static func getCurrentSystemVoice() -> String? {
-        return NSSpeechSynthesizer.defaultVoice?.rawValue
+      return NSSpeechSynthesizer.defaultVoice?.rawValue
     }
 
     /// Checks if current system voice is Premium or Enhanced
     ///
     /// - Returns: true if current voice is Premium or Enhanced
     public static func isUsingPremiumVoice() -> Bool {
-        guard let currentVoice = getCurrentSystemVoice() else {
-            return false
-        }
-        return currentVoice.contains("premium") || currentVoice.contains("enhanced")
+      guard let currentVoice = getCurrentSystemVoice() else {
+        return false
+      }
+      return currentVoice.contains("premium") || currentVoice.contains("enhanced")
     }
 
     // MARK: - Private Helpers
 
     private static func findScriptPath() -> String? {
-        // Try multiple search paths
-        let searchPaths = [
-            // Same directory as executable
-            Bundle.main.bundlePath + "/Contents/Resources/Scripts/download-premium-voices.applescript",
-            // SPM package path (development)
-            #file.replacingOccurrences(of: "VoiceDownloadHelper.swift", with: "download-premium-voices.applescript"),
-            // Relative to current working directory
-            FileManager.default.currentDirectoryPath + "/Scripts/download-premium-voices.applescript",
-            // User's home directory Scripts folder
-            NSHomeDirectory() + "/Scripts/download-premium-voices.applescript"
-        ]
+      // Try multiple search paths
+      let searchPaths = [
+        // Same directory as executable
+        Bundle.main.bundlePath + "/Contents/Resources/Scripts/download-premium-voices.applescript",
+        // SPM package path (development)
+        #file.replacingOccurrences(
+          of: "VoiceDownloadHelper.swift", with: "download-premium-voices.applescript"),
+        // Relative to current working directory
+        FileManager.default.currentDirectoryPath + "/Scripts/download-premium-voices.applescript",
+        // User's home directory Scripts folder
+        NSHomeDirectory() + "/Scripts/download-premium-voices.applescript",
+      ]
 
-        for path in searchPaths {
-            if FileManager.default.fileExists(atPath: path) {
-                return path
-            }
+      for path in searchPaths {
+        if FileManager.default.fileExists(atPath: path) {
+          return path
         }
+      }
 
-        return nil
+      return nil
     }
-}
+  }
 
-// MARK: - SwiftUI Integration
+  // MARK: - SwiftUI Integration
 
-#if canImport(SwiftUI)
-import SwiftUI
+  #if canImport(SwiftUI)
+    import SwiftUI
 
-/// SwiftUI button that prompts user to download Premium voices
-@available(macOS 26.0, *)
-public struct DownloadPremiumVoicesButton: View {
-    @State private var isDownloading = false
-    @State private var errorMessage: String?
-    @State private var showingAlert = false
+    /// SwiftUI button that prompts user to download Premium voices
+    @available(macOS 26.0, *)
+    public struct DownloadPremiumVoicesButton: View {
+      @State private var isDownloading = false
+      @State private var errorMessage: String?
+      @State private var showingAlert = false
 
-    public var label: String
-    public var onCompletion: ((Bool) -> Void)?
+      public var label: String
+      public var onCompletion: ((Bool) -> Void)?
 
-    public init(
+      public init(
         label: String = "Download Premium Voices",
         onCompletion: ((Bool) -> Void)? = nil
-    ) {
+      ) {
         self.label = label
         self.onCompletion = onCompletion
-    }
+      }
 
-    public var body: some View {
+      public var body: some View {
         Button(action: downloadVoices) {
-            Label(label, systemImage: "arrow.down.circle")
+          Label(label, systemImage: "arrow.down.circle")
         }
         .disabled(isDownloading)
         .alert("Voice Download", isPresented: $showingAlert) {
-            Button("OK", role: .cancel) { }
+          Button("OK", role: .cancel) {}
         } message: {
-            if let error = errorMessage {
-                Text(error)
-            } else {
-                Text("Voice download helper launched successfully.")
-            }
+          if let error = errorMessage {
+            Text(error)
+          } else {
+            Text("Voice download helper launched successfully.")
+          }
         }
-    }
+      }
 
-    private func downloadVoices() {
+      private func downloadVoices() {
         isDownloading = true
 
         VoiceDownloadHelper.promptUserToDownloadPremiumVoices { result in
-            isDownloading = false
+          isDownloading = false
 
-            switch result {
-            case .success(let launched):
-                showingAlert = true
-                errorMessage = nil
-                onCompletion?(launched)
-            case .failure(let error):
-                showingAlert = true
-                errorMessage = error.localizedDescription
-                onCompletion?(false)
-            }
+          switch result {
+          case .success(let launched):
+            showingAlert = true
+            errorMessage = nil
+            onCompletion?(launched)
+          case .failure(let error):
+            showingAlert = true
+            errorMessage = error.localizedDescription
+            onCompletion?(false)
+          }
         }
+      }
     }
-}
 
-/// View modifier for showing voice download prompt
-@available(macOS 26.0, *)
-public struct VoiceDownloadModifier: ViewModifier {
-    @Binding var isPresented: Bool
-    var onCompletion: ((Bool) -> Void)?
+    /// View modifier for showing voice download prompt
+    @available(macOS 26.0, *)
+    public struct VoiceDownloadModifier: ViewModifier {
+      @Binding var isPresented: Bool
+      var onCompletion: ((Bool) -> Void)?
 
-    public func body(content: Content) -> some View {
+      public func body(content: Content) -> some View {
         content
-            .sheet(isPresented: $isPresented) {
-                VStack(spacing: 20) {
-                    Image(systemName: "speaker.wave.3")
-                        .font(.system(size: 60))
-                        .foregroundColor(.blue)
+          .sheet(isPresented: $isPresented) {
+            VStack(spacing: 20) {
+              Image(systemName: "speaker.wave.3")
+                .font(.system(size: 60))
+                .foregroundColor(.blue)
 
-                    Text("Download Premium Voices")
-                        .font(.title)
+              Text("Download Premium Voices")
+                .font(.title)
 
-                    Text("For the best Text-to-Speech quality, download Enhanced and Premium voices for your language.")
-                        .multilineTextAlignment(.center)
-                        .padding(.horizontal)
+              Text(
+                "For the best Text-to-Speech quality, download Enhanced and Premium voices for your language."
+              )
+              .multilineTextAlignment(.center)
+              .padding(.horizontal)
 
-                    HStack(spacing: 20) {
-                        Button("Cancel") {
-                            isPresented = false
-                        }
-                        .keyboardShortcut(.cancelAction)
-
-                        DownloadPremiumVoicesButton(label: "Open System Settings") { success in
-                            isPresented = false
-                            onCompletion?(success)
-                        }
-                        .keyboardShortcut(.defaultAction)
-                    }
+              HStack(spacing: 20) {
+                Button("Cancel") {
+                  isPresented = false
                 }
-                .padding(40)
-                .frame(width: 500, height: 300)
-            }
-    }
-}
+                .keyboardShortcut(.cancelAction)
 
-@available(macOS 26.0, *)
-extension View {
-    /// Presents a voice download prompt when binding is true
-    ///
-    /// Usage:
-    /// ```swift
-    /// .presentVoiceDownload(isPresented: $showVoiceDownload) { success in
-    ///     print("Download completed: \(success)")
-    /// }
-    /// ```
-    public func presentVoiceDownload(
+                DownloadPremiumVoicesButton(label: "Open System Settings") { success in
+                  isPresented = false
+                  onCompletion?(success)
+                }
+                .keyboardShortcut(.defaultAction)
+              }
+            }
+            .padding(40)
+            .frame(width: 500, height: 300)
+          }
+      }
+    }
+
+    @available(macOS 26.0, *)
+    extension View {
+      /// Presents a voice download prompt when binding is true
+      ///
+      /// Usage:
+      /// ```swift
+      /// .presentVoiceDownload(isPresented: $showVoiceDownload) { success in
+      ///     print("Download completed: \(success)")
+      /// }
+      /// ```
+      public func presentVoiceDownload(
         isPresented: Binding<Bool>,
         onCompletion: ((Bool) -> Void)? = nil
-    ) -> some View {
+      ) -> some View {
         modifier(VoiceDownloadModifier(isPresented: isPresented, onCompletion: onCompletion))
+      }
     }
-}
 
-#endif // SwiftUI
+  #endif  // SwiftUI
 
-#endif // macOS
+#endif  // macOS

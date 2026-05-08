@@ -8,7 +8,7 @@
     <img src="https://img.shields.io/badge/Swift-6.2+-orange.svg" />
     <img src="https://img.shields.io/badge/Platform-iOS%2026.0+%20|%20macOS%2026.0+-lightgrey.svg" />
     <img src="https://img.shields.io/badge/License-MIT-blue.svg" />
-    <img src="https://img.shields.io/badge/Version-7.0.4--dev-blue.svg" />
+    <img src="https://img.shields.io/badge/Version-7.0.5-blue.svg" />
 </p>
 
 **SwiftCompartido** is a Swift package for parsing, storing, and displaying screenplays and AI-generated content. Built with SwiftData and SwiftUI.
@@ -35,13 +35,11 @@ SwiftCompartido has **two core missions**:
 
 ## ⚡ What's New
 
-**Version 7.0.4** adds memory telemetry instrumentation and improves CI stability. Key highlights:
+**Version 7.0.5** resolves Swift 6 concurrency errors and disables unreliable AI PDF tests. Key highlights:
 
-- 📊 **Memory Telemetry**: Core instrumentation for MemoryManager with event tracking and system-wide stats
-- 🔍 **Memory Pressure Events**: Capture and respond to system memory pressure notifications
-- 🔄 **CI Concurrency Control**: Only one CI run per branch to prevent resource conflicts
-- 📦 **Dependency Update**: SwiftFijos updated to 1.4.1 with versioned resolution
-- ✅ **Test Improvements**: Enhanced GPU cache telemetry test robustness
+- 🔧 **Swift 6 Concurrency**: Fixed actor isolation errors in HierarchyBuilder parameters
+- 🔧 **Swift 6 Compliance**: Marked buildHierarchy parameters as `sending` for strict concurrency
+- ⚠️ **AI PDF Tests**: Disabled flaky Foundation Models PDF parsing tests pending reliability improvements
 
 See [CHANGELOG.md](./CHANGELOG.md) for complete version history and detailed release notes.
 

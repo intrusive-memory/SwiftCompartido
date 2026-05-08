@@ -33,7 +33,9 @@ import Testing
 /// - Compare AI vs. heuristic conversion quality
 ///
 /// **DISABLED**: AI PDF conversion tests are disabled until the feature is complete.
-@Suite("PDF Parser AI Tests - Requires Apple Intelligence", .disabled("AI PDF conversion feature in development"))
+@Suite(
+  "PDF Parser AI Tests - Requires Apple Intelligence",
+  .disabled("AI PDF conversion feature in development"))
 struct PDFScreenplayParserAITests {
 
   // MARK: - Test Fixtures
