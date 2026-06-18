@@ -8,7 +8,7 @@
     <img src="https://img.shields.io/badge/Swift-6.2+-orange.svg" />
     <img src="https://img.shields.io/badge/Platform-iOS%2026.0+%20|%20macOS%2026.0+-lightgrey.svg" />
     <img src="https://img.shields.io/badge/License-MIT-blue.svg" />
-    <img src="https://img.shields.io/badge/Version-7.0.5-blue.svg" />
+    <img src="https://img.shields.io/badge/Version-7.1.0-blue.svg" />
 </p>
 
 **SwiftCompartido** is a Swift package for parsing, storing, and displaying screenplays and AI-generated content. Built with SwiftData and SwiftUI.
@@ -35,7 +35,7 @@ SwiftCompartido has **two core missions**:
 
 ## ⚡ What's New
 
-**Version 7.0.5** resolves Swift 6 concurrency errors and disables unreliable AI PDF tests. Key highlights:
+**Version 7.1.0** adds telemetry instrumentation, memory manager improvements, and comprehensive migration tests. Key highlights:
 
 - 🔧 **Swift 6 Concurrency**: Fixed actor isolation errors in HierarchyBuilder parameters
 - 🔧 **Swift 6 Compliance**: Marked buildHierarchy parameters as `sending` for strict concurrency
@@ -384,8 +384,16 @@ Button("Download Premium Voices") {
 - **[Foundation Models Status](./Docs/FOUNDATION_MODELS_STATUS.md)** - AI-powered PDF parsing roadmap
 
 ### Developer Documentation
-- **[CLAUDE.md](./CLAUDE.md)** - Architecture guide and development patterns
+- **[AGENTS.md](./AGENTS.md)** - Comprehensive AI agent documentation (architecture, models, patterns)
+- **[CLAUDE.md](./CLAUDE.md)** - Claude Code specific instructions
 - **[Workflow Guide](./.claude/WORKFLOW.md)** - Branch strategy, commits, PRs, releases
+
+### Schema Versioning
+- **[SwiftCompartidoSchemaV1](./Sources/SwiftCompartido/Schemas/SwiftCompartidoSchemaV1.swift)** - V1 baseline schema (complete production snapshot)
+- **[SwiftCompartidoSchemaV2](./Sources/SwiftCompartido/Schemas/SwiftCompartidoSchemaV2.swift)** - V2 schema with glosa fields (complete production snapshot)
+- **[MigrationTests](./Tests/SwiftCompartidoTests/MigrationTests.swift)** - Comprehensive migration test suite (9 tests covering all models)
+
+**CRITICAL**: Versioned schemas must mirror **every stored property** from production models to prevent data loss during migration. See [SwiftCompartidoSchemaV2](./Sources/SwiftCompartido/Schemas/SwiftCompartidoSchemaV2.swift) for details.
 
 ## Requirements
 

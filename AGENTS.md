@@ -2,7 +2,7 @@
 
 This file provides comprehensive documentation for AI agents working with the SwiftCompartido codebase.
 
-**Current Version**: 7.0.5 (May 2026)
+**Current Version**: 7.1.0 (June 2026)
 
 ---
 
@@ -99,6 +99,72 @@ SwiftCompartido/
 | `TypedDataStorage` | Unified storage for AI-generated content (text, audio, images, embeddings) |
 | `CharacterVoiceMapping` | Character-to-voice associations |
 
+### Schema Versioning
+
+SwiftCompartido uses SwiftData's `VersionedSchema` pattern for schema evolution. Consumer apps **must** include all schema versions in their `SchemaMigrationPlan` to ensure data migrations work correctly.
+
+**Current Schema Version**: V2 (SwiftCompartido 7.0.5+)
+
+**Schema Documentation**:
+- [SwiftCompartidoSchemaV1](Sources/SwiftCompartido/Schemas/SwiftCompartidoSchemaV1.swift) - V1 baseline schema (complete production model snapshot)
+- [SwiftCompartidoSchemaV2](Sources/SwiftCompartido/Schemas/SwiftCompartidoSchemaV2.swift) - V2 schema with glosa fields (complete production model snapshot)
+- [MigrationTests](Tests/SwiftCompartidoTests/MigrationTests.swift) - Comprehensive migration test suite
+
+**CRITICAL: Complete Model Mirroring**
+
+All versioned schema models MUST mirror **every stored property** from their production counterparts. Missing fields cause **data loss** during migration because:
+1. SwiftData creates the target schema with only declared fields
+2. Migration copies only declared fields from source
+3. **Undeclared fields are dropped as "not in schema"**
+
+See [SwiftCompartidoSchemaV2](Sources/SwiftCompartido/Schemas/SwiftCompartidoSchemaV2.swift) for a detailed example of the data loss bug and fix.
+
+**Migration History**:
+- **V1** (baseline): SwiftCompartido ≤ 7.0.4 — Complete model snapshot without glosa fields (~640 lines)
+- **V2** (current): SwiftCompartido ≥ 7.0.5 — Complete model snapshot with glosa annotation fields
+
+**Required App Integration**:
+
+Consumer apps that adopt SwiftCompartido v7.0.5+ must include both V1 and V2 in their `SchemaMigrationPlan`:
+
+```swift
+import SwiftData
+import SwiftCompartido
+
+enum MyAppMigrationPlan: SchemaMigrationPlan {
+  static var schemas: [any VersionedSchema.Type] {
+    [
+      SwiftCompartidoSchemaV1.self,
+      SwiftCompartidoSchemaV2.self
+    ]
+  }
+
+  static var stages: [MigrationStage] {
+    [
+      SwiftCompartidoSchemaV2.migrationStage
+    ]
+  }
+}
+
+// Use in ModelContainer initialization
+let container = try ModelContainer(
+  for: GuionDocumentModel.self, GuionElementModel.self, /* other models */,
+  migrationPlan: MyAppMigrationPlan.self
+)
+```
+
+**Migration Details**:
+- **V1 → V2**: Lightweight migration adding five optional glosa fields to `GuionElementModel`
+  - `glosaSpokenText: String?` — Notes-stripped dialogue text
+  - `glosaBreathOffsets: [Int]?` — Unicode-scalar breath hint offsets
+  - `glosaBreathStrengths: [String]?` — Breath strength values
+  - `glosaInstruct: String?` — LLM performance direction
+  - `glosaPausePoints: Data?` — Encoded pause point DTOs
+
+All new fields default to `nil`, so existing data migrates without modification.
+
+**Testing**: See `MigrationTests.swift` for migration verification patterns.
+
 ### Display Components
 
 | Component | Purpose |
@@ -112,14 +178,32 @@ SwiftCompartido/
 
 ## Dependencies
 
-| Package | Purpose |
-|---------|---------|
-| SwiftData | Model persistence |
-| SwiftUI | UI framework |
-| Foundation | Core utilities |
-| UniformTypeIdentifiers | MIME type handling |
-| PDFKit | PDF rendering |
-| AVFoundation | Audio playback |
+| Package | Purpose | Documentation |
+|---------|---------|---------------|
+| SwiftData | Model persistence | System framework |
+| SwiftUI | UI framework | System framework |
+| Foundation | Core utilities | System framework |
+| UniformTypeIdentifiers | MIME type handling | System framework |
+| PDFKit | PDF rendering | System framework |
+| AVFoundation | Audio playback | System framework |
+| **GlosaCore** (glosa-av) | **GLOSA screenplay annotation compiler** | **[Dependency Border](docs/glosa-av-dependency-border.md)** |
+
+### GlosaCore Integration
+
+SwiftCompartido uses **glosa-av's GlosaCore** to annotate screenplay dialogue with performance direction (instruct strings) and phrasing/pause seam points.
+
+**API Surface**: Single boundary function `compileAnnotations(fountainNotes:rawDialogueLines:)` returns `[Int: GlosaLineAnnotation]` DTOs.
+
+**Integration Point**: `DocumentModelActor.annotateGlosa(document:)` calls GlosaCore during screenplay import and persists results to five optional fields on `GuionElementModel`:
+- `glosaSpokenText: String?` - Notes-stripped dialogue text
+- `glosaBreathOffsets: [Int]?` - Phrasing hint offsets
+- `glosaBreathStrengths: [String]?` - Breath strength values
+- `glosaInstruct: String?` - LLM performance direction
+- `glosaPausePoints: Data?` - JSON-encoded pause points
+
+**Graceful Degradation**: Glosa annotation failure never aborts screenplay import; all glosa fields default to `nil` on error.
+
+**Full Specification**: See [glosa-av Dependency Border](docs/glosa-av-dependency-border.md) for complete API contract, data flow, and offset conventions.
 
 ## Build and Test
 
@@ -295,7 +379,13 @@ If you have existing custom-pages.json files:
 
 ## Version History
 
-**7.0.5** (Current):
+**7.1.0** (Current):
+- GlosaCore Integration: Added screenplay audio annotation support via glosa-av dependency
+- Migration Tests: Comprehensive tests for SwiftData schema migrations from V1 to V2
+- Telemetry Instrumentation: Added memory manager telemetry and performance tracking
+- Fixed race condition in MemoryManagerTelemetryTests
+
+**7.0.5**:
 - Swift 6 concurrency: Fixed actor isolation errors in HierarchyBuilder
 - Marked buildHierarchy parameters as `sending` for strict concurrency
 - Disabled flaky Foundation Models PDF parsing tests

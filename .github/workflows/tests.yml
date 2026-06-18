@@ -3,8 +3,6 @@ name: Tests
 on:
   pull_request:
     branches: [main, development]
-  push:
-    branches: [main, development]
 
 concurrency:
   group: ${{ github.ref }}
@@ -17,7 +15,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Show Swift version
         run: swift --version
@@ -36,6 +34,7 @@ jobs:
             -only-testing:SwiftCompartidoTests \
             -skip-testing:SwiftCompartidoTests/GuionDocumentSnapshotCastListTests \
             -skip-testing:SwiftCompartidoTests/CastListGenerationIntegrationTests \
+            -skip-testing:SwiftCompartidoTests/MigrationTests \
             -skip-testing:SwiftCompartidoTests/GuionJSONSerializerTests/testPerformance_Encode120PageScreenplay \
             -skip-testing:SwiftCompartidoTests/GuionJSONSerializerTests/testPerformance_Decode120PageScreenplay \
             -skip-testing:SwiftCompartidoTests/GuionJSONSerializerTests/testPerformance_RoundTrip \

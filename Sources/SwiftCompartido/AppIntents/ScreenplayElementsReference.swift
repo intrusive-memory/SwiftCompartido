@@ -226,6 +226,25 @@ public struct ElementReference: Codable, Sendable, Hashable, Identifiable {
   /// The character name for dialogue elements (nil for non-dialogue).
   public let characterName: String?
 
+  // MARK: - Glosa Annotation Data (NEW in 7.0.5)
+
+  /// Notes-stripped spoken prose for this element.
+  ///
+  /// When glosa annotation has run, this holds the dialogue text with every
+  /// inline `[[<breath …/>]]` / `[[<pause …/>]]` note removed. `nil` when
+  /// glosa has not run.
+  public let glosaSpokenText: String?
+
+  /// Unicode-scalar boundary offsets in `glosaSpokenText` where breath hints are located.
+  ///
+  /// `nil` when glosa has not run; empty when no `<breath/>` markers were present.
+  public let glosaBreathOffsets: [Int]?
+
+  /// Composed LLM performance-direction string for this line, if any.
+  ///
+  /// `nil` when no active GLOSA directive covered this line.
+  public let glosaInstruct: String?
+
   // MARK: - Computed Properties
 
   /// Returns true if this element is a dialogue type.
@@ -259,13 +278,19 @@ public struct ElementReference: Codable, Sendable, Hashable, Identifiable {
   ///   - chapterIndex: The chapter index (0-based)
   ///   - orderIndex: The order index within the chapter
   ///   - characterName: The character name for dialogue elements
+  ///   - glosaSpokenText: Notes-stripped spoken prose (nil if glosa not run)
+  ///   - glosaBreathOffsets: Breath hint offsets (nil if glosa not run)
+  ///   - glosaInstruct: Performance direction (nil if none)
   public init(
     id: PersistentIdentifier,
     elementType: ElementType,
     elementText: String,
     chapterIndex: Int,
     orderIndex: Int,
-    characterName: String?
+    characterName: String?,
+    glosaSpokenText: String? = nil,
+    glosaBreathOffsets: [Int]? = nil,
+    glosaInstruct: String? = nil
   ) {
     self.id = id
     self.elementType = elementType
@@ -273,6 +298,9 @@ public struct ElementReference: Codable, Sendable, Hashable, Identifiable {
     self.chapterIndex = chapterIndex
     self.orderIndex = orderIndex
     self.characterName = characterName
+    self.glosaSpokenText = glosaSpokenText
+    self.glosaBreathOffsets = glosaBreathOffsets
+    self.glosaInstruct = glosaInstruct
   }
 }
 
@@ -295,8 +323,37 @@ extension ElementReference {
       elementText: element.elementText,
       chapterIndex: element.chapterIndex,
       orderIndex: element.orderIndex,
-      characterName: nil  // Cannot extract without full element context
+      characterName: nil,  // Cannot extract without full element context
+      glosaSpokenText: element.glosaSpokenText,
+      glosaBreathOffsets: element.glosaBreathOffsets,
+      glosaInstruct: element.glosaInstruct
     )
+  }
+}
+
+// MARK: - SpeakableElement Conformance
+
+@available(iOS 26.0, macOS 26.0, *)
+extension ElementReference: SpeakableElement {
+  /// The spoken prose for this element, with inline glosa notes stripped.
+  ///
+  /// Falls back to raw `elementText` when glosa annotation has not run.
+  public var spokenText: String {
+    glosaSpokenText ?? elementText
+  }
+
+  /// Unicode-scalar boundary offsets in `spokenText` where breath hints are located.
+  ///
+  /// Returns empty array when glosa annotation has not run or no breath markers were present.
+  public var breathOffsets: [Int] {
+    glosaBreathOffsets ?? []
+  }
+
+  /// Composed LLM performance-direction string for this line, if any.
+  ///
+  /// Returns `nil` when no active GLOSA directive covered this line.
+  public var instruct: String? {
+    glosaInstruct
   }
 }
 
@@ -337,7 +394,10 @@ extension ScreenplayElementsReference {
           elementText: element.elementText,
           chapterIndex: element.chapterIndex,
           orderIndex: element.orderIndex,
-          characterName: characterName
+          characterName: characterName,
+          glosaSpokenText: element.glosaSpokenText,
+          glosaBreathOffsets: element.glosaBreathOffsets,
+          glosaInstruct: element.glosaInstruct
         ))
     }
 
