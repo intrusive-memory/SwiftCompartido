@@ -59,6 +59,10 @@ let package = Package(
       "SwiftFijos",
       remote: "https://github.com/intrusive-memory/SwiftFijos.git",
       from: "1.4.1"),
+    sibling(
+      "glosa-av",
+      remote: "https://github.com/intrusive-memory/glosa-av.git",
+      from: Version(0, 5, 0)),
     .package(url: "https://github.com/swiftlang/swift-markdown.git", from: "0.7.0"),
   ],
   targets: [
@@ -68,6 +72,7 @@ let package = Package(
         .product(name: "TextBundle", package: "TextBundle"),
         .product(name: "ZIPFoundation", package: "ZIPFoundation"),
         .product(name: "Markdown", package: "swift-markdown"),
+        .product(name: "GlosaCore", package: "glosa-av"),
       ],
       swiftSettings: [
         .enableUpcomingFeature("StrictConcurrency")
