@@ -384,8 +384,16 @@ Button("Download Premium Voices") {
 - **[Foundation Models Status](./Docs/FOUNDATION_MODELS_STATUS.md)** - AI-powered PDF parsing roadmap
 
 ### Developer Documentation
-- **[CLAUDE.md](./CLAUDE.md)** - Architecture guide and development patterns
+- **[AGENTS.md](./AGENTS.md)** - Comprehensive AI agent documentation (architecture, models, patterns)
+- **[CLAUDE.md](./CLAUDE.md)** - Claude Code specific instructions
 - **[Workflow Guide](./.claude/WORKFLOW.md)** - Branch strategy, commits, PRs, releases
+
+### Schema Versioning
+- **[SwiftCompartidoSchemaV1](./Sources/SwiftCompartido/Schemas/SwiftCompartidoSchemaV1.swift)** - V1 baseline schema (complete production snapshot)
+- **[SwiftCompartidoSchemaV2](./Sources/SwiftCompartido/Schemas/SwiftCompartidoSchemaV2.swift)** - V2 schema with glosa fields (complete production snapshot)
+- **[MigrationTests](./Tests/SwiftCompartidoTests/MigrationTests.swift)** - Comprehensive migration test suite (9 tests covering all models)
+
+**CRITICAL**: Versioned schemas must mirror **every stored property** from production models to prevent data loss during migration. See [SwiftCompartidoSchemaV2](./Sources/SwiftCompartido/Schemas/SwiftCompartidoSchemaV2.swift) for details.
 
 ## Requirements
 
