@@ -26,4 +26,13 @@ extension Tag {
   /// - Breath/pause offset handling
   /// - Integration with GlosaCore
   @Tag static var glosa: Self
+
+  /// Tests for SwiftData schema versioning and migration
+  ///
+  /// These tests verify:
+  /// - Schema version definitions (V1, V2, etc.)
+  /// - Lightweight and custom migration stages
+  /// - Data integrity across migrations
+  /// - Backward compatibility
+  @Tag static var migration: Self
 }
