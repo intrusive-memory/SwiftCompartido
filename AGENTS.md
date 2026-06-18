@@ -99,6 +99,58 @@ SwiftCompartido/
 | `TypedDataStorage` | Unified storage for AI-generated content (text, audio, images, embeddings) |
 | `CharacterVoiceMapping` | Character-to-voice associations |
 
+### Schema Versioning
+
+SwiftCompartido uses SwiftData's `VersionedSchema` pattern for schema evolution. Consumer apps **must** include all schema versions in their `SchemaMigrationPlan` to ensure data migrations work correctly.
+
+**Current Schema Version**: V2 (SwiftCompartido 7.0.5+)
+
+**Migration History**:
+- **V1** (baseline): SwiftCompartido ≤ 7.0.4 — GuionElementModel without glosa fields
+- **V2** (current): SwiftCompartido ≥ 7.0.5 — Adds glosa annotation fields to GuionElementModel
+
+**Required App Integration**:
+
+Consumer apps that adopt SwiftCompartido v7.0.5+ must include both V1 and V2 in their `SchemaMigrationPlan`:
+
+```swift
+import SwiftData
+import SwiftCompartido
+
+enum MyAppMigrationPlan: SchemaMigrationPlan {
+  static var schemas: [any VersionedSchema.Type] {
+    [
+      SwiftCompartidoSchemaV1.self,
+      SwiftCompartidoSchemaV2.self
+    ]
+  }
+
+  static var stages: [MigrationStage] {
+    [
+      SwiftCompartidoSchemaV2.migrationStage
+    ]
+  }
+}
+
+// Use in ModelContainer initialization
+let container = try ModelContainer(
+  for: GuionDocumentModel.self, GuionElementModel.self, /* other models */,
+  migrationPlan: MyAppMigrationPlan.self
+)
+```
+
+**Migration Details**:
+- **V1 → V2**: Lightweight migration adding five optional glosa fields to `GuionElementModel`
+  - `glosaSpokenText: String?` — Notes-stripped dialogue text
+  - `glosaBreathOffsets: [Int]?` — Unicode-scalar breath hint offsets
+  - `glosaBreathStrengths: [String]?` — Breath strength values
+  - `glosaInstruct: String?` — LLM performance direction
+  - `glosaPausePoints: Data?` — Encoded pause point DTOs
+
+All new fields default to `nil`, so existing data migrates without modification.
+
+**Testing**: See `MigrationTests.swift` for migration verification patterns.
+
 ### Display Components
 
 | Component | Purpose |

@@ -1,0 +1,15 @@
+INT. OFFICE - DAY
+
+Bernard stares at the screen.
+
+[[<SceneContext location="office" time="day">]]
+[[<Intent from="calm" to="warm" pace="moderate">]]
+
+BERNARD
+Hello there.[[<breath strength="medium"/>]]How are you today?
+
+[[</Intent>]]
+[[</SceneContext>]]
+
+KILLIAN
+I am fine, thank you.
