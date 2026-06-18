@@ -200,6 +200,486 @@ struct MigrationTests {
     #expect(fetched.glosaInstruct == "Speak warmly", "Glosa instruct stored")
   }
 
+  /// Test that GuionDocumentModel fields migrate correctly.
+  ///
+  /// Verifies all document properties and relationships are preserved:
+  /// - Document properties (filename, rawContent, suppressSceneNumbers, title)
+  /// - Source file tracking (sourceFileBookmark, lastImportDate, sourceFileModificationDate)
+  /// - Relationships (elements, titlePage, customPages, generatedContent, casting)
+  @Test("GuionDocumentModel migration preserves all fields")
+  func testGuionDocumentModelMigration() throws {
+    let tempDir = FileManager.default.temporaryDirectory
+    let storeURL = tempDir.appendingPathComponent("doc-migration-test-\(UUID().uuidString).store")
+
+    defer {
+      try? FileManager.default.removeItem(at: storeURL)
+      try? FileManager.default.removeItem(at: storeURL.deletingPathExtension().appendingPathExtension("store-shm"))
+      try? FileManager.default.removeItem(at: storeURL.deletingPathExtension().appendingPathExtension("store-wal"))
+    }
+
+    // Create V1 store with document
+    let v1Config = ModelConfiguration(url: storeURL)
+    let v1Schema = Schema(versionedSchema: SwiftCompartidoSchemaV1.self)
+    let v1Container = try ModelContainer(for: v1Schema, configurations: v1Config)
+    let v1Context = ModelContext(v1Container)
+
+    let docUUID = UUID()
+    let v1Doc = SwiftCompartidoSchemaV1.GuionDocumentModel(
+      uuid: docUUID,
+      filename: "test-script.fountain",
+      rawContent: "INT. TEST - DAY",
+      suppressSceneNumbers: true,
+      title: "Test Script"
+    )
+    v1Doc.sourceFileBookmark = Data([1, 2, 3, 4])
+    v1Doc.lastImportDate = Date(timeIntervalSince1970: 1000000)
+    v1Doc.sourceFileModificationDate = Date(timeIntervalSince1970: 900000)
+
+    v1Context.insert(v1Doc)
+    try v1Context.save()
+
+    // Migrate to V2
+    enum TestMigrationPlan: SchemaMigrationPlan {
+      static var schemas: [any VersionedSchema.Type] {
+        [SwiftCompartidoSchemaV1.self, SwiftCompartidoSchemaV2.self]
+      }
+      static var stages: [MigrationStage] {
+        [SwiftCompartidoSchemaV2.migrationStage]
+      }
+    }
+
+    let v2Config = ModelConfiguration(url: storeURL)
+    let v2Schema = Schema(versionedSchema: SwiftCompartidoSchemaV2.self)
+    let v2Container = try ModelContainer(
+      for: v2Schema,
+      migrationPlan: TestMigrationPlan.self,
+      configurations: v2Config
+    )
+
+    let v2Context = ModelContext(v2Container)
+    let fetchDescriptor = FetchDescriptor<SwiftCompartidoSchemaV2.GuionDocumentModel>(
+      predicate: #Predicate { $0.uuid == docUUID }
+    )
+    let migratedDocs = try v2Context.fetch(fetchDescriptor)
+
+    #expect(migratedDocs.count == 1, "Should find one migrated document")
+    guard let doc = migratedDocs.first else {
+      Issue.record("Failed to fetch migrated document")
+      return
+    }
+
+    // Verify all fields preserved
+    #expect(doc.uuid == docUUID)
+    #expect(doc.filename == "test-script.fountain")
+    #expect(doc.rawContent == "INT. TEST - DAY")
+    #expect(doc.suppressSceneNumbers == true)
+    #expect(doc.title == "Test Script")
+    #expect(doc.sourceFileBookmark == Data([1, 2, 3, 4]))
+    #expect(doc.lastImportDate?.timeIntervalSince1970 == 1000000)
+    #expect(doc.sourceFileModificationDate?.timeIntervalSince1970 == 900000)
+  }
+
+  /// Test that TypedDataStorage fields migrate correctly.
+  ///
+  /// Verifies all content storage and metadata fields are preserved:
+  /// - Identity (id, providerId, requestorID)
+  /// - Content (textValue, mimeType)
+  /// - Metadata (prompt, modelIdentifier, estimatedCost)
+  /// - Type-specific metadata (wordCount, audioFormat, imageFormat, dimensions)
+  /// - Timestamps (generatedAt, modifiedAt)
+  @Test("TypedDataStorage migration preserves all fields")
+  func testTypedDataStorageMigration() throws {
+    let tempDir = FileManager.default.temporaryDirectory
+    let storeURL = tempDir.appendingPathComponent("storage-migration-test-\(UUID().uuidString).store")
+
+    defer {
+      try? FileManager.default.removeItem(at: storeURL)
+      try? FileManager.default.removeItem(at: storeURL.deletingPathExtension().appendingPathExtension("store-shm"))
+      try? FileManager.default.removeItem(at: storeURL.deletingPathExtension().appendingPathExtension("store-wal"))
+    }
+
+    // Create V1 store with TypedDataStorage
+    let v1Config = ModelConfiguration(url: storeURL)
+    let v1Schema = Schema(versionedSchema: SwiftCompartidoSchemaV1.self)
+    let v1Container = try ModelContainer(for: v1Schema, configurations: v1Config)
+    let v1Context = ModelContext(v1Container)
+
+    let storageID = UUID()
+    let generatedDate = Date(timeIntervalSince1970: 2000000)
+    let modifiedDate = Date(timeIntervalSince1970: 2001000)
+
+    let v1Storage = SwiftCompartidoSchemaV1.TypedDataStorage(
+      id: storageID,
+      providerId: "openai",
+      requestorID: "gpt-4",
+      mimeType: "text/plain",
+      prompt: "Generate a summary"
+    )
+    v1Storage.textValue = "This is a test summary."
+    v1Storage.wordCount = 5
+    v1Storage.characterCount = 23
+    v1Storage.languageCode = "en"
+    v1Storage.modelIdentifier = "gpt-4-turbo"
+    v1Storage.estimatedCost = 0.05
+    v1Storage.generatedAt = generatedDate
+    v1Storage.modifiedAt = modifiedDate
+
+    v1Context.insert(v1Storage)
+    try v1Context.save()
+
+    // Migrate to V2
+    enum TestMigrationPlan: SchemaMigrationPlan {
+      static var schemas: [any VersionedSchema.Type] {
+        [SwiftCompartidoSchemaV1.self, SwiftCompartidoSchemaV2.self]
+      }
+      static var stages: [MigrationStage] {
+        [SwiftCompartidoSchemaV2.migrationStage]
+      }
+    }
+
+    let v2Config = ModelConfiguration(url: storeURL)
+    let v2Schema = Schema(versionedSchema: SwiftCompartidoSchemaV2.self)
+    let v2Container = try ModelContainer(
+      for: v2Schema,
+      migrationPlan: TestMigrationPlan.self,
+      configurations: v2Config
+    )
+
+    let v2Context = ModelContext(v2Container)
+    let fetchDescriptor = FetchDescriptor<SwiftCompartidoSchemaV2.TypedDataStorage>(
+      predicate: #Predicate { $0.id == storageID }
+    )
+    let migratedStorage = try v2Context.fetch(fetchDescriptor)
+
+    #expect(migratedStorage.count == 1, "Should find one migrated storage")
+    guard let storage = migratedStorage.first else {
+      Issue.record("Failed to fetch migrated storage")
+      return
+    }
+
+    // Verify all fields preserved
+    #expect(storage.id == storageID)
+    #expect(storage.providerId == "openai")
+    #expect(storage.requestorID == "gpt-4")
+    #expect(storage.mimeType == "text/plain")
+    #expect(storage.prompt == "Generate a summary")
+    #expect(storage.textValue == "This is a test summary.")
+    #expect(storage.wordCount == 5)
+    #expect(storage.characterCount == 23)
+    #expect(storage.languageCode == "en")
+    #expect(storage.modelIdentifier == "gpt-4-turbo")
+    #expect(storage.estimatedCost == 0.05)
+    #expect(storage.generatedAt.timeIntervalSince1970 == 2000000)
+    #expect(storage.modifiedAt.timeIntervalSince1970 == 2001000)
+  }
+
+  /// Test that CharacterVoiceMapping fields migrate correctly.
+  ///
+  /// Verifies all voice mapping properties are preserved:
+  /// - characterName, voiceURI, voiceName, providerID
+  @Test("CharacterVoiceMapping migration preserves all fields")
+  func testCharacterVoiceMappingMigration() throws {
+    let tempDir = FileManager.default.temporaryDirectory
+    let storeURL = tempDir.appendingPathComponent("voice-migration-test-\(UUID().uuidString).store")
+
+    defer {
+      try? FileManager.default.removeItem(at: storeURL)
+      try? FileManager.default.removeItem(at: storeURL.deletingPathExtension().appendingPathExtension("store-shm"))
+      try? FileManager.default.removeItem(at: storeURL.deletingPathExtension().appendingPathExtension("store-wal"))
+    }
+
+    // Create V1 store with CharacterVoiceMapping
+    let v1Config = ModelConfiguration(url: storeURL)
+    let v1Schema = Schema(versionedSchema: SwiftCompartidoSchemaV1.self)
+    let v1Container = try ModelContainer(for: v1Schema, configurations: v1Config)
+    let v1Context = ModelContext(v1Container)
+
+    let mappingUUID = UUID()
+    let v1Mapping = SwiftCompartidoSchemaV1.CharacterVoiceMapping(
+      uuid: mappingUUID,
+      characterName: "ALICE",
+      voiceURI: "macos://Samantha?lang=en",
+      voiceName: "Samantha",
+      providerID: "macos"
+    )
+
+    v1Context.insert(v1Mapping)
+    try v1Context.save()
+
+    // Migrate to V2
+    enum TestMigrationPlan: SchemaMigrationPlan {
+      static var schemas: [any VersionedSchema.Type] {
+        [SwiftCompartidoSchemaV1.self, SwiftCompartidoSchemaV2.self]
+      }
+      static var stages: [MigrationStage] {
+        [SwiftCompartidoSchemaV2.migrationStage]
+      }
+    }
+
+    let v2Config = ModelConfiguration(url: storeURL)
+    let v2Schema = Schema(versionedSchema: SwiftCompartidoSchemaV2.self)
+    let v2Container = try ModelContainer(
+      for: v2Schema,
+      migrationPlan: TestMigrationPlan.self,
+      configurations: v2Config
+    )
+
+    let v2Context = ModelContext(v2Container)
+    let fetchDescriptor = FetchDescriptor<SwiftCompartidoSchemaV2.CharacterVoiceMapping>(
+      predicate: #Predicate { $0.uuid == mappingUUID }
+    )
+    let migratedMappings = try v2Context.fetch(fetchDescriptor)
+
+    #expect(migratedMappings.count == 1, "Should find one migrated mapping")
+    guard let mapping = migratedMappings.first else {
+      Issue.record("Failed to fetch migrated mapping")
+      return
+    }
+
+    // Verify all fields preserved
+    #expect(mapping.uuid == mappingUUID)
+    #expect(mapping.characterName == "ALICE")
+    #expect(mapping.voiceURI == "macos://Samantha?lang=en")
+    #expect(mapping.voiceName == "Samantha")
+    #expect(mapping.providerID == "macos")
+  }
+
+  /// Test that CustomOutlineElement fields migrate correctly.
+  ///
+  /// Verifies all custom element properties are preserved:
+  /// - Identity (id), type & metadata (elementType, title, notes, orderIndex)
+  /// - Audio cue properties (audioCueCategory, audioFileReference, volume, etc.)
+  /// - Timestamps (createdAt, modifiedAt)
+  @Test("CustomOutlineElement migration preserves all fields")
+  func testCustomOutlineElementMigration() throws {
+    let tempDir = FileManager.default.temporaryDirectory
+    let storeURL = tempDir.appendingPathComponent("custom-migration-test-\(UUID().uuidString).store")
+
+    defer {
+      try? FileManager.default.removeItem(at: storeURL)
+      try? FileManager.default.removeItem(at: storeURL.deletingPathExtension().appendingPathExtension("store-shm"))
+      try? FileManager.default.removeItem(at: storeURL.deletingPathExtension().appendingPathExtension("store-wal"))
+    }
+
+    // Create V1 store with CustomOutlineElement
+    let v1Config = ModelConfiguration(url: storeURL)
+    let v1Schema = Schema(versionedSchema: SwiftCompartidoSchemaV1.self)
+    let v1Container = try ModelContainer(for: v1Schema, configurations: v1Config)
+    let v1Context = ModelContext(v1Container)
+
+    let elementID = UUID()
+    let createdDate = Date(timeIntervalSince1970: 3000000)
+    let modifiedDate = Date(timeIntervalSince1970: 3001000)
+
+    let v1Element = SwiftCompartidoSchemaV1.CustomOutlineElement(
+      id: elementID,
+      elementType: .musicCue,
+      title: "Opening Theme",
+      orderIndex: 1,
+      volume: -18.0,
+      fadeInDuration: 2.0,
+      fadeOutDuration: 2.0,
+      playSpeed: 100.0,
+      loopEnabled: false
+    )
+    v1Element.notes = "Epic orchestral piece"
+    v1Element.audioCueCategory = "MUSIC"
+    v1Element.audioFileReference = "music/theme.mp3"
+    v1Element.timingReference = "with scene start"
+    v1Element.createdAt = createdDate
+    v1Element.modifiedAt = modifiedDate
+
+    v1Context.insert(v1Element)
+    try v1Context.save()
+
+    // Migrate to V2
+    enum TestMigrationPlan: SchemaMigrationPlan {
+      static var schemas: [any VersionedSchema.Type] {
+        [SwiftCompartidoSchemaV1.self, SwiftCompartidoSchemaV2.self]
+      }
+      static var stages: [MigrationStage] {
+        [SwiftCompartidoSchemaV2.migrationStage]
+      }
+    }
+
+    let v2Config = ModelConfiguration(url: storeURL)
+    let v2Schema = Schema(versionedSchema: SwiftCompartidoSchemaV2.self)
+    let v2Container = try ModelContainer(
+      for: v2Schema,
+      migrationPlan: TestMigrationPlan.self,
+      configurations: v2Config
+    )
+
+    let v2Context = ModelContext(v2Container)
+    let fetchDescriptor = FetchDescriptor<SwiftCompartidoSchemaV2.CustomOutlineElement>(
+      predicate: #Predicate { $0.id == elementID }
+    )
+    let migratedElements = try v2Context.fetch(fetchDescriptor)
+
+    #expect(migratedElements.count == 1, "Should find one migrated element")
+    guard let element = migratedElements.first else {
+      Issue.record("Failed to fetch migrated element")
+      return
+    }
+
+    // Verify all fields preserved
+    #expect(element.id == elementID)
+    #expect(element.elementType == .musicCue)
+    #expect(element.title == "Opening Theme")
+    #expect(element.notes == "Epic orchestral piece")
+    #expect(element.orderIndex == 1)
+    #expect(element.audioCueCategory == "MUSIC")
+    #expect(element.audioFileReference == "music/theme.mp3")
+    #expect(element.volume == -18.0)
+    #expect(element.fadeInDuration == 2.0)
+    #expect(element.fadeOutDuration == 2.0)
+    #expect(element.playSpeed == 100.0)
+    #expect(element.loopEnabled == false)
+    #expect(element.timingReference == "with scene start")
+    #expect(element.createdAt.timeIntervalSince1970 == 3000000)
+    #expect(element.modifiedAt.timeIntervalSince1970 == 3001000)
+  }
+
+  /// Test that TitlePageEntryModel fields migrate correctly.
+  ///
+  /// Verifies title page entry properties are preserved:
+  /// - key, values
+  @Test("TitlePageEntryModel migration preserves all fields")
+  func testTitlePageEntryModelMigration() throws {
+    let tempDir = FileManager.default.temporaryDirectory
+    let storeURL = tempDir.appendingPathComponent("title-migration-test-\(UUID().uuidString).store")
+
+    defer {
+      try? FileManager.default.removeItem(at: storeURL)
+      try? FileManager.default.removeItem(at: storeURL.deletingPathExtension().appendingPathExtension("store-shm"))
+      try? FileManager.default.removeItem(at: storeURL.deletingPathExtension().appendingPathExtension("store-wal"))
+    }
+
+    // Create V1 store with TitlePageEntryModel
+    let v1Config = ModelConfiguration(url: storeURL)
+    let v1Schema = Schema(versionedSchema: SwiftCompartidoSchemaV1.self)
+    let v1Container = try ModelContainer(for: v1Schema, configurations: v1Config)
+    let v1Context = ModelContext(v1Container)
+
+    let v1Entry = SwiftCompartidoSchemaV1.TitlePageEntryModel(
+      key: "Author",
+      values: ["Jane Doe", "John Smith"]
+    )
+
+    v1Context.insert(v1Entry)
+    try v1Context.save()
+
+    // Migrate to V2
+    enum TestMigrationPlan: SchemaMigrationPlan {
+      static var schemas: [any VersionedSchema.Type] {
+        [SwiftCompartidoSchemaV1.self, SwiftCompartidoSchemaV2.self]
+      }
+      static var stages: [MigrationStage] {
+        [SwiftCompartidoSchemaV2.migrationStage]
+      }
+    }
+
+    let v2Config = ModelConfiguration(url: storeURL)
+    let v2Schema = Schema(versionedSchema: SwiftCompartidoSchemaV2.self)
+    let v2Container = try ModelContainer(
+      for: v2Schema,
+      migrationPlan: TestMigrationPlan.self,
+      configurations: v2Config
+    )
+
+    let v2Context = ModelContext(v2Container)
+    let fetchDescriptor = FetchDescriptor<SwiftCompartidoSchemaV2.TitlePageEntryModel>(
+      predicate: #Predicate { $0.key == "Author" }
+    )
+    let migratedEntries = try v2Context.fetch(fetchDescriptor)
+
+    #expect(migratedEntries.count == 1, "Should find one migrated entry")
+    guard let entry = migratedEntries.first else {
+      Issue.record("Failed to fetch migrated entry")
+      return
+    }
+
+    // Verify all fields preserved
+    #expect(entry.key == "Author")
+    #expect(entry.values == ["Jane Doe", "John Smith"])
+  }
+
+  /// Test that CustomPageModel fields migrate correctly.
+  ///
+  /// Verifies custom page properties are preserved:
+  /// - id, title, position, pageType, jsonData
+  @Test("CustomPageModel migration preserves all fields")
+  func testCustomPageModelMigration() throws {
+    let tempDir = FileManager.default.temporaryDirectory
+    let storeURL = tempDir.appendingPathComponent("page-migration-test-\(UUID().uuidString).store")
+
+    defer {
+      try? FileManager.default.removeItem(at: storeURL)
+      try? FileManager.default.removeItem(at: storeURL.deletingPathExtension().appendingPathExtension("store-shm"))
+      try? FileManager.default.removeItem(at: storeURL.deletingPathExtension().appendingPathExtension("store-wal"))
+    }
+
+    // Create V1 store with CustomPageModel
+    let v1Config = ModelConfiguration(url: storeURL)
+    let v1Schema = Schema(versionedSchema: SwiftCompartidoSchemaV1.self)
+    let v1Container = try ModelContainer(for: v1Schema, configurations: v1Config)
+    let v1Context = ModelContext(v1Container)
+
+    let pageID = "test-page-123"
+    let testJSON = try JSONSerialization.data(
+      withJSONObject: ["id": pageID, "title": "Cast List", "position": 0, "type": "castList"],
+      options: []
+    )
+
+    let v1Page = SwiftCompartidoSchemaV1.CustomPageModel(
+      id: pageID,
+      title: "Cast List",
+      position: 0,
+      pageType: "castList",
+      jsonData: testJSON
+    )
+
+    v1Context.insert(v1Page)
+    try v1Context.save()
+
+    // Migrate to V2
+    enum TestMigrationPlan: SchemaMigrationPlan {
+      static var schemas: [any VersionedSchema.Type] {
+        [SwiftCompartidoSchemaV1.self, SwiftCompartidoSchemaV2.self]
+      }
+      static var stages: [MigrationStage] {
+        [SwiftCompartidoSchemaV2.migrationStage]
+      }
+    }
+
+    let v2Config = ModelConfiguration(url: storeURL)
+    let v2Schema = Schema(versionedSchema: SwiftCompartidoSchemaV2.self)
+    let v2Container = try ModelContainer(
+      for: v2Schema,
+      migrationPlan: TestMigrationPlan.self,
+      configurations: v2Config
+    )
+
+    let v2Context = ModelContext(v2Container)
+    let fetchDescriptor = FetchDescriptor<SwiftCompartidoSchemaV2.CustomPageModel>(
+      predicate: #Predicate { $0.id == pageID }
+    )
+    let migratedPages = try v2Context.fetch(fetchDescriptor)
+
+    #expect(migratedPages.count == 1, "Should find one migrated page")
+    guard let page = migratedPages.first else {
+      Issue.record("Failed to fetch migrated page")
+      return
+    }
+
+    // Verify all fields preserved
+    #expect(page.id == pageID)
+    #expect(page.title == "Cast List")
+    #expect(page.position == 0)
+    #expect(page.pageType == "castList")
+    #expect(page.jsonData == testJSON)
+  }
+
   /// Test that multiple elements migrate correctly with mixed data.
   ///
   /// Verifies migration handles:

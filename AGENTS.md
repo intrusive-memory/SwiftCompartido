@@ -105,9 +105,23 @@ SwiftCompartido uses SwiftData's `VersionedSchema` pattern for schema evolution.
 
 **Current Schema Version**: V2 (SwiftCompartido 7.0.5+)
 
+**Schema Documentation**:
+- [SwiftCompartidoSchemaV1](Sources/SwiftCompartido/Schemas/SwiftCompartidoSchemaV1.swift) - V1 baseline schema (complete production model snapshot)
+- [SwiftCompartidoSchemaV2](Sources/SwiftCompartido/Schemas/SwiftCompartidoSchemaV2.swift) - V2 schema with glosa fields (complete production model snapshot)
+- [MigrationTests](Tests/SwiftCompartidoTests/MigrationTests.swift) - Comprehensive migration test suite
+
+**CRITICAL: Complete Model Mirroring**
+
+All versioned schema models MUST mirror **every stored property** from their production counterparts. Missing fields cause **data loss** during migration because:
+1. SwiftData creates the target schema with only declared fields
+2. Migration copies only declared fields from source
+3. **Undeclared fields are dropped as "not in schema"**
+
+See [SwiftCompartidoSchemaV2](Sources/SwiftCompartido/Schemas/SwiftCompartidoSchemaV2.swift) for a detailed example of the data loss bug and fix.
+
 **Migration History**:
-- **V1** (baseline): SwiftCompartido ≤ 7.0.4 — GuionElementModel without glosa fields
-- **V2** (current): SwiftCompartido ≥ 7.0.5 — Adds glosa annotation fields to GuionElementModel
+- **V1** (baseline): SwiftCompartido ≤ 7.0.4 — Complete model snapshot without glosa fields (~640 lines)
+- **V2** (current): SwiftCompartido ≥ 7.0.5 — Complete model snapshot with glosa annotation fields
 
 **Required App Integration**:
 

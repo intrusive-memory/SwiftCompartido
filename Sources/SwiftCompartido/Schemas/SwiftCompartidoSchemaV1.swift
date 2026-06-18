@@ -2,13 +2,50 @@
 //  SwiftCompartidoSchemaV1.swift
 //  SwiftCompartido
 //
-//  Schema version 1 (baseline) — GuionElementModel shape before glosa fields
+//  Schema version 1 (baseline) — Complete production model snapshot before glosa fields
+//
+//  CRITICAL: This schema must mirror ALL stored properties from production models
+//  to prevent data loss during migration. See SwiftCompartidoSchemaV2.swift for details.
 //
 
 import Foundation
 @preconcurrency import SwiftData
 
-/// SwiftData schema version 1 (baseline before glosa integration).
+/// SwiftData schema version 1 (baseline snapshot before glosa integration).
+///
+/// ## Purpose
+///
+/// This schema captures the **complete shape** of SwiftCompartido models as they existed
+/// before the addition of glosa annotation fields in v7.0.5. It serves as the migration
+/// baseline for V1 → V2 lightweight migration.
+///
+/// ## Critical: Complete Model Mirroring
+///
+/// **IMPORTANT**: All versioned schema models MUST mirror **every stored property** from
+/// their production counterparts. Missing fields cause **data loss** during migration because:
+///
+/// 1. SwiftData creates the target schema with only declared fields
+/// 2. Migration copies only declared fields from source
+/// 3. **Undeclared fields are dropped as "not in schema"**
+///
+/// ## Models Included
+///
+/// This schema includes complete definitions for:
+/// - ``GuionElementModel`` - ~25 stored properties (no glosa fields)
+/// - ``GuionDocumentModel`` - ~7 properties + 5 relationships
+/// - ``TypedDataStorage`` - ~35 properties + 1 relationship
+/// - ``CharacterVoiceMapping`` - 4 properties + 1 relationship
+/// - ``CustomOutlineElement`` - ~20 properties + 2 relationships
+/// - ``TitlePageEntryModel`` - 2 properties + 1 relationship
+/// - ``CustomPageModel`` - 5 properties + 1 relationship
+///
+/// ## Computed Properties
+///
+/// Computed properties (e.g., `sortedElements`, `binaryValue`) are NOT included in
+/// versioned schemas because:
+/// - They are not stored in the database
+/// - They have no migration impact
+/// - Including them causes SwiftData schema conflicts
 ///
 /// This schema captures the shape of SwiftCompartido models before adding
 /// glosa annotation fields in v7.0.5. It serves as the migration baseline

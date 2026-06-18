@@ -342,8 +342,8 @@ Each versioned schema is a **snapshot** of the model shape at that version. They
 ## Status
 
 - [x] Decision made on approach (Option A: Mirror All Models)
-- [x] V1 schema completed
-- [x] V2 schema completed
-- [ ] MigrationTests updated
-- [ ] MigrationTests re-enabled in CI
-- [ ] Documentation updated
+- [x] V1 schema completed (all 7 models with complete fields)
+- [x] V2 schema completed (all 7 models with complete fields)
+- [x] MigrationTests updated (9 comprehensive tests covering all models)
+- [x] MigrationTests re-enabled in CI (all tests passing)
+- [x] Documentation updated (comprehensive docs in both schema files + AGENTS.md + README.md)
