@@ -474,3 +474,37 @@ public final class GuionElementModel: GuionElementProtocol {
     }
   }
 }
+
+// MARK: - SpeakableElement Conformance
+
+@available(iOS 26.0, macOS 26.0, *)
+extension GuionElementModel: SpeakableElement {
+  /// The spoken prose for this element, with inline glosa notes stripped.
+  ///
+  /// Falls back to raw `elementText` when glosa annotation has not run.
+  public var spokenText: String {
+    glosaSpokenText ?? elementText
+  }
+
+  /// Unicode-scalar boundary offsets in `spokenText` where breath hints are located.
+  ///
+  /// Returns empty array when glosa annotation has not run or no breath markers were present.
+  public var breathOffsets: [Int] {
+    glosaBreathOffsets ?? []
+  }
+
+  /// Composed LLM performance-direction string for this line, if any.
+  ///
+  /// Returns `nil` when no active GLOSA directive covered this line.
+  public var instruct: String? {
+    glosaInstruct
+  }
+
+  /// Breath/pause offsets for display overlay rendering.
+  ///
+  /// Exposes the same data as `breathOffsets` for UI components that need to
+  /// visualize breath points or pause markers in screenplay views.
+  public var displayBreathOffsets: [Int] {
+    breathOffsets
+  }
+}

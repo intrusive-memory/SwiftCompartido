@@ -17,4 +17,13 @@ extension Tag {
   /// - Should NOT run in CI (Apple Intelligence unavailable in headless runners)
   /// - Run via ./Scripts/test-ai-features.sh
   @Tag static var ai: Self
+
+  /// Tests for glosa annotation integration
+  ///
+  /// These tests verify:
+  /// - SpeakableElement protocol conformance
+  /// - Glosa annotation parsing and storage
+  /// - Breath/pause offset handling
+  /// - Integration with GlosaCore
+  @Tag static var glosa: Self
 }
