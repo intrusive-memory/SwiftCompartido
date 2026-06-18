@@ -379,7 +379,13 @@ If you have existing custom-pages.json files:
 
 ## Version History
 
-**7.0.5** (Current):
+**7.1.0** (Current):
+- GlosaCore Integration: Added screenplay audio annotation support via glosa-av dependency
+- Migration Tests: Comprehensive tests for SwiftData schema migrations from V1 to V2
+- Telemetry Instrumentation: Added memory manager telemetry and performance tracking
+- Fixed race condition in MemoryManagerTelemetryTests
+
+**7.0.5**:
 - Swift 6 concurrency: Fixed actor isolation errors in HierarchyBuilder
 - Marked buildHierarchy parameters as `sending` for strict concurrency
 - Disabled flaky Foundation Models PDF parsing tests
