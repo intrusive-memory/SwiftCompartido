@@ -84,6 +84,9 @@ let package = Package(
         "SwiftCompartido",
         .product(name: "SwiftFijos", package: "SwiftFijos"),
       ],
+      resources: [
+        .copy("Fixtures")
+      ],
       swiftSettings: [
         .enableUpcomingFeature("StrictConcurrency")
       ]

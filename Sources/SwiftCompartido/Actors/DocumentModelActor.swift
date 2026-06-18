@@ -9,7 +9,14 @@
 //
 
 import Foundation
+import GlosaCore
+import os
 @preconcurrency import SwiftData
+
+/// Logger for glosa annotation diagnostics. Glosa data is never persisted as
+/// diagnostics on the model — it is surfaced here per the consumer-integration
+/// plan (RISK-1: glosa owns stripping/diagnostics, the consumer only logs).
+private let glosaLog = Logger(subsystem: "SwiftCompartido", category: "glosa")
 
 /// Actor for safe SwiftData operations off the main thread
 ///
@@ -51,10 +58,14 @@ public actor DocumentModelActor {
   /// - Parameters:
   ///   - url: URL of the screenplay file to parse
   ///   - progress: Optional progress tracker
+  ///   - parseGlosa: When `true` (default), runs the GlosaCore annotation pass
+  ///     over the imported dialogue and stores the compiled glosa fields on each
+  ///     ``GuionElementModel``. Glosa failure never aborts the import.
   /// - Returns: Persistent identifier of the created document
   public func parseAndSaveDocument(
     from url: URL,
-    progress: OperationProgress? = nil
+    progress: OperationProgress? = nil,
+    parseGlosa: Bool = true
   ) async throws -> PersistentIdentifier {
     // Parse the screenplay
     let screenplay = try await GuionParsedElementCollection(file: url.path, progress: progress)
@@ -66,6 +77,11 @@ public actor DocumentModelActor {
       generateSummaries: false,
       progress: progress
     )
+
+    // Annotate dialogue with glosa data (graceful — never aborts import)
+    if parseGlosa {
+      annotateGlosa(document: document)
+    }
 
     // Insert and save
     modelContext.insert(document)
@@ -83,7 +99,8 @@ public actor DocumentModelActor {
   public func parseAndSaveDocument(
     from string: String,
     title: String? = nil,
-    progress: OperationProgress? = nil
+    progress: OperationProgress? = nil,
+    parseGlosa: Bool = true
   ) async throws -> PersistentIdentifier {
     // Parse the screenplay
     let screenplay = try await GuionParsedElementCollection(string: string, progress: progress)
@@ -101,11 +118,103 @@ public actor DocumentModelActor {
       document.title = title
     }
 
+    // Annotate dialogue with glosa data (graceful — never aborts import)
+    if parseGlosa {
+      annotateGlosa(document: document)
+    }
+
     // Insert and save
     modelContext.insert(document)
     try modelContext.save()
 
     return document.persistentModelID
+  }
+
+  // MARK: - Glosa Annotation Pass
+
+  /// Runs the GlosaCore annotation pass over the document's dialogue elements
+  /// and writes the compiled DTO fields back onto each ``GuionElementModel``.
+  ///
+  /// Executes on the `@ModelActor` context (no model instances cross actor
+  /// boundaries). Raw `elementText` (with inline `[[ … ]]` markers intact) is
+  /// forwarded to ``GlosaCore`` — stripping is *never* performed locally
+  /// (RISK-1); GlosaCore owns that logic.
+  ///
+  /// Graceful degradation: any throw or unexpected condition is logged and the
+  /// glosa fields are left `nil`. A glosa failure must never abort the import.
+  private func annotateGlosa(document: GuionDocumentModel) {
+    // Elements in document order: (chapterIndex, orderIndex)
+    let ordered = document.sortedElements
+
+    // Dialogue elements in document order — these receive glosa annotations.
+    let dialogueElements = ordered.filter { $0.elementType == .dialogue }
+    guard !dialogueElements.isEmpty else { return }
+
+    // Build fountainNotes in document order. GlosaCore parses this stream to
+    // recover the GLOSA score, then maps breath/pause seams back onto the
+    // dialogue lines that appear *inside* each `<Intent>` block.
+    //
+    //  - standalone `[[ ]]` GLOSA directive notes surface as `.comment`
+    //    elements (the SwiftCompartido parser strips the outer `[[ ]]`); they
+    //    carry the `<SceneContext>` / `<Intent>` structural tags.
+    //  - dialogue lines must appear in the stream with their inline
+    //    `[[<breath …/>]]` / `[[<pause …/>]]` markers *intact* so the compiler
+    //    can place seams. We forward the dialogue element's RAW `elementText`
+    //    (markers preserved) — never strip locally (RISK-1); GlosaCore owns
+    //    stripping. `elementText` is left untouched on the model for lossless
+    //    export.
+    var fountainNotes: [String] = []
+    for element in ordered {
+      switch element.elementType {
+      case .comment:
+        fountainNotes.append(element.elementText)
+      case .dialogue:
+        fountainNotes.append(element.elementText)
+      default:
+        break
+      }
+    }
+
+    // Build rawDialogueLines with the *raw* elementText (markers intact). The
+    // preceding `.character` element (if any) supplies the speaker name.
+    var rawDialogueLines: [(character: String, rawText: String)] = []
+    var lastCharacter = ""
+    for element in ordered {
+      switch element.elementType {
+      case .character:
+        lastCharacter = element.elementText
+      case .dialogue:
+        rawDialogueLines.append((character: lastCharacter, rawText: element.elementText))
+      default:
+        break
+      }
+    }
+
+    do {
+      let annotations = try compileAnnotations(
+        fountainNotes: fountainNotes,
+        rawDialogueLines: rawDialogueLines
+      )
+
+      // Write each DTO onto the matching dialogue element at its orderIndex.
+      for (i, element) in dialogueElements.enumerated() {
+        guard let dto = annotations[i] else { continue }
+        element.glosaSpokenText = dto.spokenText
+        element.glosaBreathOffsets = dto.breathOffsets
+        element.glosaBreathStrengths = dto.breathStrengths
+        element.glosaInstruct = dto.instruct
+        element.glosaPausePoints = try? JSONEncoder().encode(dto.pausePoints)
+      }
+
+      glosaLog.info(
+        "Glosa annotation pass complete: \(dialogueElements.count, privacy: .public) dialogue line(s) annotated."
+      )
+    } catch {
+      // Graceful degradation: log and leave glosa fields nil. Import continues.
+      glosaLog.error(
+        "Glosa annotation pass failed; leaving glosa fields nil: \(error.localizedDescription, privacy: .public)"
+      )
+    }
   }
 
   /// Get document basic info (Sendable DTO)
