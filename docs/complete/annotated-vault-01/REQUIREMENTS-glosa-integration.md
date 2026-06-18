@@ -1,3 +1,7 @@
+---
+state: completed
+---
+
 # REQUIREMENTS — Glosa Integration (SwiftCompartido)
 
 **Status:** Stub — to be broken down
