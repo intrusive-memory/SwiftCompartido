@@ -10,8 +10,8 @@
 
 import Foundation
 import GlosaCore
-import os
 @preconcurrency import SwiftData
+import os
 
 /// Logger for glosa annotation diagnostics. Glosa data is never persisted as
 /// diagnostics on the model — it is surfaced here per the consumer-integration

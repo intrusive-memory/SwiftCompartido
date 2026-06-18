@@ -136,7 +136,7 @@ public enum SwiftCompartidoSchemaV2: VersionedSchema {
   public static let models: [any PersistentModel.Type] = [
     GuionElementModel.self, GuionDocumentModel.self, TypedDataStorage.self,
     CharacterVoiceMapping.self, CustomOutlineElement.self,
-    TitlePageEntryModel.self, CustomPageModel.self
+    TitlePageEntryModel.self, CustomPageModel.self,
   ]
 
   /// Lightweight migration stage from V1 → V2.

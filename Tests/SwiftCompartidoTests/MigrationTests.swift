@@ -8,6 +8,7 @@
 import Foundation
 import SwiftData
 import Testing
+
 @testable import SwiftCompartido
 
 /// Tests for schema versioning and migration from V1 (pre-glosa) to V2 (glosa-enabled).
@@ -55,8 +56,10 @@ struct MigrationTests {
     // Cleanup helper
     defer {
       try? FileManager.default.removeItem(at: storeURL)
-      try? FileManager.default.removeItem(at: storeURL.deletingPathExtension().appendingPathExtension("store-shm"))
-      try? FileManager.default.removeItem(at: storeURL.deletingPathExtension().appendingPathExtension("store-wal"))
+      try? FileManager.default.removeItem(
+        at: storeURL.deletingPathExtension().appendingPathExtension("store-shm"))
+      try? FileManager.default.removeItem(
+        at: storeURL.deletingPathExtension().appendingPathExtension("store-wal"))
     }
 
     // MARK: - Step 1: Create V1 store with sample data
@@ -139,7 +142,8 @@ struct MigrationTests {
 
     #expect(migratedElement.glosaSpokenText == nil, "glosaSpokenText should default to nil")
     #expect(migratedElement.glosaBreathOffsets == nil, "glosaBreathOffsets should default to nil")
-    #expect(migratedElement.glosaBreathStrengths == nil, "glosaBreathStrengths should default to nil")
+    #expect(
+      migratedElement.glosaBreathStrengths == nil, "glosaBreathStrengths should default to nil")
     #expect(migratedElement.glosaInstruct == nil, "glosaInstruct should default to nil")
     #expect(migratedElement.glosaPausePoints == nil, "glosaPausePoints should default to nil")
   }
@@ -156,8 +160,10 @@ struct MigrationTests {
     // Cleanup helper
     defer {
       try? FileManager.default.removeItem(at: storeURL)
-      try? FileManager.default.removeItem(at: storeURL.deletingPathExtension().appendingPathExtension("store-shm"))
-      try? FileManager.default.removeItem(at: storeURL.deletingPathExtension().appendingPathExtension("store-wal"))
+      try? FileManager.default.removeItem(
+        at: storeURL.deletingPathExtension().appendingPathExtension("store-shm"))
+      try? FileManager.default.removeItem(
+        at: storeURL.deletingPathExtension().appendingPathExtension("store-wal"))
     }
 
     // Create V2 store
@@ -213,8 +219,10 @@ struct MigrationTests {
 
     defer {
       try? FileManager.default.removeItem(at: storeURL)
-      try? FileManager.default.removeItem(at: storeURL.deletingPathExtension().appendingPathExtension("store-shm"))
-      try? FileManager.default.removeItem(at: storeURL.deletingPathExtension().appendingPathExtension("store-wal"))
+      try? FileManager.default.removeItem(
+        at: storeURL.deletingPathExtension().appendingPathExtension("store-shm"))
+      try? FileManager.default.removeItem(
+        at: storeURL.deletingPathExtension().appendingPathExtension("store-wal"))
     }
 
     // Create V1 store with document
@@ -232,7 +240,7 @@ struct MigrationTests {
       title: "Test Script"
     )
     v1Doc.sourceFileBookmark = Data([1, 2, 3, 4])
-    v1Doc.lastImportDate = Date(timeIntervalSince1970: 1000000)
+    v1Doc.lastImportDate = Date(timeIntervalSince1970: 1_000_000)
     v1Doc.sourceFileModificationDate = Date(timeIntervalSince1970: 900000)
 
     v1Context.insert(v1Doc)
@@ -275,7 +283,7 @@ struct MigrationTests {
     #expect(doc.suppressSceneNumbers == true)
     #expect(doc.title == "Test Script")
     #expect(doc.sourceFileBookmark == Data([1, 2, 3, 4]))
-    #expect(doc.lastImportDate?.timeIntervalSince1970 == 1000000)
+    #expect(doc.lastImportDate?.timeIntervalSince1970 == 1_000_000)
     #expect(doc.sourceFileModificationDate?.timeIntervalSince1970 == 900000)
   }
 
@@ -290,12 +298,15 @@ struct MigrationTests {
   @Test("TypedDataStorage migration preserves all fields")
   func testTypedDataStorageMigration() throws {
     let tempDir = FileManager.default.temporaryDirectory
-    let storeURL = tempDir.appendingPathComponent("storage-migration-test-\(UUID().uuidString).store")
+    let storeURL = tempDir.appendingPathComponent(
+      "storage-migration-test-\(UUID().uuidString).store")
 
     defer {
       try? FileManager.default.removeItem(at: storeURL)
-      try? FileManager.default.removeItem(at: storeURL.deletingPathExtension().appendingPathExtension("store-shm"))
-      try? FileManager.default.removeItem(at: storeURL.deletingPathExtension().appendingPathExtension("store-wal"))
+      try? FileManager.default.removeItem(
+        at: storeURL.deletingPathExtension().appendingPathExtension("store-shm"))
+      try? FileManager.default.removeItem(
+        at: storeURL.deletingPathExtension().appendingPathExtension("store-wal"))
     }
 
     // Create V1 store with TypedDataStorage
@@ -305,8 +316,8 @@ struct MigrationTests {
     let v1Context = ModelContext(v1Container)
 
     let storageID = UUID()
-    let generatedDate = Date(timeIntervalSince1970: 2000000)
-    let modifiedDate = Date(timeIntervalSince1970: 2001000)
+    let generatedDate = Date(timeIntervalSince1970: 2_000_000)
+    let modifiedDate = Date(timeIntervalSince1970: 2_001_000)
 
     let v1Storage = SwiftCompartidoSchemaV1.TypedDataStorage(
       id: storageID,
@@ -369,8 +380,8 @@ struct MigrationTests {
     #expect(storage.languageCode == "en")
     #expect(storage.modelIdentifier == "gpt-4-turbo")
     #expect(storage.estimatedCost == 0.05)
-    #expect(storage.generatedAt.timeIntervalSince1970 == 2000000)
-    #expect(storage.modifiedAt.timeIntervalSince1970 == 2001000)
+    #expect(storage.generatedAt.timeIntervalSince1970 == 2_000_000)
+    #expect(storage.modifiedAt.timeIntervalSince1970 == 2_001_000)
   }
 
   /// Test that CharacterVoiceMapping fields migrate correctly.
@@ -384,8 +395,10 @@ struct MigrationTests {
 
     defer {
       try? FileManager.default.removeItem(at: storeURL)
-      try? FileManager.default.removeItem(at: storeURL.deletingPathExtension().appendingPathExtension("store-shm"))
-      try? FileManager.default.removeItem(at: storeURL.deletingPathExtension().appendingPathExtension("store-wal"))
+      try? FileManager.default.removeItem(
+        at: storeURL.deletingPathExtension().appendingPathExtension("store-shm"))
+      try? FileManager.default.removeItem(
+        at: storeURL.deletingPathExtension().appendingPathExtension("store-wal"))
     }
 
     // Create V1 store with CharacterVoiceMapping
@@ -453,12 +466,15 @@ struct MigrationTests {
   @Test("CustomOutlineElement migration preserves all fields")
   func testCustomOutlineElementMigration() throws {
     let tempDir = FileManager.default.temporaryDirectory
-    let storeURL = tempDir.appendingPathComponent("custom-migration-test-\(UUID().uuidString).store")
+    let storeURL = tempDir.appendingPathComponent(
+      "custom-migration-test-\(UUID().uuidString).store")
 
     defer {
       try? FileManager.default.removeItem(at: storeURL)
-      try? FileManager.default.removeItem(at: storeURL.deletingPathExtension().appendingPathExtension("store-shm"))
-      try? FileManager.default.removeItem(at: storeURL.deletingPathExtension().appendingPathExtension("store-wal"))
+      try? FileManager.default.removeItem(
+        at: storeURL.deletingPathExtension().appendingPathExtension("store-shm"))
+      try? FileManager.default.removeItem(
+        at: storeURL.deletingPathExtension().appendingPathExtension("store-wal"))
     }
 
     // Create V1 store with CustomOutlineElement
@@ -468,8 +484,8 @@ struct MigrationTests {
     let v1Context = ModelContext(v1Container)
 
     let elementID = UUID()
-    let createdDate = Date(timeIntervalSince1970: 3000000)
-    let modifiedDate = Date(timeIntervalSince1970: 3001000)
+    let createdDate = Date(timeIntervalSince1970: 3_000_000)
+    let modifiedDate = Date(timeIntervalSince1970: 3_001_000)
 
     let v1Element = SwiftCompartidoSchemaV1.CustomOutlineElement(
       id: elementID,
@@ -536,8 +552,8 @@ struct MigrationTests {
     #expect(element.playSpeed == 100.0)
     #expect(element.loopEnabled == false)
     #expect(element.timingReference == "with scene start")
-    #expect(element.createdAt.timeIntervalSince1970 == 3000000)
-    #expect(element.modifiedAt.timeIntervalSince1970 == 3001000)
+    #expect(element.createdAt.timeIntervalSince1970 == 3_000_000)
+    #expect(element.modifiedAt.timeIntervalSince1970 == 3_001_000)
   }
 
   /// Test that TitlePageEntryModel fields migrate correctly.
@@ -551,8 +567,10 @@ struct MigrationTests {
 
     defer {
       try? FileManager.default.removeItem(at: storeURL)
-      try? FileManager.default.removeItem(at: storeURL.deletingPathExtension().appendingPathExtension("store-shm"))
-      try? FileManager.default.removeItem(at: storeURL.deletingPathExtension().appendingPathExtension("store-wal"))
+      try? FileManager.default.removeItem(
+        at: storeURL.deletingPathExtension().appendingPathExtension("store-shm"))
+      try? FileManager.default.removeItem(
+        at: storeURL.deletingPathExtension().appendingPathExtension("store-wal"))
     }
 
     // Create V1 store with TitlePageEntryModel
@@ -612,12 +630,15 @@ struct MigrationTests {
   @Test("TypedDataStorage embedding migration preserves all fields and relationships")
   func testTypedDataStorageEmbeddingMigration() throws {
     let tempDir = FileManager.default.temporaryDirectory
-    let storeURL = tempDir.appendingPathComponent("embedding-migration-test-\(UUID().uuidString).store")
+    let storeURL = tempDir.appendingPathComponent(
+      "embedding-migration-test-\(UUID().uuidString).store")
 
     defer {
       try? FileManager.default.removeItem(at: storeURL)
-      try? FileManager.default.removeItem(at: storeURL.deletingPathExtension().appendingPathExtension("store-shm"))
-      try? FileManager.default.removeItem(at: storeURL.deletingPathExtension().appendingPathExtension("store-wal"))
+      try? FileManager.default.removeItem(
+        at: storeURL.deletingPathExtension().appendingPathExtension("store-shm"))
+      try? FileManager.default.removeItem(
+        at: storeURL.deletingPathExtension().appendingPathExtension("store-wal"))
     }
 
     // Create V1 store with embedding storage
@@ -723,8 +744,10 @@ struct MigrationTests {
 
     defer {
       try? FileManager.default.removeItem(at: storeURL)
-      try? FileManager.default.removeItem(at: storeURL.deletingPathExtension().appendingPathExtension("store-shm"))
-      try? FileManager.default.removeItem(at: storeURL.deletingPathExtension().appendingPathExtension("store-wal"))
+      try? FileManager.default.removeItem(
+        at: storeURL.deletingPathExtension().appendingPathExtension("store-shm"))
+      try? FileManager.default.removeItem(
+        at: storeURL.deletingPathExtension().appendingPathExtension("store-wal"))
     }
 
     // Create V1 store with CustomPageModel
@@ -801,8 +824,10 @@ struct MigrationTests {
 
     defer {
       try? FileManager.default.removeItem(at: storeURL)
-      try? FileManager.default.removeItem(at: storeURL.deletingPathExtension().appendingPathExtension("store-shm"))
-      try? FileManager.default.removeItem(at: storeURL.deletingPathExtension().appendingPathExtension("store-wal"))
+      try? FileManager.default.removeItem(
+        at: storeURL.deletingPathExtension().appendingPathExtension("store-shm"))
+      try? FileManager.default.removeItem(
+        at: storeURL.deletingPathExtension().appendingPathExtension("store-wal"))
     }
 
     // Create V1 store with multiple elements

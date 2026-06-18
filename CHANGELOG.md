@@ -11,6 +11,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [7.1.0] - 2026-06-18
+
+### Added
+
+- **GlosaCore Integration** (#64) - Added screenplay audio annotation support via glosa-av dependency
+- **Migration Tests** (#65) - Comprehensive tests for SwiftData schema migrations from V1 to V2
+- **Telemetry Instrumentation** (#66, #67) - Added memory manager telemetry and performance tracking
+
+### Fixed
+
+- **MemoryManagerTelemetryTests** - Eliminated race condition in concurrent telemetry tests
+
+---
+
 ## [7.0.2] - 2026-03-27
 
 ### Fixed
