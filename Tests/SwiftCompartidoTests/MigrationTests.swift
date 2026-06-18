@@ -604,6 +604,114 @@ struct MigrationTests {
     #expect(entry.values == ["Jane Doe", "John Smith"])
   }
 
+  /// Test that TypedDataStorage embedding fields migrate correctly.
+  ///
+  /// Verifies embedding-specific metadata and owner relationships are preserved:
+  /// - dimensions, inputText, batchIndex
+  /// - owningElement, owningDocument, ownerIdentifier
+  @Test("TypedDataStorage embedding migration preserves all fields and relationships")
+  func testTypedDataStorageEmbeddingMigration() throws {
+    let tempDir = FileManager.default.temporaryDirectory
+    let storeURL = tempDir.appendingPathComponent("embedding-migration-test-\(UUID().uuidString).store")
+
+    defer {
+      try? FileManager.default.removeItem(at: storeURL)
+      try? FileManager.default.removeItem(at: storeURL.deletingPathExtension().appendingPathExtension("store-shm"))
+      try? FileManager.default.removeItem(at: storeURL.deletingPathExtension().appendingPathExtension("store-wal"))
+    }
+
+    // Create V1 store with embedding storage
+    let v1Config = ModelConfiguration(url: storeURL)
+    let v1Schema = Schema(versionedSchema: SwiftCompartidoSchemaV1.self)
+    let v1Container = try ModelContainer(for: v1Schema, configurations: v1Config)
+    let v1Context = ModelContext(v1Container)
+
+    let storageID = UUID()
+    let docUUID = UUID()
+    let elementUUID = UUID()
+
+    // Create document and element for relationships
+    let v1Doc = SwiftCompartidoSchemaV1.GuionDocumentModel(
+      uuid: docUUID,
+      title: "Test Document"
+    )
+    let v1Element = SwiftCompartidoSchemaV1.GuionElementModel(
+      elementText: "Test element",
+      elementTypeString: "Action",
+      chapterIndex: 0,
+      orderIndex: 1,
+      uuid: elementUUID
+    )
+    v1Element.document = v1Doc
+    v1Doc.elements = [v1Element]
+
+    // Create embedding storage with all fields
+    let v1Storage = SwiftCompartidoSchemaV1.TypedDataStorage(
+      id: storageID,
+      providerId: "openai",
+      requestorID: "text-embedding-3-small",
+      mimeType: "application/x-embedding",
+      prompt: "Embed this text"
+    )
+    v1Storage.dimensions = 1536
+    v1Storage.inputText = "This is the input text for embedding"
+    v1Storage.batchIndex = 5
+    v1Storage.owningElement = v1Element
+    v1Storage.owningDocument = v1Doc
+    v1Storage.ownerIdentifier = "x-coredata://test/entity/p123"
+
+    v1Context.insert(v1Doc)
+    v1Context.insert(v1Element)
+    v1Context.insert(v1Storage)
+    try v1Context.save()
+
+    // Migrate to V2
+    enum TestMigrationPlan: SchemaMigrationPlan {
+      static var schemas: [any VersionedSchema.Type] {
+        [SwiftCompartidoSchemaV1.self, SwiftCompartidoSchemaV2.self]
+      }
+      static var stages: [MigrationStage] {
+        [SwiftCompartidoSchemaV2.migrationStage]
+      }
+    }
+
+    let v2Config = ModelConfiguration(url: storeURL)
+    let v2Schema = Schema(versionedSchema: SwiftCompartidoSchemaV2.self)
+    let v2Container = try ModelContainer(
+      for: v2Schema,
+      migrationPlan: TestMigrationPlan.self,
+      configurations: v2Config
+    )
+
+    let v2Context = ModelContext(v2Container)
+    let fetchDescriptor = FetchDescriptor<SwiftCompartidoSchemaV2.TypedDataStorage>(
+      predicate: #Predicate { $0.id == storageID }
+    )
+    let migratedStorage = try v2Context.fetch(fetchDescriptor)
+
+    #expect(migratedStorage.count == 1, "Should find one migrated storage")
+    guard let storage = migratedStorage.first else {
+      Issue.record("Failed to fetch migrated storage")
+      return
+    }
+
+    // Verify all embedding fields preserved
+    #expect(storage.id == storageID)
+    #expect(storage.providerId == "openai")
+    #expect(storage.requestorID == "text-embedding-3-small")
+    #expect(storage.mimeType == "application/x-embedding")
+    #expect(storage.dimensions == 1536)
+    #expect(storage.inputText == "This is the input text for embedding")
+    #expect(storage.batchIndex == 5)
+    #expect(storage.ownerIdentifier == "x-coredata://test/entity/p123")
+
+    // Verify relationships preserved
+    #expect(storage.owningElement != nil, "owningElement relationship should be preserved")
+    #expect(storage.owningElement?.uuid == elementUUID)
+    #expect(storage.owningDocument != nil, "owningDocument relationship should be preserved")
+    #expect(storage.owningDocument?.uuid == docUUID)
+  }
+
   /// Test that CustomPageModel fields migrate correctly.
   ///
   /// Verifies custom page properties are preserved:

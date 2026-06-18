@@ -223,13 +223,17 @@ public enum SwiftCompartidoSchemaV1: VersionedSchema {
 
     // Embedding-specific Metadata
     public var dimensions: Int?
+    public var inputText: String?
+    public var batchIndex: Int?
 
     // Timestamps
     public var generatedAt: Date
     public var modifiedAt: Date
 
-    // Owner Reference
-    @Relationship(deleteRule: .nullify) public var element: GuionElementModel?
+    // Owner References
+    @Relationship(deleteRule: .nullify) public var owningElement: GuionElementModel?
+    @Relationship(deleteRule: .nullify) public var owningDocument: GuionDocumentModel?
+    public var ownerIdentifier: String?
 
     public init(
       id: UUID = UUID(),
