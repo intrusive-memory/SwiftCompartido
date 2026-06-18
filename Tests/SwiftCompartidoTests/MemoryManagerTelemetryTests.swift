@@ -13,14 +13,13 @@ import Testing
 // MARK: - Mock Telemetry Reporter
 
 /// A mock telemetry reporter that captures events for testing
-final class MockTelemetryReporter: CompartidoTelemetryReporter, @unchecked Sendable {
+actor MockTelemetryReporter: CompartidoTelemetryReporter {
   /// Array of captured telemetry events (protected by actor semantics)
-  private nonisolated(unsafe) var events: [CompartidoTelemetryEvent] = []
+  private var events: [CompartidoTelemetryEvent] = []
 
   /// Capture a telemetry event and add it to the events array
   /// - Parameter event: The event to capture
   func capture(_ event: CompartidoTelemetryEvent) async {
-    // Simple append - not using locking since this is a test helper
     events.append(event)
   }
 
@@ -58,7 +57,7 @@ struct MemoryManagerTelemetryTests {
     try? await Task.sleep(nanoseconds: 10_000_000)  // 10ms
 
     // Get the captured events
-    let events = mockTelemetry.getEvents()
+    let events = await mockTelemetry.getEvents()
 
     // Verify we captured at least 1 event (start)
     #expect(events.count >= 1, "Should capture at least the start event")
@@ -174,7 +173,7 @@ struct MemoryManagerTelemetryTests {
     try? await Task.sleep(nanoseconds: 10_000_000)  // 10ms
 
     // Get the captured events
-    let events = mockTelemetry.getEvents()
+    let events = await mockTelemetry.getEvents()
 
     // Verify we captured at least 1 event
     #expect(events.count >= 1, "Should capture memory pressure event")
