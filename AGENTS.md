@@ -178,14 +178,32 @@ All new fields default to `nil`, so existing data migrates without modification.
 
 ## Dependencies
 
-| Package | Purpose |
-|---------|---------|
-| SwiftData | Model persistence |
-| SwiftUI | UI framework |
-| Foundation | Core utilities |
-| UniformTypeIdentifiers | MIME type handling |
-| PDFKit | PDF rendering |
-| AVFoundation | Audio playback |
+| Package | Purpose | Documentation |
+|---------|---------|---------------|
+| SwiftData | Model persistence | System framework |
+| SwiftUI | UI framework | System framework |
+| Foundation | Core utilities | System framework |
+| UniformTypeIdentifiers | MIME type handling | System framework |
+| PDFKit | PDF rendering | System framework |
+| AVFoundation | Audio playback | System framework |
+| **GlosaCore** (glosa-av) | **GLOSA screenplay annotation compiler** | **[Dependency Border](docs/glosa-av-dependency-border.md)** |
+
+### GlosaCore Integration
+
+SwiftCompartido uses **glosa-av's GlosaCore** to annotate screenplay dialogue with performance direction (instruct strings) and phrasing/pause seam points.
+
+**API Surface**: Single boundary function `compileAnnotations(fountainNotes:rawDialogueLines:)` returns `[Int: GlosaLineAnnotation]` DTOs.
+
+**Integration Point**: `DocumentModelActor.annotateGlosa(document:)` calls GlosaCore during screenplay import and persists results to five optional fields on `GuionElementModel`:
+- `glosaSpokenText: String?` - Notes-stripped dialogue text
+- `glosaBreathOffsets: [Int]?` - Phrasing hint offsets
+- `glosaBreathStrengths: [String]?` - Breath strength values
+- `glosaInstruct: String?` - LLM performance direction
+- `glosaPausePoints: Data?` - JSON-encoded pause points
+
+**Graceful Degradation**: Glosa annotation failure never aborts screenplay import; all glosa fields default to `nil` on error.
+
+**Full Specification**: See [glosa-av Dependency Border](docs/glosa-av-dependency-border.md) for complete API contract, data flow, and offset conventions.
 
 ## Build and Test
 
