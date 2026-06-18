@@ -31,29 +31,29 @@
 
 ## Phase 3 — Consumer Integration
 
-- Work unit state: RUNNING
-- Current sortie: 3 of 4
-- Sortie state: DISPATCHED
+- Work unit state: COMPLETED
+- Current sortie: 4 of 4
+- Sortie state: COMPLETED
 - Sortie type: code
-- Model: opus
-- Complexity score: 19
+- Model: sonnet
+- Complexity score: 8
 - Attempt: 1 of 3
-- Last verified: Sortie 2 complete (commit 6faf446)
-- Notes: High-risk external API integration (GlosaCore), graceful degradation required
+- Last verified: Sortie 4 complete (commit ad3cc45)
+- Notes: All Phase 3 sorties complete - SpeakableElement protocol added with dual conformance
 
 ---
 
 ## Phase 4 — Schema Versioning & Migration
 
-- Work unit state: NOT_STARTED
+- Work unit state: COMPLETED
 - Current sortie: 5 of 5
-- Sortie state: PENDING
+- Sortie state: COMPLETED
 - Sortie type: code
-- Model: (not yet dispatched)
-- Complexity score: (not yet computed)
-- Attempt: 0 of 3
-- Last verified: (none)
-- Notes: Blocked by Phase 3
+- Model: sonnet
+- Complexity score: 10
+- Attempt: 1 of 3
+- Last verified: Sortie 5 complete (commit a21244d)
+- Notes: All mission sorties complete - SwiftData migration implemented and tested
 
 ---
 
@@ -61,7 +61,7 @@
 
 | Work Unit | Sortie | Sortie State | Attempt | Model | Complexity Score | Task ID | Output File | Dispatched At |
 |-----------|--------|--------------|---------|-------|------------------|---------|-------------|---------------|
-| Phase 3 — Consumer Integration | 3 | DISPATCHED | 1/3 | opus | 19 | ad8be6eaa310fcc98 | /private/tmp/claude-501/-Users-stovak-Projects-SwiftCompartido/44adbea1-c1d0-4891-a94c-24def66d8baf/tasks/ad8be6eaa310fcc98.output | 2026-06-17T23:06:00Z |
+| (none) | - | - | - | - | - | - | - | - |
 
 ---
 
@@ -75,13 +75,22 @@
 | 2026-06-17T00:01:00Z | Phase 3 | 2 | Model: opus | Complexity score 15 (schema foundation, SwiftData migration risk, 3 dependents) |
 | 2026-06-17T23:04:00Z | Phase 3 | 2 | Sortie complete | All exit criteria met: 5 glosa fields added, PausePointDTO mirror exists, build succeeds, tests pass (105/105), commit 6faf446 created |
 | 2026-06-17T23:06:00Z | Phase 3 | 3 | Model: opus | Complexity score 19 (external API risk, graceful degradation, test fixtures, 25-35 turn estimate) |
+| 2026-06-18T06:30:00Z | Phase 3 | 3 | Sortie complete | All exit criteria met: parseGlosa parameter added, annotation pass implemented with GlosaCore, test fixtures created, AC1/AC2/AC3 tests pass, commit 8ed8634 created |
+| 2026-06-18T06:32:00Z | Phase 3 | 4 | Model: sonnet | Complexity score 8 (simple protocol pattern, 3 files, 15-20 turn estimate) |
+| 2026-06-18T06:40:00Z | Phase 3 | 4 | Sortie complete | All exit criteria met: SpeakableElement protocol created, dual conformance (GuionElementModel + ElementReference), 12/12 tests pass, commit ad3cc45 created |
+| 2026-06-18T06:40:00Z | Phase 3 | - | Phase complete | All 4 Phase 3 sorties completed successfully |
+| 2026-06-18T06:40:00Z | Phase 4 | - | Dependency gate opened | Phase 3 complete - Phase 4 can now start |
+| 2026-06-18T06:42:00Z | Phase 4 | 5 | Model: sonnet | Complexity score 10 (SwiftData migration risk, 4 files, 20-30 turn estimate) |
+| 2026-06-18T06:52:00Z | Phase 4 | 5 | Sortie complete | All exit criteria met: SwiftCompartidoSchemaV1/V2 created, lightweight migration stage registered, 3/3 migration tests pass, AGENTS.md documented, commit a21244d created |
+| 2026-06-18T06:52:00Z | Phase 4 | - | Phase complete | Final phase complete - all 5 sorties successful |
+| 2026-06-18T06:52:00Z | Mission | - | ALL SORTIES COMPLETE | All work units COMPLETED - entering final verification |
 
 ---
 
 ## Status Summary
 
-**Overall Progress**: 2/5 sorties complete (40%)
+**Overall Progress**: 5/5 sorties complete (100%) ✅
 
-**Current Activity**: Sortie 3 dispatching — implement annotation pass in DocumentModelActor
+**Current Activity**: Mission complete — entering final verification and post-mission flow
 
-**Next Milestone**: Complete Phase 3 (Sorties 1-4), unlock Phase 4
+**Next**: Final verification → test-cleanup → brief → clean/archive
