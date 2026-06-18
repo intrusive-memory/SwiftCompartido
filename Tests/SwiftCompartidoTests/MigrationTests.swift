@@ -205,6 +205,7 @@ struct MigrationTests {
   /// Verifies all document properties and relationships are preserved:
   /// - Document properties (filename, rawContent, suppressSceneNumbers, title)
   /// - Source file tracking (sourceFileBookmark, lastImportDate, sourceFileModificationDate)
+  /// - Recent items tracking (lastOpenedDate)
   /// - Relationships (elements, titlePage, customPages, generatedContent, casting)
   @Test("GuionDocumentModel migration preserves all fields")
   func testGuionDocumentModelMigration() throws {
@@ -223,9 +224,7 @@ struct MigrationTests {
     let v1Container = try ModelContainer(for: v1Schema, configurations: v1Config)
     let v1Context = ModelContext(v1Container)
 
-    let docUUID = UUID()
     let v1Doc = SwiftCompartidoSchemaV1.GuionDocumentModel(
-      uuid: docUUID,
       filename: "test-script.fountain",
       rawContent: "INT. TEST - DAY",
       suppressSceneNumbers: true,
@@ -234,6 +233,7 @@ struct MigrationTests {
     v1Doc.sourceFileBookmark = Data([1, 2, 3, 4])
     v1Doc.lastImportDate = Date(timeIntervalSince1970: 1000000)
     v1Doc.sourceFileModificationDate = Date(timeIntervalSince1970: 900000)
+    v1Doc.lastOpenedDate = Date(timeIntervalSince1970: 1100000)
 
     v1Context.insert(v1Doc)
     try v1Context.save()
@@ -258,7 +258,7 @@ struct MigrationTests {
 
     let v2Context = ModelContext(v2Container)
     let fetchDescriptor = FetchDescriptor<SwiftCompartidoSchemaV2.GuionDocumentModel>(
-      predicate: #Predicate { $0.uuid == docUUID }
+      predicate: #Predicate { $0.filename == "test-script.fountain" }
     )
     let migratedDocs = try v2Context.fetch(fetchDescriptor)
 
@@ -269,7 +269,6 @@ struct MigrationTests {
     }
 
     // Verify all fields preserved
-    #expect(doc.uuid == docUUID)
     #expect(doc.filename == "test-script.fountain")
     #expect(doc.rawContent == "INT. TEST - DAY")
     #expect(doc.suppressSceneNumbers == true)
@@ -277,6 +276,7 @@ struct MigrationTests {
     #expect(doc.sourceFileBookmark == Data([1, 2, 3, 4]))
     #expect(doc.lastImportDate?.timeIntervalSince1970 == 1000000)
     #expect(doc.sourceFileModificationDate?.timeIntervalSince1970 == 900000)
+    #expect(doc.lastOpenedDate?.timeIntervalSince1970 == 1100000)
   }
 
   /// Test that TypedDataStorage fields migrate correctly.
@@ -394,9 +394,7 @@ struct MigrationTests {
     let v1Container = try ModelContainer(for: v1Schema, configurations: v1Config)
     let v1Context = ModelContext(v1Container)
 
-    let mappingUUID = UUID()
     let v1Mapping = SwiftCompartidoSchemaV1.CharacterVoiceMapping(
-      uuid: mappingUUID,
       characterName: "ALICE",
       voiceURI: "macos://Samantha?lang=en",
       voiceName: "Samantha",
@@ -426,7 +424,7 @@ struct MigrationTests {
 
     let v2Context = ModelContext(v2Container)
     let fetchDescriptor = FetchDescriptor<SwiftCompartidoSchemaV2.CharacterVoiceMapping>(
-      predicate: #Predicate { $0.uuid == mappingUUID }
+      predicate: #Predicate { $0.characterName == "ALICE" }
     )
     let migratedMappings = try v2Context.fetch(fetchDescriptor)
 
@@ -437,7 +435,6 @@ struct MigrationTests {
     }
 
     // Verify all fields preserved
-    #expect(mapping.uuid == mappingUUID)
     #expect(mapping.characterName == "ALICE")
     #expect(mapping.voiceURI == "macos://Samantha?lang=en")
     #expect(mapping.voiceName == "Samantha")
@@ -627,12 +624,10 @@ struct MigrationTests {
     let v1Context = ModelContext(v1Container)
 
     let storageID = UUID()
-    let docUUID = UUID()
     let elementUUID = UUID()
 
     // Create document and element for relationships
     let v1Doc = SwiftCompartidoSchemaV1.GuionDocumentModel(
-      uuid: docUUID,
       title: "Test Document"
     )
     let v1Element = SwiftCompartidoSchemaV1.GuionElementModel(
@@ -709,7 +704,7 @@ struct MigrationTests {
     #expect(storage.owningElement != nil, "owningElement relationship should be preserved")
     #expect(storage.owningElement?.uuid == elementUUID)
     #expect(storage.owningDocument != nil, "owningDocument relationship should be preserved")
-    #expect(storage.owningDocument?.uuid == docUUID)
+    #expect(storage.owningDocument?.title == "Test Document")
   }
 
   /// Test that CustomPageModel fields migrate correctly.
