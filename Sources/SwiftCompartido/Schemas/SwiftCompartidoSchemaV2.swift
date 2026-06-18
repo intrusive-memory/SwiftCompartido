@@ -70,9 +70,9 @@ import Foundation
 ///
 /// This schema includes complete definitions for:
 /// - ``GuionElementModel`` - ~30 stored properties (includes 5 glosa fields)
-/// - ``GuionDocumentModel`` - 8 properties + 5 relationships (includes lastOpenedDate)
-/// - ``TypedDataStorage`` - ~35 properties + 2 relationships
-/// - ``CharacterVoiceMapping`` - 4 properties + 1 relationship (no uuid)
+/// - ``GuionDocumentModel`` - ~7 properties + 5 relationships
+/// - ``TypedDataStorage`` - ~35 properties + 1 relationship
+/// - ``CharacterVoiceMapping`` - 4 properties + 1 relationship
 /// - ``CustomOutlineElement`` - ~20 properties + 2 relationships
 /// - ``TitlePageEntryModel`` - 2 properties + 1 relationship
 /// - ``CustomPageModel`` - 5 properties + 1 relationship
@@ -233,6 +233,8 @@ public enum SwiftCompartidoSchemaV2: VersionedSchema {
 
   @Model
   public final class GuionDocumentModel {
+    @Attribute(.unique) public var uuid: UUID
+
     // Document Properties
     public var filename: String?
     public var rawContent: String?
@@ -244,9 +246,6 @@ public enum SwiftCompartidoSchemaV2: VersionedSchema {
     public var lastImportDate: Date?
     public var sourceFileModificationDate: Date?
 
-    // Recent Items Tracking (NEW in 1.4.4)
-    public var lastOpenedDate: Date?
-
     // Relationships
     @Relationship(deleteRule: .cascade) public var elements: [GuionElementModel]?
     @Relationship(deleteRule: .cascade) public var titlePage: [TitlePageEntryModel]?
@@ -255,11 +254,13 @@ public enum SwiftCompartidoSchemaV2: VersionedSchema {
     @Relationship(deleteRule: .cascade) public var casting: [CharacterVoiceMapping]?
 
     public init(
+      uuid: UUID = UUID(),
       filename: String? = nil,
       rawContent: String? = nil,
       suppressSceneNumbers: Bool = false,
       title: String? = nil
     ) {
+      self.uuid = uuid
       self.filename = filename
       self.rawContent = rawContent
       self.suppressSceneNumbers = suppressSceneNumbers
@@ -341,6 +342,7 @@ public enum SwiftCompartidoSchemaV2: VersionedSchema {
 
   @Model
   public final class CharacterVoiceMapping {
+    @Attribute(.unique) public var uuid: UUID
     public var characterName: String
     public var voiceURI: String
     public var voiceName: String
@@ -349,11 +351,13 @@ public enum SwiftCompartidoSchemaV2: VersionedSchema {
     @Relationship(deleteRule: .nullify) public var document: GuionDocumentModel?
 
     public init(
+      uuid: UUID = UUID(),
       characterName: String = "",
       voiceURI: String = "",
       voiceName: String = "",
       providerID: String = ""
     ) {
+      self.uuid = uuid
       self.characterName = characterName
       self.voiceURI = voiceURI
       self.voiceName = voiceName
