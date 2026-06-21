@@ -53,8 +53,9 @@ struct FountainParserProgressTests {
     let screenplay = try await loadFixtureString("bigfish")
     let parser = try await FountainParser(string: screenplay, progress: progress)
 
-    // Wait for async updates to propagate
-    try await Task.sleep(for: .milliseconds(50))
+    // Parser completes synchronously after FountainParser init returns
+    // Progress updates are sent via Task, so yield to allow them to process
+    await Task.yield()
 
     let updates = await collector.getUpdates()
 
@@ -90,8 +91,8 @@ struct FountainParserProgressTests {
     let screenplay = try await loadFixtureString("test")
     _ = try await FountainParser(string: screenplay, progress: progress)
 
-    // Wait a bit for async updates to propagate
-    try await Task.sleep(for: .milliseconds(50))
+    // Parser completes synchronously; yield to allow async progress updates to process
+    await Task.yield()
 
     let allUpdates = await collector.getAll()
 
@@ -136,7 +137,7 @@ struct FountainParserProgressTests {
     _ = try await FountainParser(string: screenplay, progress: progress)
 
     // Wait for async updates to propagate
-    try await Task.sleep(for: .milliseconds(50))
+    await Task.yield()
 
     let stats = await collector.getStats()
 
@@ -212,7 +213,7 @@ struct FountainParserProgressTests {
     _ = try await FountainParser(string: screenplay, progress: progress)
 
     // Wait for async updates to propagate
-    try await Task.sleep(for: .milliseconds(50))
+    await Task.yield()
 
     let descriptions = await collector.getDescriptions()
 
@@ -320,7 +321,7 @@ struct FountainParserProgressTests {
     _ = try await FountainParser(string: screenplay, progress: progress)
 
     // Wait for async updates to propagate
-    try await Task.sleep(for: .milliseconds(50))
+    await Task.yield()
 
     let lastDescription = await collector.getLast()
 
@@ -361,7 +362,7 @@ struct FountainParserProgressTests {
     let updateCount = await collector.getCount()
 
     // Wait for async updates
-    try await Task.sleep(for: .milliseconds(50))
+    await Task.yield()
 
     let finalUpdateCount = await collector.getCount()
 

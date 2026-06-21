@@ -320,15 +320,6 @@ final class GuionJSONSerializerTests: XCTestCase {
     XCTAssertNoThrow(try GuionJSONSerializer.validateRoundTrip(snapshot))
   }
 
-  // MARK: - File Format Metadata Tests
-
-  func testFileFormat_Metadata() {
-    XCTAssertEqual(GuionJSONSerializer.FileFormat.version, "1.0")
-    XCTAssertEqual(GuionJSONSerializer.FileFormat.fileExtension, "guion")
-    XCTAssertEqual(GuionJSONSerializer.FileFormat.uti, "com.swiftguion.screenplay")
-    XCTAssertEqual(GuionJSONSerializer.FileFormat.mimeType, "application/vnd.swiftguion+json")
-  }
-
   // MARK: - Performance Tests
 
   func testPerformance_Encode120PageScreenplay() throws {

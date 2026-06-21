@@ -105,7 +105,7 @@ struct IntegrationTests {
       )
 
       // Wait for async updates
-      try await Task.sleep(for: .milliseconds(100))
+      await Task.yield()
 
       let stages = await collector.getStages()
 
@@ -254,7 +254,7 @@ struct IntegrationTests {
       )
 
       // Wait for updates
-      try await Task.sleep(for: .milliseconds(100))
+      await Task.yield()
 
       let stats = await monitor.getStats()
 
@@ -349,7 +349,7 @@ struct IntegrationTests {
     let _ = try await FountainParser(string: screenplay, progress: progress)
 
     // Wait for updates to propagate
-    try await Task.sleep(for: .milliseconds(100))
+    await Task.yield()
 
     #expect(viewModel.currentProgress >= 0.0, "Progress should be updated")
     #expect(!viewModel.statusMessage.isEmpty, "Status message should be updated")

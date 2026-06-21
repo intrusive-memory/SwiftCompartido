@@ -54,7 +54,7 @@ struct MemoryManagerTelemetryTests {
     await manager.clearGPUCache()
 
     // Give a small window for async events to complete
-    try? await Task.sleep(nanoseconds: 10_000_000)  // 10ms
+    await Task.yield()  // Allow async telemetry to process
 
     // Get the captured events
     let events = await mockTelemetry.getEvents()
@@ -170,7 +170,7 @@ struct MemoryManagerTelemetryTests {
     let report = await manager.reportMemoryPressure()
 
     // Give a small window for async events to complete
-    try? await Task.sleep(nanoseconds: 10_000_000)  // 10ms
+    await Task.yield()  // Allow async telemetry to process
 
     // Get the captured events
     let events = await mockTelemetry.getEvents()

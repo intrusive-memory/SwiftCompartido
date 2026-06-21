@@ -103,7 +103,7 @@ struct SwiftDataProgressTests {
       )
 
       // Wait for async updates
-      try await Task.sleep(for: .milliseconds(50))
+      await Task.yield()
 
       let updates = await collector.getUpdates()
 
@@ -155,7 +155,7 @@ struct SwiftDataProgressTests {
       )
 
       // Wait for async updates
-      try await Task.sleep(for: .milliseconds(50))
+      await Task.yield()
 
       let results = await collector.getResults()
 
@@ -204,7 +204,7 @@ struct SwiftDataProgressTests {
       )
 
       // Wait for async updates
-      try await Task.sleep(for: .milliseconds(50))
+      await Task.yield()
 
       let descriptions = await collector.getDescriptions()
 
@@ -284,7 +284,7 @@ struct SwiftDataProgressTests {
       )
 
       // Wait for async updates
-      try await Task.sleep(for: .milliseconds(50))
+      await Task.yield()
 
       let updateCount = await collector.getCount()
 
@@ -413,7 +413,7 @@ struct SwiftDataProgressTests {
       )
 
       // Wait for async updates
-      try await Task.sleep(for: .milliseconds(50))
+      await Task.yield()
 
       let fractions = await collector.getFractions()
 
@@ -467,7 +467,7 @@ struct SwiftDataProgressTests {
       )
 
       // Wait for async updates
-      try await Task.sleep(for: .milliseconds(50))
+      await Task.yield()
 
       let updateCount = await collector.getCount()
 
@@ -512,7 +512,7 @@ struct SwiftDataProgressTests {
       )
 
       // Wait for async updates
-      try await Task.sleep(for: .milliseconds(50))
+      await Task.yield()
 
       let updateCount = await collector.getCount()
 
@@ -559,7 +559,7 @@ struct SwiftDataProgressTests {
       )
 
       // Wait for async updates
-      try await Task.sleep(for: .milliseconds(50))
+      await Task.yield()
 
       let finalUpdate = await collector.getFinal()
 
