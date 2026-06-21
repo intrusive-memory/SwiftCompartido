@@ -11,6 +11,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [7.2.0] - 2026-06-21
+
+### Added
+
+- **Comprehensive .guion File I/O Tests** - Full coverage for reading, writing, and schema versioning
+- **Error Handling Tests** - Large file stress tests and error boundary validation
+- **Schema Versioning Tests** - Comprehensive tests for .guion format evolution
+
+### Fixed
+
+- **GPU Cache Telemetry** - Made tests resilient to CI environment constraints
+- **Error Handling** - Resolved ambiguous withUnsafeMutableBytes call in error handling tests
+
+### Documentation
+
+- **Testing Gaps** - Marked all testing gaps as complete with final summary
+- **Test Analysis** - Implemented comprehensive test analysis recommendations
+
+---
+
 ## [7.1.0] - 2026-06-18
 
 ### Added
