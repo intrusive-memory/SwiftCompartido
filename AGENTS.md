@@ -76,6 +76,18 @@ SwiftCompartido/
     └── SwiftCompartidoTests/
 ```
 
+## Queryable Codemap
+
+A prebuilt [graphify](https://pypi.org/project/graphifyy/) knowledge graph of this codebase lives in [`graphify-out/`](graphify-out/) (4087 nodes · 7503 edges · 220 communities). **Prefer querying it before grepping** for architecture or "what connects to what" questions:
+
+```bash
+graphify query "How does X flow through the system?"
+graphify path "TypeA" "TypeB"      # shortest path between two nodes
+graphify explain "SomeType"        # plain-language node explanation
+```
+
+Human-readable summary: [`graphify-out/GRAPH_REPORT.md`](graphify-out/GRAPH_REPORT.md). Refresh after significant changes with `/codemap` (or `graphify . --backend claude-cli`).
+
 ## Key Components
 
 ### Parsers
