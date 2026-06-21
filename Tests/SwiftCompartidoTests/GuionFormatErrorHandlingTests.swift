@@ -475,7 +475,7 @@ final class GuionFormatErrorHandlingTests: XCTestCase {
   func testRandomBinaryData() {
     // Random binary data should fail to decode
     var randomBytes = Data(count: 1000)
-    randomBytes.withUnsafeMutableBytes { buffer in
+    randomBytes.withUnsafeMutableBytes { (buffer: UnsafeMutableRawBufferPointer) in
       for i in 0..<1000 {
         buffer[i] = UInt8.random(in: 0...255)
       }
