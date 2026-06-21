@@ -395,14 +395,20 @@ After implementing all fixes:
 
 **Status**: ✅ Complete — 17 tests passing (0.033s)
 
-### GAP 2: Schema Versioning Tests
-- [ ] Create `GuionFormatVersioningTests.swift`
-- [ ] Create fixture: `v1-screenplay.guion` (7.0.4 format)
-- [ ] Create fixture: `v2-screenplay.guion` (7.1.0+ format)
-- [ ] Test: Load V1 file with V2 decoder
-- [ ] Test: Glosa fields default to nil on V1 load
-- [ ] Test: Unknown fields ignored gracefully
-- [ ] Test: All V1 fields preserved in V2
+### GAP 2: Schema Versioning Tests ✅ COMPLETE
+- [x] Create `GuionFormatVersioningTests.swift`
+- [x] Create fixture: `v1-screenplay.guion` (baseline format)
+- [x] Create fixture: `v2-screenplay.guion` (with future fields)
+- [x] Test: Load V1 file with current decoder
+- [x] Test: V1 round-trip preserves all fields
+- [x] Test: Unknown fields ignored gracefully
+- [x] Test: All V1 fields preserved
+- [x] Test: Forward compatibility (future fields)
+- [x] Test: Optional fields handle nil/null
+- [x] Test: ISO8601 date parsing
+- [x] Test: Unknown element types throw errors (strict validation)
+
+**Status**: ✅ Complete — 12 tests passing (0.014s)
 
 ### GAP 3: Error Handling Tests
 - [ ] Create `GuionFormatErrorHandlingTests.swift`
