@@ -90,7 +90,7 @@ struct GuionParsedElementCollectionParsingTests {
     )
 
     // Wait for async updates
-    try await Task.sleep(for: .milliseconds(50))
+    await Task.yield()
 
     let stats = await collector.getStats()
 
@@ -194,7 +194,7 @@ struct GuionParsedElementCollectionParsingTests {
     )
 
     // Wait for async updates
-    try await Task.sleep(for: .milliseconds(50))
+    await Task.yield()
 
     let finalFraction = await collector.getFraction()
 
