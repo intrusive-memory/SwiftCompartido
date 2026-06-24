@@ -5249,7 +5249,7 @@
       "source_file": "Sources/SwiftCompartido/Sendable/ElementType.swift",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 77,
+      "community": 57,
       "norm_label": "elementtype.swift",
       "id": "sendable_elementtype"
     },
@@ -5419,7 +5419,7 @@
       "source_file": "Sources/SwiftCompartido/Sendable/ElementType.swift",
       "source_location": "L199",
       "_origin": "ast",
-      "community": 77,
+      "community": 57,
       "norm_label": "string",
       "id": "sources_swiftcompartido_sendable_elementtype_swift_string"
     },
@@ -5429,7 +5429,7 @@
       "source_file": "Sources/SwiftCompartido/Sendable/ElementType.swift",
       "source_location": "L252",
       "_origin": "ast",
-      "community": 77,
+      "community": 57,
       "norm_label": ".init()",
       "id": "sendable_elementtype_elementtype_init"
     },
@@ -5459,7 +5459,7 @@
       "source_file": "Sources/SwiftCompartido/Sendable/ElementType.swift",
       "source_location": "L349",
       "_origin": "ast",
-      "community": 77,
+      "community": 57,
       "norm_label": "codingkeys",
       "id": "sendable_elementtype_codingkeys"
     },
@@ -5469,7 +5469,7 @@
       "source_file": "Sources/SwiftCompartido/Sendable/ElementType.swift",
       "source_location": "L350",
       "_origin": "ast",
-      "community": 77,
+      "community": 57,
       "norm_label": "`case`",
       "id": "sendable_elementtype_codingkeys_case"
     },
@@ -5479,7 +5479,7 @@
       "source_file": "Sources/SwiftCompartido/Sendable/ElementType.swift",
       "source_location": "L351",
       "_origin": "ast",
-      "community": 77,
+      "community": 57,
       "norm_label": "level",
       "id": "sendable_elementtype_codingkeys_level"
     },
@@ -5639,7 +5639,7 @@
       "source_file": "Sources/SwiftCompartido/Sendable/ElementType.swift",
       "source_location": "L371",
       "_origin": "ast",
-      "community": 77,
+      "community": 57,
       "norm_label": "decoder",
       "id": "sources_swiftcompartido_sendable_elementtype_swift_decoder"
     },
@@ -9389,7 +9389,7 @@
       "source_file": "Sources/SwiftCompartido/Sendable/StorageAreaReference.swift",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 231,
+      "community": 60,
       "norm_label": "storageareareference.swift",
       "id": "sendable_storageareareference"
     },
@@ -9509,7 +9509,7 @@
       "source_file": "Sources/SwiftCompartido/Sendable/StorageAreaReference.swift",
       "source_location": "L197",
       "_origin": "ast",
-      "community": 231,
+      "community": 60,
       "norm_label": "codingkeys",
       "id": "sendable_storageareareference_codingkeys"
     },
@@ -9519,7 +9519,7 @@
       "source_file": "Sources/SwiftCompartido/Sendable/StorageAreaReference.swift",
       "source_location": "L198",
       "_origin": "ast",
-      "community": 231,
+      "community": 60,
       "norm_label": "requestid",
       "id": "sendable_storageareareference_codingkeys_requestid"
     },
@@ -9529,7 +9529,7 @@
       "source_file": "Sources/SwiftCompartido/Sendable/StorageAreaReference.swift",
       "source_location": "L199",
       "_origin": "ast",
-      "community": 231,
+      "community": 60,
       "norm_label": "baseurl",
       "id": "sendable_storageareareference_codingkeys_baseurl"
     },
@@ -9539,7 +9539,7 @@
       "source_file": "Sources/SwiftCompartido/Sendable/StorageAreaReference.swift",
       "source_location": "L200",
       "_origin": "ast",
-      "community": 231,
+      "community": 60,
       "norm_label": "bundleidentifier",
       "id": "sendable_storageareareference_codingkeys_bundleidentifier"
     },
@@ -11989,7 +11989,7 @@
       "source_file": "Sources/SwiftCompartido/Serialization/PDFScreenplayParser.swift",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 185,
+      "community": 75,
       "norm_label": "pdfscreenplayparser.swift",
       "id": "serialization_pdfscreenplayparser"
     },
@@ -12109,7 +12109,7 @@
       "source_file": "Sources/SwiftCompartido/Serialization/PDFScreenplayParser.swift",
       "source_location": "L118",
       "_origin": "ast",
-      "community": 75,
+      "community": 185,
       "norm_label": "parsingfailed",
       "id": "serialization_pdfscreenplayparser_pdfscreenplayparsererror_parsingfailed"
     },
@@ -41369,9 +41369,9 @@
       "source_file": "Sources/SwiftCompartido/SwiftDataModels/TypedDataStorage.swift",
       "source_location": "L82",
       "_origin": "ast",
+      "id": "uuid",
       "community": 5,
-      "norm_label": "uuid",
-      "id": "uuid"
+      "norm_label": "uuid"
     },
     {
       "label": "Data",
@@ -41379,9 +41379,9 @@
       "source_file": "Sources/SwiftCompartido/SwiftDataModels/TypedDataStorage.swift",
       "source_location": "L118",
       "_origin": "ast",
+      "id": "data",
       "community": 5,
-      "norm_label": "data",
-      "id": "data"
+      "norm_label": "data"
     },
     {
       "label": "Double",
@@ -41389,9 +41389,9 @@
       "source_file": "Sources/SwiftCompartido/SwiftDataModels/TypedDataStorage.swift",
       "source_location": "L177",
       "_origin": "ast",
+      "id": "double",
       "community": 5,
-      "norm_label": "double",
-      "id": "double"
+      "norm_label": "double"
     },
     {
       "label": "TypedDataFileReference",
@@ -41399,9 +41399,9 @@
       "source_file": "Sources/SwiftCompartido/SwiftDataModels/TypedDataStorage.swift",
       "source_location": "L186",
       "_origin": "ast",
+      "id": "typeddatafilereference",
       "community": 5,
-      "norm_label": "typeddatafilereference",
-      "id": "typeddatafilereference"
+      "norm_label": "typeddatafilereference"
     },
     {
       "label": "Int",
@@ -41409,9 +41409,9 @@
       "source_file": "Sources/SwiftCompartido/SwiftDataModels/TypedDataStorage.swift",
       "source_location": "L192",
       "_origin": "ast",
+      "id": "int",
       "community": 5,
-      "norm_label": "int",
-      "id": "int"
+      "norm_label": "int"
     },
     {
       "label": "Date",
@@ -41419,9 +41419,9 @@
       "source_file": "Sources/SwiftCompartido/SwiftDataModels/TypedDataStorage.swift",
       "source_location": "L295",
       "_origin": "ast",
+      "id": "date",
       "community": 5,
-      "norm_label": "date",
-      "id": "date"
+      "norm_label": "date"
     },
     {
       "label": "Bool",
@@ -41429,9 +41429,9 @@
       "source_file": "Sources/SwiftCompartido/SwiftDataModels/TypedDataStorage.swift",
       "source_location": "L421",
       "_origin": "ast",
+      "id": "bool",
       "community": 5,
-      "norm_label": "bool",
-      "id": "bool"
+      "norm_label": "bool"
     },
     {
       "label": "StorageAreaReference",
@@ -41439,9 +41439,9 @@
       "source_file": "Sources/SwiftCompartido/SwiftDataModels/TypedDataStorage.swift",
       "source_location": "L457",
       "_origin": "ast",
+      "id": "storageareareference",
       "community": 5,
-      "norm_label": "storageareareference",
-      "id": "storageareareference"
+      "norm_label": "storageareareference"
     },
     {
       "label": "OperationProgress",
@@ -41449,9 +41449,9 @@
       "source_file": "Sources/SwiftCompartido/SwiftDataModels/TypedDataStorage.swift",
       "source_location": "L457",
       "_origin": "ast",
+      "id": "operationprogress",
       "community": 5,
-      "norm_label": "operationprogress",
-      "id": "operationprogress"
+      "norm_label": "operationprogress"
     },
     {
       "label": "Float",
@@ -41459,9 +41459,9 @@
       "source_file": "Sources/SwiftCompartido/SwiftDataModels/TypedDataStorage.swift",
       "source_location": "L642",
       "_origin": "ast",
+      "id": "float",
       "community": 5,
-      "norm_label": "float",
-      "id": "float"
+      "norm_label": "float"
     },
     {
       "label": "BULLITT",
@@ -41472,9 +41472,9 @@
       "captured_at": "1968",
       "author": "Alan Trustman, Harry Kleiner",
       "contributor": "Alan Trustman, Harry Kleiner",
+      "id": "bullitt_screenplay",
       "community": 180,
-      "norm_label": "bullitt",
-      "id": "bullitt_screenplay"
+      "norm_label": "bullitt"
     },
     {
       "label": "SwiftCompartido Library",
@@ -41485,9 +41485,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "agents_swiftcompartido",
       "community": 143,
-      "norm_label": "swiftcompartido library",
-      "id": "agents_swiftcompartido"
+      "norm_label": "swiftcompartido library"
     },
     {
       "label": "GuionDocumentModel",
@@ -41498,9 +41498,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "agents_guiondocumentmodel",
       "community": 143,
-      "norm_label": "guiondocumentmodel",
-      "id": "agents_guiondocumentmodel"
+      "norm_label": "guiondocumentmodel"
     },
     {
       "label": "GuionElementModel",
@@ -41511,9 +41511,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "agents_guionelementmodel",
       "community": 143,
-      "norm_label": "guionelementmodel",
-      "id": "agents_guionelementmodel"
+      "norm_label": "guionelementmodel"
     },
     {
       "label": "TypedDataStorage",
@@ -41524,9 +41524,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "agents_typeddatastorage",
       "community": 143,
-      "norm_label": "typeddatastorage",
-      "id": "agents_typeddatastorage"
+      "norm_label": "typeddatastorage"
     },
     {
       "label": "DocumentModelActor",
@@ -41537,9 +41537,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "agents_documentmodelactor",
       "community": 143,
-      "norm_label": "documentmodelactor",
-      "id": "agents_documentmodelactor"
+      "norm_label": "documentmodelactor"
     },
     {
       "label": "GlosaCore (glosa-av dependency)",
@@ -41550,9 +41550,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "agents_glosacore",
       "community": 143,
-      "norm_label": "glosacore (glosa-av dependency)",
-      "id": "agents_glosacore"
+      "norm_label": "glosacore (glosa-av dependency)"
     },
     {
       "label": "FountainParser",
@@ -41563,9 +41563,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "agents_fountainparser",
       "community": 201,
-      "norm_label": "fountainparser",
-      "id": "agents_fountainparser"
+      "norm_label": "fountainparser"
     },
     {
       "label": "FDXParser (Final Draft)",
@@ -41576,9 +41576,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "agents_fdxparser",
       "community": 201,
-      "norm_label": "fdxparser (final draft)",
-      "id": "agents_fdxparser"
+      "norm_label": "fdxparser (final draft)"
     },
     {
       "label": "PDFScreenplayParser",
@@ -41589,9 +41589,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "agents_pdfscreenplayparser",
       "community": 201,
-      "norm_label": "pdfscreenplayparser",
-      "id": "agents_pdfscreenplayparser"
+      "norm_label": "pdfscreenplayparser"
     },
     {
       "label": "GuionTextEditor (TextKit 2)",
@@ -41602,9 +41602,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "agents_guiontexteditor",
       "community": 207,
-      "norm_label": "guiontexteditor (textkit 2)",
-      "id": "agents_guiontexteditor"
+      "norm_label": "guiontexteditor (textkit 2)"
     },
     {
       "label": "GuionViewer Reference App",
@@ -41615,9 +41615,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "agents_guionviewer",
       "community": 207,
-      "norm_label": "guionviewer reference app",
-      "id": "agents_guionviewer"
+      "norm_label": "guionviewer reference app"
     },
     {
       "label": "CharacterVoiceMapping",
@@ -41628,9 +41628,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "agents_charactervoicemapping",
       "community": 143,
-      "norm_label": "charactervoicemapping",
-      "id": "agents_charactervoicemapping"
+      "norm_label": "charactervoicemapping"
     },
     {
       "label": "GuionParsedElementCollection",
@@ -41641,9 +41641,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "agents_guionparsedelementcollection",
       "community": 201,
-      "norm_label": "guionparsedelementcollection",
-      "id": "agents_guionparsedelementcollection"
+      "norm_label": "guionparsedelementcollection"
     },
     {
       "label": "SwiftCompartidoSchemaV1",
@@ -41654,9 +41654,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "agents_swiftcompartidoschemav1",
       "community": 210,
-      "norm_label": "swiftcompartidoschemav1",
-      "id": "agents_swiftcompartidoschemav1"
+      "norm_label": "swiftcompartidoschemav1"
     },
     {
       "label": "SwiftCompartidoSchemaV2",
@@ -41667,9 +41667,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "agents_swiftcompartidoschemav2",
       "community": 210,
-      "norm_label": "swiftcompartidoschemav2",
-      "id": "agents_swiftcompartidoschemav2"
+      "norm_label": "swiftcompartidoschemav2"
     },
     {
       "label": "Phase 6 Architecture (file-based storage)",
@@ -41680,9 +41680,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "agents_phase6_architecture",
       "community": 143,
-      "norm_label": "phase 6 architecture (file-based storage)",
-      "id": "agents_phase6_architecture"
+      "norm_label": "phase 6 architecture (file-based storage)"
     },
     {
       "label": "Version 7.2.0",
@@ -41693,9 +41693,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "changelog_version_720",
       "community": 216,
-      "norm_label": "version 7.2.0",
-      "id": "changelog_version_720"
+      "norm_label": "version 7.2.0"
     },
     {
       "label": "Version 7.1.0",
@@ -41706,9 +41706,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "changelog_version_710",
       "community": 143,
-      "norm_label": "version 7.1.0",
-      "id": "changelog_version_710"
+      "norm_label": "version 7.1.0"
     },
     {
       "label": "XcodeBuildMCP Server",
@@ -41719,9 +41719,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "claude_xcodebuildmcp",
       "community": 143,
-      "norm_label": "xcodebuildmcp server",
-      "id": "claude_xcodebuildmcp"
+      "norm_label": "xcodebuildmcp server"
     },
     {
       "label": "Mission 1: Parsing & Storage",
@@ -41732,9 +41732,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "readme_mission_parsing_storage",
       "community": 143,
-      "norm_label": "mission 1: parsing & storage",
-      "id": "readme_mission_parsing_storage"
+      "norm_label": "mission 1: parsing & storage"
     },
     {
       "label": "Mission 2: UI Display",
@@ -41745,9 +41745,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "readme_mission_ui_display",
       "community": 207,
-      "norm_label": "mission 2: ui display",
-      "id": "readme_mission_ui_display"
+      "norm_label": "mission 2: ui display"
     },
     {
       "label": "PandocDocumentParser",
@@ -41758,9 +41758,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "pandoc_import_requirements_pandocdocumentparser",
       "community": 131,
-      "norm_label": "pandocdocumentparser",
-      "id": "pandoc_import_requirements_pandocdocumentparser"
+      "norm_label": "pandocdocumentparser"
     },
     {
       "label": "GuionParsedElementCollection",
@@ -41771,9 +41771,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "pandoc_import_requirements_guionparsedelementcollection",
       "community": 131,
-      "norm_label": "guionparsedelementcollection",
-      "id": "pandoc_import_requirements_guionparsedelementcollection"
+      "norm_label": "guionparsedelementcollection"
     },
     {
       "label": "GuionDocumentModel",
@@ -41784,9 +41784,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "pandoc_import_requirements_guiondocumentmodel",
       "community": 131,
-      "norm_label": "guiondocumentmodel",
-      "id": "pandoc_import_requirements_guiondocumentmodel"
+      "norm_label": "guiondocumentmodel"
     },
     {
       "label": "GuionElementModel",
@@ -41797,9 +41797,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "pandoc_import_requirements_guionelementmodel",
       "community": 131,
-      "norm_label": "guionelementmodel",
-      "id": "pandoc_import_requirements_guionelementmodel"
+      "norm_label": "guionelementmodel"
     },
     {
       "label": "MarkdownParser",
@@ -41810,9 +41810,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "pandoc_import_requirements_markdownparser",
       "community": 131,
-      "norm_label": "markdownparser",
-      "id": "pandoc_import_requirements_markdownparser"
+      "norm_label": "markdownparser"
     },
     {
       "label": "FountainParser",
@@ -41823,9 +41823,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "pandoc_import_requirements_fountainparser",
       "community": 131,
-      "norm_label": "fountainparser",
-      "id": "pandoc_import_requirements_fountainparser"
+      "norm_label": "fountainparser"
     },
     {
       "label": "ParsedFileService",
@@ -41836,9 +41836,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "parsed_file_service_parsedfileservice",
       "community": 131,
-      "norm_label": "parsedfileservice",
-      "id": "parsed_file_service_parsedfileservice"
+      "norm_label": "parsedfileservice"
     },
     {
       "label": "ScreenplayElementsReference",
@@ -41849,9 +41849,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "parsed_file_service_screenplayelementsreference",
       "community": 224,
-      "norm_label": "screenplayelementsreference",
-      "id": "parsed_file_service_screenplayelementsreference"
+      "norm_label": "screenplayelementsreference"
     },
     {
       "label": "ParseScreenplayFileIntent",
@@ -41862,9 +41862,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "parsed_file_service_parsescreenplayfileintent",
       "community": 131,
-      "norm_label": "parsescreenplayfileintent",
-      "id": "parsed_file_service_parsescreenplayfileintent"
+      "norm_label": "parsescreenplayfileintent"
     },
     {
       "label": "QueryScreenplayElementsIntent",
@@ -41875,9 +41875,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "parsed_file_service_queryscreenplayfilesintent",
       "community": 131,
-      "norm_label": "queryscreenplayelementsintent",
-      "id": "parsed_file_service_queryscreenplayfilesintent"
+      "norm_label": "queryscreenplayelementsintent"
     },
     {
       "label": "GuionElementsList",
@@ -41888,9 +41888,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "performance_guionelementslist",
       "community": 3,
-      "norm_label": "guionelementslist",
-      "id": "performance_guionelementslist"
+      "norm_label": "guionelementslist"
     },
     {
       "label": "Pandoc",
@@ -41901,9 +41901,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "pandoc_concept",
       "community": 131,
-      "norm_label": "pandoc",
-      "id": "pandoc_concept"
+      "norm_label": "pandoc"
     },
     {
       "label": "SwiftData",
@@ -41914,9 +41914,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "swiftdata_concept",
       "community": 131,
-      "norm_label": "swiftdata",
-      "id": "swiftdata_concept"
+      "norm_label": "swiftdata"
     },
     {
       "label": "App Intents",
@@ -41927,9 +41927,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "appintents_concept",
       "community": 131,
-      "norm_label": "app intents",
-      "id": "appintents_concept"
+      "norm_label": "app intents"
     },
     {
       "label": "SwiftCompartido Package",
@@ -41940,9 +41940,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "output_swiftcompartido_package",
       "community": 222,
-      "norm_label": "swiftcompartido package",
-      "id": "output_swiftcompartido_package"
+      "norm_label": "swiftcompartido package"
     },
     {
       "label": "SwiftCompartidoPackageTests.xctest",
@@ -41953,9 +41953,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "output_swiftcompartidopackagetests",
       "community": 152,
-      "norm_label": "swiftcompartidopackagetests.xctest",
-      "id": "output_swiftcompartidopackagetests"
+      "norm_label": "swiftcompartidopackagetests.xctest"
     },
     {
       "label": "AICredentialTests",
@@ -41966,9 +41966,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "output_aicredentialtests",
       "community": 152,
-      "norm_label": "aicredentialtests",
-      "id": "output_aicredentialtests"
+      "norm_label": "aicredentialtests"
     },
     {
       "label": "DocumentExportTests",
@@ -41979,9 +41979,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "output_documentexporttests",
       "community": 152,
-      "norm_label": "documentexporttests",
-      "id": "output_documentexporttests"
+      "norm_label": "documentexporttests"
     },
     {
       "label": "DocumentImportTests",
@@ -41992,9 +41992,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "output_documentimporttests",
       "community": 152,
-      "norm_label": "documentimporttests",
-      "id": "output_documentimporttests"
+      "norm_label": "documentimporttests"
     },
     {
       "label": "ExportDocumentStructTests",
@@ -42005,9 +42005,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "output_exportdocumentstructtests",
       "community": 152,
-      "norm_label": "exportdocumentstructtests",
-      "id": "output_exportdocumentstructtests"
+      "norm_label": "exportdocumentstructtests"
     },
     {
       "label": "FountainParserTests",
@@ -42018,9 +42018,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "output_fountainparsertests",
       "community": 152,
-      "norm_label": "fountainparsertests",
-      "id": "output_fountainparsertests"
+      "norm_label": "fountainparsertests"
     },
     {
       "label": "AICredential Component",
@@ -42031,9 +42031,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "output_aicredential",
       "community": 152,
-      "norm_label": "aicredential component",
-      "id": "output_aicredential"
+      "norm_label": "aicredential component"
     },
     {
       "label": "DocumentExport Component",
@@ -42044,9 +42044,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "output_documentexport",
       "community": 152,
-      "norm_label": "documentexport component",
-      "id": "output_documentexport"
+      "norm_label": "documentexport component"
     },
     {
       "label": "DocumentImport Component",
@@ -42057,9 +42057,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "output_documentimport",
       "community": 152,
-      "norm_label": "documentimport component",
-      "id": "output_documentimport"
+      "norm_label": "documentimport component"
     },
     {
       "label": "ExportFormat Component",
@@ -42070,9 +42070,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "output_exportformat",
       "community": 152,
-      "norm_label": "exportformat component",
-      "id": "output_exportformat"
+      "norm_label": "exportformat component"
     },
     {
       "label": "FountainParser Component",
@@ -42083,9 +42083,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "output_fountainparser",
       "community": 152,
-      "norm_label": "fountainparser component",
-      "id": "output_fountainparser"
+      "norm_label": "fountainparser component"
     }
   ],
   "links": [
@@ -50970,6 +50970,16 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
+      "source_file": "Docs/old/PROGRESS_REQUIREMENTS.md",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "serialization_fountainparser_fountainparser",
+      "target": "progress_operationprogress_operationprogress"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
       "source_file": "Docs/old/PERFORMANCE_IMPROVEMENT_PLAN.md",
       "source_location": "Line 116",
       "weight": 1.0,
@@ -51120,16 +51130,6 @@
       "source_location": null,
       "weight": 1.0,
       "source": "progress_requirements_document",
-      "target": "progress_operationprogress_operationprogress"
-    },
-    {
-      "relation": "references",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "Docs/old/PROGRESS_REQUIREMENTS.md",
-      "source_location": null,
-      "weight": 1.0,
-      "source": "serialization_fountainparser_fountainparser",
       "target": "progress_operationprogress_operationprogress"
     },
     {
@@ -54952,9 +54952,9 @@
       "source_location": "L701",
       "weight": 1.0,
       "context": "field",
-      "confidence_score": 1.0,
       "source": "swiftdatamodels_typeddatastorage_typeddatastorage",
-      "target": "string"
+      "target": "string",
+      "confidence_score": 1.0
     },
     {
       "relation": "references",
@@ -54963,9 +54963,9 @@
       "source_location": "L590",
       "weight": 1.0,
       "context": "return_type",
-      "confidence_score": 1.0,
       "source": "swiftdatamodels_typeddatastorage_typeddatastorage_gettext",
-      "target": "string"
+      "target": "string",
+      "confidence_score": 1.0
     },
     {
       "relation": "references",
@@ -54974,9 +54974,9 @@
       "source_location": "L316",
       "weight": 1.0,
       "context": "parameter_type",
-      "confidence_score": 1.0,
       "source": "swiftdatamodels_typeddatastorage_typeddatastorage_init",
-      "target": "string"
+      "target": "string",
+      "confidence_score": 1.0
     },
     {
       "relation": "references",
@@ -54985,9 +54985,9 @@
       "source_location": "L421",
       "weight": 1.0,
       "context": "parameter_type",
-      "confidence_score": 1.0,
       "source": "swiftdatamodels_typeddatastorage_typeddatastorage_ismimetypesupported",
-      "target": "string"
+      "target": "string",
+      "confidence_score": 1.0
     },
     {
       "relation": "references",
@@ -54996,9 +54996,9 @@
       "source_location": "L433",
       "weight": 1.0,
       "context": "return_type",
-      "confidence_score": 1.0,
       "source": "swiftdatamodels_typeddatastorage_typeddatastorage_storagefieldtype",
-      "target": "string"
+      "target": "string",
+      "confidence_score": 1.0
     },
     {
       "relation": "references",
@@ -55007,9 +55007,9 @@
       "source_location": "L20",
       "weight": 1.0,
       "context": "field",
-      "confidence_score": 1.0,
       "source": "swiftdatamodels_typeddatastorage_typeddatastorageerror",
-      "target": "string"
+      "target": "string",
+      "confidence_score": 1.0
     },
     {
       "relation": "references",
@@ -70511,21 +70511,21 @@
       "relation": "uses",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
-      "source_file": "Docs/PARSED_FILE_SERVICE_API.md",
-      "source_location": "Format Detection section",
-      "weight": 1.0,
-      "source": "parsed_file_service",
-      "target": "serialization_pdfscreenplayparser_pdfscreenplayparser"
-    },
-    {
-      "relation": "uses",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
       "source_file": "Docs/FOUNDATION_MODELS_STATUS.md",
       "source_location": "line 74-95",
       "weight": 1.0,
       "source": "serialization_pdfscreenplayparser_pdfscreenplayparser",
       "target": "foundation_models"
+    },
+    {
+      "relation": "uses",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "Docs/PARSED_FILE_SERVICE_API.md",
+      "source_location": "Format Detection section",
+      "weight": 1.0,
+      "source": "parsed_file_service",
+      "target": "serialization_pdfscreenplayparser_pdfscreenplayparser"
     },
     {
       "relation": "references",
@@ -75625,9 +75625,9 @@
       "source_location": "L664",
       "weight": 1.0,
       "context": "field",
-      "confidence_score": 1.0,
       "source": "swiftdatamodels_typeddatastorage_typeddatastorage",
-      "target": "bool"
+      "target": "bool",
+      "confidence_score": 1.0
     },
     {
       "relation": "references",
@@ -75636,9 +75636,9 @@
       "source_location": "L130",
       "weight": 1.0,
       "context": "field",
-      "confidence_score": 1.0,
       "source": "swiftdatamodels_typeddatastorage_typeddatastorage",
-      "target": "data"
+      "target": "data",
+      "confidence_score": 1.0
     },
     {
       "relation": "references",
@@ -75647,9 +75647,9 @@
       "source_location": "L298",
       "weight": 1.0,
       "context": "field",
-      "confidence_score": 1.0,
       "source": "swiftdatamodels_typeddatastorage_typeddatastorage",
-      "target": "date"
+      "target": "date",
+      "confidence_score": 1.0
     },
     {
       "relation": "references",
@@ -75658,9 +75658,9 @@
       "source_location": "L215",
       "weight": 1.0,
       "context": "field",
-      "confidence_score": 1.0,
       "source": "swiftdatamodels_typeddatastorage_typeddatastorage",
-      "target": "double"
+      "target": "double",
+      "confidence_score": 1.0
     },
     {
       "relation": "references",
@@ -75669,9 +75669,9 @@
       "source_location": "L282",
       "weight": 1.0,
       "context": "field",
-      "confidence_score": 1.0,
       "source": "swiftdatamodels_typeddatastorage_typeddatastorage",
-      "target": "guiondocumentmodel"
+      "target": "guiondocumentmodel",
+      "confidence_score": 1.0
     },
     {
       "relation": "references",
@@ -75680,9 +75680,9 @@
       "source_location": "L271",
       "weight": 1.0,
       "context": "field",
-      "confidence_score": 1.0,
       "source": "swiftdatamodels_typeddatastorage_typeddatastorage",
-      "target": "guionelementmodel"
+      "target": "guionelementmodel",
+      "confidence_score": 1.0
     },
     {
       "relation": "references",
@@ -75691,9 +75691,9 @@
       "source_location": "L686",
       "weight": 1.0,
       "context": "field",
-      "confidence_score": 1.0,
       "source": "swiftdatamodels_typeddatastorage_typeddatastorage",
-      "target": "int"
+      "target": "int",
+      "confidence_score": 1.0
     },
     {
       "relation": "references",
@@ -75901,9 +75901,9 @@
       "source_location": "L186",
       "weight": 1.0,
       "context": "field",
-      "confidence_score": 1.0,
       "source": "swiftdatamodels_typeddatastorage_typeddatastorage",
-      "target": "typeddatafilereference"
+      "target": "typeddatafilereference",
+      "confidence_score": 1.0
     },
     {
       "relation": "references",
@@ -75912,9 +75912,9 @@
       "source_location": "L82",
       "weight": 1.0,
       "context": "field",
-      "confidence_score": 1.0,
       "source": "swiftdatamodels_typeddatastorage_typeddatastorage",
-      "target": "uuid"
+      "target": "uuid",
+      "confidence_score": 1.0
     },
     {
       "relation": "references",
@@ -76033,9 +76033,9 @@
       "source_location": "L316",
       "weight": 1.0,
       "context": "parameter_type",
-      "confidence_score": 1.0,
       "source": "swiftdatamodels_typeddatastorage_typeddatastorage_init",
-      "target": "data"
+      "target": "data",
+      "confidence_score": 1.0
     },
     {
       "relation": "references",
@@ -76044,9 +76044,9 @@
       "source_location": "L316",
       "weight": 1.0,
       "context": "parameter_type",
-      "confidence_score": 1.0,
       "source": "swiftdatamodels_typeddatastorage_typeddatastorage_init",
-      "target": "double"
+      "target": "double",
+      "confidence_score": 1.0
     },
     {
       "relation": "references",
@@ -76055,9 +76055,9 @@
       "source_location": "L316",
       "weight": 1.0,
       "context": "parameter_type",
-      "confidence_score": 1.0,
       "source": "swiftdatamodels_typeddatastorage_typeddatastorage_init",
-      "target": "int"
+      "target": "int",
+      "confidence_score": 1.0
     },
     {
       "relation": "references",
@@ -76066,9 +76066,9 @@
       "source_location": "L316",
       "weight": 1.0,
       "context": "parameter_type",
-      "confidence_score": 1.0,
       "source": "swiftdatamodels_typeddatastorage_typeddatastorage_init",
-      "target": "typeddatafilereference"
+      "target": "typeddatafilereference",
+      "confidence_score": 1.0
     },
     {
       "relation": "references",
@@ -76077,9 +76077,9 @@
       "source_location": "L316",
       "weight": 1.0,
       "context": "parameter_type",
-      "confidence_score": 1.0,
       "source": "swiftdatamodels_typeddatastorage_typeddatastorage_init",
-      "target": "uuid"
+      "target": "uuid",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -76099,9 +76099,9 @@
       "source_location": "L421",
       "weight": 1.0,
       "context": "return_type",
-      "confidence_score": 1.0,
       "source": "swiftdatamodels_typeddatastorage_typeddatastorage_ismimetypesupported",
-      "target": "bool"
+      "target": "bool",
+      "confidence_score": 1.0
     },
     {
       "relation": "references",
@@ -76143,9 +76143,9 @@
       "source_location": "L457",
       "weight": 1.0,
       "context": "return_type",
-      "confidence_score": 1.0,
       "source": "swiftdatamodels_typeddatastorage_typeddatastorage_getcontent",
-      "target": "data"
+      "target": "data",
+      "confidence_score": 1.0
     },
     {
       "relation": "references",
@@ -76154,9 +76154,9 @@
       "source_location": "L457",
       "weight": 1.0,
       "context": "parameter_type",
-      "confidence_score": 1.0,
       "source": "swiftdatamodels_typeddatastorage_typeddatastorage_getcontent",
-      "target": "operationprogress"
+      "target": "operationprogress",
+      "confidence_score": 1.0
     },
     {
       "relation": "references",
@@ -76187,9 +76187,9 @@
       "source_location": "L457",
       "weight": 1.0,
       "context": "parameter_type",
-      "confidence_score": 1.0,
       "source": "swiftdatamodels_typeddatastorage_typeddatastorage_getcontent",
-      "target": "storageareareference"
+      "target": "storageareareference",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -76286,9 +76286,9 @@
       "source_file": "Sources/SwiftCompartido/SwiftDataModels/TypedDataStorage.swift",
       "source_location": "L518",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "swiftdatamodels_typeddatastorage_typeddatastorage_loadfilewithprogress",
-      "target": "data"
+      "target": "data",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -76297,9 +76297,9 @@
       "source_file": "Sources/SwiftCompartido/SwiftDataModels/TypedDataStorage.swift",
       "source_location": "L542",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "swiftdatamodels_typeddatastorage_typeddatastorage_loadfilewithprogress",
-      "target": "int"
+      "target": "int",
+      "confidence_score": 1.0
     },
     {
       "relation": "references",
@@ -76308,9 +76308,9 @@
       "source_location": "L518",
       "weight": 1.0,
       "context": "parameter_type",
-      "confidence_score": 1.0,
       "source": "swiftdatamodels_typeddatastorage_typeddatastorage_loadfilewithprogress",
-      "target": "operationprogress"
+      "target": "operationprogress",
+      "confidence_score": 1.0
     },
     {
       "relation": "references",
@@ -76319,9 +76319,9 @@
       "source_location": "L518",
       "weight": 1.0,
       "context": "parameter_type",
-      "confidence_score": 1.0,
       "source": "swiftdatamodels_typeddatastorage_typeddatastorage_loadfilewithprogress",
-      "target": "storageareareference"
+      "target": "storageareareference",
+      "confidence_score": 1.0
     },
     {
       "relation": "references",
@@ -76330,9 +76330,9 @@
       "source_location": "L518",
       "weight": 1.0,
       "context": "parameter_type",
-      "confidence_score": 1.0,
       "source": "swiftdatamodels_typeddatastorage_typeddatastorage_loadfilewithprogress",
-      "target": "typeddatafilereference"
+      "target": "typeddatafilereference",
+      "confidence_score": 1.0
     },
     {
       "relation": "references",
@@ -76341,9 +76341,9 @@
       "source_location": "L590",
       "weight": 1.0,
       "context": "parameter_type",
-      "confidence_score": 1.0,
       "source": "swiftdatamodels_typeddatastorage_typeddatastorage_gettext",
-      "target": "storageareareference"
+      "target": "storageareareference",
+      "confidence_score": 1.0
     },
     {
       "relation": "references",
@@ -76352,9 +76352,9 @@
       "source_location": "L624",
       "weight": 1.0,
       "context": "return_type",
-      "confidence_score": 1.0,
       "source": "swiftdatamodels_typeddatastorage_typeddatastorage_getbinary",
-      "target": "data"
+      "target": "data",
+      "confidence_score": 1.0
     },
     {
       "relation": "references",
@@ -76363,9 +76363,9 @@
       "source_location": "L624",
       "weight": 1.0,
       "context": "parameter_type",
-      "confidence_score": 1.0,
       "source": "swiftdatamodels_typeddatastorage_typeddatastorage_getbinary",
-      "target": "operationprogress"
+      "target": "operationprogress",
+      "confidence_score": 1.0
     },
     {
       "relation": "references",
@@ -76374,9 +76374,9 @@
       "source_location": "L624",
       "weight": 1.0,
       "context": "parameter_type",
-      "confidence_score": 1.0,
       "source": "swiftdatamodels_typeddatastorage_typeddatastorage_getbinary",
-      "target": "storageareareference"
+      "target": "storageareareference",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -76396,9 +76396,9 @@
       "source_location": "L642",
       "weight": 1.0,
       "context": "return_type",
-      "confidence_score": 1.0,
       "source": "swiftdatamodels_typeddatastorage_typeddatastorage_getembedding",
-      "target": "float"
+      "target": "float",
+      "confidence_score": 1.0
     },
     {
       "relation": "references",
@@ -76418,9 +76418,9 @@
       "source_location": "L642",
       "weight": 1.0,
       "context": "parameter_type",
-      "confidence_score": 1.0,
       "source": "swiftdatamodels_typeddatastorage_typeddatastorage_getembedding",
-      "target": "storageareareference"
+      "target": "storageareareference",
+      "confidence_score": 1.0
     },
     {
       "relation": "imports",
@@ -77830,6 +77830,17 @@
     },
     {
       "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "Sources/SwiftCompartido/UI/ElementProgress/ElementProgressBar.swift",
+      "source_location": "L17",
+      "weight": 1.0,
+      "context": "field",
+      "confidence_score": 1.0,
+      "source": "elementprogress_elementprogressbar_elementprogressbar",
+      "target": "sources_swiftcompartido_ui_elementprogress_elementprogressbar_swift_guionelementmodel"
+    },
+    {
+      "relation": "references",
       "confidence": "INFERRED",
       "confidence_score": 0.95,
       "source_file": null,
@@ -77841,13 +77852,12 @@
     {
       "relation": "references",
       "confidence": "EXTRACTED",
-      "source_file": "Sources/SwiftCompartido/UI/ElementProgress/ElementProgressBar.swift",
-      "source_location": "L17",
-      "weight": 1.0,
-      "context": "field",
       "confidence_score": 1.0,
-      "source": "elementprogress_elementprogressbar_elementprogressbar",
-      "target": "sources_swiftcompartido_ui_elementprogress_elementprogressbar_swift_guionelementmodel"
+      "source_file": "Docs/old/PROGRESS_BARS.md",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "ui_guionelementslist_guionelementslist",
+      "target": "elementprogress_elementprogressbar_elementprogressbar"
     },
     {
       "relation": "references",
@@ -77989,16 +77999,6 @@
       "source_location": "L262",
       "weight": 1.0,
       "source": "swiftcompartidotests_elementprogressbartests_elementprogressbartests_testelementprogressbarzeroprogress",
-      "target": "elementprogress_elementprogressbar_elementprogressbar"
-    },
-    {
-      "relation": "references",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "Docs/old/PROGRESS_BARS.md",
-      "source_location": null,
-      "weight": 1.0,
-      "source": "ui_guionelementslist_guionelementslist",
       "target": "elementprogress_elementprogressbar_elementprogressbar"
     },
     {
@@ -83390,6 +83390,16 @@
     },
     {
       "relation": "references",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": null,
+      "source_location": null,
+      "weight": 1.0,
+      "source": "ui_guionelementslist_guionelementslist",
+      "target": "swiftui"
+    },
+    {
+      "relation": "references",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "Docs/old/PERFORMANCE_IMPROVEMENT_PLAN.md",
@@ -83659,16 +83669,6 @@
       "confidence_score": 1.0,
       "source": "ui_guionelementslist_guionelementslist",
       "target": "sources_swiftcompartido_ui_guionelementslist_swift_string"
-    },
-    {
-      "relation": "references",
-      "confidence": "INFERRED",
-      "confidence_score": 0.95,
-      "source_file": null,
-      "source_location": null,
-      "weight": 1.0,
-      "source": "ui_guionelementslist_guionelementslist",
-      "target": "swiftui"
     },
     {
       "relation": "method",
