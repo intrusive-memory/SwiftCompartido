@@ -1,3 +1,7 @@
+---
+type: doc
+---
+
 # GEMINI.md
 
 **⚠️ Read [AGENTS.md](AGENTS.md) first** for universal project documentation, architecture, and development guidelines.

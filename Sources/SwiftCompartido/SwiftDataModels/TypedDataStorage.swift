@@ -100,9 +100,21 @@ public final class TypedDataStorage {
   /// **Internal storage**: This field stores compressed data using LZFSE algorithm.
   /// Use the `binaryValue` computed property to access uncompressed data.
   ///
-  /// `.externalStorage` ensures large compressed data is stored externally,
-  /// preventing SwiftData database bloat.
-  @Attribute(.externalStorage)
+  /// Stored INLINE in the SQLite store (no `.externalStorage`).
+  ///
+  /// SwiftData's external-binary storage stages each blob through a
+  /// `.store_SUPPORT/_EXTERNAL_DATA/*.interim` file that is finalized on save.
+  /// Under hundreds of sequential per-record saves on a single context, a
+  /// fraction of those interim files go missing ("Failed to clone external data
+  /// reference … .interim doesn't exist"), leaving the binary unreadable on a
+  /// later fault — which broke the Produciesta audio-compose pipeline. Because
+  /// these blobs are already LZFSE-compressed and small (a few-second audio clip
+  /// is tens of KB), inline storage stays well within SQLite's comfort zone.
+  ///
+  /// NOTE: this attribute is shared by all non-text MIME types (`image/*`,
+  /// `audio/*`, `video/*`, `application/*`). For genuinely large content
+  /// (multi-MB images/video), use ``fileReference`` instead of `binaryValue` so
+  /// the bytes live on disk and only a small path is persisted here.
   private var _compressedBinaryValue: Data?
 
   /// Binary content storage (for image/*, audio/*, video/*, application/* MIME types)

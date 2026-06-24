@@ -1,3 +1,7 @@
+---
+type: doc
+---
+
 # Changelog
 
 All notable changes to SwiftCompartido will be documented in this file.
