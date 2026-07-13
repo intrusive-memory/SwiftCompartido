@@ -424,6 +424,62 @@ struct FountainParserTests {
     #expect(characters.count > 0, "Should parse character")
   }
 
+  // Regression: emphasis-wrapped direction lines must NOT be typed as characters.
+  // See intrusive-memory/SwiftCompartido#71.
+  @Test func testEmphasizedSceneMarkerIsNotCharacter() throws {
+    let script = """
+      Some narration wraps up the beat here.
+
+      **END OF SCENE.**
+
+      More action follows.
+      """
+
+    let parser = FountainParser(string: script)
+    let characters = parser.elements.filter { $0.elementType == .character }
+    #expect(
+      !characters.contains { $0.elementText.contains("END OF SCENE") },
+      "Emphasized `**END OF SCENE.**` must not be a character cue")
+
+    let cast = try GuionParsedElementCollection(string: script).extractCharacters().keys
+    #expect(
+      !cast.contains { $0.contains("END OF SCENE") },
+      "Emphasized scene marker must not surface in the cast")
+  }
+
+  @Test func testEmphasizedBeginSceneIsNotCharacter() throws {
+    let script = """
+      Cold open.
+
+      **BEGIN* SCENE**
+
+      Action.
+      """
+
+    let cast = try GuionParsedElementCollection(string: script).extractCharacters().keys
+    #expect(
+      !cast.contains { $0.contains("BEGIN") },
+      "Emphasis-wrapped `**BEGIN* SCENE**` must not surface in the cast")
+  }
+
+  @Test func testGenuineCuesStillParseAfterEmphasisGuard() throws {
+    let script = """
+      DR. SMITH
+      The results are in.
+
+      UNCLE FU (CONT'D)
+      As I was saying.
+
+      ROBOT-3
+      Affirmative.
+      """
+
+    let cast = try GuionParsedElementCollection(string: script).extractCharacters().keys
+    #expect(cast.contains("DR. SMITH"), "Names with periods must still parse")
+    #expect(cast.contains("UNCLE FU"), "Cue extensions must still parse")
+    #expect(cast.contains("ROBOT-3"), "Names with digits/hyphens must still parse")
+  }
+
   @Test func testSceneHeadingNotSurroundedByBlanks() {
     let script = """
       This looks like a scene heading

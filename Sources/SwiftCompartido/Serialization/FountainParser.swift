@@ -58,7 +58,13 @@ public class FountainParser: @unchecked Sendable {
         ("sceneHeading", "^(INT|EXT|EST|(I|INT)\\.?\\/(E|EXT)\\.?)[\\.\\-\\s][^\\n]+$", true),
         ("overBlack", "^OVER BLACK$", true),
         ("transition", "[^a-z]*TO:$", false),
-        ("character", "^[^a-z]+(\\(cont'd\\))?$", false),
+        // A character cue is an all-caps line, but must be a real name: it must
+        // contain at least one letter and must NOT be wrapped in Fountain emphasis
+        // (`*` bold/italic, `_` underline). This rejects emphasized direction lines
+        // like `**END OF SCENE.**` or `**BEGIN* SCENE**` that would otherwise match
+        // "no lowercase letters" and be mis-typed as characters. See
+        // intrusive-memory/SwiftCompartido#71.
+        ("character", "^(?=.*\\p{L})[^a-z*_]+(\\(cont'd\\))?$", false),
         ("dualDialogueMarker", "\\^\\s*$", false),
         ("parenthetical", "^\\s*\\(", false),
         ("leadingWhitespace", "^\\s*", false),

@@ -9819,7 +9819,7 @@
       "source_file": "Sources/SwiftCompartido/Sendable/TitlePageEntrySnapshot.swift",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 234,
+      "community": 41,
       "norm_label": "titlepageentrysnapshot.swift",
       "id": "sendable_titlepageentrysnapshot"
     },
@@ -9829,7 +9829,7 @@
       "source_file": "Sources/SwiftCompartido/Sendable/TitlePageEntrySnapshot.swift",
       "source_location": "L53",
       "_origin": "ast",
-      "community": 234,
+      "community": 41,
       "norm_label": "titlepageentrysnapshot",
       "id": "sendable_titlepageentrysnapshot_titlepageentrysnapshot"
     },
@@ -9839,7 +9839,7 @@
       "source_file": "Sources/SwiftCompartido/Sendable/TitlePageEntrySnapshot.swift",
       "source_location": "L58",
       "_origin": "ast",
-      "community": 234,
+      "community": 41,
       "norm_label": "string",
       "id": "sources_swiftcompartido_sendable_titlepageentrysnapshot_swift_string"
     },
@@ -9849,7 +9849,7 @@
       "source_file": "Sources/SwiftCompartido/Sendable/TitlePageEntrySnapshot.swift",
       "source_location": "L80",
       "_origin": "ast",
-      "community": 234,
+      "community": 41,
       "norm_label": ".init()",
       "id": "sendable_titlepageentrysnapshot_titlepageentrysnapshot_init"
     },
@@ -42080,9 +42080,9 @@
       "source_file": "Sources/SwiftCompartido/Serialization/FountainParser.swift",
       "source_location": "L31",
       "_origin": "ast",
+      "id": "guionelement",
       "community": 108,
-      "norm_label": "guionelement",
-      "id": "guionelement"
+      "norm_label": "guionelement"
     },
     {
       "label": ".testEmphasizedSceneMarkerIsNotCharacter()",
@@ -42090,9 +42090,9 @@
       "source_file": "Tests/SwiftCompartidoTests/FountainParserTests.swift",
       "source_location": "L429",
       "_origin": "ast",
+      "id": "swiftcompartidotests_fountainparsertests_fountainparsertests_testemphasizedscenemarkerisnotcharacter",
       "community": 34,
-      "norm_label": ".testemphasizedscenemarkerisnotcharacter()",
-      "id": "swiftcompartidotests_fountainparsertests_fountainparsertests_testemphasizedscenemarkerisnotcharacter"
+      "norm_label": ".testemphasizedscenemarkerisnotcharacter()"
     },
     {
       "label": ".testEmphasizedBeginSceneIsNotCharacter()",
@@ -42100,9 +42100,9 @@
       "source_file": "Tests/SwiftCompartidoTests/FountainParserTests.swift",
       "source_location": "L450",
       "_origin": "ast",
+      "id": "swiftcompartidotests_fountainparsertests_fountainparsertests_testemphasizedbeginsceneisnotcharacter",
       "community": 34,
-      "norm_label": ".testemphasizedbeginsceneisnotcharacter()",
-      "id": "swiftcompartidotests_fountainparsertests_fountainparsertests_testemphasizedbeginsceneisnotcharacter"
+      "norm_label": ".testemphasizedbeginsceneisnotcharacter()"
     },
     {
       "label": ".testGenuineCuesStillParseAfterEmphasisGuard()",
@@ -42110,9 +42110,9 @@
       "source_file": "Tests/SwiftCompartidoTests/FountainParserTests.swift",
       "source_location": "L465",
       "_origin": "ast",
+      "id": "swiftcompartidotests_fountainparsertests_fountainparsertests_testgenuinecuesstillparseafteremphasisguard",
       "community": 34,
-      "norm_label": ".testgenuinecuesstillparseafteremphasisguard()",
-      "id": "swiftcompartidotests_fountainparsertests_fountainparsertests_testgenuinecuesstillparseafteremphasisguard"
+      "norm_label": ".testgenuinecuesstillparseafteremphasisguard()"
     },
     {
       "label": "GuionViewer",
@@ -42123,9 +42123,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "guion_viewer",
       "community": 98,
-      "norm_label": "guionviewer",
-      "id": "guion_viewer"
+      "norm_label": "guionviewer"
     },
     {
       "label": "HighlandHandler",
@@ -42136,9 +42136,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "highland_handler",
       "community": 148,
-      "norm_label": "highlandhandler",
-      "id": "highland_handler"
+      "norm_label": "highlandhandler"
     },
     {
       "label": "TextBundleHandler",
@@ -42149,9 +42149,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "textbundle_handler",
       "community": 148,
-      "norm_label": "textbundlehandler",
-      "id": "textbundle_handler"
+      "norm_label": "textbundlehandler"
     },
     {
       "label": "Fountain Format",
@@ -42162,9 +42162,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "fountain_format",
       "community": 148,
-      "norm_label": "fountain format",
-      "id": "fountain_format"
+      "norm_label": "fountain format"
     },
     {
       "label": "Final Draft FDX Format",
@@ -42175,9 +42175,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "fdx_format",
       "community": 148,
-      "norm_label": "final draft fdx format",
-      "id": "fdx_format"
+      "norm_label": "final draft fdx format"
     },
     {
       "label": "PDF Format",
@@ -42188,9 +42188,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "pdf_format",
       "community": 68,
-      "norm_label": "pdf format",
-      "id": "pdf_format"
+      "norm_label": "pdf format"
     },
     {
       "label": "Markdown Format",
@@ -42201,9 +42201,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "markdown_format",
       "community": 151,
-      "norm_label": "markdown format",
-      "id": "markdown_format"
+      "norm_label": "markdown format"
     },
     {
       "label": "Highland Format",
@@ -42214,9 +42214,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "highland_format",
       "community": 148,
-      "norm_label": "highland format",
-      "id": "highland_format"
+      "norm_label": "highland format"
     },
     {
       "label": "TextBundle Format",
@@ -42227,9 +42227,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "textbundle_format",
       "community": 148,
-      "norm_label": "textbundle format",
-      "id": "textbundle_format"
+      "norm_label": "textbundle format"
     },
     {
       "label": "JSON .guion Format",
@@ -42240,9 +42240,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "guion_json_format",
       "community": 218,
-      "norm_label": "json .guion format",
-      "id": "guion_json_format"
+      "norm_label": "json .guion format"
     },
     {
       "label": "GlosaCore",
@@ -42253,9 +42253,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "glosa_core",
       "community": 98,
-      "norm_label": "glosacore",
-      "id": "glosa_core"
+      "norm_label": "glosacore"
     },
     {
       "label": "SwiftFijos",
@@ -42266,9 +42266,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "swift_fijos",
       "community": 231,
-      "norm_label": "swiftfijos",
-      "id": "swift_fijos"
+      "norm_label": "swiftfijos"
     },
     {
       "label": "SwiftProyecto",
@@ -42279,9 +42279,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "swift_proyecto",
       "community": 232,
-      "norm_label": "swiftproyecto",
-      "id": "swift_proyecto"
+      "norm_label": "swiftproyecto"
     },
     {
       "label": "Phase 6 Architecture",
@@ -42292,9 +42292,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "phase_6_architecture",
       "community": 135,
-      "norm_label": "phase 6 architecture",
-      "id": "phase_6_architecture"
+      "norm_label": "phase 6 architecture"
     },
     {
       "label": "DTO Pattern",
@@ -42305,9 +42305,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "dto_pattern",
       "community": 215,
-      "norm_label": "dto pattern",
-      "id": "dto_pattern"
+      "norm_label": "dto pattern"
     },
     {
       "label": "Actor Isolation Pattern",
@@ -42318,9 +42318,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "actor_isolation",
       "community": 98,
-      "norm_label": "actor isolation pattern",
-      "id": "actor_isolation"
+      "norm_label": "actor isolation pattern"
     },
     {
       "label": "DisplayableElement Protocol",
@@ -42331,9 +42331,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "displayable_element_protocol",
       "community": 98,
-      "norm_label": "displayableelement protocol",
-      "id": "displayable_element_protocol"
+      "norm_label": "displayableelement protocol"
     },
     {
       "label": "SpeakableElement Protocol",
@@ -42344,9 +42344,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "speakable_element_protocol",
       "community": 55,
-      "norm_label": "speakableelement protocol",
-      "id": "speakable_element_protocol"
+      "norm_label": "speakableelement protocol"
     },
     {
       "label": "GuionParsedElementCollection",
@@ -42357,9 +42357,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "guion_parsed_element_collection",
       "community": 148,
-      "norm_label": "guionparsedelementcollection",
-      "id": "guion_parsed_element_collection"
+      "norm_label": "guionparsedelementcollection"
     },
     {
       "label": "MarkdownSectionHeadingView",
@@ -42370,9 +42370,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "markdownsectionheadingview",
       "community": 159,
-      "norm_label": "markdownsectionheadingview",
-      "id": "markdownsectionheadingview"
+      "norm_label": "markdownsectionheadingview"
     },
     {
       "label": "MarkdownActionView",
@@ -42383,9 +42383,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "markdownactionview",
       "community": 159,
-      "norm_label": "markdownactionview",
-      "id": "markdownactionview"
+      "norm_label": "markdownactionview"
     },
     {
       "label": "SectionHeadingView",
@@ -42396,9 +42396,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "sectionheadingview",
       "community": 159,
-      "norm_label": "sectionheadingview",
-      "id": "sectionheadingview"
+      "norm_label": "sectionheadingview"
     },
     {
       "label": "ActionView",
@@ -42409,9 +42409,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "actionview",
       "community": 159,
-      "norm_label": "actionview",
-      "id": "actionview"
+      "norm_label": "actionview"
     },
     {
       "label": "DialogueCharacterView",
@@ -42422,9 +42422,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "dialoguecharacterview",
       "community": 159,
-      "norm_label": "dialoguecharacterview",
-      "id": "dialoguecharacterview"
+      "norm_label": "dialoguecharacterview"
     },
     {
       "label": "DialogueTextView",
@@ -42435,9 +42435,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "dialoguetextview",
       "community": 159,
-      "norm_label": "dialoguetextview",
-      "id": "dialoguetextview"
+      "norm_label": "dialoguetextview"
     },
     {
       "label": "SceneHeadingView",
@@ -42448,9 +42448,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "sceneheadingview",
       "community": 159,
-      "norm_label": "sceneheadingview",
-      "id": "sceneheadingview"
+      "norm_label": "sceneheadingview"
     },
     {
       "label": "MarkdownParser",
@@ -42461,9 +42461,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "markdownparser",
       "community": 160,
-      "norm_label": "markdownparser",
-      "id": "markdownparser"
+      "norm_label": "markdownparser"
     },
     {
       "label": "PandocDocumentParser",
@@ -42474,9 +42474,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "pandocdocumentparser",
       "community": 160,
-      "norm_label": "pandocdocumentparser",
-      "id": "pandocdocumentparser"
+      "norm_label": "pandocdocumentparser"
     },
     {
       "label": "DocxParser",
@@ -42487,9 +42487,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "docxparser",
       "community": 160,
-      "norm_label": "docxparser",
-      "id": "docxparser"
+      "norm_label": "docxparser"
     },
     {
       "label": "FountainParser",
@@ -42500,9 +42500,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "fountainparser",
       "community": 160,
-      "norm_label": "fountainparser",
-      "id": "fountainparser"
+      "norm_label": "fountainparser"
     },
     {
       "label": "FDXParser",
@@ -42513,9 +42513,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "fdxparser",
       "community": 160,
-      "norm_label": "fdxparser",
-      "id": "fdxparser"
+      "norm_label": "fdxparser"
     },
     {
       "label": "PDFScreenplayParser",
@@ -42526,9 +42526,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "pdfscreenplayparser",
       "community": 160,
-      "norm_label": "pdfscreenplayparser",
-      "id": "pdfscreenplayparser"
+      "norm_label": "pdfscreenplayparser"
     },
     {
       "label": "GuionElementRow",
@@ -42539,9 +42539,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "guionelementrow",
       "community": 159,
-      "norm_label": "guionelementrow",
-      "id": "guionelementrow"
+      "norm_label": "guionelementrow"
     },
     {
       "label": "SwiftLint",
@@ -42552,9 +42552,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "swiftlint",
       "community": 233,
-      "norm_label": "swiftlint",
-      "id": "swiftlint"
+      "norm_label": "swiftlint"
     },
     {
       "label": "Package.swift",
@@ -42565,9 +42565,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "package_swift",
       "community": 223,
-      "norm_label": "package.swift",
-      "id": "package_swift"
+      "norm_label": "package.swift"
     }
   ],
   "links": [
@@ -45341,16 +45341,6 @@
       "target": "swiftdata"
     },
     {
-      "relation": "implements",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "AGENTS.md",
-      "source_location": null,
-      "weight": 1.0,
-      "source": "actors_documentmodelactor_documentmodelactor",
-      "target": "actor_isolation"
-    },
-    {
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "Sources/SwiftCompartido/Actors/DocumentModelActor.swift",
@@ -45414,21 +45404,31 @@
       "relation": "calls",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
-      "source_file": "Docs/complete/annotated-vault-01/REQUIREMENTS-glosa-integration.md",
-      "source_location": null,
-      "weight": 1.0,
-      "source": "actors_documentmodelactor_documentmodelactor",
-      "target": "glosa_core"
-    },
-    {
-      "relation": "calls",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
       "source_file": "Docs/glosa-av-dependency-border.md",
       "source_location": "line 15-50",
       "weight": 1.0,
       "source": "actors_documentmodelactor_documentmodelactor",
       "target": "glosacore"
+    },
+    {
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "AGENTS.md",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "actors_documentmodelactor_documentmodelactor",
+      "target": "actor_isolation"
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "Docs/complete/annotated-vault-01/REQUIREMENTS-glosa-integration.md",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "actors_documentmodelactor_documentmodelactor",
+      "target": "glosa_core"
     },
     {
       "relation": "uses",
@@ -52268,6 +52268,16 @@
       "target": "swiftdata"
     },
     {
+      "relation": "migrates_from",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "Docs/complete/annotated-vault-01/EXECUTION_PLAN.md",
+      "source_location": "Sortie 5",
+      "weight": 1.0,
+      "source": "schemas_swiftcompartidoschemav2_swiftcompartidoschemav2",
+      "target": "schemas_swiftcompartidoschemav1_swiftcompartidoschemav1"
+    },
+    {
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "Sources/SwiftCompartido/Schemas/SwiftCompartidoSchemaV1.swift",
@@ -52298,16 +52308,6 @@
       "confidence_score": 1.0,
       "source": "schemas_swiftcompartidoschemav1_swiftcompartidoschemav1",
       "target": "versionedschema"
-    },
-    {
-      "relation": "migrates_from",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "Docs/complete/annotated-vault-01/EXECUTION_PLAN.md",
-      "source_location": "Sortie 5",
-      "weight": 1.0,
-      "source": "schemas_swiftcompartidoschemav2_swiftcompartidoschemav2",
-      "target": "schemas_swiftcompartidoschemav1_swiftcompartidoschemav1"
     },
     {
       "relation": "implements",
@@ -55463,9 +55463,9 @@
       "source_location": "L41",
       "weight": 1.0,
       "context": "field",
-      "confidence_score": 1.0,
       "source": "serialization_fountainparser_fountainparser",
-      "target": "string"
+      "target": "string",
+      "confidence_score": 1.0
     },
     {
       "relation": "references",
@@ -55474,9 +55474,9 @@
       "source_location": "L1014",
       "weight": 1.0,
       "context": "return_type",
-      "confidence_score": 1.0,
       "source": "serialization_fountainparser_fountainparser_firstmatch",
-      "target": "string"
+      "target": "string",
+      "confidence_score": 1.0
     },
     {
       "relation": "references",
@@ -55485,9 +55485,9 @@
       "source_location": "L981",
       "weight": 1.0,
       "context": "return_type",
-      "confidence_score": 1.0,
       "source": "serialization_fountainparser_fountainparser_firstmatchcached",
-      "target": "string"
+      "target": "string",
+      "confidence_score": 1.0
     },
     {
       "relation": "references",
@@ -55496,9 +55496,9 @@
       "source_location": "L121",
       "weight": 1.0,
       "context": "parameter_type",
-      "confidence_score": 1.0,
       "source": "serialization_fountainparser_fountainparser_init",
-      "target": "string"
+      "target": "string",
+      "confidence_score": 1.0
     },
     {
       "relation": "references",
@@ -55507,9 +55507,9 @@
       "source_location": "L1002",
       "weight": 1.0,
       "context": "parameter_type",
-      "confidence_score": 1.0,
       "source": "serialization_fountainparser_fountainparser_matches",
-      "target": "string"
+      "target": "string",
+      "confidence_score": 1.0
     },
     {
       "relation": "references",
@@ -55518,9 +55518,9 @@
       "source_location": "L966",
       "weight": 1.0,
       "context": "parameter_type",
-      "confidence_score": 1.0,
       "source": "serialization_fountainparser_fountainparser_matchescached",
-      "target": "string"
+      "target": "string",
+      "confidence_score": 1.0
     },
     {
       "relation": "references",
@@ -55529,9 +55529,9 @@
       "source_location": "L135",
       "weight": 1.0,
       "context": "parameter_type",
-      "confidence_score": 1.0,
       "source": "serialization_fountainparser_fountainparser_parsecontents",
-      "target": "string"
+      "target": "string",
+      "confidence_score": 1.0
     },
     {
       "relation": "references",
@@ -55540,9 +55540,9 @@
       "source_location": "L537",
       "weight": 1.0,
       "context": "parameter_type",
-      "confidence_score": 1.0,
       "source": "serialization_fountainparser_fountainparser_parsecontentsasync",
-      "target": "string"
+      "target": "string",
+      "confidence_score": 1.0
     },
     {
       "relation": "references",
@@ -66852,9 +66852,9 @@
       "source_location": "L31",
       "weight": 1.0,
       "context": "field",
-      "confidence_score": 1.0,
       "source": "serialization_fountainparser_fountainparser",
-      "target": "guionelement"
+      "target": "guionelement",
+      "confidence_score": 1.0
     },
     {
       "relation": "references",
@@ -67976,9 +67976,9 @@
       "source_location": "L121",
       "weight": 1.0,
       "context": "parameter_type",
-      "confidence_score": 1.0,
       "source": "serialization_fountainparser_fountainparser_init",
-      "target": "operationprogress"
+      "target": "operationprogress",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -68031,9 +68031,9 @@
       "source_file": "Sources/SwiftCompartido/Serialization/FountainParser.swift",
       "source_location": "L231",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "serialization_fountainparser_fountainparser_parsecontents",
-      "target": "guionelement"
+      "target": "guionelement",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -68064,9 +68064,9 @@
       "source_file": "Sources/SwiftCompartido/Serialization/FountainParser.swift",
       "source_location": "L664",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "serialization_fountainparser_fountainparser_parsecontentsasync",
-      "target": "guionelement"
+      "target": "guionelement",
+      "confidence_score": 1.0
     },
     {
       "relation": "references",
@@ -68075,9 +68075,9 @@
       "source_location": "L537",
       "weight": 1.0,
       "context": "parameter_type",
-      "confidence_score": 1.0,
       "source": "serialization_fountainparser_fountainparser_parsecontentsasync",
-      "target": "operationprogress"
+      "target": "operationprogress",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -68108,9 +68108,9 @@
       "source_location": "L966",
       "weight": 1.0,
       "context": "return_type",
-      "confidence_score": 1.0,
       "source": "serialization_fountainparser_fountainparser_matchescached",
-      "target": "bool"
+      "target": "bool",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -68152,9 +68152,9 @@
       "source_location": "L981",
       "weight": 1.0,
       "context": "parameter_type",
-      "confidence_score": 1.0,
       "source": "serialization_fountainparser_fountainparser_firstmatchcached",
-      "target": "int"
+      "target": "int",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -68196,9 +68196,9 @@
       "source_location": "L1002",
       "weight": 1.0,
       "context": "return_type",
-      "confidence_score": 1.0,
       "source": "serialization_fountainparser_fountainparser_matches",
-      "target": "bool"
+      "target": "bool",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -68218,9 +68218,9 @@
       "source_location": "L1014",
       "weight": 1.0,
       "context": "parameter_type",
-      "confidence_score": 1.0,
       "source": "serialization_fountainparser_fountainparser_firstmatch",
-      "target": "int"
+      "target": "int",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -71278,6 +71278,16 @@
       "target": "serialization_pdfscreenplayparser_pdfscreenplayparser"
     },
     {
+      "relation": "parses",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "Docs/PARSING_ARCHITECTURE.md",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "serialization_pdfscreenplayparser_pdfscreenplayparser",
+      "target": "pdf_format"
+    },
+    {
       "relation": "uses",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
@@ -71296,16 +71306,6 @@
       "weight": 1.0,
       "source": "serialization_pdfscreenplayparser_pdfscreenplayparser",
       "target": "guionparsedelementcollection"
-    },
-    {
-      "relation": "parses",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "Docs/PARSING_ARCHITECTURE.md",
-      "source_location": null,
-      "weight": 1.0,
-      "source": "serialization_pdfscreenplayparser_pdfscreenplayparser",
-      "target": "pdf_format"
     },
     {
       "relation": "method",
@@ -73145,6 +73145,16 @@
     {
       "relation": "references",
       "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "AGENTS.md",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "swiftdatamodels_guiondocumentmodel_guiondocumentmodel",
+      "target": "swiftdatamodels_charactervoicemapping_charactervoicemapping"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
       "source_file": "Sources/SwiftCompartido/SwiftDataModels/CharacterVoiceMapping.swift",
       "source_location": "L95",
       "weight": 1.0,
@@ -73193,16 +73203,6 @@
       "context": "return_type",
       "confidence_score": 1.0,
       "source": "swiftdatamodels_charactervoicemapping_charactervoicemapping_from",
-      "target": "swiftdatamodels_charactervoicemapping_charactervoicemapping"
-    },
-    {
-      "relation": "references",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "AGENTS.md",
-      "source_location": null,
-      "weight": 1.0,
-      "source": "swiftdatamodels_guiondocumentmodel_guiondocumentmodel",
       "target": "swiftdatamodels_charactervoicemapping_charactervoicemapping"
     },
     {
@@ -74616,6 +74616,46 @@
       "target": "swiftdatamodels_guiondocumentmodel_guiondocumentmodel"
     },
     {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "Docs/PARSED_FILE_SERVICE_API.md",
+      "source_location": "GuionDocumentModel section",
+      "weight": 1.0,
+      "source": "swiftdatamodels_guiondocumentmodel_guiondocumentmodel",
+      "target": "swiftdatamodels_guionelementmodel_guionelementmodel"
+    },
+    {
+      "relation": "persisted_in",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "Docs/PARSED_FILE_SERVICE_API.md",
+      "source_location": "Class Definition",
+      "weight": 1.0,
+      "source": "swiftdatamodels_guiondocumentmodel_guiondocumentmodel",
+      "target": "swiftdata"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "AGENTS.md",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "swiftdatamodels_guiondocumentmodel_guiondocumentmodel",
+      "target": "swiftdatamodels_typeddatastorage_typeddatastorage"
+    },
+    {
+      "relation": "uses",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "AGENTS.md",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "texteditor_guiontexteditor_guiontexteditor",
+      "target": "swiftdatamodels_guiondocumentmodel_guiondocumentmodel"
+    },
+    {
       "relation": "creates",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
@@ -74747,16 +74787,6 @@
       "target": "sources_swiftcompartido_swiftdatamodels_guiondocumentmodel_swift_typeddatastorage"
     },
     {
-      "relation": "persisted_in",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "Docs/PARSED_FILE_SERVICE_API.md",
-      "source_location": "Class Definition",
-      "weight": 1.0,
-      "source": "swiftdatamodels_guiondocumentmodel_guiondocumentmodel",
-      "target": "swiftdata"
-    },
-    {
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "Sources/SwiftCompartido/SwiftDataModels/GuionDocumentModel.swift",
@@ -74877,26 +74907,6 @@
       "target": "swiftdatamodels_guiondocumentmodel_guiondocumentmodel_toguionparsedelementcollection"
     },
     {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "Docs/PARSED_FILE_SERVICE_API.md",
-      "source_location": "GuionDocumentModel section",
-      "weight": 1.0,
-      "source": "swiftdatamodels_guiondocumentmodel_guiondocumentmodel",
-      "target": "swiftdatamodels_guionelementmodel_guionelementmodel"
-    },
-    {
-      "relation": "references",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "AGENTS.md",
-      "source_location": null,
-      "weight": 1.0,
-      "source": "swiftdatamodels_guiondocumentmodel_guiondocumentmodel",
-      "target": "swiftdatamodels_typeddatastorage_typeddatastorage"
-    },
-    {
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "Sources/SwiftCompartido/SwiftDataModels/GuionDocumentModel.swift",
@@ -74905,16 +74915,6 @@
       "context": "return_type",
       "confidence_score": 1.0,
       "source": "swiftdatamodels_guiondocumentmodel_guiondocumentmodel_from",
-      "target": "swiftdatamodels_guiondocumentmodel_guiondocumentmodel"
-    },
-    {
-      "relation": "uses",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "AGENTS.md",
-      "source_location": null,
-      "weight": 1.0,
-      "source": "texteditor_guiontexteditor_guiontexteditor",
       "target": "swiftdatamodels_guiondocumentmodel_guiondocumentmodel"
     },
     {
@@ -75501,6 +75501,36 @@
       "target": "glosa_core"
     },
     {
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "Docs/complete/annotated-vault-01/COMPLETE_SwiftCompartido.md",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "swiftdatamodels_guionelementmodel_guionelementmodel",
+      "target": "speakable_element_protocol"
+    },
+    {
+      "relation": "depends_on",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "AGENTS.md",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "swiftdatamodels_guionelementmodel_guionelementmodel",
+      "target": "swiftdata"
+    },
+    {
+      "relation": "uses",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "README.md",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "ui_guionelementslist_guionelementslist",
+      "target": "swiftdatamodels_guionelementmodel_guionelementmodel"
+    },
+    {
       "relation": "stores",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
@@ -75610,26 +75640,6 @@
       "target": "sources_swiftcompartido_swiftdatamodels_guionelementmodel_swift_uuid"
     },
     {
-      "relation": "implements",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "Docs/complete/annotated-vault-01/COMPLETE_SwiftCompartido.md",
-      "source_location": null,
-      "weight": 1.0,
-      "source": "swiftdatamodels_guionelementmodel_guionelementmodel",
-      "target": "speakable_element_protocol"
-    },
-    {
-      "relation": "depends_on",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "AGENTS.md",
-      "source_location": null,
-      "weight": 1.0,
-      "source": "swiftdatamodels_guionelementmodel_guionelementmodel",
-      "target": "swiftdata"
-    },
-    {
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "Sources/SwiftCompartido/SwiftDataModels/GuionElementModel.swift",
@@ -75678,16 +75688,6 @@
       "confidence_score": 1.0,
       "source": "swiftdatamodels_guionelementmodel_guionelementmodel",
       "target": "swiftdatamodels_guionelementmodel_guionelementmodel_updatetype"
-    },
-    {
-      "relation": "uses",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "README.md",
-      "source_location": null,
-      "weight": 1.0,
-      "source": "ui_guionelementslist_guionelementslist",
-      "target": "swiftdatamodels_guionelementmodel_guionelementmodel"
     },
     {
       "relation": "references",
@@ -76675,16 +76675,6 @@
       "target": "sources_swiftcompartido_swiftdatamodels_typeddatastorage_swift_uuid"
     },
     {
-      "relation": "depends_on",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "AGENTS.md",
-      "source_location": null,
-      "weight": 1.0,
-      "source": "swiftdatamodels_typeddatastorage_typeddatastorage",
-      "target": "swiftdata"
-    },
-    {
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "Sources/SwiftCompartido/SwiftDataModels/TypedDataStorage.swift",
@@ -76805,6 +76795,16 @@
       "confidence_score": 1.0,
       "source": "swiftdatamodels_typeddatastorage_typeddatastorage",
       "target": "uuid"
+    },
+    {
+      "relation": "depends_on",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "AGENTS.md",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "swiftdatamodels_typeddatastorage_typeddatastorage",
+      "target": "swiftdata"
     },
     {
       "relation": "references",
@@ -87669,6 +87669,16 @@
       "target": "texteditor_guiontexteditor_guiontexteditor"
     },
     {
+      "relation": "depends_on",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "AGENTS.md",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "texteditor_guiontexteditor_guiontexteditor",
+      "target": "swiftui"
+    },
+    {
       "relation": "calls",
       "context": "call",
       "confidence": "INFERRED",
@@ -87887,16 +87897,6 @@
       "confidence_score": 1.0,
       "source": "texteditor_guiontexteditor_guiontexteditor",
       "target": "sources_swiftcompartido_ui_texteditor_guiontexteditor_swift_nsattributedstring"
-    },
-    {
-      "relation": "depends_on",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "AGENTS.md",
-      "source_location": null,
-      "weight": 1.0,
-      "source": "texteditor_guiontexteditor_guiontexteditor",
-      "target": "swiftui"
     },
     {
       "relation": "method",
@@ -101920,9 +101920,9 @@
       "source_file": "Tests/SwiftCompartidoTests/FountainParserTests.swift",
       "source_location": "L450",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "swiftcompartidotests_fountainparsertests_fountainparsertests",
-      "target": "swiftcompartidotests_fountainparsertests_fountainparsertests_testemphasizedbeginsceneisnotcharacter"
+      "target": "swiftcompartidotests_fountainparsertests_fountainparsertests_testemphasizedbeginsceneisnotcharacter",
+      "confidence_score": 1.0
     },
     {
       "relation": "method",
@@ -101930,9 +101930,9 @@
       "source_file": "Tests/SwiftCompartidoTests/FountainParserTests.swift",
       "source_location": "L429",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "swiftcompartidotests_fountainparsertests_fountainparsertests",
-      "target": "swiftcompartidotests_fountainparsertests_fountainparsertests_testemphasizedscenemarkerisnotcharacter"
+      "target": "swiftcompartidotests_fountainparsertests_fountainparsertests_testemphasizedscenemarkerisnotcharacter",
+      "confidence_score": 1.0
     },
     {
       "relation": "method",
@@ -102000,9 +102000,9 @@
       "source_file": "Tests/SwiftCompartidoTests/FountainParserTests.swift",
       "source_location": "L465",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "swiftcompartidotests_fountainparsertests_fountainparsertests",
-      "target": "swiftcompartidotests_fountainparsertests_fountainparsertests_testgenuinecuesstillparseafteremphasisguard"
+      "target": "swiftcompartidotests_fountainparsertests_fountainparsertests_testgenuinecuesstillparseafteremphasisguard",
+      "confidence_score": 1.0
     },
     {
       "relation": "method",

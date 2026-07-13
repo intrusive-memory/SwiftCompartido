@@ -15,6 +15,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [7.2.2] - 2026-07-12
+
+### Fixed
+
+- **Fountain parser: emphasis-wrapped direction lines no longer mis-typed as character cues** - The character-cue regex `^[^a-z]+(\(cont'd\))?$` matched any line with no lowercase ASCII letters, so Fountain emphasis markers (`*`, `_`) and punctuation slipped through. Emphasized scene markers like `**END OF SCENE.**` and `**BEGIN* SCENE**` were classified as `.character` and surfaced as cast members in `extractCharacters()`, polluting downstream consumers (e.g. SwiftEchada's `generate cast`). The pattern is now `^(?=.*\p{L})[^a-z*_]+(\(cont'd\))?$`: it requires at least one real letter and rejects emphasis markers, while preserving genuine cues with periods (`DR. SMITH`), extensions (`UNCLE FU (CONT'D)`), and digits (`ROBOT-3`). ([#71](https://github.com/intrusive-memory/SwiftCompartido/issues/71))
+
+---
+
 ## [7.2.0] - 2026-06-21
 
 ### Added

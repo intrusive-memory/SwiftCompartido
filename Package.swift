@@ -20,7 +20,7 @@ let package = Package(
     .package(
       url: "https://github.com/intrusive-memory/SwiftFijos.git", .upToNextMajor(from: "1.4.1")),
     .package(
-      url: "https://github.com/intrusive-memory/glosa-av.git", .upToNextMajor(from: "0.5.0")),
+      url: "https://github.com/intrusive-memory/glosa-av.git", .upToNextMajor(from: "0.7.1")),
     .package(url: "https://github.com/swiftlang/swift-markdown.git", from: "0.7.0"),
   ],
   targets: [
