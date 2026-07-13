@@ -1,6 +1,6 @@
 ---
 type: project
-updated: 2026-06-23
+updated: 2026-07-12
 ---
 
 # SwiftCompartido
@@ -13,7 +13,7 @@ updated: 2026-06-23
     <img src="https://img.shields.io/badge/Swift-6.2+-orange.svg" />
     <img src="https://img.shields.io/badge/Platform-iOS%2026.0+%20|%20macOS%2026.0+-lightgrey.svg" />
     <img src="https://img.shields.io/badge/License-MIT-blue.svg" />
-    <img src="https://img.shields.io/badge/Version-7.2.1--dev-blue.svg" />
+    <img src="https://img.shields.io/badge/Version-7.2.2-blue.svg" />
 </p>
 
 **SwiftCompartido** is a Swift package for parsing, storing, and displaying screenplays and AI-generated content. Built with SwiftData and SwiftUI.
@@ -40,7 +40,7 @@ SwiftCompartido has **two core missions**:
 
 ## ⚡ What's New
 
-**Version 7.2.1-dev** (development) is the next release in progress. Latest release: **7.2.1** adds a small change for Produciesta compatibility. Key highlights:
+**Version 7.2.2** is the latest release. It hardens the Fountain parser so emphasis-wrapped direction lines (e.g. `**END OF SCENE.**`) are no longer mis-typed as character cues. Key highlights:
 
 - 🔧 **Swift 6 Concurrency**: Fixed actor isolation errors in HierarchyBuilder parameters
 - 🔧 **Swift 6 Compliance**: Marked buildHierarchy parameters as `sending` for strict concurrency
