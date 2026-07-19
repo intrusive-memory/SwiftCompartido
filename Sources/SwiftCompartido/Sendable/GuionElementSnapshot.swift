@@ -190,9 +190,20 @@ public struct GuionElementSnapshot: Codable, Identifiable, Sendable {
   /// )
   /// print(element.speakableText) // "Hello  world"
   /// ```
+  ///
+  /// A `{{ … }}` block may span multiple lines (e.g. a Slugline document-
+  /// settings trailer). The matcher uses `.dotMatchesLineSeparators` so a
+  /// multi-line block is removed in full rather than leaking its inner lines
+  /// into the spoken text.
   public var speakableText: String {
-    // Remove {{stage directions}} from text using a regular expression for efficiency.
-    guard let regex = try? NSRegularExpression(pattern: "\\{\\{.*?\\}\\}") else {
+    // Remove {{stage directions}} from text using a regular expression for
+    // efficiency. `.dotMatchesLineSeparators` lets `.` cross newlines so a
+    // MULTI-LINE `{{ … }}` block (e.g. a Slugline settings trailer) is removed
+    // whole; the non-greedy `.*?` still removes each block independently.
+    guard
+      let regex = try? NSRegularExpression(
+        pattern: "\\{\\{.*?\\}\\}", options: [.dotMatchesLineSeparators])
+    else {
       return elementText.trimmingCharacters(in: .whitespacesAndNewlines)
     }
     let range = NSRange(elementText.startIndex..., in: elementText)
