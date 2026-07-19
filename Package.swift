@@ -18,9 +18,11 @@ let package = Package(
     .package(url: "https://github.com/mcritz/TextBundle.git", from: "1.0.0"),
     .package(url: "https://github.com/weichsel/ZIPFoundation", from: "0.9.0"),
     .package(
-      url: "https://github.com/intrusive-memory/SwiftFijos.git", .upToNextMajor(from: "1.4.1")),
+      url: "https://github.com/intrusive-memory/SwiftFijos.git",
+      .upToNextMajor(from: "1.4.1")),
     .package(
-      url: "https://github.com/intrusive-memory/glosa-av.git", .upToNextMajor(from: "0.7.1")),
+      url: "https://github.com/intrusive-memory/glosa-av.git",
+      .upToNextMajor(from: "0.7.1")),
     .package(url: "https://github.com/swiftlang/swift-markdown.git", from: "0.7.0"),
   ],
   targets: [

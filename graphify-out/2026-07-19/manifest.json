@@ -1,0 +1,1837 @@
+{
+  ".claude/settings.json": {
+    "mtime": 1763924429.588648,
+    "ast_hash": "eabce1f008e88403c0b852a783ca55c1",
+    "semantic_hash": "eabce1f008e88403c0b852a783ca55c1"
+  },
+  ".claude/settings.local.json": {
+    "mtime": 1767015860.064096,
+    "ast_hash": "b70286e9ce42c17885ca3a35c3218914",
+    "semantic_hash": "b70286e9ce42c17885ca3a35c3218914"
+  },
+  "Fixtures/characters.json": {
+    "mtime": 1760906525.4643755,
+    "ast_hash": "798299c4aab393c5d7eecfad4dd4743e",
+    "semantic_hash": "798299c4aab393c5d7eecfad4dd4743e"
+  },
+  "Fixtures/custom-pages.json": {
+    "mtime": 1764551801.031048,
+    "ast_hash": "a477329a2d01bb51e4c38bbe30191ea1",
+    "semantic_hash": "a477329a2d01bb51e4c38bbe30191ea1"
+  },
+  "Fixtures/outline.json": {
+    "mtime": 1760906525.4651148,
+    "ast_hash": "d88387c7d4bca0e42b8ad3f4bc982e21",
+    "semantic_hash": "d88387c7d4bca0e42b8ad3f4bc982e21"
+  },
+  "Fixtures/test.textbundle/info.json": {
+    "mtime": 1760906525.4658153,
+    "ast_hash": "8aede72b70f1f79a88d26c34361c3c5c",
+    "semantic_hash": "8aede72b70f1f79a88d26c34361c3c5c"
+  },
+  "Fixtures/test.textbundle/navigatorFilters.json": {
+    "mtime": 1760906525.465896,
+    "ast_hash": "8868415efc56d421c2727f874602b1b0",
+    "semantic_hash": "8868415efc56d421c2727f874602b1b0"
+  },
+  "Fixtures/test.textbundle/resources/characters.json": {
+    "mtime": 1760906525.4660168,
+    "ast_hash": "798299c4aab393c5d7eecfad4dd4743e",
+    "semantic_hash": "798299c4aab393c5d7eecfad4dd4743e"
+  },
+  "Fixtures/test.textbundle/resources/footer.json": {
+    "mtime": 1760906525.4660857,
+    "ast_hash": "d16a1618efa6e63430fc5ca51d55752c",
+    "semantic_hash": "d16a1618efa6e63430fc5ca51d55752c"
+  },
+  "Fixtures/test.textbundle/resources/header.json": {
+    "mtime": 1760906525.4661644,
+    "ast_hash": "787f662f30219af76c7a85bfbf57b2a0",
+    "semantic_hash": "787f662f30219af76c7a85bfbf57b2a0"
+  },
+  "Fixtures/test.textbundle/resources/navigator-filters.json": {
+    "mtime": 1760906525.4662302,
+    "ast_hash": "0860f827987b23dc1526593270129b08",
+    "semantic_hash": "0860f827987b23dc1526593270129b08"
+  },
+  "Fixtures/test.textbundle/resources/outline.json": {
+    "mtime": 1760906525.4663177,
+    "ast_hash": "d88387c7d4bca0e42b8ad3f4bc982e21",
+    "semantic_hash": "d88387c7d4bca0e42b8ad3f4bc982e21"
+  },
+  "Fixtures/test.textbundle/resources/settings.json": {
+    "mtime": 1760906525.4664328,
+    "ast_hash": "af04f72ca94e36f30c3b3743ea836f3b",
+    "semantic_hash": "af04f72ca94e36f30c3b3743ea836f3b"
+  },
+  "Fixtures/test.textbundle/resources/shelf.json": {
+    "mtime": 1760906525.4665136,
+    "ast_hash": "711638271e47a6919f260ebf007939cc",
+    "semantic_hash": "711638271e47a6919f260ebf007939cc"
+  },
+  "Fixtures/test.textbundle/resources/sideboards.json": {
+    "mtime": 1760906525.4665816,
+    "ast_hash": "ab4fb44953575a77fc4cbd20c91e022e",
+    "semantic_hash": "ab4fb44953575a77fc4cbd20c91e022e"
+  },
+  "Fixtures/test.textbundle/revisions/current.json": {
+    "mtime": 1760906525.466782,
+    "ast_hash": "eb99f4e09d55d1480e424f57c5d132c5",
+    "semantic_hash": "eb99f4e09d55d1480e424f57c5d132c5"
+  },
+  "GuionViewer/GuionViewer/Assets.xcassets/AccentColor.colorset/Contents.json": {
+    "mtime": 1767015794.0144582,
+    "ast_hash": "55019f7265dde0a78318b0807f98e847",
+    "semantic_hash": "55019f7265dde0a78318b0807f98e847"
+  },
+  "GuionViewer/GuionViewer/Assets.xcassets/AppIcon.appiconset/Contents.json": {
+    "mtime": 1767015794.014793,
+    "ast_hash": "1be20321a31ab908ee42f8b207220802",
+    "semantic_hash": "1be20321a31ab908ee42f8b207220802"
+  },
+  "GuionViewer/GuionViewer/Assets.xcassets/Contents.json": {
+    "mtime": 1767015794.0150425,
+    "ast_hash": "9deb2ada1cc834bbebf8bbad9c8978a1",
+    "semantic_hash": "9deb2ada1cc834bbebf8bbad9c8978a1"
+  },
+  "GuionViewer/GuionViewer/ContentView.swift": {
+    "mtime": 1778257873.6711855,
+    "ast_hash": "4bdd062f89647889eb2c5e7d46a24f13",
+    "semantic_hash": "4bdd062f89647889eb2c5e7d46a24f13"
+  },
+  "GuionViewer/GuionViewer/GuionViewerApp.swift": {
+    "mtime": 1778257873.6713197,
+    "ast_hash": "a279be098787885e32ee0fcb9749fe54",
+    "semantic_hash": "a279be098787885e32ee0fcb9749fe54"
+  },
+  "GuionViewer/GuionViewerTests/GuionViewerTests.swift": {
+    "mtime": 1778257873.6714666,
+    "ast_hash": "9c5de5ef2570df3560a92e8e6791e3ce",
+    "semantic_hash": "9c5de5ef2570df3560a92e8e6791e3ce"
+  },
+  "GuionViewer/GuionViewerUITests/GuionViewerUITests.swift": {
+    "mtime": 1778257873.6715996,
+    "ast_hash": "b89fc3ff78743ab549dee7cd8973701e",
+    "semantic_hash": "b89fc3ff78743ab549dee7cd8973701e"
+  },
+  "GuionViewer/GuionViewerUITests/GuionViewerUITestsLaunchTests.swift": {
+    "mtime": 1778257873.6717348,
+    "ast_hash": "1afae7bbfbd02eedf421970d70a510a0",
+    "semantic_hash": "1afae7bbfbd02eedf421970d70a510a0"
+  },
+  "Package.swift": {
+    "mtime": 1784478480.2184043,
+    "ast_hash": "f678556fa5b1127c8b75b8fdfe603ecc",
+    "semantic_hash": "f678556fa5b1127c8b75b8fdfe603ecc"
+  },
+  "Scripts/VoiceDownloadExample.swift": {
+    "mtime": 1778257873.6724925,
+    "ast_hash": "f758ff20a197f1cf8a673da2a51fd21e",
+    "semantic_hash": "f758ff20a197f1cf8a673da2a51fd21e"
+  },
+  "Scripts/VoiceDownloadHelper.swift": {
+    "mtime": 1778257873.672658,
+    "ast_hash": "ded7e158421934040dd97d010960bdb8",
+    "semantic_hash": "ded7e158421934040dd97d010960bdb8"
+  },
+  "Scripts/integration-test.sh": {
+    "mtime": 1765167474.9206154,
+    "ast_hash": "9c4eeba74a85b348ef9f384007b49940",
+    "semantic_hash": "9c4eeba74a85b348ef9f384007b49940"
+  },
+  "Scripts/test-ai-features.sh": {
+    "mtime": 1767999095.0621922,
+    "ast_hash": "f06e3cc24784b4abacc583ba1e97a2c1",
+    "semantic_hash": "f06e3cc24784b4abacc583ba1e97a2c1"
+  },
+  "Sources/SwiftCompartido/Actors/DocumentModelActor.swift": {
+    "mtime": 1781817293.0774624,
+    "ast_hash": "c088a3d91ccc8a4fee54e846b91df4d5",
+    "semantic_hash": "c088a3d91ccc8a4fee54e846b91df4d5"
+  },
+  "Sources/SwiftCompartido/AppIntents/ExportScreenplayIntent.swift": {
+    "mtime": 1774615256.7128744,
+    "ast_hash": "29f56e07b830b2344359f1a028bfac99",
+    "semantic_hash": "29f56e07b830b2344359f1a028bfac99"
+  },
+  "Sources/SwiftCompartido/AppIntents/ExtractCharactersIntent.swift": {
+    "mtime": 1774615256.713016,
+    "ast_hash": "4166f36f495373a16b2dfc887c8294db",
+    "semantic_hash": "4166f36f495373a16b2dfc887c8294db"
+  },
+  "Sources/SwiftCompartido/AppIntents/ParseScreenplayFileIntent.swift": {
+    "mtime": 1774615256.713166,
+    "ast_hash": "ee8a9b70e98480e090a7e2578448d0a1",
+    "semantic_hash": "ee8a9b70e98480e090a7e2578448d0a1"
+  },
+  "Sources/SwiftCompartido/AppIntents/QueryScreenplayElementsIntent.swift": {
+    "mtime": 1774615256.7133052,
+    "ast_hash": "3447f3cfa840cdab5ebbe0f7175e142c",
+    "semantic_hash": "3447f3cfa840cdab5ebbe0f7175e142c"
+  },
+  "Sources/SwiftCompartido/AppIntents/ScreenplayElementsReference.swift": {
+    "mtime": 1781817293.0778794,
+    "ast_hash": "e100c57c4bebcd28e9e2743fdae4e0e9",
+    "semantic_hash": "e100c57c4bebcd28e9e2743fdae4e0e9"
+  },
+  "Sources/SwiftCompartido/AppIntents/SwiftCompartidoShortcuts.swift": {
+    "mtime": 1774615256.713583,
+    "ast_hash": "2233cba3ccbab168cb423d89ef2bd519",
+    "semantic_hash": "2233cba3ccbab168cb423d89ef2bd519"
+  },
+  "Sources/SwiftCompartido/AppIntents/VoiceCastingIntents.swift": {
+    "mtime": 1774615256.7137215,
+    "ast_hash": "7fa1fc29fc464eaac3df1aba2aec07b7",
+    "semantic_hash": "7fa1fc29fc464eaac3df1aba2aec07b7"
+  },
+  "Sources/SwiftCompartido/GuionDocument.swift": {
+    "mtime": 1774615256.7138996,
+    "ast_hash": "7ab58c07fa00545f911995e922233c21",
+    "semantic_hash": "7ab58c07fa00545f911995e922233c21"
+  },
+  "Sources/SwiftCompartido/MemoryManager.swift": {
+    "mtime": 1778257873.6728601,
+    "ast_hash": "8baf7d76586f1dd9f73de8a2c8b4cd62",
+    "semantic_hash": "8baf7d76586f1dd9f73de8a2c8b4cd62"
+  },
+  "Sources/SwiftCompartido/Progress/OperationProgress+Foundation.swift": {
+    "mtime": 1774615256.7140334,
+    "ast_hash": "6ebd69bcde409dd76f4901a350b3828c",
+    "semantic_hash": "6ebd69bcde409dd76f4901a350b3828c"
+  },
+  "Sources/SwiftCompartido/Progress/OperationProgress.swift": {
+    "mtime": 1774615256.7141693,
+    "ast_hash": "50a15c503e155579e5b9299d3046fc8b",
+    "semantic_hash": "50a15c503e155579e5b9299d3046fc8b"
+  },
+  "Sources/SwiftCompartido/Progress/ProgressError.swift": {
+    "mtime": 1774615256.7142944,
+    "ast_hash": "796694f1196e3c5067118a94bf868cc8",
+    "semantic_hash": "796694f1196e3c5067118a94bf868cc8"
+  },
+  "Sources/SwiftCompartido/Progress/ProgressHandler.swift": {
+    "mtime": 1766955576.442053,
+    "ast_hash": "607627a4afd3564530839dbc5f6539dc",
+    "semantic_hash": "607627a4afd3564530839dbc5f6539dc"
+  },
+  "Sources/SwiftCompartido/Progress/ProgressUpdate.swift": {
+    "mtime": 1774615256.7144184,
+    "ast_hash": "196046b0c90c244a37bc6d80ccc66439",
+    "semantic_hash": "196046b0c90c244a37bc6d80ccc66439"
+  },
+  "Sources/SwiftCompartido/Protocols/SpeakableElement.swift": {
+    "mtime": 1781817293.0782113,
+    "ast_hash": "bd797d295632f820341591c9fd868c21",
+    "semantic_hash": "bd797d295632f820341591c9fd868c21"
+  },
+  "Sources/SwiftCompartido/Schemas/SwiftCompartidoSchemaV1.swift": {
+    "mtime": 1781817293.0784924,
+    "ast_hash": "77272db5e91cb865a5cbac5b2997c9bc",
+    "semantic_hash": "77272db5e91cb865a5cbac5b2997c9bc"
+  },
+  "Sources/SwiftCompartido/Schemas/SwiftCompartidoSchemaV2.swift": {
+    "mtime": 1781817293.078688,
+    "ast_hash": "39f11e6a3914d532f2f4a74b9b2517ff",
+    "semantic_hash": "39f11e6a3914d532f2f4a74b9b2517ff"
+  },
+  "Sources/SwiftCompartido/Sendable/CastListPage.swift": {
+    "mtime": 1774615256.7145567,
+    "ast_hash": "c68230f717c5edf0093b158f04510513",
+    "semantic_hash": "c68230f717c5edf0093b158f04510513"
+  },
+  "Sources/SwiftCompartido/Sendable/CharacterInfo.swift": {
+    "mtime": 1774615256.7146885,
+    "ast_hash": "06f806375267b2bcbadca57beb71bfbf",
+    "semantic_hash": "06f806375267b2bcbadca57beb71bfbf"
+  },
+  "Sources/SwiftCompartido/Sendable/CharacterVoiceMappingSnapshot.swift": {
+    "mtime": 1774615256.7148325,
+    "ast_hash": "5b862bcf31811304c41f3e7151b9102e",
+    "semantic_hash": "5b862bcf31811304c41f3e7151b9102e"
+  },
+  "Sources/SwiftCompartido/Sendable/CustomPage.swift": {
+    "mtime": 1774615256.7149663,
+    "ast_hash": "12eff714aeddde107ac237dce9dc5167",
+    "semantic_hash": "12eff714aeddde107ac237dce9dc5167"
+  },
+  "Sources/SwiftCompartido/Sendable/CustomPageSnapshot.swift": {
+    "mtime": 1766955576.4784346,
+    "ast_hash": "8004c55dbe96dcc67e551d1fae9ac998",
+    "semantic_hash": "8004c55dbe96dcc67e551d1fae9ac998"
+  },
+  "Sources/SwiftCompartido/Sendable/ElementType.swift": {
+    "mtime": 1774615256.7151363,
+    "ast_hash": "fb89bd566bd2db83b67d40b7d724ec68",
+    "semantic_hash": "fb89bd566bd2db83b67d40b7d724ec68"
+  },
+  "Sources/SwiftCompartido/Sendable/GeneratedAudioData.swift": {
+    "mtime": 1774615256.7152705,
+    "ast_hash": "57b09132e90e7de9723e9a1626f7de57",
+    "semantic_hash": "57b09132e90e7de9723e9a1626f7de57"
+  },
+  "Sources/SwiftCompartido/Sendable/GeneratedEmbeddingData.swift": {
+    "mtime": 1774615256.7154074,
+    "ast_hash": "d45c71a9ec1278957a62a1fc37cdf601",
+    "semantic_hash": "d45c71a9ec1278957a62a1fc37cdf601"
+  },
+  "Sources/SwiftCompartido/Sendable/GeneratedImageData.swift": {
+    "mtime": 1774615256.7155442,
+    "ast_hash": "5e59a187ae9af8825f1800b9d55170f1",
+    "semantic_hash": "5e59a187ae9af8825f1800b9d55170f1"
+  },
+  "Sources/SwiftCompartido/Sendable/GeneratedTextData.swift": {
+    "mtime": 1774615256.715672,
+    "ast_hash": "88be54ea12a0ff31646b6f2a5b6e972c",
+    "semantic_hash": "88be54ea12a0ff31646b6f2a5b6e972c"
+  },
+  "Sources/SwiftCompartido/Sendable/GuionDocumentSnapshot+CastList.swift": {
+    "mtime": 1774615256.7158098,
+    "ast_hash": "ee033a4e61b106eae297f650ce0d9297",
+    "semantic_hash": "ee033a4e61b106eae297f650ce0d9297"
+  },
+  "Sources/SwiftCompartido/Sendable/GuionDocumentSnapshot.swift": {
+    "mtime": 1774615256.7159595,
+    "ast_hash": "90e2acecafac134e67c54ddf0f3a36d2",
+    "semantic_hash": "90e2acecafac134e67c54ddf0f3a36d2"
+  },
+  "Sources/SwiftCompartido/Sendable/GuionElement.swift": {
+    "mtime": 1774615256.716116,
+    "ast_hash": "dba9a53f41d844eec1dc2ce006eb9ec8",
+    "semantic_hash": "dba9a53f41d844eec1dc2ce006eb9ec8"
+  },
+  "Sources/SwiftCompartido/Sendable/GuionElementSnapshot.swift": {
+    "mtime": 1784477929.9827547,
+    "ast_hash": "872b023aaff4bf278e77a9fe756a77a9",
+    "semantic_hash": "872b023aaff4bf278e77a9fe756a77a9"
+  },
+  "Sources/SwiftCompartido/Sendable/GuionParsedScreenplay+Characters.swift": {
+    "mtime": 1774615256.7163944,
+    "ast_hash": "b17db42fd49cb6ee02e528156f3962f2",
+    "semantic_hash": "b17db42fd49cb6ee02e528156f3962f2"
+  },
+  "Sources/SwiftCompartido/Sendable/GuionParsedScreenplay+Highland.swift": {
+    "mtime": 1774615256.7165322,
+    "ast_hash": "977e2501109bf7abc442039c485ca5a5",
+    "semantic_hash": "977e2501109bf7abc442039c485ca5a5"
+  },
+  "Sources/SwiftCompartido/Sendable/GuionParsedScreenplay+Locations.swift": {
+    "mtime": 1774615256.7166665,
+    "ast_hash": "bbb36a2724b5d17c71a1b96c94c763d5",
+    "semantic_hash": "bbb36a2724b5d17c71a1b96c94c763d5"
+  },
+  "Sources/SwiftCompartido/Sendable/GuionParsedScreenplay+Outline.swift": {
+    "mtime": 1774615256.7168672,
+    "ast_hash": "d7739c8f47d5c854beeca1d2fa821610",
+    "semantic_hash": "d7739c8f47d5c854beeca1d2fa821610"
+  },
+  "Sources/SwiftCompartido/Sendable/GuionParsedScreenplay+SceneBrowser.swift": {
+    "mtime": 1774615256.7170103,
+    "ast_hash": "96b4c1c8014af808cf6fcc7d5dd09faf",
+    "semantic_hash": "96b4c1c8014af808cf6fcc7d5dd09faf"
+  },
+  "Sources/SwiftCompartido/Sendable/GuionParsedScreenplay+TextBundle.swift": {
+    "mtime": 1774615256.7171633,
+    "ast_hash": "b3188d5fe269b04ae9f11b9b9371eed9",
+    "semantic_hash": "b3188d5fe269b04ae9f11b9b9371eed9"
+  },
+  "Sources/SwiftCompartido/Sendable/GuionParsedScreenplay.swift": {
+    "mtime": 1774615256.7173285,
+    "ast_hash": "0bea777ec40026461046be3ef698b9ce",
+    "semantic_hash": "0bea777ec40026461046be3ef698b9ce"
+  },
+  "Sources/SwiftCompartido/Sendable/OutlineElement.swift": {
+    "mtime": 1774615256.7175348,
+    "ast_hash": "388950a780f995484db934170718321f",
+    "semantic_hash": "388950a780f995484db934170718321f"
+  },
+  "Sources/SwiftCompartido/Sendable/OutputFileType.swift": {
+    "mtime": 1774615256.7176743,
+    "ast_hash": "d1a070fcfbfddcc96b45404bb1bce771",
+    "semantic_hash": "d1a070fcfbfddcc96b45404bb1bce771"
+  },
+  "Sources/SwiftCompartido/Sendable/ProviderCategory.swift": {
+    "mtime": 1774615256.717807,
+    "ast_hash": "4fe4e144e928c89883a82e4c8162c281",
+    "semantic_hash": "4fe4e144e928c89883a82e4c8162c281"
+  },
+  "Sources/SwiftCompartido/Sendable/SceneBrowserData.swift": {
+    "mtime": 1774615256.7179523,
+    "ast_hash": "1660dc5f31cb1e3c77521bb8a2d056f5",
+    "semantic_hash": "1660dc5f31cb1e3c77521bb8a2d056f5"
+  },
+  "Sources/SwiftCompartido/Sendable/SceneLocation.swift": {
+    "mtime": 1774615256.7181337,
+    "ast_hash": "bfaeb70d6588d1a4630cc05179ecb0d3",
+    "semantic_hash": "bfaeb70d6588d1a4630cc05179ecb0d3"
+  },
+  "Sources/SwiftCompartido/Sendable/SerializationFormat.swift": {
+    "mtime": 1774615256.7182963,
+    "ast_hash": "318879974d3d936202d039de32dbd349",
+    "semantic_hash": "318879974d3d936202d039de32dbd349"
+  },
+  "Sources/SwiftCompartido/Sendable/StorageAreaReference.swift": {
+    "mtime": 1774615256.7184548,
+    "ast_hash": "c658f01e0f96dc8f6485fe0eb8b6b4a1",
+    "semantic_hash": "c658f01e0f96dc8f6485fe0eb8b6b4a1"
+  },
+  "Sources/SwiftCompartido/Sendable/TextPackMetadata.swift": {
+    "mtime": 1774615256.7186096,
+    "ast_hash": "b7c69f6bc375fcf4529bcb38950248e0",
+    "semantic_hash": "b7c69f6bc375fcf4529bcb38950248e0"
+  },
+  "Sources/SwiftCompartido/Sendable/TitlePageEntrySnapshot.swift": {
+    "mtime": 1774615256.7187405,
+    "ast_hash": "ab65c82f58a865035b4dc44de896f60b",
+    "semantic_hash": "ab65c82f58a865035b4dc44de896f60b"
+  },
+  "Sources/SwiftCompartido/Sendable/TypedDataError.swift": {
+    "mtime": 1774615256.7189002,
+    "ast_hash": "fec0f32d058c87c67f71ac0f1970d5f3",
+    "semantic_hash": "fec0f32d058c87c67f71ac0f1970d5f3"
+  },
+  "Sources/SwiftCompartido/Sendable/TypedDataFileReference.swift": {
+    "mtime": 1774615256.7190628,
+    "ast_hash": "4d348be064831672968b015bd8ded043",
+    "semantic_hash": "4d348be064831672968b015bd8ded043"
+  },
+  "Sources/SwiftCompartido/Sendable/TypedDataStorageSnapshot.swift": {
+    "mtime": 1774615256.7191954,
+    "ast_hash": "58f3415bae72a9b268d528bce6d7b662",
+    "semantic_hash": "58f3415bae72a9b268d528bce6d7b662"
+  },
+  "Sources/SwiftCompartido/Serialization/ExportDocument.swift": {
+    "mtime": 1774615256.7193213,
+    "ast_hash": "81ac1582a44b036871565c8cd11326e7",
+    "semantic_hash": "81ac1582a44b036871565c8cd11326e7"
+  },
+  "Sources/SwiftCompartido/Serialization/FDXDocumentWriter.swift": {
+    "mtime": 1774615256.719454,
+    "ast_hash": "bbb38a88dc4eb1aed7cb24f659d084e1",
+    "semantic_hash": "bbb38a88dc4eb1aed7cb24f659d084e1"
+  },
+  "Sources/SwiftCompartido/Serialization/FDXParser.swift": {
+    "mtime": 1774615256.7196133,
+    "ast_hash": "5d59823ac7c207d40967cd573f7bba11",
+    "semantic_hash": "5d59823ac7c207d40967cd573f7bba11"
+  },
+  "Sources/SwiftCompartido/Serialization/FountainParser.swift": {
+    "mtime": 1783905332.5802114,
+    "ast_hash": "6d344f439d875e7fc3f2c5b8bdbb5f33",
+    "semantic_hash": "6d344f439d875e7fc3f2c5b8bdbb5f33"
+  },
+  "Sources/SwiftCompartido/Serialization/FountainRegexes.swift": {
+    "mtime": 1774615256.7199748,
+    "ast_hash": "8570a9c0690603e41c7c554bd2bb313e",
+    "semantic_hash": "8570a9c0690603e41c7c554bd2bb313e"
+  },
+  "Sources/SwiftCompartido/Serialization/FountainWriter.swift": {
+    "mtime": 1774615256.7201834,
+    "ast_hash": "ca6e9ccbb2c438c8ebbfdcb6062f5d2e",
+    "semantic_hash": "ca6e9ccbb2c438c8ebbfdcb6062f5d2e"
+  },
+  "Sources/SwiftCompartido/Serialization/GuionDocumentParserSwiftData.swift": {
+    "mtime": 1774615256.7203796,
+    "ast_hash": "707dc4f11a8b9c9a1a765c05f3976916",
+    "semantic_hash": "707dc4f11a8b9c9a1a765c05f3976916"
+  },
+  "Sources/SwiftCompartido/Serialization/GuionJSONSerializer.swift": {
+    "mtime": 1774615256.7205694,
+    "ast_hash": "0e0cb738b4038be0c36ef9babf9583a9",
+    "semantic_hash": "0e0cb738b4038be0c36ef9babf9583a9"
+  },
+  "Sources/SwiftCompartido/Serialization/MarkdownParser.swift": {
+    "mtime": 1774615256.7207625,
+    "ast_hash": "66be1fbf49a9dd01d767830d2f71718e",
+    "semantic_hash": "66be1fbf49a9dd01d767830d2f71718e"
+  },
+  "Sources/SwiftCompartido/Serialization/PDFScreenplayParser.swift": {
+    "mtime": 1774615256.7209766,
+    "ast_hash": "f963da89cd4c849fb699398745099977",
+    "semantic_hash": "f963da89cd4c849fb699398745099977"
+  },
+  "Sources/SwiftCompartido/Serialization/PandocDocumentParser.swift": {
+    "mtime": 1774615256.7211306,
+    "ast_hash": "2808369450744c04988331268079464e",
+    "semantic_hash": "2808369450744c04988331268079464e"
+  },
+  "Sources/SwiftCompartido/Serialization/SerializableTypedData.swift": {
+    "mtime": 1774615256.7212598,
+    "ast_hash": "d6daedeec3eea24ff68f935df2b0e5c0",
+    "semantic_hash": "d6daedeec3eea24ff68f935df2b0e5c0"
+  },
+  "Sources/SwiftCompartido/Serialization/TextPackReader.swift": {
+    "mtime": 1774615256.72139,
+    "ast_hash": "aaacab8378f2b92535017dcfbdb9b48b",
+    "semantic_hash": "aaacab8378f2b92535017dcfbdb9b48b"
+  },
+  "Sources/SwiftCompartido/Serialization/TextPackWriter.swift": {
+    "mtime": 1774615256.7216828,
+    "ast_hash": "8bc28729e38289983efd589e0d39d01c",
+    "semantic_hash": "8bc28729e38289983efd589e0d39d01c"
+  },
+  "Sources/SwiftCompartido/Services/ElementFilter.swift": {
+    "mtime": 1774615256.7218444,
+    "ast_hash": "4e9ec2732e3b111bb2de7aa3eca068c3",
+    "semantic_hash": "4e9ec2732e3b111bb2de7aa3eca068c3"
+  },
+  "Sources/SwiftCompartido/Services/ParsedFileService.swift": {
+    "mtime": 1774615256.7219818,
+    "ast_hash": "5a9205bcbc79c0f8498cbbdf73cc0119",
+    "semantic_hash": "5a9205bcbc79c0f8498cbbdf73cc0119"
+  },
+  "Sources/SwiftCompartido/SwiftDataModels/CharacterVoiceMapping.swift": {
+    "mtime": 1774615256.7221413,
+    "ast_hash": "8ec5a51b3e8c00aa1afabb7d862e8acd",
+    "semantic_hash": "8ec5a51b3e8c00aa1afabb7d862e8acd"
+  },
+  "Sources/SwiftCompartido/SwiftDataModels/CustomElementType.swift": {
+    "mtime": 1774615256.722263,
+    "ast_hash": "cf2d8a2aadc1350e858d68c19cb2b5eb",
+    "semantic_hash": "cf2d8a2aadc1350e858d68c19cb2b5eb"
+  },
+  "Sources/SwiftCompartido/SwiftDataModels/CustomOutlineElement.swift": {
+    "mtime": 1774615256.7224188,
+    "ast_hash": "5e3b50f3a3cfd565cea9eae5403dd3f2",
+    "semantic_hash": "5e3b50f3a3cfd565cea9eae5403dd3f2"
+  },
+  "Sources/SwiftCompartido/SwiftDataModels/CustomPageModel.swift": {
+    "mtime": 1774615256.722565,
+    "ast_hash": "9e685f7b2a7415736258a11492ab0cd0",
+    "semantic_hash": "9e685f7b2a7415736258a11492ab0cd0"
+  },
+  "Sources/SwiftCompartido/SwiftDataModels/GuionDocumentModel+Snapshot.swift": {
+    "mtime": 1774615256.7227426,
+    "ast_hash": "0a5d2c8e2c011a6747d071004807b1e2",
+    "semantic_hash": "0a5d2c8e2c011a6747d071004807b1e2"
+  },
+  "Sources/SwiftCompartido/SwiftDataModels/GuionDocumentModel.swift": {
+    "mtime": 1774615256.72295,
+    "ast_hash": "8f3b93524eba4a2fc4e225e4719d6996",
+    "semantic_hash": "8f3b93524eba4a2fc4e225e4719d6996"
+  },
+  "Sources/SwiftCompartido/SwiftDataModels/GuionElementModel.swift": {
+    "mtime": 1781817293.0790062,
+    "ast_hash": "6a29cb989461fdd60ff0d12fafa5236e",
+    "semantic_hash": "6a29cb989461fdd60ff0d12fafa5236e"
+  },
+  "Sources/SwiftCompartido/SwiftDataModels/LegacyTypeAliases.swift": {
+    "mtime": 1774615256.7232556,
+    "ast_hash": "0692074db4fe3b5c092cf3295a65c51f",
+    "semantic_hash": "0692074db4fe3b5c092cf3295a65c51f"
+  },
+  "Sources/SwiftCompartido/SwiftDataModels/TitlePageEntryModel.swift": {
+    "mtime": 1774615256.723381,
+    "ast_hash": "f07e4e93ec866ae471a40b972a65f638",
+    "semantic_hash": "f07e4e93ec866ae471a40b972a65f638"
+  },
+  "Sources/SwiftCompartido/SwiftDataModels/TypedDataStorage+Convenience.swift": {
+    "mtime": 1774615256.7235367,
+    "ast_hash": "0a5f804d033c72ddb0da3de36ff69f2c",
+    "semantic_hash": "0a5f804d033c72ddb0da3de36ff69f2c"
+  },
+  "Sources/SwiftCompartido/SwiftDataModels/TypedDataStorage.swift": {
+    "mtime": 1782279867.438149,
+    "ast_hash": "3bb9741806421adb6160cdb946cdd268",
+    "semantic_hash": "3bb9741806421adb6160cdb946cdd268"
+  },
+  "Sources/SwiftCompartido/UI/ActionLineDebugView.swift": {
+    "mtime": 1774615256.7239025,
+    "ast_hash": "12cda15277192cef53780583808833cb",
+    "semantic_hash": "12cda15277192cef53780583808833cb"
+  },
+  "Sources/SwiftCompartido/UI/AudioPlayerManager.swift": {
+    "mtime": 1774615256.7240312,
+    "ast_hash": "50d0588d6ff1937d396b6aad66d39ab2",
+    "semantic_hash": "50d0588d6ff1937d396b6aad66d39ab2"
+  },
+  "Sources/SwiftCompartido/UI/ContextMenu/GuionElementContextMenuModifier.swift": {
+    "mtime": 1774615256.7241747,
+    "ast_hash": "e281ab7eae134a93bc6147384dc65ecf",
+    "semantic_hash": "e281ab7eae134a93bc6147384dc65ecf"
+  },
+  "Sources/SwiftCompartido/UI/DisplayableElement.swift": {
+    "mtime": 1774615256.7243052,
+    "ast_hash": "be8b6f4c63f9c88b2c6a384c7dc4dd1e",
+    "semantic_hash": "be8b6f4c63f9c88b2c6a384c7dc4dd1e"
+  },
+  "Sources/SwiftCompartido/UI/ElementButtons/ElementMetadataButton.swift": {
+    "mtime": 1774615256.7244415,
+    "ast_hash": "c7431506b330277237d460d3729c769b",
+    "semantic_hash": "c7431506b330277237d460d3729c769b"
+  },
+  "Sources/SwiftCompartido/UI/ElementProgress/ElementProgressBar.swift": {
+    "mtime": 1774615256.7245684,
+    "ast_hash": "0be5174de80283f734fc73054cf6614f",
+    "semantic_hash": "0be5174de80283f734fc73054cf6614f"
+  },
+  "Sources/SwiftCompartido/UI/ElementProgress/ElementProgressState.swift": {
+    "mtime": 1774615256.7246964,
+    "ast_hash": "a71a1f88452581fa63f083564f2b082a",
+    "semantic_hash": "a71a1f88452581fa63f083564f2b082a"
+  },
+  "Sources/SwiftCompartido/UI/ElementProgress/ElementProgressTracker.swift": {
+    "mtime": 1774615256.724831,
+    "ast_hash": "a229061f940819a8d2aa94fd56b74df6",
+    "semantic_hash": "a229061f940819a8d2aa94fd56b74df6"
+  },
+  "Sources/SwiftCompartido/UI/Elements/ActionView.swift": {
+    "mtime": 1774615256.724951,
+    "ast_hash": "db10498a0df608a7ce5dcb8f5fa969bf",
+    "semantic_hash": "db10498a0df608a7ce5dcb8f5fa969bf"
+  },
+  "Sources/SwiftCompartido/UI/Elements/ActionViewDebug.swift": {
+    "mtime": 1774615256.725071,
+    "ast_hash": "f22792f87afcb7ed267074c41750dd55",
+    "semantic_hash": "f22792f87afcb7ed267074c41750dd55"
+  },
+  "Sources/SwiftCompartido/UI/Elements/BoneyardView.swift": {
+    "mtime": 1774615256.725204,
+    "ast_hash": "2a3518ca1ecabafdd2f2debd39817e36",
+    "semantic_hash": "2a3518ca1ecabafdd2f2debd39817e36"
+  },
+  "Sources/SwiftCompartido/UI/Elements/CommentView.swift": {
+    "mtime": 1774615256.725327,
+    "ast_hash": "5081e1168880657495663187aed50069",
+    "semantic_hash": "5081e1168880657495663187aed50069"
+  },
+  "Sources/SwiftCompartido/UI/Elements/DialogueBlockView.swift": {
+    "mtime": 1774615256.7254539,
+    "ast_hash": "d69e363bd5a7bc073d4d1db1db97309d",
+    "semantic_hash": "d69e363bd5a7bc073d4d1db1db97309d"
+  },
+  "Sources/SwiftCompartido/UI/Elements/DialogueCharacterView.swift": {
+    "mtime": 1774615256.7255793,
+    "ast_hash": "b5c7f46fa244beb7be57a5b81b33bef5",
+    "semantic_hash": "b5c7f46fa244beb7be57a5b81b33bef5"
+  },
+  "Sources/SwiftCompartido/UI/Elements/DialogueLyricsView.swift": {
+    "mtime": 1774615256.7256958,
+    "ast_hash": "621e6a59430435b8dd9147551b901b7b",
+    "semantic_hash": "621e6a59430435b8dd9147551b901b7b"
+  },
+  "Sources/SwiftCompartido/UI/Elements/DialogueParentheticalView.swift": {
+    "mtime": 1774615256.725819,
+    "ast_hash": "5df3e034ed6ea231474b273473593f43",
+    "semantic_hash": "5df3e034ed6ea231474b273473593f43"
+  },
+  "Sources/SwiftCompartido/UI/Elements/DialogueTextView.swift": {
+    "mtime": 1774615256.7259412,
+    "ast_hash": "4e83cf7a524bcaeaa06b618ec9556eee",
+    "semantic_hash": "4e83cf7a524bcaeaa06b618ec9556eee"
+  },
+  "Sources/SwiftCompartido/UI/Elements/Markdown/MarkdownActionView.swift": {
+    "mtime": 1774615256.7260678,
+    "ast_hash": "f66f28a4b4e4a0e654bd86faaf1ac5c2",
+    "semantic_hash": "f66f28a4b4e4a0e654bd86faaf1ac5c2"
+  },
+  "Sources/SwiftCompartido/UI/Elements/Markdown/MarkdownListItemReferenceView.swift": {
+    "mtime": 1774615256.7261858,
+    "ast_hash": "f32579ad5b417334e97437b9083f99d8",
+    "semantic_hash": "f32579ad5b417334e97437b9083f99d8"
+  },
+  "Sources/SwiftCompartido/UI/Elements/Markdown/MarkdownListItemView.swift": {
+    "mtime": 1774615256.7263167,
+    "ast_hash": "aef0a9bf24c00f0fcc970e3ac6e22dce",
+    "semantic_hash": "aef0a9bf24c00f0fcc970e3ac6e22dce"
+  },
+  "Sources/SwiftCompartido/UI/Elements/Markdown/MarkdownSectionHeadingView.swift": {
+    "mtime": 1774615256.7264338,
+    "ast_hash": "fafe4e767fc63662e06171cbeb4786c8",
+    "semantic_hash": "fafe4e767fc63662e06171cbeb4786c8"
+  },
+  "Sources/SwiftCompartido/UI/Elements/PageBreakView.swift": {
+    "mtime": 1774615256.7265484,
+    "ast_hash": "609c384740f5cc2089c4313331477494",
+    "semantic_hash": "609c384740f5cc2089c4313331477494"
+  },
+  "Sources/SwiftCompartido/UI/Elements/SceneHeadingView.swift": {
+    "mtime": 1774615256.7266748,
+    "ast_hash": "7af300e7223f578c8096fc71bd1254da",
+    "semantic_hash": "7af300e7223f578c8096fc71bd1254da"
+  },
+  "Sources/SwiftCompartido/UI/Elements/SectionHeadingView.swift": {
+    "mtime": 1774615256.7268126,
+    "ast_hash": "e7740700a35a548b6ed5291021e9a425",
+    "semantic_hash": "e7740700a35a548b6ed5291021e9a425"
+  },
+  "Sources/SwiftCompartido/UI/Elements/SynopsisView.swift": {
+    "mtime": 1774615256.7269244,
+    "ast_hash": "c453562c3a3d4c49be4c1c535004f783",
+    "semantic_hash": "c453562c3a3d4c49be4c1c535004f783"
+  },
+  "Sources/SwiftCompartido/UI/Elements/TransitionView.swift": {
+    "mtime": 1774615256.727039,
+    "ast_hash": "b4246aa2f83b8076e4a63a9223fbbdd7",
+    "semantic_hash": "b4246aa2f83b8076e4a63a9223fbbdd7"
+  },
+  "Sources/SwiftCompartido/UI/Examples/GuionElementsListWithPopover.swift": {
+    "mtime": 1774615256.727172,
+    "ast_hash": "a369e1ab7f5d777080e0430ca68fb017",
+    "semantic_hash": "a369e1ab7f5d777080e0430ca68fb017"
+  },
+  "Sources/SwiftCompartido/UI/GeneratedContent/GeneratedContentListView.swift": {
+    "mtime": 1774615256.727312,
+    "ast_hash": "e389844b37f0c9d62744410599e0765b",
+    "semantic_hash": "e389844b37f0c9d62744410599e0765b"
+  },
+  "Sources/SwiftCompartido/UI/GeneratedContent/TypedDataDetailView.swift": {
+    "mtime": 1774615256.7274437,
+    "ast_hash": "a36623c8771811b18e41c5dfefc5d462",
+    "semantic_hash": "a36623c8771811b18e41c5dfefc5d462"
+  },
+  "Sources/SwiftCompartido/UI/GeneratedContent/TypedDataRowView.swift": {
+    "mtime": 1774615256.7275822,
+    "ast_hash": "5f1c0c5f1480464d61e526ca733e94ad",
+    "semantic_hash": "5f1c0c5f1480464d61e526ca733e94ad"
+  },
+  "Sources/SwiftCompartido/UI/GuionElementsList.swift": {
+    "mtime": 1778257873.67302,
+    "ast_hash": "9e256f6105aaa9e9d83d1df3c866c870",
+    "semantic_hash": "9e256f6105aaa9e9d83d1df3c866c870"
+  },
+  "Sources/SwiftCompartido/UI/GuionElementsListFromReference.swift": {
+    "mtime": 1774615256.727851,
+    "ast_hash": "1a818ed3f24bc5d78717e58b7f597c46",
+    "semantic_hash": "1a818ed3f24bc5d78717e58b7f597c46"
+  },
+  "Sources/SwiftCompartido/UI/GuionElementsListHierarchy.swift": {
+    "mtime": 1778257873.6732566,
+    "ast_hash": "8ddba349605bda4efbb4933118dcf950",
+    "semantic_hash": "8ddba349605bda4efbb4933118dcf950"
+  },
+  "Sources/SwiftCompartido/UI/GuionViewer.swift": {
+    "mtime": 1774615256.728148,
+    "ast_hash": "5467f974ac3c2a886a277d2d6a1ae572",
+    "semantic_hash": "5467f974ac3c2a886a277d2d6a1ae572"
+  },
+  "Sources/SwiftCompartido/UI/Helpers/FountainTextFormatter.swift": {
+    "mtime": 1774615256.7283056,
+    "ast_hash": "ddd4f78bfdd674647150a924ce40f9fd",
+    "semantic_hash": "ddd4f78bfdd674647150a924ce40f9fd"
+  },
+  "Sources/SwiftCompartido/UI/Popover/GuionElementPopoverEnvironment.swift": {
+    "mtime": 1774615256.728446,
+    "ast_hash": "c11a9001bdd6c63c0b3280ecb61e2507",
+    "semantic_hash": "c11a9001bdd6c63c0b3280ecb61e2507"
+  },
+  "Sources/SwiftCompartido/UI/Popover/GuionElementPopoverModifier.swift": {
+    "mtime": 1774615256.728587,
+    "ast_hash": "9548d64a17915b85413b143926fbd6d6",
+    "semantic_hash": "9548d64a17915b85413b143926fbd6d6"
+  },
+  "Sources/SwiftCompartido/UI/Popover/GuionElementPopoverProvider.swift": {
+    "mtime": 1774615256.728726,
+    "ast_hash": "3ebf7802e6e8b29c0bcb6252fc12e248",
+    "semantic_hash": "3ebf7802e6e8b29c0bcb6252fc12e248"
+  },
+  "Sources/SwiftCompartido/UI/Popover/GuionElementRow.swift": {
+    "mtime": 1774615256.7289224,
+    "ast_hash": "6d384ada1b8b471a2e3a972f211ea30d",
+    "semantic_hash": "6d384ada1b8b471a2e3a972f211ea30d"
+  },
+  "Sources/SwiftCompartido/UI/Popover/PopoverDismissEnvironment.swift": {
+    "mtime": 1774615256.7290597,
+    "ast_hash": "174c03fba7765f2900f7326793f40b0c",
+    "semantic_hash": "174c03fba7765f2900f7326793f40b0c"
+  },
+  "Sources/SwiftCompartido/UI/PreSceneBox.swift": {
+    "mtime": 1774615256.7291925,
+    "ast_hash": "6a2caf164e4150396c433b501df5ca05",
+    "semantic_hash": "6a2caf164e4150396c433b501df5ca05"
+  },
+  "Sources/SwiftCompartido/UI/ScreenplayFormatting.swift": {
+    "mtime": 1774615256.729334,
+    "ast_hash": "4e3195022a927d84426cafbff80d9d8a",
+    "semantic_hash": "4e3195022a927d84426cafbff80d9d8a"
+  },
+  "Sources/SwiftCompartido/UI/ScrollDetection/ScrollDetectionState.swift": {
+    "mtime": 1774615256.7294822,
+    "ast_hash": "b21f428eaa152016d59da8c8d4832b54",
+    "semantic_hash": "b21f428eaa152016d59da8c8d4832b54"
+  },
+  "Sources/SwiftCompartido/UI/SpectrogramVisualizerView.swift": {
+    "mtime": 1774615256.729619,
+    "ast_hash": "2717532ae3020951f256222448be0f5c",
+    "semantic_hash": "2717532ae3020951f256222448be0f5c"
+  },
+  "Sources/SwiftCompartido/UI/TextEditor/GuionTextEditor.swift": {
+    "mtime": 1774615256.7297585,
+    "ast_hash": "c77c128e141e2d0dee4eb098076eebb4",
+    "semantic_hash": "c77c128e141e2d0dee4eb098076eebb4"
+  },
+  "Sources/SwiftCompartido/UI/TextEditor/GuionTextEditorRepresentable.swift": {
+    "mtime": 1774615256.7298944,
+    "ast_hash": "a36d13580b118e779a02eb598e7c689a",
+    "semantic_hash": "a36d13580b118e779a02eb598e7c689a"
+  },
+  "Sources/SwiftCompartido/UI/TextEditor/GuionTextElementMapper.swift": {
+    "mtime": 1774615256.730096,
+    "ast_hash": "7e6042b9436fe84ddd03905e17d35bfd",
+    "semantic_hash": "7e6042b9436fe84ddd03905e17d35bfd"
+  },
+  "Sources/SwiftCompartido/UI/TypedDataViews/TypedDataAudioView.swift": {
+    "mtime": 1774615256.7302482,
+    "ast_hash": "1580409e902b1580674c3b67595241ea",
+    "semantic_hash": "1580409e902b1580674c3b67595241ea"
+  },
+  "Sources/SwiftCompartido/UI/TypedDataViews/TypedDataImageView.swift": {
+    "mtime": 1774615256.7303925,
+    "ast_hash": "202c9b39c3acae70a8ca9328bbdf1928",
+    "semantic_hash": "202c9b39c3acae70a8ca9328bbdf1928"
+  },
+  "Sources/SwiftCompartido/UI/TypedDataViews/TypedDataTextView.swift": {
+    "mtime": 1774615256.7305293,
+    "ast_hash": "5e277426d198aed54987f201b00da34b",
+    "semantic_hash": "5e277426d198aed54987f201b00da34b"
+  },
+  "Sources/SwiftCompartido/UI/TypedDataViews/TypedDataVideoView.swift": {
+    "mtime": 1774615256.7306702,
+    "ast_hash": "36bd7be0f2851edfb5a573778ef66bbe",
+    "semantic_hash": "36bd7be0f2851edfb5a573778ef66bbe"
+  },
+  "Sources/SwiftCompartido/UI/ViewModifiers/DebugBorderModifier.swift": {
+    "mtime": 1774615256.7308125,
+    "ast_hash": "bede4a5b77e3cfac7165d64bb972ec2b",
+    "semantic_hash": "bede4a5b77e3cfac7165d64bb972ec2b"
+  },
+  "Sources/SwiftCompartido/Utilities/AudioConverter.swift": {
+    "mtime": 1774615256.73096,
+    "ast_hash": "1e23e6b204c1c840a0e5e4afc7df2f52",
+    "semantic_hash": "1e23e6b204c1c840a0e5e4afc7df2f52"
+  },
+  "Sources/SwiftCompartido/Utilities/AudioExportFormat.swift": {
+    "mtime": 1774615256.731096,
+    "ast_hash": "f7ffaf3720078bb7191a13b357b3b0e6",
+    "semantic_hash": "f7ffaf3720078bb7191a13b357b3b0e6"
+  },
+  "Sources/SwiftCompartido/Utilities/MediaFileStorage.swift": {
+    "mtime": 1774615256.7312582,
+    "ast_hash": "5297c6207f603b87fe8e44540c7ace82",
+    "semantic_hash": "5297c6207f603b87fe8e44540c7ace82"
+  },
+  "Tests/SwiftCompartidoPDFTests/GuionParsedElementCollectionPandocTests.swift": {
+    "mtime": 1774615256.7314422,
+    "ast_hash": "39c8a431874a3ac3884cd08af23ab00b",
+    "semantic_hash": "39c8a431874a3ac3884cd08af23ab00b"
+  },
+  "Tests/SwiftCompartidoPDFTests/PDFScreenplayParserAITests.swift": {
+    "mtime": 1778257873.6735373,
+    "ast_hash": "2f9df9c2f06130ca262bdd1d6e4b1d5f",
+    "semantic_hash": "2f9df9c2f06130ca262bdd1d6e4b1d5f"
+  },
+  "Tests/SwiftCompartidoPDFTests/PDFScreenplayParserTests.swift": {
+    "mtime": 1774615256.7318358,
+    "ast_hash": "ed5c23e903ed963d670725e74d721669",
+    "semantic_hash": "ed5c23e903ed963d670725e74d721669"
+  },
+  "Tests/SwiftCompartidoPDFTests/PandocDocumentParserTests.swift": {
+    "mtime": 1774615256.731977,
+    "ast_hash": "6a552e513062a72b86f3b6bcb921912b",
+    "semantic_hash": "6a552e513062a72b86f3b6bcb921912b"
+  },
+  "Tests/SwiftCompartidoPDFTests/PandocIntegrationTests.swift": {
+    "mtime": 1774615256.7321153,
+    "ast_hash": "48466ed6159789b250f982c6b8da4a8f",
+    "semantic_hash": "48466ed6159789b250f982c6b8da4a8f"
+  },
+  "Tests/SwiftCompartidoPerformanceTests/GuionTextEditorPerformanceTests.swift": {
+    "mtime": 1774615256.7322512,
+    "ast_hash": "ee1a549d8e2f96b82a6f107416698133",
+    "semantic_hash": "ee1a549d8e2f96b82a6f107416698133"
+  },
+  "Tests/SwiftCompartidoPerformanceTests/GuionViewerPerformanceTests.swift": {
+    "mtime": 1774615256.7323468,
+    "ast_hash": "c13b6de5ce6522e895a3d9264309b4e5",
+    "semantic_hash": "c13b6de5ce6522e895a3d9264309b4e5"
+  },
+  "Tests/SwiftCompartidoPerformanceTests/PerformanceMetricsTracker.swift": {
+    "mtime": 1774615256.732451,
+    "ast_hash": "75474ba1d584dd88e666a4fa0e7f609a",
+    "semantic_hash": "75474ba1d584dd88e666a4fa0e7f609a"
+  },
+  "Tests/SwiftCompartidoPerformanceTests/Phase2PerformanceTests.swift": {
+    "mtime": 1782072378.9649127,
+    "ast_hash": "140453990ee1066865ec97ef3f66b44c",
+    "semantic_hash": "140453990ee1066865ec97ef3f66b44c"
+  },
+  "Tests/SwiftCompartidoTests/AppIntents/AppIntentsIntegrationTests.swift": {
+    "mtime": 1774615256.7326808,
+    "ast_hash": "848bab7c6e73658e42bbf87bb7839ebc",
+    "semantic_hash": "848bab7c6e73658e42bbf87bb7839ebc"
+  },
+  "Tests/SwiftCompartidoTests/AppIntents/AppIntentsTests.swift": {
+    "mtime": 1774615256.7328136,
+    "ast_hash": "f54ab0a5922e27dfdcbbb2626f3474c4",
+    "semantic_hash": "f54ab0a5922e27dfdcbbb2626f3474c4"
+  },
+  "Tests/SwiftCompartidoTests/AudioPlayerManagerTests.swift": {
+    "mtime": 1774615256.7329538,
+    "ast_hash": "b9ee0e12b0dfffad6a62ad4679bc0a6d",
+    "semantic_hash": "b9ee0e12b0dfffad6a62ad4679bc0a6d"
+  },
+  "Tests/SwiftCompartidoTests/CastListGenerationIntegrationTests.swift": {
+    "mtime": 1774615256.7330925,
+    "ast_hash": "4ffc912378d89a11cddb38cc33935701",
+    "semantic_hash": "4ffc912378d89a11cddb38cc33935701"
+  },
+  "Tests/SwiftCompartidoTests/CastListPageTests.swift": {
+    "mtime": 1774615256.7332332,
+    "ast_hash": "bec55eecca6bab68ccfdbe03c59c533f",
+    "semantic_hash": "bec55eecca6bab68ccfdbe03c59c533f"
+  },
+  "Tests/SwiftCompartidoTests/CastListTrimTests.swift": {
+    "mtime": 1774615256.7333581,
+    "ast_hash": "43baf4e089adefc6aef69f21423b8c21",
+    "semantic_hash": "43baf4e089adefc6aef69f21423b8c21"
+  },
+  "Tests/SwiftCompartidoTests/CharacterInfoTests.swift": {
+    "mtime": 1774615256.7334714,
+    "ast_hash": "b37e82b89aa05fbfdb1a67e5d155ed64",
+    "semantic_hash": "b37e82b89aa05fbfdb1a67e5d155ed64"
+  },
+  "Tests/SwiftCompartidoTests/CustomPageContainerTests.swift": {
+    "mtime": 1774615256.733589,
+    "ast_hash": "c0bde49cca5e4e3d83bc3f2a672430ed",
+    "semantic_hash": "c0bde49cca5e4e3d83bc3f2a672430ed"
+  },
+  "Tests/SwiftCompartidoTests/CustomPageModelTests.swift": {
+    "mtime": 1774615256.7337162,
+    "ast_hash": "473340f433d489fe78ef45f792c42dc9",
+    "semantic_hash": "473340f433d489fe78ef45f792c42dc9"
+  },
+  "Tests/SwiftCompartidoTests/DialogueBlockViewTests.swift": {
+    "mtime": 1774615256.7338762,
+    "ast_hash": "b618dff02f886a912119246db805b1b0",
+    "semantic_hash": "b618dff02f886a912119246db805b1b0"
+  },
+  "Tests/SwiftCompartidoTests/ElementOrderingTests.swift": {
+    "mtime": 1774615256.7340596,
+    "ast_hash": "6dc0e9d98876fc63eb37a34a085f87f1",
+    "semantic_hash": "6dc0e9d98876fc63eb37a34a085f87f1"
+  },
+  "Tests/SwiftCompartidoTests/ElementProgressBarTests.swift": {
+    "mtime": 1774615256.7342038,
+    "ast_hash": "bacbc0287759ad28f5cf329ffd7006a5",
+    "semantic_hash": "bacbc0287759ad28f5cf329ffd7006a5"
+  },
+  "Tests/SwiftCompartidoTests/ElementProgressStateTests.swift": {
+    "mtime": 1774615256.7343566,
+    "ast_hash": "51a7107c52f476a1e985ad1a71687461",
+    "semantic_hash": "51a7107c52f476a1e985ad1a71687461"
+  },
+  "Tests/SwiftCompartidoTests/ElementTypeEnumTests.swift": {
+    "mtime": 1782072378.9651852,
+    "ast_hash": "48574d22ba0aca2962e8c1e692d39bdd",
+    "semantic_hash": "48574d22ba0aca2962e8c1e692d39bdd"
+  },
+  "Tests/SwiftCompartidoTests/ElementViewTests.swift": {
+    "mtime": 1774615256.7346215,
+    "ast_hash": "4e945739cdefbd764d21211273fd6b32",
+    "semantic_hash": "4e945739cdefbd764d21211273fd6b32"
+  },
+  "Tests/SwiftCompartidoTests/ExportDocumentTests.swift": {
+    "mtime": 1774615256.7347436,
+    "ast_hash": "4fd613396a9478d999ab2ddb34445d51",
+    "semantic_hash": "4fd613396a9478d999ab2ddb34445d51"
+  },
+  "Tests/SwiftCompartidoTests/FDXDocumentWriterTests.swift": {
+    "mtime": 1774615256.7348685,
+    "ast_hash": "b3de674fb32513a0c59650cfccb8321d",
+    "semantic_hash": "b3de674fb32513a0c59650cfccb8321d"
+  },
+  "Tests/SwiftCompartidoTests/FDXParserProgressTests.swift": {
+    "mtime": 1774615256.735001,
+    "ast_hash": "a0a75233c4b655d22dc29648bcb55aaa",
+    "semantic_hash": "a0a75233c4b655d22dc29648bcb55aaa"
+  },
+  "Tests/SwiftCompartidoTests/FileIOProgressTests.swift": {
+    "mtime": 1774615256.7351587,
+    "ast_hash": "3f18cd26a6fcf3ddb5f7c5c31aed1d09",
+    "semantic_hash": "3f18cd26a6fcf3ddb5f7c5c31aed1d09"
+  },
+  "Tests/SwiftCompartidoTests/FileReferenceTests.swift": {
+    "mtime": 1774615256.735322,
+    "ast_hash": "0e3be1c34c15775f3742c920ea5a1fdb",
+    "semantic_hash": "0e3be1c34c15775f3742c920ea5a1fdb"
+  },
+  "Tests/SwiftCompartidoTests/FountainParserProgressTests.swift": {
+    "mtime": 1782072378.9654763,
+    "ast_hash": "4d3441b39870d5a812e74e71ef9e764d",
+    "semantic_hash": "4d3441b39870d5a812e74e71ef9e764d"
+  },
+  "Tests/SwiftCompartidoTests/FountainParserTests.swift": {
+    "mtime": 1783905332.5805871,
+    "ast_hash": "457db1024b668f8743fb930168dbf1e8",
+    "semantic_hash": "457db1024b668f8743fb930168dbf1e8"
+  },
+  "Tests/SwiftCompartidoTests/FountainRegexesTests.swift": {
+    "mtime": 1774615256.7358909,
+    "ast_hash": "7d6a1ec19b602b3098635f6734d5631b",
+    "semantic_hash": "7d6a1ec19b602b3098635f6734d5631b"
+  },
+  "Tests/SwiftCompartidoTests/FountainTextFormatterTests.swift": {
+    "mtime": 1774615256.7361276,
+    "ast_hash": "0ffdde108de12abef8e41301fc65dd3a",
+    "semantic_hash": "0ffdde108de12abef8e41301fc65dd3a"
+  },
+  "Tests/SwiftCompartidoTests/GeneratedAudioDataTests.swift": {
+    "mtime": 1774615256.7362888,
+    "ast_hash": "1da84a2bfcfbdd9d17fadf0318c2fdcb",
+    "semantic_hash": "1da84a2bfcfbdd9d17fadf0318c2fdcb"
+  },
+  "Tests/SwiftCompartidoTests/GeneratedContentDisplayTests.swift": {
+    "mtime": 1774615256.7364902,
+    "ast_hash": "a02a6746bb77ee468e608ae69e090981",
+    "semantic_hash": "a02a6746bb77ee468e608ae69e090981"
+  },
+  "Tests/SwiftCompartidoTests/GeneratedContentSortingTests.swift": {
+    "mtime": 1774615256.7366495,
+    "ast_hash": "9ccece68e6f62a3694147a2d66b3eb78",
+    "semantic_hash": "9ccece68e6f62a3694147a2d66b3eb78"
+  },
+  "Tests/SwiftCompartidoTests/GeneratedEmbeddingDataTests.swift": {
+    "mtime": 1774615256.7368393,
+    "ast_hash": "7304a804862de624d6ee92af782acb60",
+    "semantic_hash": "7304a804862de624d6ee92af782acb60"
+  },
+  "Tests/SwiftCompartidoTests/GeneratedImageDataTests.swift": {
+    "mtime": 1774615256.7369802,
+    "ast_hash": "b167a5374cbbec97fa162d355c1c4998",
+    "semantic_hash": "b167a5374cbbec97fa162d355c1c4998"
+  },
+  "Tests/SwiftCompartidoTests/GeneratedTextDataTests.swift": {
+    "mtime": 1774615256.7371368,
+    "ast_hash": "da33915131d3c3ffc58ddb42f6710f77",
+    "semantic_hash": "da33915131d3c3ffc58ddb42f6710f77"
+  },
+  "Tests/SwiftCompartidoTests/GlosaIntegrationTests.swift": {
+    "mtime": 1781817293.0818026,
+    "ast_hash": "797409c13e07548606e90849886a8f13",
+    "semantic_hash": "797409c13e07548606e90849886a8f13"
+  },
+  "Tests/SwiftCompartidoTests/GuionDocumentSnapshotCastListTests.swift": {
+    "mtime": 1774615256.7372737,
+    "ast_hash": "d858dbf5e90ad5578292a81826bce57a",
+    "semantic_hash": "d858dbf5e90ad5578292a81826bce57a"
+  },
+  "Tests/SwiftCompartidoTests/GuionDocumentSnapshotImportTests.swift": {
+    "mtime": 1774615256.7374377,
+    "ast_hash": "7f9ef1f5e0c386b508d5f16c9a606b4a",
+    "semantic_hash": "7f9ef1f5e0c386b508d5f16c9a606b4a"
+  },
+  "Tests/SwiftCompartidoTests/GuionDocumentSnapshotTests.swift": {
+    "mtime": 1774615256.7375917,
+    "ast_hash": "bf74ff772b7416705d4e9d2056e8dc15",
+    "semantic_hash": "bf74ff772b7416705d4e9d2056e8dc15"
+  },
+  "Tests/SwiftCompartidoTests/GuionElementPopoverEnvironmentTests.swift": {
+    "mtime": 1774615256.7377307,
+    "ast_hash": "5c4b21989cb46d69f3fa6384fea31df4",
+    "semantic_hash": "5c4b21989cb46d69f3fa6384fea31df4"
+  },
+  "Tests/SwiftCompartidoTests/GuionElementPopoverProviderTests.swift": {
+    "mtime": 1774615256.7379007,
+    "ast_hash": "8672c4cdca8a3997ea8785d96edac8c4",
+    "semantic_hash": "8672c4cdca8a3997ea8785d96edac8c4"
+  },
+  "Tests/SwiftCompartidoTests/GuionElementSnapshotTests.swift": {
+    "mtime": 1784477929.9829617,
+    "ast_hash": "0f0a836c756af7cc617ffab30fa54429",
+    "semantic_hash": "0f0a836c756af7cc617ffab30fa54429"
+  },
+  "Tests/SwiftCompartidoTests/GuionElementTests.swift": {
+    "mtime": 1774615256.7382162,
+    "ast_hash": "3a06d9dc8d83436762dc30e186b559e2",
+    "semantic_hash": "3a06d9dc8d83436762dc30e186b559e2"
+  },
+  "Tests/SwiftCompartidoTests/GuionElementsListTests.swift": {
+    "mtime": 1774615256.7383547,
+    "ast_hash": "390b26f61fd738305938c9ab563d3b73",
+    "semantic_hash": "390b26f61fd738305938c9ab563d3b73"
+  },
+  "Tests/SwiftCompartidoTests/GuionFormatErrorHandlingTests.swift": {
+    "mtime": 1782072378.9658759,
+    "ast_hash": "679be1f76b16b1f846dcf32338d6c6b9",
+    "semantic_hash": "679be1f76b16b1f846dcf32338d6c6b9"
+  },
+  "Tests/SwiftCompartidoTests/GuionFormatVersioningTests.swift": {
+    "mtime": 1782072378.9661374,
+    "ast_hash": "542f15c64daafe8986d24107bccb0e3b",
+    "semantic_hash": "542f15c64daafe8986d24107bccb0e3b"
+  },
+  "Tests/SwiftCompartidoTests/GuionJSONSerializerFileIOTests.swift": {
+    "mtime": 1782072378.966364,
+    "ast_hash": "89fa701ccb3d6fbd6683879a7588594e",
+    "semantic_hash": "89fa701ccb3d6fbd6683879a7588594e"
+  },
+  "Tests/SwiftCompartidoTests/GuionJSONSerializerTests.swift": {
+    "mtime": 1782072378.9666357,
+    "ast_hash": "da52a2e2627848c368458be45097c9f5",
+    "semantic_hash": "da52a2e2627848c368458be45097c9f5"
+  },
+  "Tests/SwiftCompartidoTests/GuionParsedElementCollectionParsingTests.swift": {
+    "mtime": 1782072378.967107,
+    "ast_hash": "94dbf7b84138d0bdf545f81c2a24e7b4",
+    "semantic_hash": "94dbf7b84138d0bdf545f81c2a24e7b4"
+  },
+  "Tests/SwiftCompartidoTests/GuionTextEditorTests.swift": {
+    "mtime": 1774615256.7388673,
+    "ast_hash": "7af1b4e1aa8154debdff76850c3c87c7",
+    "semantic_hash": "7af1b4e1aa8154debdff76850c3c87c7"
+  },
+  "Tests/SwiftCompartidoTests/GuionViewerTests.swift": {
+    "mtime": 1774615256.7389917,
+    "ast_hash": "43b66a1aef8191be440e92338117a308",
+    "semantic_hash": "43b66a1aef8191be440e92338117a308"
+  },
+  "Tests/SwiftCompartidoTests/HoverStateManagementTests.swift": {
+    "mtime": 1774615256.7391152,
+    "ast_hash": "13975717632642d8e6c36eaa5bc2d5cd",
+    "semantic_hash": "13975717632642d8e6c36eaa5bc2d5cd"
+  },
+  "Tests/SwiftCompartidoTests/HoverTimingTests.swift": {
+    "mtime": 1774615256.7392347,
+    "ast_hash": "5528938e595b64e6ccb85a7c6f575ad6",
+    "semantic_hash": "5528938e595b64e6ccb85a7c6f575ad6"
+  },
+  "Tests/SwiftCompartidoTests/IntegrationTests.swift": {
+    "mtime": 1782072378.9675803,
+    "ast_hash": "971e60b205ca71e565a1b7f31c5bd608",
+    "semantic_hash": "971e60b205ca71e565a1b7f31c5bd608"
+  },
+  "Tests/SwiftCompartidoTests/InteractivePopoverTests.swift": {
+    "mtime": 1774615256.7395144,
+    "ast_hash": "78f0ac3877335031a881a509b0552c39",
+    "semantic_hash": "78f0ac3877335031a881a509b0552c39"
+  },
+  "Tests/SwiftCompartidoTests/LongPressGestureTests.swift": {
+    "mtime": 1774615256.73963,
+    "ast_hash": "c82c8301d7a0b00562d2a7d7103cff54",
+    "semantic_hash": "c82c8301d7a0b00562d2a7d7103cff54"
+  },
+  "Tests/SwiftCompartidoTests/MarkdownParserTests.swift": {
+    "mtime": 1774615256.739756,
+    "ast_hash": "369d0417186ab25fc69566ce566fdccf",
+    "semantic_hash": "369d0417186ab25fc69566ce566fdccf"
+  },
+  "Tests/SwiftCompartidoTests/MarkdownViewTests.swift": {
+    "mtime": 1774615256.7399096,
+    "ast_hash": "1de5ce9ef1b23909da0a0e11e1a94bed",
+    "semantic_hash": "1de5ce9ef1b23909da0a0e11e1a94bed"
+  },
+  "Tests/SwiftCompartidoTests/MemoryManagerTelemetryTests.swift": {
+    "mtime": 1782072378.9678667,
+    "ast_hash": "c158dd1317779013f6f633b301b9bfca",
+    "semantic_hash": "c158dd1317779013f6f633b301b9bfca"
+  },
+  "Tests/SwiftCompartidoTests/MigrationTests.swift": {
+    "mtime": 1781817293.0823941,
+    "ast_hash": "362be1b1dd5ae8fc73fe51bec2c615b5",
+    "semantic_hash": "362be1b1dd5ae8fc73fe51bec2c615b5"
+  },
+  "Tests/SwiftCompartidoTests/OperationProgressTests.swift": {
+    "mtime": 1774615256.7400572,
+    "ast_hash": "f450c31af115587031fb163024ff9c32",
+    "semantic_hash": "f450c31af115587031fb163024ff9c32"
+  },
+  "Tests/SwiftCompartidoTests/OutlineExtensionTests.swift": {
+    "mtime": 1774615256.7401845,
+    "ast_hash": "489714ffd5022ab0c2d9678e496e1c7b",
+    "semantic_hash": "489714ffd5022ab0c2d9678e496e1c7b"
+  },
+  "Tests/SwiftCompartidoTests/OutlineLevelParsingTests.swift": {
+    "mtime": 1774615256.7403564,
+    "ast_hash": "3278f57cac4f88304ea92a92a2658317",
+    "semantic_hash": "3278f57cac4f88304ea92a92a2658317"
+  },
+  "Tests/SwiftCompartidoTests/OutputFileTypeTests.swift": {
+    "mtime": 1774615256.7404902,
+    "ast_hash": "65824d2b62e0c0e0e709c570bf8b6a8e",
+    "semantic_hash": "65824d2b62e0c0e0e709c570bf8b6a8e"
+  },
+  "Tests/SwiftCompartidoTests/Phase2BackwardCompatibilityTests.swift": {
+    "mtime": 1774615256.7406256,
+    "ast_hash": "0f1b21a20fa3cc17f96a313ae927bb81",
+    "semantic_hash": "0f1b21a20fa3cc17f96a313ae927bb81"
+  },
+  "Tests/SwiftCompartidoTests/Phase2IntegrationTests.swift": {
+    "mtime": 1774615256.7407782,
+    "ast_hash": "d162257af8b79dbc1cae4a5a4a5615c8",
+    "semantic_hash": "d162257af8b79dbc1cae4a5a4a5615c8"
+  },
+  "Tests/SwiftCompartidoTests/PopoverAccessibilityTests.swift": {
+    "mtime": 1774615256.740903,
+    "ast_hash": "8faaaacdaa0694ff2e7cf6f2d76fa43a",
+    "semantic_hash": "8faaaacdaa0694ff2e7cf6f2d76fa43a"
+  },
+  "Tests/SwiftCompartidoTests/PreSceneBoxTests.swift": {
+    "mtime": 1774615256.7410471,
+    "ast_hash": "73f7aa5c88d897ca25e9518e17fd39c7",
+    "semantic_hash": "73f7aa5c88d897ca25e9518e17fd39c7"
+  },
+  "Tests/SwiftCompartidoTests/ProgressUpdateTests.swift": {
+    "mtime": 1774615256.741165,
+    "ast_hash": "a77d4a84e072993e12d87d4ccdea97ff",
+    "semantic_hash": "a77d4a84e072993e12d87d4ccdea97ff"
+  },
+  "Tests/SwiftCompartidoTests/ProviderCategoryTests.swift": {
+    "mtime": 1774615256.7412817,
+    "ast_hash": "81557d2e5cf81e3501301530b4f1c7f8",
+    "semantic_hash": "81557d2e5cf81e3501301530b4f1c7f8"
+  },
+  "Tests/SwiftCompartidoTests/SceneBrowserTests.swift": {
+    "mtime": 1774615256.7414048,
+    "ast_hash": "4ff48886e43c9cd8e141903ef060f59a",
+    "semantic_hash": "4ff48886e43c9cd8e141903ef060f59a"
+  },
+  "Tests/SwiftCompartidoTests/SceneBrowserUITests.swift": {
+    "mtime": 1774615256.7415876,
+    "ast_hash": "fa27b3da89905f0260e7238f8ea7b4a9",
+    "semantic_hash": "fa27b3da89905f0260e7238f8ea7b4a9"
+  },
+  "Tests/SwiftCompartidoTests/SceneLocationTests.swift": {
+    "mtime": 1774615256.7417545,
+    "ast_hash": "a754dc16f31f16744bb7dfe86435b84d",
+    "semantic_hash": "a754dc16f31f16744bb7dfe86435b84d"
+  },
+  "Tests/SwiftCompartidoTests/ScreenplayDocumentRenderingTests.swift": {
+    "mtime": 1774615256.741894,
+    "ast_hash": "d2037806393b52cb3a999cdf6a61c3b7",
+    "semantic_hash": "d2037806393b52cb3a999cdf6a61c3b7"
+  },
+  "Tests/SwiftCompartidoTests/ScreenplayRenderingFormatTests.swift": {
+    "mtime": 1774615256.7420394,
+    "ast_hash": "90aa8271bac2f394693a33303fe38724",
+    "semantic_hash": "90aa8271bac2f394693a33303fe38724"
+  },
+  "Tests/SwiftCompartidoTests/SerializationFormatTests.swift": {
+    "mtime": 1774615256.742175,
+    "ast_hash": "df4d4389b94092345125776073106b7c",
+    "semantic_hash": "df4d4389b94092345125776073106b7c"
+  },
+  "Tests/SwiftCompartidoTests/Services/ParsedFileServiceTests.swift": {
+    "mtime": 1774615256.7423272,
+    "ast_hash": "d736017dd881b565a8ca51e41b0a5fb9",
+    "semantic_hash": "d736017dd881b565a8ca51e41b0a5fb9"
+  },
+  "Tests/SwiftCompartidoTests/SnapshotHelperTests.swift": {
+    "mtime": 1774615256.7424605,
+    "ast_hash": "1aab0e2a325739e13110b7a511463926",
+    "semantic_hash": "1aab0e2a325739e13110b7a511463926"
+  },
+  "Tests/SwiftCompartidoTests/SpeakableElementTests.swift": {
+    "mtime": 1781817293.082672,
+    "ast_hash": "255f69c3e5fa1e8ae0fb3ca81592f147",
+    "semantic_hash": "255f69c3e5fa1e8ae0fb3ca81592f147"
+  },
+  "Tests/SwiftCompartidoTests/SpectrogramVisualizerViewTests.swift": {
+    "mtime": 1774615256.7426322,
+    "ast_hash": "65283b0bad8bbd7af10b59f1457e21f6",
+    "semantic_hash": "65283b0bad8bbd7af10b59f1457e21f6"
+  },
+  "Tests/SwiftCompartidoTests/SwiftDataProgressTests.swift": {
+    "mtime": 1782072378.9680328,
+    "ast_hash": "0f9e5a885384f5ec4ca2af59b8945218",
+    "semantic_hash": "0f9e5a885384f5ec4ca2af59b8945218"
+  },
+  "Tests/SwiftCompartidoTests/TestTags.swift": {
+    "mtime": 1781817293.0829527,
+    "ast_hash": "0d4e0b36fae26d1fa84baa6d66afd555",
+    "semantic_hash": "0d4e0b36fae26d1fa84baa6d66afd555"
+  },
+  "Tests/SwiftCompartidoTests/TextEditor/GuionTextEditorFormattingTests.swift": {
+    "mtime": 1774615256.7430506,
+    "ast_hash": "759dd0fa7a967d453d287d7c840704f8",
+    "semantic_hash": "759dd0fa7a967d453d287d7c840704f8"
+  },
+  "Tests/SwiftCompartidoTests/TextPackTests.swift": {
+    "mtime": 1774615256.7431788,
+    "ast_hash": "7c803f08fbb94d03d8693d335019266e",
+    "semantic_hash": "7c803f08fbb94d03d8693d335019266e"
+  },
+  "Tests/SwiftCompartidoTests/TextPackWriterProgressTests.swift": {
+    "mtime": 1774615256.7433345,
+    "ast_hash": "d9bc56350468e7de10797f53f2ece5b0",
+    "semantic_hash": "d9bc56350468e7de10797f53f2ece5b0"
+  },
+  "Tests/SwiftCompartidoTests/TitlePageTests.swift": {
+    "mtime": 1774615256.7434888,
+    "ast_hash": "589bce8b40294b595c28178130c8c517",
+    "semantic_hash": "589bce8b40294b595c28178130c8c517"
+  },
+  "Tests/SwiftCompartidoTests/TruncationDebugTests.swift": {
+    "mtime": 1774615256.7436132,
+    "ast_hash": "e976d54b22944f9f7662d561a12a2cf7",
+    "semantic_hash": "e976d54b22944f9f7662d561a12a2cf7"
+  },
+  "Tests/SwiftCompartidoTests/TypedDataImageViewTests.swift": {
+    "mtime": 1774615256.7437408,
+    "ast_hash": "fc17aff95d508bb5a78a0dda6d759955",
+    "semantic_hash": "fc17aff95d508bb5a78a0dda6d759955"
+  },
+  "Tests/SwiftCompartidoTests/TypedDataStorageSnapshotTests.swift": {
+    "mtime": 1774615256.743863,
+    "ast_hash": "9f5a99772f2df97648bcdbeb8a906a74",
+    "semantic_hash": "9f5a99772f2df97648bcdbeb8a906a74"
+  },
+  "Tests/SwiftCompartidoTests/TypedDataStorageTests.swift": {
+    "mtime": 1774615256.7440162,
+    "ast_hash": "063d52e5b9166426cd0d8417de0b7704",
+    "semantic_hash": "063d52e5b9166426cd0d8417de0b7704"
+  },
+  "Tests/SwiftCompartidoTests/UIOrderingRegressionTests.swift": {
+    "mtime": 1774615256.7441654,
+    "ast_hash": "ca1f0856e2c35a002228777c3ffaa520",
+    "semantic_hash": "ca1f0856e2c35a002228777c3ffaa520"
+  },
+  "build.sh": {
+    "mtime": 1765554011.75436,
+    "ast_hash": "35c5f64b560e24a284b978a32d2989a2",
+    "semantic_hash": "35c5f64b560e24a284b978a32d2989a2"
+  },
+  "performance-results/benchmarks.json": {
+    "mtime": 1760906525.4756322,
+    "ast_hash": "31fa5c9b68acdcf638f5fe3b1a1fca61",
+    "semantic_hash": "31fa5c9b68acdcf638f5fe3b1a1fca61"
+  },
+  ".archive/2025-02_CUSTOM_PAGES_REQUIREMENTS.md": {
+    "mtime": 1772863440.1355467,
+    "ast_hash": "223a514b82a4e5f8e9e6c98af1ccf3cf",
+    "semantic_hash": "223a514b82a4e5f8e9e6c98af1ccf3cf"
+  },
+  ".claude/WORKFLOW.md": {
+    "mtime": 1763924429.5883667,
+    "ast_hash": "4dbbbaf5e4972b05b3cf4821440b4587",
+    "semantic_hash": "4dbbbaf5e4972b05b3cf4821440b4587"
+  },
+  ".claude/docs/UI_TESTING_STRATEGY.md": {
+    "mtime": 1765554011.7359984,
+    "ast_hash": "fd488f9b98cef6cec9fc9efc261c3da4",
+    "semantic_hash": "fd488f9b98cef6cec9fc9efc261c3da4"
+  },
+  ".claude/skills/README.md": {
+    "mtime": 1761557207.4343703,
+    "ast_hash": "6d6774a7d7af6f958de047cde86b5184",
+    "semantic_hash": "6d6774a7d7af6f958de047cde86b5184"
+  },
+  ".claude/skills/performance-tracking.md": {
+    "mtime": 1764340251.4100344,
+    "ast_hash": "a905385bfa795a201330ddb19f1574a5",
+    "semantic_hash": "a905385bfa795a201330ddb19f1574a5"
+  },
+  ".github/PULL_REQUEST_TEMPLATE/textkit2-viewer.md": {
+    "mtime": 1764340251.410395,
+    "ast_hash": "2412e51001d33b434058d07a5806a0df",
+    "semantic_hash": "2412e51001d33b434058d07a5806a0df"
+  },
+  ".github/workflows/long-tests.yml": {
+    "mtime": 1781817293.0735264,
+    "ast_hash": "f4dc0c422bd8e87d15325069e06a837b",
+    "semantic_hash": "f4dc0c422bd8e87d15325069e06a837b"
+  },
+  ".github/workflows/performance-tests.yml": {
+    "mtime": 1781817293.073816,
+    "ast_hash": "a64d175e59201f4f2fd5590c995a2197",
+    "semantic_hash": "a64d175e59201f4f2fd5590c995a2197"
+  },
+  ".github/workflows/tests.yml": {
+    "mtime": 1781817293.0741582,
+    "ast_hash": "75e622f9063bc86794e2a43fba40bab7",
+    "semantic_hash": "75e622f9063bc86794e2a43fba40bab7"
+  },
+  ".github/workflows/ui-tests.yml": {
+    "mtime": 1781817293.0745783,
+    "ast_hash": "fa3f6ee29dd134c26903b7a2f393a766",
+    "semantic_hash": "fa3f6ee29dd134c26903b7a2f393a766"
+  },
+  ".swiftlint.yml": {
+    "mtime": 1765167474.9184542,
+    "ast_hash": "cbc5ec5840cbf8a78737f00719e0eea4",
+    "semantic_hash": "cbc5ec5840cbf8a78737f00719e0eea4"
+  },
+  "Docs/ACCESSIBILITY.md": {
+    "mtime": 1765747665.5193262,
+    "ast_hash": "058de6a71ac1512cfef0d2f2824524de",
+    "semantic_hash": "058de6a71ac1512cfef0d2f2824524de"
+  },
+  "Docs/AI_IMPLEMENTATION_COMPLETE.md": {
+    "mtime": 1767999095.0603707,
+    "ast_hash": "ee6f0c8808ac9cd0c8d96ecbd2a11c41",
+    "semantic_hash": "ee6f0c8808ac9cd0c8d96ecbd2a11c41"
+  },
+  "Docs/APP_INTENTS_GUIDE.md": {
+    "mtime": 1771130799.1616776,
+    "ast_hash": "2e6b12999fcb2d6ef1b12b012ce632c7",
+    "semantic_hash": "2e6b12999fcb2d6ef1b12b012ce632c7"
+  },
+  "Docs/ARCHITECTURE_SWIFTDATA.md": {
+    "mtime": 1771130799.1619341,
+    "ast_hash": "1e8420ba2c1fe2213aeecb7e1c3b41bf",
+    "semantic_hash": "1e8420ba2c1fe2213aeecb7e1c3b41bf"
+  },
+  "Docs/CAST_LIST_GENERATION.md": {
+    "mtime": 1771130799.1622202,
+    "ast_hash": "81989bb04134b2ac7c00e7a4f8dc34ca",
+    "semantic_hash": "81989bb04134b2ac7c00e7a4f8dc34ca"
+  },
+  "Docs/CAST_LIST_GENERATION_SUMMARY.md": {
+    "mtime": 1771130799.1624465,
+    "ast_hash": "7de360dadfd073cbff8f5f5710e89936",
+    "semantic_hash": "7de360dadfd073cbff8f5f5710e89936"
+  },
+  "Docs/CI_CD_SETUP.md": {
+    "mtime": 1771130799.1626978,
+    "ast_hash": "710af03dcc6833df7f85d2ef02c9f772",
+    "semantic_hash": "710af03dcc6833df7f85d2ef02c9f772"
+  },
+  "Docs/DOCUMENTATION_AUDIT_2026-01-15.md": {
+    "mtime": 1771130799.1630156,
+    "ast_hash": "15c795d43e8b8161a9ffdb9fc14c8991",
+    "semantic_hash": "15c795d43e8b8161a9ffdb9fc14c8991"
+  },
+  "Docs/DOCUMENTATION_AUDIT_SUMMARY.md": {
+    "mtime": 1771130799.1631618,
+    "ast_hash": "bc2c0c86a4ca9cca6f845a97d8936c1b",
+    "semantic_hash": "bc2c0c86a4ca9cca6f845a97d8936c1b"
+  },
+  "Docs/FIX-guion-file-testing.md": {
+    "mtime": 1782072378.9634006,
+    "ast_hash": "2e9f9be09b5633aa3eeb2b16c47f8e0b",
+    "semantic_hash": "2e9f9be09b5633aa3eeb2b16c47f8e0b"
+  },
+  "Docs/FOUNDATION_MODELS_STATUS.md": {
+    "mtime": 1767999095.0606902,
+    "ast_hash": "d7ba18ef5a52dd4b20632d889a28ad06",
+    "semantic_hash": "d7ba18ef5a52dd4b20632d889a28ad06"
+  },
+  "Docs/PARSED_FILE_SERVICE_API.md": {
+    "mtime": 1771130799.1634438,
+    "ast_hash": "5ac45cfaec725803a20e6834d0de639d",
+    "semantic_hash": "5ac45cfaec725803a20e6834d0de639d"
+  },
+  "Docs/USAGE-SUMMARY.md": {
+    "mtime": 1771130799.164136,
+    "ast_hash": "f0a7fab526ceca03911d09a72633b405",
+    "semantic_hash": "f0a7fab526ceca03911d09a72633b405"
+  },
+  "Docs/VOICE_DOWNLOAD_SUMMARY.md": {
+    "mtime": 1771130799.1644042,
+    "ast_hash": "55ca0f0f445cbc32d6031d0c47c95d85",
+    "semantic_hash": "55ca0f0f445cbc32d6031d0c47c95d85"
+  },
+  "Docs/complete/EXECUTION_PLAN_CUSTOM_PAGES_REMOVAL_v7.0.0.md": {
+    "mtime": 1778178972.9926045,
+    "ast_hash": "7aae8def559c1d25239b8bca5fef500e",
+    "semantic_hash": "7aae8def559c1d25239b8bca5fef500e"
+  },
+  "Docs/complete/annotated-vault-01/EXECUTION_PLAN.md": {
+    "mtime": 1781817293.0838258,
+    "ast_hash": "a56b1c757d00d506eabf273a76649c8c",
+    "semantic_hash": "a56b1c757d00d506eabf273a76649c8c"
+  },
+  "Docs/complete/annotated-vault-01/TEST_CLEANUP_REPORT.md": {
+    "mtime": 1781817293.084656,
+    "ast_hash": "62112784812b149b55f19152dc76a85e",
+    "semantic_hash": "62112784812b149b55f19152dc76a85e"
+  },
+  "Docs/complete/memory-watchtower-01/COMPLETE_SwiftCompartido.md": {
+    "mtime": 1778178972.9929945,
+    "ast_hash": "2e9f28a02bf68d26078e597c41e66b9d",
+    "semantic_hash": "2e9f28a02bf68d26078e597c41e66b9d"
+  },
+  "Docs/complete/memory-watchtower-01/EXECUTION_PLAN.md": {
+    "mtime": 1778178972.9933708,
+    "ast_hash": "e32c80ec4d49d7e06c12f1c63d4bdc66",
+    "semantic_hash": "e32c80ec4d49d7e06c12f1c63d4bdc66"
+  },
+  "Docs/complete/memory-watchtower-01/OPERATION_MEMORY_WATCHTOWER_01_BRIEF.md": {
+    "mtime": 1778178972.993658,
+    "ast_hash": "f2444d43922f9f7550b7b538068cd901",
+    "semantic_hash": "f2444d43922f9f7550b7b538068cd901"
+  },
+  "Docs/complete/memory-watchtower-01/REQUIREMENTS_telemetry.md": {
+    "mtime": 1778178972.9940617,
+    "ast_hash": "46399823358f2b01e6c47a1e8f5a406a",
+    "semantic_hash": "46399823358f2b01e6c47a1e8f5a406a"
+  },
+  "Docs/complete/memory-watchtower-01/SUPERVISOR_STATE.md": {
+    "mtime": 1778178972.9943442,
+    "ast_hash": "599fa818c58f2b7062caa510f8da8be0",
+    "semantic_hash": "599fa818c58f2b7062caa510f8da8be0"
+  },
+  "Docs/glosa-av-dependency-border.md": {
+    "mtime": 1781817293.0762675,
+    "ast_hash": "df5baefead5670d26fb19c93e5d3e718",
+    "semantic_hash": "df5baefead5670d26fb19c93e5d3e718"
+  },
+  "Docs/old/GITPROJECT_PLANNING.md": {
+    "mtime": 1764254169.1154203,
+    "ast_hash": "5d1a3d0b09079620fe6f36fe5c69557f",
+    "semantic_hash": "5d1a3d0b09079620fe6f36fe5c69557f"
+  },
+  "Docs/old/PANDOC_IMPORT.md": {
+    "mtime": 1764254169.1166787,
+    "ast_hash": "f5fac58860c1b8899b1e2583f9e37a1f",
+    "semantic_hash": "f5fac58860c1b8899b1e2583f9e37a1f"
+  },
+  "Docs/old/PARSED_FILE_SERVICE_REQUIREMENTS.md": {
+    "mtime": 1765554011.7397454,
+    "ast_hash": "e516a458e00fdb25d89b38f9fc1742d9",
+    "semantic_hash": "e516a458e00fdb25d89b38f9fc1742d9"
+  },
+  "Docs/old/PDF_CAPABILITIES.md": {
+    "mtime": 1764254169.1173277,
+    "ast_hash": "9914c42cec52c56577277b1eba218a22",
+    "semantic_hash": "9914c42cec52c56577277b1eba218a22"
+  },
+  "Docs/old/PERFORMANCE_IMPROVEMENT_PLAN.md": {
+    "mtime": 1764254169.117791,
+    "ast_hash": "a03b9e64905d2990dc51213e4084214d",
+    "semantic_hash": "a03b9e64905d2990dc51213e4084214d"
+  },
+  "Docs/old/PERFORMANCE_TESTING.md": {
+    "mtime": 1764254169.1179314,
+    "ast_hash": "0829c91f01ff1a304fb7a9c9bed8f19b",
+    "semantic_hash": "0829c91f01ff1a304fb7a9c9bed8f19b"
+  },
+  "Docs/old/PLATFORM-ENFORCEMENT.md": {
+    "mtime": 1765554011.7399085,
+    "ast_hash": "01aa13c1908608674ced76803dc9f9ba",
+    "semantic_hash": "01aa13c1908608674ced76803dc9f9ba"
+  },
+  "Docs/old/PROGRESS_BARS.md": {
+    "mtime": 1764254169.118061,
+    "ast_hash": "ad8c09f8fd76fa5664ff0de91ac3bced",
+    "semantic_hash": "ad8c09f8fd76fa5664ff0de91ac3bced"
+  },
+  "Docs/old/PROGRESS_REQUIREMENTS.md": {
+    "mtime": 1764254169.1181927,
+    "ast_hash": "63b186497d2cc452c84d61d6e9e9068c",
+    "semantic_hash": "63b186497d2cc452c84d61d6e9e9068c"
+  },
+  "Docs/old/REQUIREMENTS_GUION_ELEMENTS_LIST_POPOVER.md": {
+    "mtime": 1764254169.1184428,
+    "ast_hash": "9f1c66cb6e4696a17b434e0758382d81",
+    "semantic_hash": "9f1c66cb6e4696a17b434e0758382d81"
+  },
+  "Docs/old/TEST_COVERAGE_STATUS.md": {
+    "mtime": 1764254169.1187313,
+    "ast_hash": "5ca6af87e3a68ecd1a8b8fa6dae5b604",
+    "semantic_hash": "5ca6af87e3a68ecd1a8b8fa6dae5b604"
+  },
+  "Docs/old/TEXTPACK_TO_JSON_MIGRATION_GUIDE.md": {
+    "mtime": 1765554011.740349,
+    "ast_hash": "bfcd561e3ffc5e2280e94a8dbafed21c",
+    "semantic_hash": "bfcd561e3ffc5e2280e94a8dbafed21c"
+  },
+  "Docs/old/TRUNCATION_DEBUG.md": {
+    "mtime": 1764254169.1188684,
+    "ast_hash": "da49aaf0c284fbc0abb4d616ff572ba2",
+    "semantic_hash": "da49aaf0c284fbc0abb4d616ff572ba2"
+  },
+  "GuionViewer/REQUIREMENTS.md": {
+    "mtime": 1767015794.017219,
+    "ast_hash": "b99f13d6e0ba06145728b3de13cece71",
+    "semantic_hash": "b99f13d6e0ba06145728b3de13cece71"
+  },
+  "Resources/Licenses/pandoc-LICENSE.txt": {
+    "mtime": 1763167166.678899,
+    "ast_hash": "570a9b3749dd0463a1778803b12a6dce",
+    "semantic_hash": "570a9b3749dd0463a1778803b12a6dce"
+  },
+  "Scripts/README.md": {
+    "mtime": 1771130799.1650748,
+    "ast_hash": "2203658e1071392fef7a66f2aa78ff65",
+    "semantic_hash": "2203658e1071392fef7a66f2aa78ff65"
+  },
+  "Skills/import-export-fdx.md": {
+    "mtime": 1761557207.4674752,
+    "ast_hash": "9ed04298aff42f9224f5f13233d587d5",
+    "semantic_hash": "9ed04298aff42f9224f5f13233d587d5"
+  },
+  "Skills/import-export-fountain.md": {
+    "mtime": 1763065469.0349538,
+    "ast_hash": "e4412c30ad85eb27b881481f518d6f3d",
+    "semantic_hash": "e4412c30ad85eb27b881481f518d6f3d"
+  },
+  "Skills/import-export-highland.md": {
+    "mtime": 1763065469.0351312,
+    "ast_hash": "73fb50082ad5b0335359c852b8402641",
+    "semantic_hash": "73fb50082ad5b0335359c852b8402641"
+  },
+  "Skills/import-pdf-screenplays.md": {
+    "mtime": 1761557207.4685223,
+    "ast_hash": "07f82c78178b6c34d7bd4c7e8ffef27e",
+    "semantic_hash": "07f82c78178b6c34d7bd4c7e8ffef27e"
+  },
+  "Skills/integrate-generated-content-ui.md": {
+    "mtime": 1761101251.0767019,
+    "ast_hash": "1e0066fad32f9988ee3db7e86bc3b0d5",
+    "semantic_hash": "1e0066fad32f9988ee3db7e86bc3b0d5"
+  },
+  "Sources/SwiftCompartido/UI/ElementButtons/README.md": {
+    "mtime": 1761557207.4736135,
+    "ast_hash": "376babafd5a57deb546e96d5429e4bb0",
+    "semantic_hash": "376babafd5a57deb546e96d5429e4bb0"
+  },
+  "Fixtures/Anatomy-Of-A-Fall-Read-The-Screenplay.pdf": {
+    "mtime": 1761557207.4526927,
+    "ast_hash": "576522ffd3e104beff67c28475560b10",
+    "semantic_hash": "576522ffd3e104beff67c28475560b10"
+  },
+  "Fixtures/BULLITT.pdf": {
+    "mtime": 1761557207.4542873,
+    "ast_hash": "916b2af0bda8ec600d7933800c5e09b4",
+    "semantic_hash": "916b2af0bda8ec600d7933800c5e09b4"
+  },
+  "Fixtures/Eternal Sunshine of the Spotless Mind.pdf": {
+    "mtime": 1761557207.457599,
+    "ast_hash": "c877f338934b19a23f6ecdc20278274a",
+    "semantic_hash": "c877f338934b19a23f6ecdc20278274a"
+  },
+  "Fixtures/Heathers_1x01_-_Pilot.pdf": {
+    "mtime": 1761557207.4586716,
+    "ast_hash": "1a4c18ed97bfa914838f79d1246d96b7",
+    "semantic_hash": "1a4c18ed97bfa914838f79d1246d96b7"
+  },
+  "Fixtures/Legion_1x01_-_Chapter_One.pdf": {
+    "mtime": 1761557207.459875,
+    "ast_hash": "e0f8ba36efb68183271d8a44fa41cfe4",
+    "semantic_hash": "e0f8ba36efb68183271d8a44fa41cfe4"
+  },
+  "Fixtures/The Banshees of Inisherin.pdf": {
+    "mtime": 1761557207.4640346,
+    "ast_hash": "b50b8b87e0194e04d3fa58f1f21d8871",
+    "semantic_hash": "b50b8b87e0194e04d3fa58f1f21d8871"
+  },
+  "SwiftCompartido.jpg": {
+    "mtime": 1771130799.170135,
+    "ast_hash": "8796fe024e23da23a66f155f9614b76a",
+    "semantic_hash": "8796fe024e23da23a66f155f9614b76a"
+  },
+  "icon-sm.png": {
+    "mtime": 1771130799.1727183,
+    "ast_hash": "09d907a73c440b9c61af87209717f21f",
+    "semantic_hash": "09d907a73c440b9c61af87209717f21f"
+  },
+  "icon.jpg": {
+    "mtime": 1771130799.1755724,
+    "ast_hash": "a4d77b64d837ed97ab34f2d8e83d19a8",
+    "semantic_hash": "a4d77b64d837ed97ab34f2d8e83d19a8"
+  },
+  "Docs/old/PANDOC_IMPORT_REQUIREMENTS.md": {
+    "mtime": 1764254169.1168733,
+    "ast_hash": "040fd57546a93caf231d0e32b9b5af39",
+    "semantic_hash": "040fd57546a93caf231d0e32b9b5af39"
+  },
+  "Docs/old/PARSED_FILE_SERVICE_IMPLEMENTATION_SUMMARY.md": {
+    "mtime": 1765554011.7394743,
+    "ast_hash": "5c0e29251b9db558837536a8122d54d3",
+    "semantic_hash": "5c0e29251b9db558837536a8122d54d3"
+  },
+  "Docs/old/PERFORMANCE_IMPROVEMENTS_SUMMARY.md": {
+    "mtime": 1764254169.1176326,
+    "ast_hash": "8263dd945bc7b8bf0bfae20cc435c63a",
+    "semantic_hash": "8263dd945bc7b8bf0bfae20cc435c63a"
+  },
+  "Sources/SwiftCompartido/UI/ElementProgress/README.md": {
+    "mtime": 1761557207.4748878,
+    "ast_hash": "9e4e03f51497c7d2bb68b3e6b6de1cc8",
+    "semantic_hash": "9e4e03f51497c7d2bb68b3e6b6de1cc8"
+  },
+  "performance-results/output.txt": {
+    "mtime": 1760906525.4759119,
+    "ast_hash": "4c5b8934ca86960a8e3bc4a1f895bd88",
+    "semantic_hash": "4c5b8934ca86960a8e3bc4a1f895bd88"
+  },
+  "AGENTS.md": {
+    "mtime": 1783904738.8866856,
+    "ast_hash": "df3343483fd569ec1e15a96d979f504f",
+    "semantic_hash": "df3343483fd569ec1e15a96d979f504f"
+  },
+  "CHANGELOG.md": {
+    "mtime": 1783904749.4784224,
+    "ast_hash": "b60f12120ebf06ae07743e64aa8e198b",
+    "semantic_hash": "b60f12120ebf06ae07743e64aa8e198b"
+  },
+  "CLAUDE.md": {
+    "mtime": 1782279867.4370892,
+    "ast_hash": "04341c94e3cd0aebec92915b702ce1b3",
+    "semantic_hash": "04341c94e3cd0aebec92915b702ce1b3"
+  },
+  "Docs/PARSING_ARCHITECTURE.md": {
+    "mtime": 1771130799.1637154,
+    "ast_hash": "372a8d500a9d58eb3d7f76367df3e1d0",
+    "semantic_hash": "372a8d500a9d58eb3d7f76367df3e1d0"
+  },
+  "Docs/complete/annotated-vault-01/COMPLETE_SwiftCompartido.md": {
+    "mtime": 1781817293.0835443,
+    "ast_hash": "ae96883a75b78cf1b43275de2f4b8ad2",
+    "semantic_hash": "ae96883a75b78cf1b43275de2f4b8ad2"
+  },
+  "Docs/complete/annotated-vault-01/REQUIREMENTS-glosa-integration.md": {
+    "mtime": 1781817293.084094,
+    "ast_hash": "5f37e1b3f863ceac26b7a52bfb137cfd",
+    "semantic_hash": "5f37e1b3f863ceac26b7a52bfb137cfd"
+  },
+  "Docs/old/MARKDOWN_RENDERING.md": {
+    "mtime": 1764254169.1165533,
+    "ast_hash": "ca1443b45e2d14e0dbe52e69365990d0",
+    "semantic_hash": "ca1443b45e2d14e0dbe52e69365990d0"
+  },
+  "Docs/old/PANDOC_SUPPORTED_FORMATS.md": {
+    "mtime": 1764254169.1170454,
+    "ast_hash": "00424d18b5cf022d56d3775cee33294f",
+    "semantic_hash": "00424d18b5cf022d56d3775cee33294f"
+  },
+  "Docs/old/QUICK-START-ENFORCEMENT.md": {
+    "mtime": 1765554011.7400477,
+    "ast_hash": "1fb08b1337154fe548671bf3c4ae787f",
+    "semantic_hash": "1fb08b1337154fe548671bf3c4ae787f"
+  },
+  "Docs/old/QUICK_FIX.md": {
+    "mtime": 1764254169.1183193,
+    "ast_hash": "98e7759a2d18b2f6422e622c1ac4dd70",
+    "semantic_hash": "98e7759a2d18b2f6422e622c1ac4dd70"
+  },
+  "GEMINI.md": {
+    "mtime": 1782279867.4374328,
+    "ast_hash": "415e08af1277722c591944427fd0e145",
+    "semantic_hash": "415e08af1277722c591944427fd0e145"
+  },
+  "README.md": {
+    "mtime": 1783904741.8116667,
+    "ast_hash": "46a81b6cb2987f037b937a7bcd701e79",
+    "semantic_hash": "46a81b6cb2987f037b937a7bcd701e79"
+  },
+  "Docs/FOUNDATION_MODELS_VERIFICATION.md": {
+    "mtime": 1767999095.0609958,
+    "ast_hash": "2dd7e71cd0267bae686346a2ce230f76",
+    "semantic_hash": "2dd7e71cd0267bae686346a2ce230f76"
+  },
+  "Docs/KNOWN_ISSUES.md": {
+    "mtime": 1771130799.1633067,
+    "ast_hash": "83844e8023a8146c3e4fb1f3e158484b",
+    "semantic_hash": "83844e8023a8146c3e4fb1f3e158484b"
+  },
+  "Docs/PERFORMANCE_TESTING.md": {
+    "mtime": 1771130799.163866,
+    "ast_hash": "5a1b3ee1098cec02ea9dfe39000f290a",
+    "semantic_hash": "5a1b3ee1098cec02ea9dfe39000f290a"
+  },
+  "Docs/SOURCE_FILE_TRACKING.md": {
+    "mtime": 1771130799.163965,
+    "ast_hash": "3d8be5a6488a7444b1a9190e17489fde",
+    "semantic_hash": "3d8be5a6488a7444b1a9190e17489fde"
+  },
+  "Docs/STORYBOARD_CLI_PSEUDOCODE.md": {
+    "mtime": 1767015794.0122666,
+    "ast_hash": "be4179bc7fc466becb7fd659c35c29c2",
+    "semantic_hash": "be4179bc7fc466becb7fd659c35c29c2"
+  },
+  "Docs/TEST_ANALYSIS.md": {
+    "mtime": 1782072378.9684498,
+    "ast_hash": "7a985b28349c1d32283e3e7b726231c9",
+    "semantic_hash": "7a985b28349c1d32283e3e7b726231c9"
+  },
+  "Docs/TODO.md": {
+    "mtime": 1781817293.0832655,
+    "ast_hash": "e7e887d3dd10c2808270e7b8fff755fb",
+    "semantic_hash": "e7e887d3dd10c2808270e7b8fff755fb"
+  },
+  "Docs/VOICE_DOWNLOAD_GUIDE.md": {
+    "mtime": 1771130799.1642668,
+    "ast_hash": "d7694c7f9703ab30a448cb96595b26e6",
+    "semantic_hash": "d7694c7f9703ab30a448cb96595b26e6"
+  },
+  "Docs/complete/annotated-vault-01/SUPERVISOR_STATE.md": {
+    "mtime": 1781817293.0843868,
+    "ast_hash": "a3f91406b9f2730f7279381c4b0bc78e",
+    "semantic_hash": "a3f91406b9f2730f7279381c4b0bc78e"
+  },
+  "Fixtures/pandoc-documents/formatted.expected.md": {
+    "mtime": 1763167166.6754177,
+    "ast_hash": "4d8cea541937ba32c68721555eaf7f26",
+    "semantic_hash": "4d8cea541937ba32c68721555eaf7f26"
+  },
+  "Fixtures/pandoc-documents/formatted.md": {
+    "mtime": 1763167166.6755078,
+    "ast_hash": "4d8cea541937ba32c68721555eaf7f26",
+    "semantic_hash": "4d8cea541937ba32c68721555eaf7f26"
+  },
+  "Fixtures/pandoc-documents/lists.expected.md": {
+    "mtime": 1763167166.6759648,
+    "ast_hash": "32c4e5ca8294f0cd39d6044483f65991",
+    "semantic_hash": "32c4e5ca8294f0cd39d6044483f65991"
+  },
+  "Fixtures/pandoc-documents/lists.md": {
+    "mtime": 1763167166.6760569,
+    "ast_hash": "ff98d956bd09de56205905eae8de28dd",
+    "semantic_hash": "ff98d956bd09de56205905eae8de28dd"
+  },
+  "Fixtures/pandoc-documents/metadata-full.expected.md": {
+    "mtime": 1763167166.676456,
+    "ast_hash": "7c7ff186fb7d13f60eebec531daf1a3d",
+    "semantic_hash": "7c7ff186fb7d13f60eebec531daf1a3d"
+  },
+  "Fixtures/pandoc-documents/metadata-full.md": {
+    "mtime": 1763167166.6766841,
+    "ast_hash": "e95adca322d1438b366b09bae3fc9557",
+    "semantic_hash": "e95adca322d1438b366b09bae3fc9557"
+  },
+  "Fixtures/pandoc-documents/nested-lists.expected.md": {
+    "mtime": 1763167166.6769092,
+    "ast_hash": "8ca120839eda58640007d724e963630b",
+    "semantic_hash": "8ca120839eda58640007d724e963630b"
+  },
+  "Fixtures/pandoc-documents/nested-lists.md": {
+    "mtime": 1763167166.6770048,
+    "ast_hash": "ed3e16fc399b1709e3b9446be9f984e3",
+    "semantic_hash": "ed3e16fc399b1709e3b9446be9f984e3"
+  },
+  "Fixtures/pandoc-documents/page-breaks.expected.md": {
+    "mtime": 1763167166.6772313,
+    "ast_hash": "983e5a3d31f706659a703bb3e0454f36",
+    "semantic_hash": "983e5a3d31f706659a703bb3e0454f36"
+  },
+  "Fixtures/pandoc-documents/page-breaks.md": {
+    "mtime": 1763167166.6773171,
+    "ast_hash": "983e5a3d31f706659a703bb3e0454f36",
+    "semantic_hash": "983e5a3d31f706659a703bb3e0454f36"
+  },
+  "Fixtures/pandoc-documents/simple-odt.expected.md": {
+    "mtime": 1763167166.6774318,
+    "ast_hash": "3af449f051814a51d6e7d434ca3cf16b",
+    "semantic_hash": "3af449f051814a51d6e7d434ca3cf16b"
+  },
+  "Fixtures/pandoc-documents/simple-rtf.expected.md": {
+    "mtime": 1763167166.677539,
+    "ast_hash": "3ee915d0140618ea266e3ab6429d4558",
+    "semantic_hash": "3ee915d0140618ea266e3ab6429d4558"
+  },
+  "Fixtures/pandoc-documents/simple.expected.md": {
+    "mtime": 1763167166.677733,
+    "ast_hash": "3ee915d0140618ea266e3ab6429d4558",
+    "semantic_hash": "3ee915d0140618ea266e3ab6429d4558"
+  },
+  "Fixtures/pandoc-documents/simple.md": {
+    "mtime": 1763167166.6778193,
+    "ast_hash": "3ee915d0140618ea266e3ab6429d4558",
+    "semantic_hash": "3ee915d0140618ea266e3ab6429d4558"
+  },
+  "Fixtures/test.textbundle/scratchpad.txt": {
+    "mtime": 1760906525.466844,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "Fixtures/test.textbundle/text.md": {
+    "mtime": 1760906525.4671206,
+    "ast_hash": "9f153a16d56adf02613b78a1daa16c79",
+    "semantic_hash": "9f153a16d56adf02613b78a1daa16c79"
+  },
+  "performance-results/metrics.txt": {
+    "mtime": 1760906525.4757168,
+    "ast_hash": "18e7cf89b95fbd34181ced86cf9a3ddd",
+    "semantic_hash": "18e7cf89b95fbd34181ced86cf9a3ddd"
+  }
+}
