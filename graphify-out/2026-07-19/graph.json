@@ -529,7 +529,7 @@
       "source_file": "",
       "source_location": "",
       "_origin": "ast",
-      "community": 105,
+      "community": 161,
       "norm_label": "localizederror",
       "id": "localizederror"
     },
@@ -1549,7 +1549,7 @@
       "source_file": "",
       "source_location": "",
       "_origin": "ast",
-      "community": 38,
+      "community": 41,
       "norm_label": "entityquery",
       "id": "entityquery"
     },
@@ -1819,7 +1819,7 @@
       "source_file": "",
       "source_location": "",
       "_origin": "ast",
-      "community": 38,
+      "community": 165,
       "norm_label": "hashable",
       "id": "hashable"
     },
@@ -2919,7 +2919,7 @@
       "source_file": "Sources/SwiftCompartido/AppIntents/VoiceCastingIntents.swift",
       "source_location": "L400",
       "_origin": "ast",
-      "community": 38,
+      "community": 161,
       "norm_label": "voicecastingerror",
       "id": "appintents_voicecastingintents_voicecastingerror"
     },
@@ -2929,7 +2929,7 @@
       "source_file": "Sources/SwiftCompartido/AppIntents/VoiceCastingIntents.swift",
       "source_location": "L402",
       "_origin": "ast",
-      "community": 38,
+      "community": 161,
       "norm_label": "invaliddocumentid",
       "id": "appintents_voicecastingintents_voicecastingerror_invaliddocumentid"
     },
@@ -28279,7 +28279,7 @@
       "source_file": "Tests/SwiftCompartidoTests/GeneratedContentDisplayTests.swift",
       "source_location": "L283",
       "_origin": "ast",
-      "community": 43,
+      "community": 138,
       "norm_label": ".testtypeddataaudioviewmissingfile()",
       "id": "swiftcompartidotests_generatedcontentdisplaytests_generatedcontentdisplaytests_testtypeddataaudioviewmissingfile"
     },
@@ -28289,7 +28289,7 @@
       "source_file": "Tests/SwiftCompartidoTests/GeneratedContentDisplayTests.swift",
       "source_location": "L296",
       "_origin": "ast",
-      "community": 138,
+      "community": 43,
       "norm_label": ".testtypeddataaudioviewvoicemetadata()",
       "id": "swiftcompartidotests_generatedcontentdisplaytests_generatedcontentdisplaytests_testtypeddataaudioviewvoicemetadata"
     },
@@ -42575,9 +42575,9 @@
       "source_file": "Sources/SwiftCompartido/Sendable/GuionElementSnapshot.swift",
       "source_location": "L99",
       "_origin": "ast",
+      "id": "elementtype",
       "community": 135,
-      "norm_label": "elementtype",
-      "id": "elementtype"
+      "norm_label": "elementtype"
     },
     {
       "label": "SceneLocation",
@@ -42585,9 +42585,9 @@
       "source_file": "Sources/SwiftCompartido/Sendable/GuionElementSnapshot.swift",
       "source_location": "L130",
       "_origin": "ast",
+      "id": "scenelocation",
       "community": 42,
-      "norm_label": "scenelocation",
-      "id": "scenelocation"
+      "norm_label": "scenelocation"
     },
     {
       "label": "TypedDataStorageSnapshot",
@@ -42595,9 +42595,9 @@
       "source_file": "Sources/SwiftCompartido/Sendable/GuionElementSnapshot.swift",
       "source_location": "L142",
       "_origin": "ast",
+      "id": "typeddatastoragesnapshot",
       "community": 42,
-      "norm_label": "typeddatastoragesnapshot",
-      "id": "typeddatastoragesnapshot"
+      "norm_label": "typeddatastoragesnapshot"
     },
     {
       "label": ".testSpeakableText_RemovesMultiLineStageDirections()",
@@ -42605,9 +42605,9 @@
       "source_file": "Tests/SwiftCompartidoTests/GuionElementSnapshotTests.swift",
       "source_location": "L123",
       "_origin": "ast",
+      "id": "swiftcompartidotests_guionelementsnapshottests_guionelementsnapshottests_testspeakabletext_removesmultilinestagedirections",
       "community": 42,
-      "norm_label": ".testspeakabletext_removesmultilinestagedirections()",
-      "id": "swiftcompartidotests_guionelementsnapshottests_guionelementsnapshottests_testspeakabletext_removesmultilinestagedirections"
+      "norm_label": ".testspeakabletext_removesmultilinestagedirections()"
     },
     {
       "label": ".testSpeakableText_MultiLineBlockOnlyYieldsEmpty()",
@@ -42615,9 +42615,9 @@
       "source_file": "Tests/SwiftCompartidoTests/GuionElementSnapshotTests.swift",
       "source_location": "L145",
       "_origin": "ast",
+      "id": "swiftcompartidotests_guionelementsnapshottests_guionelementsnapshottests_testspeakabletext_multilineblockonlyyieldsempty",
       "community": 42,
-      "norm_label": ".testspeakabletext_multilineblockonlyyieldsempty()",
-      "id": "swiftcompartidotests_guionelementsnapshottests_guionelementsnapshottests_testspeakabletext_multilineblockonlyyieldsempty"
+      "norm_label": ".testspeakabletext_multilineblockonlyyieldsempty()"
     },
     {
       "label": "GuionElementSnapshot",
@@ -42625,9 +42625,9 @@
       "source_file": "Tests/SwiftCompartidoTests/GuionElementSnapshotTests.swift",
       "source_location": "L373",
       "_origin": "ast",
+      "id": "guionelementsnapshot",
       "community": 42,
-      "norm_label": "guionelementsnapshot",
-      "id": "guionelementsnapshot"
+      "norm_label": "guionelementsnapshot"
     },
     {
       "label": "Foundation Models API Verification Results",
@@ -42638,9 +42638,9 @@
       "captured_at": "2026-01-09",
       "author": null,
       "contributor": null,
+      "id": "foundation_models_verification_doc",
       "community": 189,
-      "norm_label": "foundation models api verification results",
-      "id": "foundation_models_verification_doc"
+      "norm_label": "foundation models api verification results"
     },
     {
       "label": "FoundationModels Framework",
@@ -42651,9 +42651,9 @@
       "captured_at": null,
       "author": "Apple",
       "contributor": null,
+      "id": "foundationmodels_framework",
       "community": 189,
-      "norm_label": "foundationmodels framework",
-      "id": "foundationmodels_framework"
+      "norm_label": "foundationmodels framework"
     },
     {
       "label": "PDFScreenplayParser",
@@ -42664,9 +42664,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "pdfscreenplayparser_implementation",
       "community": 189,
-      "norm_label": "pdfscreenplayparser",
-      "id": "pdfscreenplayparser_implementation"
+      "norm_label": "pdfscreenplayparser"
     },
     {
       "label": "Known Issues Documentation",
@@ -42677,9 +42677,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "known_issues_doc",
       "community": 189,
-      "norm_label": "known issues documentation",
-      "id": "known_issues_doc"
+      "norm_label": "known issues documentation"
     },
     {
       "label": "DocumentModelActor Element Ordering",
@@ -42690,9 +42690,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "documentmodelactor_element_ordering",
       "community": 189,
-      "norm_label": "documentmodelactor element ordering",
-      "id": "documentmodelactor_element_ordering"
+      "norm_label": "documentmodelactor element ordering"
     },
     {
       "label": "Apple Intelligence Integration",
@@ -42703,9 +42703,9 @@
       "captured_at": null,
       "author": "Apple",
       "contributor": null,
+      "id": "apple_intelligence_feature",
       "community": 189,
-      "norm_label": "apple intelligence integration",
-      "id": "apple_intelligence_feature"
+      "norm_label": "apple intelligence integration"
     },
     {
       "label": "Performance Testing & Benchmarking",
@@ -42716,9 +42716,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "performance_testing_doc",
       "community": 179,
-      "norm_label": "performance testing & benchmarking",
-      "id": "performance_testing_doc"
+      "norm_label": "performance testing & benchmarking"
     },
     {
       "label": "GuionViewerPerformanceTests",
@@ -42729,9 +42729,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "guionviewerperformancetests_suite",
       "community": 179,
-      "norm_label": "guionviewerperformancetests",
-      "id": "guionviewerperformancetests_suite"
+      "norm_label": "guionviewerperformancetests"
     },
     {
       "label": "PerformanceMetricsTracker",
@@ -42742,9 +42742,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "performancemetricstracker_utility",
       "community": 179,
-      "norm_label": "performancemetricstracker",
-      "id": "performancemetricstracker_utility"
+      "norm_label": "performancemetricstracker"
     },
     {
       "label": "SwiftData Conversion Performance Bottleneck",
@@ -42755,9 +42755,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "swiftdata_conversion_bottleneck",
       "community": 179,
-      "norm_label": "swiftdata conversion performance bottleneck",
-      "id": "swiftdata_conversion_bottleneck"
+      "norm_label": "swiftdata conversion performance bottleneck"
     },
     {
       "label": "Source File Tracking Feature",
@@ -42768,9 +42768,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "source_file_tracking_doc",
       "community": 179,
-      "norm_label": "source file tracking feature",
-      "id": "source_file_tracking_doc"
+      "norm_label": "source file tracking feature"
     },
     {
       "label": "GuionDocumentModel with Source Tracking",
@@ -42781,9 +42781,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "guiondocumentmodel_tracking",
       "community": 179,
-      "norm_label": "guiondocumentmodel with source tracking",
-      "id": "guiondocumentmodel_tracking"
+      "norm_label": "guiondocumentmodel with source tracking"
     },
     {
       "label": "Security-Scoped Bookmarks",
@@ -42794,9 +42794,9 @@
       "captured_at": null,
       "author": "Apple",
       "contributor": null,
+      "id": "security_scoped_bookmarks_pattern",
       "community": 179,
-      "norm_label": "security-scoped bookmarks",
-      "id": "security_scoped_bookmarks_pattern"
+      "norm_label": "security-scoped bookmarks"
     },
     {
       "label": "Storyboard Extraction CLI Pseudocode",
@@ -42807,9 +42807,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "storyboard_cli_pseudocode_doc",
       "community": 206,
-      "norm_label": "storyboard extraction cli pseudocode",
-      "id": "storyboard_cli_pseudocode_doc"
+      "norm_label": "storyboard extraction cli pseudocode"
     },
     {
       "label": "StoryboardExtractor CLI",
@@ -42820,9 +42820,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "storyboardextractor_executable",
       "community": 206,
-      "norm_label": "storyboardextractor cli",
-      "id": "storyboardextractor_executable"
+      "norm_label": "storyboardextractor cli"
     },
     {
       "label": "LocationTracker",
@@ -42833,9 +42833,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "locationtracker_component",
       "community": 206,
-      "norm_label": "locationtracker",
-      "id": "locationtracker_component"
+      "norm_label": "locationtracker"
     },
     {
       "label": "Google Gemini API Integration",
@@ -42846,9 +42846,9 @@
       "captured_at": null,
       "author": "Google",
       "contributor": null,
+      "id": "gemini_api_integration",
       "community": 206,
-      "norm_label": "google gemini api integration",
-      "id": "gemini_api_integration"
+      "norm_label": "google gemini api integration"
     },
     {
       "label": "Test Analysis Report",
@@ -42859,9 +42859,9 @@
       "captured_at": "2026-06-21",
       "author": "Claude Code",
       "contributor": null,
+      "id": "test_analysis_doc",
       "community": 212,
-      "norm_label": "test analysis report",
-      "id": "test_analysis_doc"
+      "norm_label": "test analysis report"
     },
     {
       "label": "ElementTypeEnumTests Refactoring",
@@ -42872,9 +42872,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "elementtypeenumtests_refactor",
       "community": 212,
-      "norm_label": "elementtypeenumtests refactoring",
-      "id": "elementtypeenumtests_refactor"
+      "norm_label": "elementtypeenumtests refactoring"
     },
     {
       "label": "TODO: SwiftData Schema Versioning Fix",
@@ -42885,9 +42885,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "todo_swiftdata_schema_doc",
       "community": 205,
-      "norm_label": "todo: swiftdata schema versioning fix",
-      "id": "todo_swiftdata_schema_doc"
+      "norm_label": "todo: swiftdata schema versioning fix"
     },
     {
       "label": "SwiftCompartidoSchemaV1",
@@ -42898,9 +42898,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "swiftcompartidoschemav1_schema",
       "community": 205,
-      "norm_label": "swiftcompartidoschemav1",
-      "id": "swiftcompartidoschemav1_schema"
+      "norm_label": "swiftcompartidoschemav1"
     },
     {
       "label": "SwiftCompartidoSchemaV2",
@@ -42911,9 +42911,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "swiftcompartidoschemav2_schema",
       "community": 205,
-      "norm_label": "swiftcompartidoschemav2",
-      "id": "swiftcompartidoschemav2_schema"
+      "norm_label": "swiftcompartidoschemav2"
     },
     {
       "label": "Schema Migration Data Loss Bug",
@@ -42924,9 +42924,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "data_loss_migration_bug",
       "community": 205,
-      "norm_label": "schema migration data loss bug",
-      "id": "data_loss_migration_bug"
+      "norm_label": "schema migration data loss bug"
     },
     {
       "label": "Voice Download Guide",
@@ -42937,9 +42937,9 @@
       "captured_at": "2026-01-15",
       "author": null,
       "contributor": null,
+      "id": "voice_download_guide_doc",
       "community": 209,
-      "norm_label": "voice download guide",
-      "id": "voice_download_guide_doc"
+      "norm_label": "voice download guide"
     },
     {
       "label": "VoiceDownloadHelper",
@@ -42950,9 +42950,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "voicedownloadhelper_utility",
       "community": 209,
-      "norm_label": "voicedownloadhelper",
-      "id": "voicedownloadhelper_utility"
+      "norm_label": "voicedownloadhelper"
     },
     {
       "label": "Premium Voice Download Feature",
@@ -42963,9 +42963,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "premium_voices_feature",
       "community": 209,
-      "norm_label": "premium voice download feature",
-      "id": "premium_voices_feature"
+      "norm_label": "premium voice download feature"
     },
     {
       "label": "Mission Supervisor State - Annotated Vault",
@@ -42976,9 +42976,9 @@
       "captured_at": "2026-06-17",
       "author": null,
       "contributor": null,
+      "id": "supervisor_state_doc",
       "community": 214,
-      "norm_label": "mission supervisor state - annotated vault",
-      "id": "supervisor_state_doc"
+      "norm_label": "mission supervisor state - annotated vault"
     },
     {
       "label": "GlosaCore Annotation Integration",
@@ -42989,9 +42989,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "glosacore_integration",
       "community": 214,
-      "norm_label": "glosacore annotation integration",
-      "id": "glosacore_integration"
+      "norm_label": "glosacore annotation integration"
     },
     {
       "label": "Formatted Document (Expected)",
@@ -43002,9 +43002,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "formatted_expected_md",
       "community": 213,
-      "norm_label": "formatted document (expected)",
-      "id": "formatted_expected_md"
+      "norm_label": "formatted document (expected)"
     },
     {
       "label": "Formatted Document (Source)",
@@ -43015,9 +43015,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "formatted_md",
       "community": 213,
-      "norm_label": "formatted document (source)",
-      "id": "formatted_md"
+      "norm_label": "formatted document (source)"
     },
     {
       "label": "Lists Document (Expected)",
@@ -43028,9 +43028,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "lists_expected_md",
       "community": 215,
-      "norm_label": "lists document (expected)",
-      "id": "lists_expected_md"
+      "norm_label": "lists document (expected)"
     },
     {
       "label": "Lists Document (Source)",
@@ -43041,9 +43041,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "lists_md",
       "community": 215,
-      "norm_label": "lists document (source)",
-      "id": "lists_md"
+      "norm_label": "lists document (source)"
     },
     {
       "label": "Metadata Full Document (Expected)",
@@ -43054,9 +43054,9 @@
       "captured_at": null,
       "author": "Jane Doe",
       "contributor": null,
+      "id": "metadata_full_expected_md",
       "community": 216,
-      "norm_label": "metadata full document (expected)",
-      "id": "metadata_full_expected_md"
+      "norm_label": "metadata full document (expected)"
     },
     {
       "label": "Metadata Full Document (Source)",
@@ -43067,9 +43067,9 @@
       "captured_at": null,
       "author": "Jane Doe",
       "contributor": null,
+      "id": "metadata_full_md",
       "community": 216,
-      "norm_label": "metadata full document (source)",
-      "id": "metadata_full_md"
+      "norm_label": "metadata full document (source)"
     },
     {
       "label": "Nested Lists Document (Expected)",
@@ -43080,9 +43080,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "nested_lists_expected_md",
       "community": 217,
-      "norm_label": "nested lists document (expected)",
-      "id": "nested_lists_expected_md"
+      "norm_label": "nested lists document (expected)"
     },
     {
       "label": "Nested Lists Document (Source)",
@@ -43093,9 +43093,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "nested_lists_md",
       "community": 217,
-      "norm_label": "nested lists document (source)",
-      "id": "nested_lists_md"
+      "norm_label": "nested lists document (source)"
     },
     {
       "label": "Page Breaks Document (Expected)",
@@ -43106,9 +43106,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "page_breaks_expected_md",
       "community": 218,
-      "norm_label": "page breaks document (expected)",
-      "id": "page_breaks_expected_md"
+      "norm_label": "page breaks document (expected)"
     },
     {
       "label": "Page Breaks Document (Source)",
@@ -43119,9 +43119,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "page_breaks_md",
       "community": 218,
-      "norm_label": "page breaks document (source)",
-      "id": "page_breaks_md"
+      "norm_label": "page breaks document (source)"
     },
     {
       "label": "Simple ODT Document (Expected)",
@@ -43132,9 +43132,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "simple_odt_expected_md",
       "community": 242,
-      "norm_label": "simple odt document (expected)",
-      "id": "simple_odt_expected_md"
+      "norm_label": "simple odt document (expected)"
     },
     {
       "label": "Simple RTF Document (Expected)",
@@ -43145,9 +43145,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "simple_rtf_expected_md",
       "community": 243,
-      "norm_label": "simple rtf document (expected)",
-      "id": "simple_rtf_expected_md"
+      "norm_label": "simple rtf document (expected)"
     },
     {
       "label": "Simple Document (Expected)",
@@ -43158,9 +43158,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "simple_expected_md",
       "community": 222,
-      "norm_label": "simple document (expected)",
-      "id": "simple_expected_md"
+      "norm_label": "simple document (expected)"
     },
     {
       "label": "Simple Document (Source)",
@@ -43171,9 +43171,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "simple_md",
       "community": 222,
-      "norm_label": "simple document (source)",
-      "id": "simple_md"
+      "norm_label": "simple document (source)"
     },
     {
       "label": "Scratchpad",
@@ -43184,9 +43184,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "scratchpad_txt",
       "community": 197,
-      "norm_label": "scratchpad",
-      "id": "scratchpad_txt"
+      "norm_label": "scratchpad"
     },
     {
       "label": "Screenplay Test Document",
@@ -43197,9 +43197,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "text_md",
       "community": 197,
-      "norm_label": "screenplay test document",
-      "id": "text_md"
+      "norm_label": "screenplay test document"
     },
     {
       "label": "Bernard (Character)",
@@ -43210,9 +43210,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "text_md_bernard",
       "community": 207,
-      "norm_label": "bernard (character)",
-      "id": "text_md_bernard"
+      "norm_label": "bernard (character)"
     },
     {
       "label": "Killian (Character)",
@@ -43223,9 +43223,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "text_md_killian",
       "community": 207,
-      "norm_label": "killian (character)",
-      "id": "text_md_killian"
+      "norm_label": "killian (character)"
     },
     {
       "label": "Mason (Character)",
@@ -43236,9 +43236,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "text_md_mason",
       "community": 207,
-      "norm_label": "mason (character)",
-      "id": "text_md_mason"
+      "norm_label": "mason (character)"
     },
     {
       "label": "Sylvia (Character)",
@@ -43249,9 +43249,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "text_md_sylvia",
       "community": 207,
-      "norm_label": "sylvia (character)",
-      "id": "text_md_sylvia"
+      "norm_label": "sylvia (character)"
     },
     {
       "label": "Chapter 1",
@@ -43262,9 +43262,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "text_md_chapter_1",
       "community": 197,
-      "norm_label": "chapter 1",
-      "id": "text_md_chapter_1"
+      "norm_label": "chapter 1"
     },
     {
       "label": "Chapter 2",
@@ -43275,9 +43275,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "text_md_chapter_2",
       "community": 197,
-      "norm_label": "chapter 2",
-      "id": "text_md_chapter_2"
+      "norm_label": "chapter 2"
     },
     {
       "label": "Performance Metrics",
@@ -43288,9 +43288,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "metrics_txt",
       "community": 197,
-      "norm_label": "performance metrics",
-      "id": "metrics_txt"
+      "norm_label": "performance metrics"
     },
     {
       "label": "PDFParser",
@@ -43301,9 +43301,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "agents_pdfparser",
       "community": 49,
-      "norm_label": "pdfparser",
-      "id": "agents_pdfparser"
+      "norm_label": "pdfparser"
     },
     {
       "label": "SwiftProyecto",
@@ -43314,9 +43314,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "agents_swiftproyecto",
       "community": 223,
-      "norm_label": "swiftproyecto",
-      "id": "agents_swiftproyecto"
+      "norm_label": "swiftproyecto"
     },
     {
       "label": "GuionParsedElementCollection",
@@ -43327,9 +43327,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "readme_guionparsedelementcollection",
       "community": 49,
-      "norm_label": "guionparsedelementcollection",
-      "id": "readme_guionparsedelementcollection"
+      "norm_label": "guionparsedelementcollection"
     },
     {
       "label": "GuionDocumentParserSwiftData",
@@ -43340,9 +43340,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "readme_guiondocumentparserswiftdata",
       "community": 49,
-      "norm_label": "guiondocumentparserswiftdata",
-      "id": "readme_guiondocumentparserswiftdata"
+      "norm_label": "guiondocumentparserswiftdata"
     },
     {
       "label": "GeneratedContentListView",
@@ -43353,9 +43353,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "readme_generatedcontentlistview",
       "community": 49,
-      "norm_label": "generatedcontentlistview",
-      "id": "readme_generatedcontentlistview"
+      "norm_label": "generatedcontentlistview"
     },
     {
       "label": "AudioPlayerManager",
@@ -43366,9 +43366,9 @@
       "captured_at": null,
       "author": null,
       "contributor": null,
+      "id": "readme_audioplayermanager",
       "community": 49,
-      "norm_label": "audioplayermanager",
-      "id": "readme_audioplayermanager"
+      "norm_label": "audioplayermanager"
     },
     {
       "label": "Sir John Franklin",
@@ -43379,9 +43379,9 @@
       "captured_at": "2013-09-26",
       "author": "Dave Kajganich",
       "contributor": "Dan Simmons",
+      "id": "the_terror_1x01_sir_john_franklin",
       "community": 72,
-      "norm_label": "sir john franklin",
-      "id": "the_terror_1x01_sir_john_franklin"
+      "norm_label": "sir john franklin"
     },
     {
       "label": "Captain Francis Crozier",
@@ -43392,9 +43392,9 @@
       "captured_at": "2013-09-26",
       "author": "Dave Kajganich",
       "contributor": null,
+      "id": "the_terror_1x01_captain_francis_crozier",
       "community": 72,
-      "norm_label": "captain francis crozier",
-      "id": "the_terror_1x01_captain_francis_crozier"
+      "norm_label": "captain francis crozier"
     },
     {
       "label": "Commander James Fitzjames",
@@ -43405,9 +43405,9 @@
       "captured_at": "2013-09-26",
       "author": "Dave Kajganich",
       "contributor": null,
+      "id": "the_terror_1x01_commander_james_fitzjames",
       "community": 72,
-      "norm_label": "commander james fitzjames",
-      "id": "the_terror_1x01_commander_james_fitzjames"
+      "norm_label": "commander james fitzjames"
     },
     {
       "label": "HMS Erebus",
@@ -43418,9 +43418,9 @@
       "captured_at": "2013-09-26",
       "author": "Dave Kajganich",
       "contributor": null,
+      "id": "the_terror_1x01_hms_erebus",
       "community": 72,
-      "norm_label": "hms erebus",
-      "id": "the_terror_1x01_hms_erebus"
+      "norm_label": "hms erebus"
     },
     {
       "label": "HMS Terror",
@@ -43431,9 +43431,9 @@
       "captured_at": "2013-09-26",
       "author": "Dave Kajganich",
       "contributor": null,
+      "id": "the_terror_1x01_hms_terror",
       "community": 72,
-      "norm_label": "hms terror",
-      "id": "the_terror_1x01_hms_terror"
+      "norm_label": "hms terror"
     },
     {
       "label": "Lady Jane Franklin",
@@ -43444,9 +43444,9 @@
       "captured_at": "2013-09-26",
       "author": "Dave Kajganich",
       "contributor": null,
+      "id": "the_terror_1x01_lady_jane_franklin",
       "community": 72,
-      "norm_label": "lady jane franklin",
-      "id": "the_terror_1x01_lady_jane_franklin"
+      "norm_label": "lady jane franklin"
     },
     {
       "label": "Sophia Craycroft",
@@ -43457,9 +43457,9 @@
       "captured_at": "2013-09-26",
       "author": "Dave Kajganich",
       "contributor": null,
+      "id": "the_terror_1x01_sophia_craycroft",
       "community": 72,
-      "norm_label": "sophia craycroft",
-      "id": "the_terror_1x01_sophia_craycroft"
+      "norm_label": "sophia craycroft"
     },
     {
       "label": "Sir James Ross",
@@ -43470,9 +43470,9 @@
       "captured_at": "2013-09-26",
       "author": "Dave Kajganich",
       "contributor": null,
+      "id": "the_terror_1x01_sir_james_ross",
       "community": 250,
-      "norm_label": "sir james ross",
-      "id": "the_terror_1x01_sir_james_ross"
+      "norm_label": "sir james ross"
     },
     {
       "label": "Lieutenant Edward Little",
@@ -43483,9 +43483,9 @@
       "captured_at": "2013-09-26",
       "author": "Dave Kajganich",
       "contributor": null,
+      "id": "the_terror_1x01_lieutenant_edward_little",
       "community": 72,
-      "norm_label": "lieutenant edward little",
-      "id": "the_terror_1x01_lieutenant_edward_little"
+      "norm_label": "lieutenant edward little"
     },
     {
       "label": "Thomas Jopson",
@@ -43496,9 +43496,9 @@
       "captured_at": "2013-09-26",
       "author": "Dave Kajganich",
       "contributor": null,
+      "id": "the_terror_1x01_thomas_jopson",
       "community": 72,
-      "norm_label": "thomas jopson",
-      "id": "the_terror_1x01_thomas_jopson"
+      "norm_label": "thomas jopson"
     },
     {
       "label": "David Young",
@@ -43509,9 +43509,9 @@
       "captured_at": "2013-09-26",
       "author": "Dave Kajganich",
       "contributor": null,
+      "id": "the_terror_1x01_david_young",
       "community": 72,
-      "norm_label": "david young",
-      "id": "the_terror_1x01_david_young"
+      "norm_label": "david young"
     },
     {
       "label": "Robert Golding",
@@ -43522,9 +43522,9 @@
       "captured_at": "2013-09-26",
       "author": "Dave Kajganich",
       "contributor": null,
+      "id": "the_terror_1x01_robert_golding",
       "community": 249,
-      "norm_label": "robert golding",
-      "id": "the_terror_1x01_robert_golding"
+      "norm_label": "robert golding"
     },
     {
       "label": "Dr. John Peddie",
@@ -43535,9 +43535,9 @@
       "captured_at": "2013-09-26",
       "author": "Dave Kajganich",
       "contributor": null,
+      "id": "the_terror_1x01_dr_peddie",
       "community": 72,
-      "norm_label": "dr. john peddie",
-      "id": "the_terror_1x01_dr_peddie"
+      "norm_label": "dr. john peddie"
     },
     {
       "label": "Neptune (ship's dog)",
@@ -43548,9 +43548,9 @@
       "captured_at": "2013-09-26",
       "author": "Dave Kajganich",
       "contributor": null,
+      "id": "the_terror_1x01_neptune",
       "community": 72,
-      "norm_label": "neptune (ship's dog)",
-      "id": "the_terror_1x01_neptune"
+      "norm_label": "neptune (ship's dog)"
     },
     {
       "label": "Thomas Terry",
@@ -43561,9 +43561,9 @@
       "captured_at": "2013-09-26",
       "author": "Dave Kajganich",
       "contributor": null,
+      "id": "the_terror_1x01_thomas_terry",
       "community": 72,
-      "norm_label": "thomas terry",
-      "id": "the_terror_1x01_thomas_terry"
+      "norm_label": "thomas terry"
     },
     {
       "label": "Cornelius Hickey",
@@ -43574,9 +43574,9 @@
       "captured_at": "2013-09-26",
       "author": "Dave Kajganich",
       "contributor": null,
+      "id": "the_terror_1x01_cornelius_hickey",
       "community": 248,
-      "norm_label": "cornelius hickey",
-      "id": "the_terror_1x01_cornelius_hickey"
+      "norm_label": "cornelius hickey"
     },
     {
       "label": "William Orren",
@@ -43587,9 +43587,9 @@
       "captured_at": "2013-09-26",
       "author": "Dave Kajganich",
       "contributor": null,
+      "id": "the_terror_1x01_william_orren",
       "community": 72,
-      "norm_label": "william orren",
-      "id": "the_terror_1x01_william_orren"
+      "norm_label": "william orren"
     },
     {
       "label": "Henry Collins",
@@ -43600,9 +43600,9 @@
       "captured_at": "2013-09-26",
       "author": "Dave Kajganich",
       "contributor": null,
+      "id": "the_terror_1x01_henry_collins",
       "community": 72,
-      "norm_label": "henry collins",
-      "id": "the_terror_1x01_henry_collins"
+      "norm_label": "henry collins"
     },
     {
       "label": "Le Vesconte",
@@ -43613,9 +43613,9 @@
       "captured_at": "2013-09-26",
       "author": "Dave Kajganich",
       "contributor": null,
+      "id": "the_terror_1x01_le_vesconte",
       "community": 72,
-      "norm_label": "le vesconte",
-      "id": "the_terror_1x01_le_vesconte"
+      "norm_label": "le vesconte"
     },
     {
       "label": "Magnus Manson",
@@ -43626,9 +43626,9 @@
       "captured_at": "2013-09-26",
       "author": "Dave Kajganich",
       "contributor": null,
+      "id": "the_terror_1x01_magnus_manson",
       "community": 72,
-      "norm_label": "magnus manson",
-      "id": "the_terror_1x01_magnus_manson"
+      "norm_label": "magnus manson"
     },
     {
       "label": "M'Clintock Channel",
@@ -43639,9 +43639,9 @@
       "captured_at": "2013-09-26",
       "author": "Dave Kajganich",
       "contributor": null,
+      "id": "the_terror_1x01_mclintock_channel",
       "community": 72,
-      "norm_label": "m'clintock channel",
-      "id": "the_terror_1x01_mclintock_channel"
+      "norm_label": "m'clintock channel"
     },
     {
       "label": "Arctic",
@@ -43652,9 +43652,9 @@
       "captured_at": "2013-09-26",
       "author": "Dave Kajganich",
       "contributor": null,
+      "id": "the_terror_1x01_arctic",
       "community": 72,
-      "norm_label": "arctic",
-      "id": "the_terror_1x01_arctic"
+      "norm_label": "arctic"
     },
     {
       "label": "Beechy Island",
@@ -43665,9 +43665,9 @@
       "captured_at": "2013-09-26",
       "author": "Dave Kajganich",
       "contributor": null,
+      "id": "the_terror_1x01_beechy_island",
       "community": 72,
-      "norm_label": "beechy island",
-      "id": "the_terror_1x01_beechy_island"
+      "norm_label": "beechy island"
     },
     {
       "label": "The Terror Series Pilot Screenplay",
@@ -43678,9 +43678,9 @@
       "captured_at": "2013-09-26",
       "author": "Dave Kajganich",
       "contributor": "Dan Simmons",
+      "id": "the_terror_1x01_screenplay",
       "community": 72,
-      "norm_label": "the terror series pilot screenplay",
-      "id": "the_terror_1x01_screenplay"
+      "norm_label": "the terror series pilot screenplay"
     }
   ],
   "links": [
@@ -46944,9 +46944,9 @@
       "source_file": "Sources/SwiftCompartido/Sendable/GuionElementSnapshot.swift",
       "source_location": "L65",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "guionelementsnapshot",
-      "target": "sendable"
+      "target": "sendable",
+      "confidence_score": 1.0
     },
     {
       "relation": "implements",
@@ -47796,9 +47796,9 @@
       "source_file": "Sources/SwiftCompartido/Sendable/GuionElementSnapshot.swift",
       "source_location": "L65",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "guionelementsnapshot",
-      "target": "identifiable"
+      "target": "identifiable",
+      "confidence_score": 1.0
     },
     {
       "relation": "implements",
@@ -48845,9 +48845,9 @@
       "source_file": "Sources/SwiftCompartido/Sendable/GuionElementSnapshot.swift",
       "source_location": "L65",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "guionelementsnapshot",
-      "target": "codable"
+      "target": "codable",
+      "confidence_score": 1.0
     },
     {
       "relation": "implements",
@@ -56333,9 +56333,9 @@
       "source_location": "L229",
       "weight": 1.0,
       "context": "field",
-      "confidence_score": 1.0,
       "source": "guionelementsnapshot",
-      "target": "string"
+      "target": "string",
+      "confidence_score": 1.0
     },
     {
       "relation": "references",
@@ -56529,9 +56529,9 @@
       "source_location": "L147",
       "weight": 1.0,
       "context": "parameter_type",
-      "confidence_score": 1.0,
       "source": "sendable_guionelementsnapshot_guionelementsnapshot_init",
-      "target": "string"
+      "target": "string",
+      "confidence_score": 1.0
     },
     {
       "relation": "references",
@@ -59923,9 +59923,9 @@
       "source_file": "Sources/SwiftCompartido/Sendable/GuionElementSnapshot.swift",
       "source_location": "L239",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "sendable_guionelementsnapshot",
-      "target": "guionelementsnapshot"
+      "target": "guionelementsnapshot",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -60107,9 +60107,9 @@
       "source_file": "Sources/SwiftCompartido/Sendable/GuionElementSnapshot.swift",
       "source_location": "L249",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "guionelementsnapshot",
-      "target": "sendable_guionelementsnapshot_guionelementsnapshot_init"
+      "target": "sendable_guionelementsnapshot_guionelementsnapshot_init",
+      "confidence_score": 1.0
     },
     {
       "relation": "references",
@@ -60118,9 +60118,9 @@
       "source_location": "L147",
       "weight": 1.0,
       "context": "parameter_type",
-      "confidence_score": 1.0,
       "source": "sendable_guionelementsnapshot_guionelementsnapshot_init",
-      "target": "bool"
+      "target": "bool",
+      "confidence_score": 1.0
     },
     {
       "relation": "references",
@@ -60129,9 +60129,9 @@
       "source_location": "L147",
       "weight": 1.0,
       "context": "parameter_type",
-      "confidence_score": 1.0,
       "source": "sendable_guionelementsnapshot_guionelementsnapshot_init",
-      "target": "elementtype"
+      "target": "elementtype",
+      "confidence_score": 1.0
     },
     {
       "relation": "references",
@@ -60140,9 +60140,9 @@
       "source_location": "L249",
       "weight": 1.0,
       "context": "parameter_type",
-      "confidence_score": 1.0,
       "source": "sendable_guionelementsnapshot_guionelementsnapshot_init",
-      "target": "guionelement"
+      "target": "guionelement",
+      "confidence_score": 1.0
     },
     {
       "relation": "references",
@@ -60151,9 +60151,9 @@
       "source_location": "L249",
       "weight": 1.0,
       "context": "parameter_type",
-      "confidence_score": 1.0,
       "source": "sendable_guionelementsnapshot_guionelementsnapshot_init",
-      "target": "int"
+      "target": "int",
+      "confidence_score": 1.0
     },
     {
       "relation": "references",
@@ -60162,9 +60162,9 @@
       "source_location": "L147",
       "weight": 1.0,
       "context": "parameter_type",
-      "confidence_score": 1.0,
       "source": "sendable_guionelementsnapshot_guionelementsnapshot_init",
-      "target": "scenelocation"
+      "target": "scenelocation",
+      "confidence_score": 1.0
     },
     {
       "relation": "references",
@@ -60184,9 +60184,9 @@
       "source_location": "L147",
       "weight": 1.0,
       "context": "parameter_type",
-      "confidence_score": 1.0,
       "source": "sendable_guionelementsnapshot_guionelementsnapshot_init",
-      "target": "typeddatastoragesnapshot"
+      "target": "typeddatastoragesnapshot",
+      "confidence_score": 1.0
     },
     {
       "relation": "references",
@@ -60195,9 +60195,9 @@
       "source_file": "Sources/SwiftCompartido/Sendable/GuionElementSnapshot.swift",
       "source_location": "L147",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "sendable_guionelementsnapshot_guionelementsnapshot_init",
-      "target": "uuid"
+      "target": "uuid",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -107723,9 +107723,9 @@
       "source_file": "Tests/SwiftCompartidoTests/GuionElementSnapshotTests.swift",
       "source_location": "L145",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "swiftcompartidotests_guionelementsnapshottests_guionelementsnapshottests",
-      "target": "swiftcompartidotests_guionelementsnapshottests_guionelementsnapshottests_testspeakabletext_multilineblockonlyyieldsempty"
+      "target": "swiftcompartidotests_guionelementsnapshottests_guionelementsnapshottests_testspeakabletext_multilineblockonlyyieldsempty",
+      "confidence_score": 1.0
     },
     {
       "relation": "method",
@@ -107743,9 +107743,9 @@
       "source_file": "Tests/SwiftCompartidoTests/GuionElementSnapshotTests.swift",
       "source_location": "L123",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "swiftcompartidotests_guionelementsnapshottests_guionelementsnapshottests",
-      "target": "swiftcompartidotests_guionelementsnapshottests_guionelementsnapshottests_testspeakabletext_removesmultilinestagedirections"
+      "target": "swiftcompartidotests_guionelementsnapshottests_guionelementsnapshottests_testspeakabletext_removesmultilinestagedirections",
+      "confidence_score": 1.0
     },
     {
       "relation": "method",
@@ -107774,9 +107774,9 @@
       "source_file": "Tests/SwiftCompartidoTests/GuionElementSnapshotTests.swift",
       "source_location": "L17",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "swiftcompartidotests_guionelementsnapshottests_guionelementsnapshottests_testinit_minimalelement",
-      "target": "guionelementsnapshot"
+      "target": "guionelementsnapshot",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -107796,9 +107796,9 @@
       "source_file": "Tests/SwiftCompartidoTests/GuionElementSnapshotTests.swift",
       "source_location": "L45",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "swiftcompartidotests_guionelementsnapshottests_guionelementsnapshottests_testinit_completeelement",
-      "target": "guionelementsnapshot"
+      "target": "guionelementsnapshot",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -107851,9 +107851,9 @@
       "source_file": "Tests/SwiftCompartidoTests/GuionElementSnapshotTests.swift",
       "source_location": "L81",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "swiftcompartidotests_guionelementsnapshottests_guionelementsnapshottests_testinit_fromguionelement",
-      "target": "guionelementsnapshot"
+      "target": "guionelementsnapshot",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -107873,9 +107873,9 @@
       "source_file": "Tests/SwiftCompartidoTests/GuionElementSnapshotTests.swift",
       "source_location": "L94",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "swiftcompartidotests_guionelementsnapshottests_guionelementsnapshottests_testspeakabletext_withoutstagedirections",
-      "target": "guionelementsnapshot"
+      "target": "guionelementsnapshot",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -107895,9 +107895,9 @@
       "source_file": "Tests/SwiftCompartidoTests/GuionElementSnapshotTests.swift",
       "source_location": "L103",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "swiftcompartidotests_guionelementsnapshottests_guionelementsnapshottests_testspeakabletext_removesstagedirections",
-      "target": "guionelementsnapshot"
+      "target": "guionelementsnapshot",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -107917,9 +107917,9 @@
       "source_file": "Tests/SwiftCompartidoTests/GuionElementSnapshotTests.swift",
       "source_location": "L112",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "swiftcompartidotests_guionelementsnapshottests_guionelementsnapshottests_testspeakabletext_multiplestagedirections",
-      "target": "guionelementsnapshot"
+      "target": "guionelementsnapshot",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -107939,9 +107939,9 @@
       "source_file": "Tests/SwiftCompartidoTests/GuionElementSnapshotTests.swift",
       "source_location": "L157",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "swiftcompartidotests_guionelementsnapshottests_guionelementsnapshottests_testcharactername_fromcharacterelement",
-      "target": "guionelementsnapshot"
+      "target": "guionelementsnapshot",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -107961,9 +107961,9 @@
       "source_file": "Tests/SwiftCompartidoTests/GuionElementSnapshotTests.swift",
       "source_location": "L166",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "swiftcompartidotests_guionelementsnapshottests_guionelementsnapshottests_testcharactername_fromcharacterelementwithwhitespace",
-      "target": "guionelementsnapshot"
+      "target": "guionelementsnapshot",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -107983,9 +107983,9 @@
       "source_file": "Tests/SwiftCompartidoTests/GuionElementSnapshotTests.swift",
       "source_location": "L175",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "swiftcompartidotests_guionelementsnapshottests_guionelementsnapshottests_testcharactername_noncharacterelement",
-      "target": "guionelementsnapshot"
+      "target": "guionelementsnapshot",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -108005,9 +108005,9 @@
       "source_file": "Tests/SwiftCompartidoTests/GuionElementSnapshotTests.swift",
       "source_location": "L184",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "swiftcompartidotests_guionelementsnapshottests_guionelementsnapshottests_testcharactername_actionelement",
-      "target": "guionelementsnapshot"
+      "target": "guionelementsnapshot",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -108027,9 +108027,9 @@
       "source_file": "Tests/SwiftCompartidoTests/GuionElementSnapshotTests.swift",
       "source_location": "L196",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "swiftcompartidotests_guionelementsnapshottests_guionelementsnapshottests_testgeneratedcontent_storage",
-      "target": "guionelementsnapshot"
+      "target": "guionelementsnapshot",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -108071,9 +108071,9 @@
       "source_file": "Tests/SwiftCompartidoTests/GuionElementSnapshotTests.swift",
       "source_location": "L222",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "swiftcompartidotests_guionelementsnapshottests_guionelementsnapshottests_testcodable_simpleelement",
-      "target": "guionelementsnapshot"
+      "target": "guionelementsnapshot",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -108093,9 +108093,9 @@
       "source_file": "Tests/SwiftCompartidoTests/GuionElementSnapshotTests.swift",
       "source_location": "L236",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "swiftcompartidotests_guionelementsnapshottests_guionelementsnapshottests_testcodable_sceneheading",
-      "target": "guionelementsnapshot"
+      "target": "guionelementsnapshot",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -108115,9 +108115,9 @@
       "source_file": "Tests/SwiftCompartidoTests/GuionElementSnapshotTests.swift",
       "source_location": "L258",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "swiftcompartidotests_guionelementsnapshottests_guionelementsnapshottests_testcodable_withscenelocation",
-      "target": "guionelementsnapshot"
+      "target": "guionelementsnapshot",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -108148,9 +108148,9 @@
       "source_file": "Tests/SwiftCompartidoTests/GuionElementSnapshotTests.swift",
       "source_location": "L274",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "swiftcompartidotests_guionelementsnapshottests_guionelementsnapshottests_testcodable_withgeneratedcontent",
-      "target": "guionelementsnapshot"
+      "target": "guionelementsnapshot",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -108192,9 +108192,9 @@
       "source_file": "Tests/SwiftCompartidoTests/GuionElementSnapshotTests.swift",
       "source_location": "L312",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "swiftcompartidotests_guionelementsnapshottests_guionelementsnapshottests_testcodable_allelementtypes",
-      "target": "guionelementsnapshot"
+      "target": "guionelementsnapshot",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -108214,9 +108214,9 @@
       "source_file": "Tests/SwiftCompartidoTests/GuionElementSnapshotTests.swift",
       "source_location": "L327",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "swiftcompartidotests_guionelementsnapshottests_guionelementsnapshottests_testcodable_centeredelements",
-      "target": "guionelementsnapshot"
+      "target": "guionelementsnapshot",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -108236,9 +108236,9 @@
       "source_file": "Tests/SwiftCompartidoTests/GuionElementSnapshotTests.swift",
       "source_location": "L340",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "swiftcompartidotests_guionelementsnapshottests_guionelementsnapshottests_testcodable_dualdialogue",
-      "target": "guionelementsnapshot"
+      "target": "guionelementsnapshot",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -108269,9 +108269,9 @@
       "source_file": "Tests/SwiftCompartidoTests/GuionElementSnapshotTests.swift",
       "source_location": "L373",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "swiftcompartidotests_guionelementsnapshottests_guionelementsnapshottests_createcomplexelement",
-      "target": "guionelementsnapshot"
+      "target": "guionelementsnapshot",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -124526,9 +124526,9 @@
       "source_location": "L142",
       "weight": 1.0,
       "context": "field",
-      "confidence_score": 1.0,
       "source": "guionelementsnapshot",
-      "target": "uuid"
+      "target": "uuid",
+      "confidence_score": 1.0
     },
     {
       "relation": "references",
@@ -124537,9 +124537,9 @@
       "source_location": "L113",
       "weight": 1.0,
       "context": "field",
-      "confidence_score": 1.0,
       "source": "guionelementsnapshot",
-      "target": "int"
+      "target": "int",
+      "confidence_score": 1.0
     },
     {
       "relation": "references",
@@ -124548,9 +124548,9 @@
       "source_location": "L105",
       "weight": 1.0,
       "context": "field",
-      "confidence_score": 1.0,
       "source": "guionelementsnapshot",
-      "target": "bool"
+      "target": "bool",
+      "confidence_score": 1.0
     },
     {
       "relation": "references",
@@ -125199,9 +125199,9 @@
       "source_location": "L99",
       "weight": 1.0,
       "context": "field",
-      "confidence_score": 1.0,
       "source": "guionelementsnapshot",
-      "target": "elementtype"
+      "target": "elementtype",
+      "confidence_score": 1.0
     },
     {
       "relation": "references",
@@ -125210,9 +125210,9 @@
       "source_location": "L130",
       "weight": 1.0,
       "context": "field",
-      "confidence_score": 1.0,
       "source": "guionelementsnapshot",
-      "target": "scenelocation"
+      "target": "scenelocation",
+      "confidence_score": 1.0
     },
     {
       "relation": "references",
@@ -125221,9 +125221,9 @@
       "source_location": "L142",
       "weight": 1.0,
       "context": "field",
-      "confidence_score": 1.0,
       "source": "guionelementsnapshot",
-      "target": "typeddatastoragesnapshot"
+      "target": "typeddatastoragesnapshot",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -125232,9 +125232,9 @@
       "source_file": "Tests/SwiftCompartidoTests/GuionElementSnapshotTests.swift",
       "source_location": "L127",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "swiftcompartidotests_guionelementsnapshottests_guionelementsnapshottests_testspeakabletext_removesmultilinestagedirections",
-      "target": "guionelementsnapshot"
+      "target": "guionelementsnapshot",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -125243,9 +125243,9 @@
       "source_file": "Tests/SwiftCompartidoTests/GuionElementSnapshotTests.swift",
       "source_location": "L148",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "swiftcompartidotests_guionelementsnapshottests_guionelementsnapshottests_testspeakabletext_multilineblockonlyyieldsempty",
-      "target": "guionelementsnapshot"
+      "target": "guionelementsnapshot",
+      "confidence_score": 1.0
     },
     {
       "relation": "references",
