@@ -15,6 +15,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [7.2.3] - 2026-07-19
+
+### Fixed
+
+- **Voicing: strip multi-line {{ … }} blocks from speakableText** - The voicing system now properly strips multi-line Fountain boneyard blocks (enclosed in `{{ … }}`) from speakable text, preventing synthesized narration from reading stage directions and comments intended only for the script. ([#73](https://github.com/intrusive-memory/SwiftCompartido/pull/73))
+
+---
+
 ## [7.2.2] - 2026-07-12
 
 ### Fixed
