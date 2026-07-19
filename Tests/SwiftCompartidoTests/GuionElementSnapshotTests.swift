@@ -120,6 +120,39 @@ final class GuionElementSnapshotTests: XCTestCase {
     XCTAssertFalse(speakable.contains("}}"))
   }
 
+  func testSpeakableText_RemovesMultiLineStageDirections() {
+    // A {{ … }} block can span multiple lines (e.g. a Slugline document-
+    // settings trailer glued to the end of a line). The whole block must be
+    // removed, not just its opening/closing lines.
+    let snapshot = GuionElementSnapshot(
+      elementText: """
+        Hold on to your soul.
+        {{Slugline Document Settings
+        Scene Headings Double Spaced: yes
+        Print Font: Courier Prime
+        Note Color 8: TODO}}
+        """,
+      elementType: .dialogue
+    )
+
+    let speakable = snapshot.speakableText
+    XCTAssertEqual(speakable, "Hold on to your soul.")
+    XCTAssertFalse(speakable.contains("{{"))
+    XCTAssertFalse(speakable.contains("}}"))
+    XCTAssertFalse(speakable.contains("Print Font"))
+  }
+
+  func testSpeakableText_MultiLineBlockOnlyYieldsEmpty() {
+    // An element that is nothing but a multi-line {{ … }} block has no spoken
+    // content once the block is removed.
+    let snapshot = GuionElementSnapshot(
+      elementText: "{{Slugline Document Settings\nPrint Font: Courier Prime\nNote Color 8: TODO}}",
+      elementType: .action
+    )
+
+    XCTAssertEqual(snapshot.speakableText, "")
+  }
+
   func testCharacterName_FromCharacterElement() {
     let snapshot = GuionElementSnapshot(
       elementText: "JANE",
