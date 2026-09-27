@@ -15,6 +15,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [7.2.5] - 2026-09-26
+
+### Added
+
+- **LICENSE**: Added MIT LICENSE file
+
+### Changed
+
+- **Dependencies**: Pinned intrusive-memory dependencies to latest published versions (SwiftFijos 1.4.1, glosa-av 0.8.1)
+- **Documentation**: Updated version references
+
+---
+
 ## [7.2.4] - 2026-07-19
 
 ### Changed

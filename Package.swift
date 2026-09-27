@@ -22,7 +22,7 @@ let package = Package(
       .upToNextMajor(from: "1.4.1")),
     .package(
       url: "https://github.com/intrusive-memory/glosa-av.git",
-      .upToNextMajor(from: "0.7.1")),
+      .upToNextMajor(from: "0.8.1")),
     .package(url: "https://github.com/swiftlang/swift-markdown.git", from: "0.7.0"),
   ],
   targets: [
