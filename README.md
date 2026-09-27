@@ -13,7 +13,7 @@ updated: 2026-07-19
     <img src="https://img.shields.io/badge/Swift-6.2+-orange.svg" />
     <img src="https://img.shields.io/badge/Platform-iOS%2026.0+%20|%20macOS%2026.0+-lightgrey.svg" />
     <img src="https://img.shields.io/badge/License-MIT-blue.svg" />
-    <img src="https://img.shields.io/badge/Version-7.2.4--dev-blue.svg" />
+    <img src="https://img.shields.io/badge/Version-7.2.5-blue.svg" />
 </p>
 
 **SwiftCompartido** is a Swift package for parsing, storing, and displaying screenplays and AI-generated content. Built with SwiftData and SwiftUI.
@@ -40,7 +40,7 @@ SwiftCompartido has **two core missions**:
 
 ## ⚡ What's New
 
-**Version 7.2.4-dev** (development) is the next cycle in progress. Latest release: **7.2.4** includes documentation and dependency updates. Key highlights:
+**Version 7.2.5** is the latest release. Adds the MIT LICENSE file and bumps glosa-av to 0.8.1. Key highlights:
 
 - 🔧 **Swift 6 Concurrency**: Fixed actor isolation errors in HierarchyBuilder parameters
 - 🔧 **Swift 6 Compliance**: Marked buildHierarchy parameters as `sending` for strict concurrency
@@ -244,7 +244,7 @@ Add to your `Package.swift`:
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/intrusive-memory/SwiftCompartido.git", from: "6.6.0")
+    .package(url: "https://github.com/intrusive-memory/SwiftCompartido.git", from: "7.2.5")
 ]
 ```
 
