@@ -87,23 +87,62 @@ for element in document.sortedElements {
 - 📦 **27% smaller** file sizes
 - ✅ **Backward compatible**
 
-### 🎭 Cast Management
+### 🎭 Character Discovery
 
-Cast management has moved to **SwiftProyecto** for PROJECT.md-based workflows:
+SwiftCompartido provides comprehensive character discovery and per-character script queries for multi-episode series and screenplay collections:
 
 ```swift
-import SwiftProyecto
+import SwiftData
+import SwiftCompartido
 
-let discovery = ProjectDiscovery()
-if let projectMd = discovery.findProjectMd(from: screenplayURL) {
-    let cast = try discovery.readCast(from: projectMd)
-    for member in cast {
-        print("\(member.character): \(member.voices)")
+// 1. Set up ModelContainer for SwiftData
+let container = try ModelContainer(for: GuionDocumentModel.self)
+let actor = DocumentModelActor(modelContainer: container)
+
+// 2. CP-P2: Extract all speaking characters across all documents
+let result = try await actor.extractAllCharacters()
+for (name, info) in result.characters.sorted(by: { $0.value.lineCount > $1.value.lineCount }) {
+    print("\(name): \(info.lineCount) lines, \(info.wordCount) words")
+    print("  Appears in \(info.documents.count) episodes")
+    if let firstLine = info.firstLine {
+        print("  First line: \"\(firstLine.text)\" (\(firstLine.documentTitle))")
+    }
+    // Access per-document appearances
+    for doc in info.documents {
+        print("  - \(doc.title): scenes \(doc.scenes)")
+    }
+}
+
+// 3. CP-P3: Get all lines for a specific character
+let hunterLines = try await actor.fetchLines(for: "HUNTER")
+for line in hunterLines {
+    print("[\(line.documentTitle), Scene \(line.sceneIndex ?? -1)] \(line.text)")
+}
+
+// 4. CP-P4: Get complete scenes where a character speaks
+let hunterScenes = try await actor.fetchScenes(for: "HUNTER")
+for scene in hunterScenes {
+    print("\n\(scene.heading ?? "(opening)")")
+    for element in scene.elements {
+        print("  \(element.speaker ?? "ACTION"): \(element.text)")
+    }
+}
+
+// 5. CP-P5: Get character lines with surrounding context
+// neighbours parameter is optional (default: 3)
+let hunterContext = try await actor.fetchLineWindows(for: "HUNTER")  // Uses default ±3
+// Or specify custom neighbor count:
+let narrowContext = try await actor.fetchLineWindows(for: "HUNTER", neighbours: 1)
+for window in hunterContext {
+    print("\n[\(window.documentTitle), Scene \(window.sceneIndex ?? -1)]")
+    for block in window.blocks {
+        let marker = block.isCharacterLine ? ">>> " : "    "
+        print("\(marker)\(block.speaker ?? "ACTION"): \(block.text)")
     }
 }
 ```
 
-See [SwiftProyecto documentation](https://github.com/intrusive-memory/SwiftProyecto) for details.
+**Cast Management**: Character data from `extractAllCharacters()` can be written to **CAST.md** using [SwiftReparto](https://github.com/intrusive-memory/SwiftReparto), which manages voice assignments and character metadata for Personaje.
 
 ### 💾 TypedDataStorage
 

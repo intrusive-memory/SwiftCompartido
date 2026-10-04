@@ -116,15 +116,18 @@ Nothing.
 - **Personaje** building CAST.md from scripts and Auto-generate (hard):
   CP-P2 to CP-P5.
 
+## Schema Migration Policy
+
+**Null properties are assumed defaults.** When adding new stored properties to SwiftData models, existing records will have null values after migration. This is acceptable — we do not backfill or require complete data across all schema versions. Character descriptions and other derived data may be incomplete for records created before a schema version added a field.
+
+CP-P1 adds `speaker: String?` to `GuionElementModel` via SwiftCompartidoSchemaV3. Existing records migrated from V2 will have null speaker values. Only newly parsed content will populate the field.
+
 ## Open
 
 - **In-memory or persistent store?** Recommended: Personaje parses on open into
   an in-memory container. A persistent store goes stale whenever an episode is
   edited in Escribir and would need change detection. This is the caller's
   choice; the queries work on either.
-- **Schema change.** CP-P1 adds a stored property to a SwiftData model that
-  Produciesta and Escribir also use. It needs a default value and a note for
-  both apps. Check whether it forces a migration for stores already on disk.
 - **How SwiftReparto reads CP-P2 without linking this library.** Reparto may
   not depend on any `intrusive-memory` package (its RQ-INV-1), so the
   discovery writer cannot live in the SwiftReparto package. Either it lives in
