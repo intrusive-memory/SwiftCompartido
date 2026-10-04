@@ -918,6 +918,9 @@ import SwiftUI
         var elementModels: [GuionElementModel] = []
         elementModels.reserveCapacity(elementsWithSummaries.count)
 
+        // Parse-time speaker assignment (CP-P1, Schema V3)
+        let speakers = GuionParsedElementCollection.speakers(for: elementsWithSummaries)
+
         for (index, element) in elementsWithSummaries.enumerated() {
           if index % 10 == 0 {
             try? Task.checkCancellation()
@@ -931,6 +934,7 @@ import SwiftUI
 
           let elementModel = GuionElementModel(
             from: element, chapterIndex: chapterIndex, orderIndex: orderIndex)
+          elementModel.speaker = speakers[index]
 
           // Pre-compute formatted text (eliminates runtime formatting overhead)
           elementModel.formattedText = FountainTextFormatter.format(
@@ -959,6 +963,9 @@ import SwiftUI
         var elementModels: [GuionElementModel] = []
         elementModels.reserveCapacity(screenplay.elements.count)
 
+        // Parse-time speaker assignment (CP-P1, Schema V3)
+        let speakers = GuionParsedElementCollection.speakers(for: screenplay.elements)
+
         for (index, element) in screenplay.elements.enumerated() {
           // Check for cancellation every 10 elements
           if index % 10 == 0 {
@@ -973,6 +980,7 @@ import SwiftUI
 
           let elementModel = GuionElementModel(
             from: element, chapterIndex: chapterIndex, orderIndex: orderIndex)
+          elementModel.speaker = speakers[index]
 
           // Pre-compute formatted text (eliminates runtime formatting overhead)
           elementModel.formattedText = FountainTextFormatter.format(
