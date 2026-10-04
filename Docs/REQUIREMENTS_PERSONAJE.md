@@ -1,515 +1,145 @@
 ---
-type: reference
+type: requirements
+state: draft
 updated: 2026-10-03
+origin: intrusive-memory/Personaje @ 74721c3 (docs/REQUIREMENTS-APP-UI.md §11; RECON_REPORT.md; boundary decisions 2026-10-03)
+sequence: 1 — no dependencies; SwiftReparto's discovery writer and Personaje's last build step wait on it
 ---
 
-# Personaje (Character) Requirements
-
-## Purpose
-
-Define character-related functionality in SwiftCompartido, including character extraction from screenplays, voice casting assignments, and integration with external cast management systems.
-
-## Scope
-
-**In Scope:**
-- ✅ Character voice mapping data model
-- ✅ Character extraction from screenplay elements
-- ✅ Voice assignment per character
-- ✅ App Intents for character workflows
-- ✅ Integration with SwiftProyecto for cast management
-
-**Out of Scope:**
-- ❌ AI voice generation (belongs in consumer apps)
-- ❌ Character biography or backstory management
-- ❌ Character relationship graphs
-- ❌ Cloud-synced cast lists (removed in 6.2.1)
-
-## Platform Requirements
-
-- **iOS**: 26.0+
-- **macOS**: 26.0+
-- **Swift**: 6.2+
-- **SwiftData**: System framework
-- **SwiftUI**: For configuration UI
-
-## Core Components
-
-### 1. CharacterVoiceMapping Model
-
-**Purpose**: SwiftData model linking screenplay characters to TTS voice configurations
-
-**Schema:**
-```swift
-@Model
-final class CharacterVoiceMapping {
-    var characterName: String        // Character name from screenplay (e.g., "JANE")
-    var voiceProvider: String        // Provider ID ("macos", "elevenlabs", "openai")
-    var voiceIdentifier: String      // Provider-specific voice ID
-    var displayName: String?         // Human-readable voice name
-    var createdAt: Date
-    var lastUsed: Date?
-    
-    // Relationship
-    var document: GuionDocumentModel?  // Parent document
-}
-```
-
-**Indexes:**
-- Primary: `characterName` + `document` (unique constraint)
-- Secondary: `voiceProvider`
-
-**Relationships:**
-```
-GuionDocumentModel (1) ──┬─→ CharacterVoiceMapping (N)
-                         │   @Relationship(deleteRule: .cascade)
-                         │
-                         └─→ GuionElementModel (N)
-```
-
-**Delete Rules:**
-- When document deleted → cascade delete all CharacterVoiceMapping entries
-
-### 2. Character Extraction
-
-**Purpose**: Extract unique character names and dialogue counts from screenplay elements
-
-**API:**
-```swift
-actor DocumentModelActor {
-    func extractCharacters(
-        from documentID: PersistentIdentifier
-    ) async throws -> [CharacterInfo]
-}
-
-struct CharacterInfo: Sendable, Identifiable {
-    let id: UUID
-    let name: String              // Character name (normalized, uppercase)
-    let dialogueCount: Int        // Number of dialogue blocks
-    let firstAppearance: Int      // Element index of first appearance
-    let assignedVoice: VoiceInfo? // Current voice assignment (if any)
-}
-
-struct VoiceInfo: Sendable {
-    let provider: String
-    let identifier: String
-    let displayName: String?
-}
-```
-
-**Extraction Logic:**
-1. Query all elements where `elementType == .character`
-2. Normalize character names (uppercase, trim whitespace)
-3. Count dialogue blocks per character
-4. Track first appearance index
-5. Join with CharacterVoiceMapping for voice assignments
-6. Return sorted by `firstAppearance` (script order)
-
-**Edge Cases:**
-- Dual dialogue: Count separately for each character
-- Character extensions (V.O., O.S., CONT'D): Strip extensions before matching
-- Unnamed characters: Include as-is (e.g., "BARTENDER", "COP #1")
-
-### 3. Voice Casting API
-
-**Purpose**: Assign and retrieve TTS voices for characters
-
-**API:**
-```swift
-actor DocumentModelActor {
-    // Assign voice to character
-    func setVoice(
-        characterName: String,
-        voiceProvider: String,
-        voiceIdentifier: String,
-        displayName: String?,
-        for documentID: PersistentIdentifier
-    ) async throws
-    
-    // Remove voice assignment
-    func clearVoice(
-        characterName: String,
-        for documentID: PersistentIdentifier
-    ) async throws
-    
-    // Get all voice assignments
-    func getVoiceCasting(
-        for documentID: PersistentIdentifier
-    ) async throws -> [CharacterVoiceInfo]
-    
-    // Bulk import voice assignments
-    func importVoiceCasting(
-        _ mappings: [CharacterVoiceInfo],
-        for documentID: PersistentIdentifier
-    ) async throws
-}
-
-struct CharacterVoiceInfo: Sendable, Codable {
-    let characterName: String
-    let voiceProvider: String
-    let voiceIdentifier: String
-    let displayName: String?
-}
-```
-
-**Validation:**
-- `characterName`: Required, non-empty, normalized to uppercase
-- `voiceProvider`: Required, one of ("macos", "elevenlabs", "openai", custom)
-- `voiceIdentifier`: Required, provider-specific format
-- `displayName`: Optional, for UI display
-
-**Upsert Behavior:**
-- If mapping exists for (characterName, documentID) → update
-- If no mapping exists → create new
-- Update `lastUsed` timestamp on every assignment
-
-### 4. App Intents Integration
-
-**Purpose**: Expose character workflows to Shortcuts app
-
-**Intents:**
-
-#### 4.1 ExtractCharactersIntent
-```swift
-struct ExtractCharactersIntent: AppIntent {
-    static var title: LocalizedStringResource = "Extract Characters"
-    static var description: IntentDescription = "Extract character list with dialogue counts from screenplay"
-    
-    @Parameter(title: "Screenplay File")
-    var screenplayURL: URL
-    
-    func perform() async throws -> some IntentResult & ReturnsValue<CharacterListReference>
-}
-```
-
-**Returns:**
-- `CharacterListReference` with:
-  - `characters: [CharacterReference]` - Full character data
-  - `totalCharacters: Int` - Count of unique characters
-  - `totalDialogueBlocks: Int` - Sum of all dialogue
-
-**CharacterReference:**
-```swift
-struct CharacterReference: AppEntity {
-    var id: UUID
-    var name: String
-    var dialogueCount: Int
-    var firstAppearance: Int
-    var hasAssignedVoice: Bool
-}
-```
-
-#### 4.2 GetVoiceCastingIntent
-```swift
-struct GetVoiceCastingIntent: AppIntent {
-    static var title: LocalizedStringResource = "Get Voice Casting"
-    static var description: IntentDescription = "Get character-to-voice assignments for screenplay"
-    
-    @Parameter(title: "Screenplay File")
-    var screenplayURL: URL
-    
-    func perform() async throws -> some IntentResult & ReturnsValue<VoiceCastingReference>
-}
-```
-
-**Returns:**
-- `VoiceCastingReference` with:
-  - `assignments: [VoiceAssignmentReference]`
-  - `assignedCharacters: [String]` - Characters with voices
-  - `unassignedCharacters: [String]` - Characters without voices
-
-#### 4.3 SetVoiceCastingIntent
-```swift
-struct SetVoiceCastingIntent: AppIntent {
-    static var title: LocalizedStringResource = "Set Voice Casting"
-    static var description: IntentDescription = "Assign TTS voice to character"
-    
-    @Parameter(title: "Screenplay File")
-    var screenplayURL: URL
-    
-    @Parameter(title: "Character Name")
-    var characterName: String
-    
-    @Parameter(title: "Voice Provider")
-    var voiceProvider: VoiceProviderEnum
-    
-    @Parameter(title: "Voice Identifier")
-    var voiceIdentifier: String
-    
-    func perform() async throws -> some IntentResult
-}
-```
-
-**VoiceProviderEnum:**
-```swift
-enum VoiceProviderEnum: String, AppEnum {
-    case macos = "macOS"
-    case elevenlabs = "ElevenLabs"
-    case openai = "OpenAI"
-    
-    static var typeDisplayRepresentation: TypeDisplayRepresentation = "Voice Provider"
-    static var caseDisplayRepresentations: [Self: DisplayRepresentation] = [
-        .macos: "macOS System Voices",
-        .elevenlabs: "ElevenLabs",
-        .openai: "OpenAI TTS"
-    ]
-}
-```
-
-### 5. SwiftProyecto Integration
-
-**Purpose**: External cast management via PROJECT.md frontmatter
-
-**Integration Pattern:**
-```swift
-import SwiftProyecto
-
-// Consumer app reads cast from PROJECT.md
-let discovery = ProjectDiscovery()
-if let projectMd = discovery.findProjectMd(from: screenplayURL) {
-    let cast = try discovery.readCast(from: projectMd)
-    
-    // Import cast as voice mappings
-    let mappings = cast.map { castMember in
-        CharacterVoiceInfo(
-            characterName: castMember.characterName,
-            voiceProvider: castMember.voiceProvider,
-            voiceIdentifier: castMember.voiceIdentifier,
-            displayName: castMember.displayName
-        )
-    }
-    
-    await actor.importVoiceCasting(mappings, for: documentID)
-}
-```
-
-**SwiftCompartido Responsibilities:**
-- ✅ Store voice mappings in SwiftData
-- ✅ Provide import/export API
-- ❌ Read/write PROJECT.md (consumer app responsibility)
-- ❌ Manage cast biography/metadata (SwiftProyecto responsibility)
-
-**Deprecated:**
-- ~~custom-pages.json sidecar files~~ (removed in v7.0.0)
-- ~~CastListPage model~~ (kept for Highland .textbundle compatibility only)
-
-### 6. UI Components
-
-**Purpose**: SwiftUI views for character configuration
-
-**Components:**
-
-#### 6.1 CharacterVoiceConfigurationView
-```swift
-struct CharacterVoiceConfigurationView: View {
-    let documentID: PersistentIdentifier
-    @State private var characters: [CharacterInfo] = []
-    @State private var selectedCharacter: CharacterInfo?
-    
-    // Layout:
-    // ┌─────────────────────────────────────┐
-    // │ Characters (List)  │ Voice Config   │
-    // │                    │                │
-    // │ • JANE (12 lines)  │ Provider: ▼    │
-    // │ • EDWARD (8 lines) │ Voice: ▼       │
-    // │ • TAXI (1 line)    │ [Test] [Clear] │
-    // └─────────────────────────────────────┘
-}
-```
-
-**Features:**
-- Split view: character list (left) + voice config (right)
-- Character list sorted by first appearance
-- Show dialogue count per character
-- Highlight characters with assigned voices (✓ badge)
-- Voice provider picker (macOS, ElevenLabs, OpenAI)
-- Voice identifier picker (provider-specific)
-- Test voice button (plays sample)
-- Clear assignment button
-
-#### 6.2 CharacterListRowView
-```swift
-struct CharacterListRowView: View {
-    let character: CharacterInfo
-    
-    // Layout: JANE (12 lines) ✓
-    //         ├─ Name + dialogue count
-    //         └─ Voice assignment indicator
-}
-```
-
-#### 6.3 VoiceProviderPickerView
-```swift
-struct VoiceProviderPickerView: View {
-    @Binding var provider: String
-    @Binding var identifier: String
-    @Binding var displayName: String?
-    
-    // Conditional UI based on provider:
-    // - macOS: System voice picker
-    // - ElevenLabs: API-fetched voice list
-    // - OpenAI: Voice model picker (alloy, echo, fable, onyx, nova, shimmer)
-}
-```
-
-## Performance Requirements
-
-### Character Extraction
-- ✅ Extract 100 characters in < 100ms
-- ✅ Extract 1000 characters in < 500ms
-- ✅ Incremental loading for 5000+ characters
-
-### Voice Assignment
-- ✅ Set voice in < 50ms
-- ✅ Bulk import 100 mappings in < 500ms
-- ✅ Query all assignments in < 100ms
-
-### Memory
-- ✅ CharacterVoiceMapping: < 500 bytes per entry
-- ✅ Cache character list in memory (invalidate on document change)
-
-## Data Migration
-
-### V1 → V2 (SwiftData Schema)
-- ✅ CharacterVoiceMapping added in v6.3.0
-- ✅ Lightweight migration (no data transform needed)
-- ✅ Existing documents have empty casting by default
-
-### custom-pages.json → CharacterVoiceMapping
-**Migration Path (Consumer App):**
-1. Read legacy custom-pages.json (if exists)
-2. Extract `cast` array
-3. Convert to CharacterVoiceInfo DTOs
-4. Import via `importVoiceCasting()`
-5. Delete custom-pages.json
-
-**SwiftCompartido:**
-- ❌ Does NOT perform migration (consumer app responsibility)
-- ✅ Provides import API only
-
-## Testing Requirements
-
-### Unit Tests
-- ✅ Character extraction accuracy (100%)
-- ✅ Normalize character names with extensions (V.O., O.S., CONT'D)
-- ✅ Voice assignment CRUD operations
-- ✅ Upsert behavior (update existing, create new)
-- ✅ Delete cascade (document deletion removes mappings)
-- ✅ Empty screenplay (no characters)
-- ✅ Duplicate character names (single entry)
-
-### Integration Tests
-- ✅ Extract characters → assign voices → query casting
-- ✅ Import bulk mappings from SwiftProyecto
-- ✅ App Intents end-to-end workflows
-- ✅ Concurrent voice assignments (actor safety)
-
-### Performance Tests
-- ✅ Extract 1000 characters in < 500ms
-- ✅ Bulk import 100 mappings in < 500ms
-- ✅ Query 500 assignments in < 100ms
-
-## Error Handling
-
-### Extraction Errors
-- Empty document → return empty array (not error)
-- Malformed elements → skip, log warning
-- Missing character names → skip, continue
-
-### Voice Assignment Errors
-- Invalid provider → throw `VoiceAssignmentError.invalidProvider`
-- Empty character name → throw `VoiceAssignmentError.invalidCharacterName`
-- Document not found → throw `VoiceAssignmentError.documentNotFound`
-- Database write failure → propagate SwiftData error
-
-### App Intents Errors
-- File not found → IntentError with localized message
-- Parsing failure → IntentError with details
-- Invalid parameters → IntentError with validation message
-
-## Security & Privacy
-
-- ✅ Voice mappings stored locally in SwiftData (no cloud sync)
-- ✅ No PII in character names (screenplay content only)
-- ✅ Voice identifiers may contain API keys (consumer app responsibility to secure)
-- ✅ App Intents require file access permission (sandbox enforcement)
-
-## Documentation
-
-### Public API Docs
-- ✅ DocC documentation for CharacterVoiceMapping
-- ✅ DocC documentation for DocumentModelActor character methods
-- ✅ Code examples for voice assignment
-- ✅ SwiftProyecto integration guide
-
-### Internal Docs
-- ✅ This REQUIREMENTS file
-- ✅ APP_INTENTS_GUIDE.md (character section)
-- ✅ ARCHITECTURE_SWIFTDATA.md (CharacterVoiceMapping schema)
-
-## Future Enhancements (Not in MVP)
-
-- Character name fuzzy matching (handle typos)
-- Voice preview in UI (play sample audio)
-- Voice recommendation engine (match character traits)
-- Export casting to CSV/JSON
-- Import casting from external formats
-- Character appearance timeline visualization
-- Dialogue analysis (sentiment, emotion, pacing)
-- Multi-language voice support
-
-## Non-Functional Requirements
-
-### Accessibility
-- ✅ VoiceOver support for character lists
-- ✅ Keyboard navigation for voice picker
-- ✅ High-contrast mode support
-- ✅ Dynamic Type support
-
-### Localization
-- ✅ English (primary)
-- ✅ Spanish (future)
-- ✅ Localized error messages
-- ✅ Localized App Intent titles/descriptions
-
-### Compatibility
-- ✅ SwiftData schema versioning
-- ✅ Graceful degradation (missing SwiftProyecto)
-- ✅ Backward compatibility (read-only for older schemas)
-
-## References
-
-### Code Locations
-- Model: `Sources/SwiftCompartido/Models/CharacterVoiceMapping.swift`
-- Actor: `Sources/SwiftCompartido/Actors/DocumentModelActor.swift`
-- Intents: `Sources/SwiftCompartido/Intents/CharacterIntents.swift`
-- UI: `Sources/SwiftCompartido/Views/Characters/`
-- Tests: `Tests/SwiftCompartidoTests/CharacterTests.swift`
-
-### External Dependencies
-- SwiftProyecto: https://github.com/intrusive-memory/SwiftProyecto
-- SwiftHablare: https://github.com/intrusive-memory/SwiftHablare (TTS integration)
-
-### Related Documents
-- [APP_INTENTS_GUIDE.md](APP_INTENTS_GUIDE.md) - Character & voice casting intents
-- [ARCHITECTURE_SWIFTDATA.md](ARCHITECTURE_SWIFTDATA.md) - Schema relationships
-- [AGENTS.md](../AGENTS.md) - Project overview and missions
-
-## Acceptance Criteria
-
-✅ CharacterVoiceMapping model exists with correct schema
-✅ Character extraction returns accurate character list with dialogue counts
-✅ Voice assignment API supports create, update, delete operations
-✅ ExtractCharactersIntent works in Shortcuts app
-✅ GetVoiceCastingIntent returns all assignments
-✅ SetVoiceCastingIntent assigns voice successfully
-✅ CharacterVoiceConfigurationView displays and edits voices
-✅ 100% test coverage for character extraction logic
-✅ Performance benchmarks met (< 500ms for 1000 characters)
-✅ SwiftProyecto integration documented with code examples
-✅ All public APIs documented with DocC
-
-## Version History
-
-- **v6.3.0**: Initial CharacterVoiceMapping model and App Intents
-- **v7.0.0**: Deprecated custom-pages.json, recommend SwiftProyecto
-- **v7.2.5**: This REQUIREMENTS document created
+# SwiftCompartido — what Personaje needs
+
+**Decided 2026-10-03: cast discovery belongs here.** Once a screenplay is
+parsed, SwiftCompartido is the one place that says who speaks, how much and
+where. SwiftEchada's `generate cast` is being removed. SwiftReparto reads this
+library's database and writes what it finds to CAST.md; it does no discovery of
+its own. Personaje queries the same database for the script excerpts that go
+into its generation prompts.
+
+This fits the library's first mission (parsing and storage). It adds no UI.
+
+This file replaces two earlier drafts: the Personaje-derived requirements
+(CP-P1 to CP-P7, kept here in full) and the voice-casting specification
+committed in `b0bd600`. What the second one described mostly exists already;
+see "Already in the library" and "Not carried over".
+
+## Requirements
+
+| ID | Requirement | Source |
+|----|-------------|--------|
+| CP-P1 | **Speaker on every dialogue element.** `GuionElementModel` records the cleaned speaker name on each dialogue (and parenthetical) element at parse time. Today the speaker is found by walking back to the nearest character cue (`findMostRecentCharacter`), so no SwiftData predicate can select a character's lines. | Decision 2026-10-03 |
+| CP-P2 | **The character collection.** One call returns every speaking character in the store with metadata: dialogue line count, word count, the scenes they speak in, the episodes they appear in, and their first line. It spans every document in the store, so a ten-episode series gives one collection. A character is a cue that has dialogue. | APP-UI §11.1, UD14 |
+| CP-P3 | **A character's lines** as a SwiftData query on the speaker field, in script order. | Decision 2026-10-03 |
+| CP-P4 | **Scenes a character speaks in, complete.** Every scene in which the character has dialogue, with all of its elements in order. | APP-UI §11.3 (major tier) |
+| CP-P5 | **Lines with neighbours.** Each of a character's lines with the N elements before and after it (N = 3 in Personaje), clipped to the scene, with overlapping windows merged. An element is one dialogue block, narrator block or action paragraph, labelled with its speaker. | APP-UI §11.3 (minor tier), §11.6 |
+| CP-P6 | Results are deterministic and in script order (document, then scene, then `orderIndex`), so the same scripts give the same prompt. | APP-UI §11.4 |
+| CP-P7 | The names in CP-P2 are the screenplay's cue with extensions removed (`(V.O.)`, `(CONT'D)`), as `cleanCharacterName` does today. Uppercasing and NFC normalization are SwiftReparto's `canonicalName`, not this library's. | REQUIREMENTS §1.1; Reparto RQ-22 |
+
+Dual dialogue counts for each speaker separately. Unnamed cues (`BARTENDER`,
+`COP #1`) are characters like any other.
+
+## What this library does not do
+
+- Write CAST.md, or link SwiftReparto.
+- Read or write PROJECT.md, or link SwiftProyecto. SwiftProyecto v5 removed
+  its cast surface; the cast list is CAST.md, and SwiftReparto owns it.
+- Decide that two different names are the same person. Alias merging is a
+  review step in Personaje.
+- Decide who is major or minor. It returns counts; the thresholds are
+  Personaje's (UD19).
+- Generate voices, or hold character biography, backstory or relationships.
+- Add UI for any of the above.
+
+## Already in the library (do not rebuild)
+
+Checked at `b0bd600`. Paths are under `Sources/SwiftCompartido/`.
+
+- **Per-screenplay extraction.** `extractCharacters() -> CharacterList` on
+  `GuionParsedElementCollection` (`Sendable/GuionParsedScreenplay+Characters.swift:32`)
+  and on `GuionDocumentModel` (`GuionDocument.swift:363`). `CharacterList` is
+  `[String: CharacterInfo]`; `CharacterInfo` has `color`, `counts` (`lineCount`,
+  `wordCount`), `gender` and `scenes: [Int]` (`Sendable/CharacterInfo.swift:29`).
+  One screenplay per call. CP-P2 is the store-wide version of this.
+- **Name cleaning.** `cleanCharacterName` (`…+Characters.swift:100`) and
+  `findMostRecentCharacter` (`:115`) are both `private`.
+- **`GuionElementModel`** has `orderIndex`, `sceneId`, `chapterIndex`,
+  `elementType`, `elementText` and `document`. It has no speaker field.
+- **Voice casting, per document.** `CharacterVoiceMapping` is a `@Model` in
+  schema V1 and V2 (`SwiftDataModels/CharacterVoiceMapping.swift:56`) with
+  `characterName`, `voiceURI` (`<provider>://<voiceId>?lang=<code>`),
+  `voiceName`, `providerID` and `document`.
+- **App Intents.** `ExtractCharactersIntent`, `GetVoiceCastingIntent` and
+  `SetVoiceCastingIntent` exist (`AppIntents/ExtractCharactersIntent.swift:30`,
+  `AppIntents/VoiceCastingIntents.swift:27`, `:127`). Each takes one
+  `documentIDString`.
+- **`DocumentModelActor`** (`Actors/DocumentModelActor.swift:53`) has parse,
+  info, delete, element and existence methods. It has no character or voice
+  methods.
+- The parse works in memory; SwiftData is optional (`FountainParser.swift:89-121`).
+- No public neighbour, window or adjacency query exists.
+
+## Not carried over from the `b0bd600` draft
+
+| Item in that draft | Why it is not here |
+|--------------------|--------------------|
+| `CharacterVoiceMapping` with `voiceProvider`, `voiceIdentifier`, `displayName`, `createdAt`, `lastUsed` | The model exists with a different shape (`voiceURI`, `voiceName`, `providerID`). The draft described it as new work; changing it is a schema migration nobody asked for. |
+| `DocumentModelActor.extractCharacters`, `setVoice`, `clearVoice`, `getVoiceCasting`, `importVoiceCasting` | Per-document extraction exists elsewhere. The voice methods are a second door onto what the two voice intents already do, and Personaje's voice assignments live in CAST.md (`voices`), not here. |
+| A new `CharacterInfo` (`dialogueCount`, `firstAppearance`, `assignedVoice`) | A public `CharacterInfo` already exists with a different shape. CP-P2's metadata is specified above. |
+| Names "normalized, uppercase" | Contradicts CP-P7: uppercasing is SwiftReparto's. |
+| App Intents taking a screenplay file URL; `VoiceProviderEnum` | The intents exist and take a document ID. |
+| `CharacterVoiceConfigurationView`, `CharacterListRowView`, `VoiceProviderPickerView` | This work adds no UI. Voice selection is Personaje's Voice tab. |
+| SwiftProyecto integration (`ProjectDiscovery().readCast`) | That API was removed in SwiftProyecto v5. `CastListPage.swift:59` still tells callers to use `SwiftProyecto.CastMember`; see Open. |
+| Performance, accessibility, localization and security sections | They belonged to the UI and voice API above. CP-P6 is the only ordering or determinism requirement here. |
+
+The full text of that draft is in git at `b0bd600`.
+
+## Acceptance
+
+1. On Granville (10 episodes), CP-P2 returns the 23 speaking characters besides
+   the narrator, and each line count equals the sum of the per-episode
+   `extractCharacters()` counts.
+2. The full-scene query for HUNTER returns only scenes in which HUNTER speaks,
+   each complete.
+3. The ±3 query for a character with two lines four elements apart returns one
+   merged window, not two. No window crosses a scene boundary.
+4. A store parsed before CP-P1 either migrates or re-parses; it never returns
+   an empty result silently.
+5. `CharacterVoiceMapping` and the three existing intents behave as they do at
+   `b0bd600`.
+
+## Depends on
+
+Nothing.
+
+## Blocks
+
+- **SwiftReparto** discovery writer (hard): it reads CP-P2.
+- **Personaje** building CAST.md from scripts and Auto-generate (hard):
+  CP-P2 to CP-P5.
+
+## Open
+
+- **In-memory or persistent store?** Recommended: Personaje parses on open into
+  an in-memory container. A persistent store goes stale whenever an episode is
+  edited in Escribir and would need change detection. This is the caller's
+  choice; the queries work on either.
+- **Schema change.** CP-P1 adds a stored property to a SwiftData model that
+  Produciesta and Escribir also use. It needs a default value and a note for
+  both apps. Check whether it forces a migration for stores already on disk.
+- **How SwiftReparto reads CP-P2 without linking this library.** Reparto may
+  not depend on any `intrusive-memory` package (its RQ-INV-1), so the
+  discovery writer cannot live in the SwiftReparto package. Either it lives in
+  a package that links both, or CP-P2's result is also available as a plain
+  `Codable` value that can cross as a file. Recommended: make the CP-P2 result
+  `Codable` and `Sendable` either way.
+- **Stale pointer.** `CastListPage.CastMember`'s deprecation message names
+  `SwiftProyecto.CastMember`, which no longer exists. Recommended: point it at
+  SwiftReparto's CAST.md in the same release. Text only; no dependency.
+- **Does any voice-casting work belong in this mission?** This file says no.
+  If the voice API or views in the `b0bd600` draft are wanted, they are a
+  separate requirements file.
+
+## Note on release ripple
+
+SwiftProyecto and SwiftVinetas both link SwiftCompartido. The API is additive,
+but CP-P1 changes a model, so treat it as a minor release with a migration note,
+not a patch.
