@@ -340,7 +340,10 @@ public actor DocumentModelActor {
 
       // Process each speaking element
       for element in speakingElements {
-        guard let speaker = element.speaker else { continue }
+        guard let rawSpeaker = element.speaker else { continue }
+
+        // Clean speaker name to match per-document extraction logic
+        let speaker = Self.cleanCharacterName(rawSpeaker)
 
         // Initialize character data if needed
         if characterData[speaker] == nil {
@@ -396,6 +399,23 @@ public actor DocumentModelActor {
   }
 
   // MARK: - Private Helpers
+
+  /// Clean character name by removing extensions and parentheticals
+  ///
+  /// Matches the logic from GuionParsedElementCollection.cleanCharacterName
+  private static func cleanCharacterName(_ name: String) -> String {
+    var cleaned = name.trimmingCharacters(in: .whitespaces)
+
+    // Remove character extensions like (V.O.), (O.S.), (CONT'D)
+    if let openParen = cleaned.firstIndex(of: "(") {
+      cleaned = String(cleaned[..<openParen]).trimmingCharacters(in: .whitespaces)
+    }
+
+    // Remove dual dialogue marker
+    cleaned = cleaned.replacingOccurrences(of: "^", with: "").trimmingCharacters(in: .whitespaces)
+
+    return cleaned.uppercased()
+  }
 
   /// Count words in a string (same logic as GuionParsedElementCollection)
   private func countWords(in text: String) -> Int {
