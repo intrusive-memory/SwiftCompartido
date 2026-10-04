@@ -176,7 +176,7 @@ public struct ScriptBlockInfo: Codable, Sendable, Hashable {
 /// A character's lines with their neighbours, within one scene (CP-P5).
 ///
 /// Each of the character's lines contributes the `N` blocks before and after
-/// it, clipped to the scene. Windows that overlap or touch are merged, so a
+/// it, clipped to the scene. Windows that overlap (share a block) are merged, so a
 /// window can contain several of the character's lines. A window never crosses
 /// a scene boundary.
 public struct CharacterLineWindow: Codable, Sendable, Hashable {

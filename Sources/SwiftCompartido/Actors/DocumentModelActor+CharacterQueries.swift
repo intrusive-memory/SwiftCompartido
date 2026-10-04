@@ -140,7 +140,8 @@ extension DocumentModelActor {
   ///
   /// A line at block `i` of a scene with `count` blocks covers
   /// `max(0, i - neighbours) ... min(count - 1, i + neighbours)`. Within a scene,
-  /// windows that overlap or touch are merged into one. Windows never cross a
+  /// windows that overlap (share at least one block) are merged into one;
+  /// windows that only touch stay separate. Windows never cross a
   /// scene boundary.
   ///
   /// ```swift
@@ -382,10 +383,11 @@ enum CharacterWindowing {
   }
 
   /// The ±`radius` windows around `lineIndices`, clipped to
-  /// `0 ..< blockCount`, with overlapping or adjacent windows merged.
+  /// `0 ..< blockCount`, with overlapping windows (sharing at least one block) merged.
+  /// Adjacent windows that do not share a block stay separate.
   ///
   /// `lineIndices` may be in any order and contain duplicates. The result is
-  /// sorted and its ranges are disjoint and non-adjacent.
+  /// sorted and its ranges are disjoint.
   static func mergedWindows(
     around lineIndices: [Int], blockCount: Int, radius: Int
   ) -> [ClosedRange<Int>] {
@@ -398,7 +400,7 @@ enum CharacterWindowing {
 
     var merged: [ClosedRange<Int>] = []
     for window in windows {
-      if let last = merged.last, window.lowerBound <= last.upperBound + 1 {
+      if let last = merged.last, window.lowerBound <= last.upperBound {
         merged[merged.count - 1] = last.lowerBound...max(last.upperBound, window.upperBound)
       } else {
         merged.append(window)

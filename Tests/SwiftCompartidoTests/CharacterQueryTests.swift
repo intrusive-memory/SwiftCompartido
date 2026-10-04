@@ -179,13 +179,14 @@ struct CharacterQueryTests {
     }
   }
 
-  @Test("Window merging clips to bounds and merges overlapping or adjacent ranges")
+  @Test("Window merging clips to bounds and merges only overlapping ranges")
   func mergedWindowRanges() {
     typealias W = CharacterWindowing
     #expect(W.mergedWindows(around: [1, 5], blockCount: 10, radius: 3) == [0...8])
     #expect(W.mergedWindows(around: [0, 9], blockCount: 10, radius: 3) == [0...3, 6...9])
-    #expect(W.mergedWindows(around: [0, 7], blockCount: 10, radius: 3) == [0...9])  // adjacent
-    #expect(W.mergedWindows(around: [5, 5, 2], blockCount: 6, radius: 1) == [1...5])
+    #expect(W.mergedWindows(around: [0, 7], blockCount: 10, radius: 3) == [0...3, 4...9])  // adjacent: not merged
+    #expect(W.mergedWindows(around: [5, 5, 2], blockCount: 6, radius: 1) == [1...3, 4...5])
+    #expect(W.mergedWindows(around: [1, 3], blockCount: 10, radius: 1) == [0...4])  // share block 2
     #expect(W.mergedWindows(around: [0], blockCount: 1, radius: 3) == [0...0])
     #expect(W.mergedWindows(around: [], blockCount: 4, radius: 3).isEmpty)
   }
