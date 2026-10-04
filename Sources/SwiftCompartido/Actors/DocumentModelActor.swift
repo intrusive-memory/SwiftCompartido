@@ -290,6 +290,130 @@ public actor DocumentModelActor {
     return (modelContext.model(for: documentID) as? GuionDocumentModel) != nil
   }
 
+  // MARK: - Character Operations (CP-P2)
+
+  /// Extract all speaking characters across all documents in the store.
+  ///
+  /// Aggregates character information across every screenplay document, providing
+  /// complete metadata for multi-episode series or document collections.
+  ///
+  /// A character is defined as any distinct speaker value (dialogue or parenthetical
+  /// elements with a non-nil, non-empty speaker field). Unnamed cues like "BARTENDER"
+  /// or "COP #1" are treated as distinct characters.
+  ///
+  /// ## Usage
+  ///
+  /// ```swift
+  /// let actor = DocumentModelActor(modelContainer: container)
+  /// let result = try await actor.extractAllCharacters()
+  ///
+  /// for (name, info) in result.characters {
+  ///     print("\(name): \(info.lineCount) lines across \(info.documents.count) episodes")
+  /// }
+  /// ```
+  ///
+  /// - Returns: CharacterCollectionResult with aggregated character metadata
+  /// - Throws: SwiftData errors if the query fails
+  public func extractAllCharacters() throws -> CharacterCollectionResult {
+    // Fetch all documents, sorted by title for deterministic ordering
+    let descriptor = FetchDescriptor<GuionDocumentModel>(
+      sortBy: [SortDescriptor(\.title)]
+    )
+    let documents = try modelContext.fetch(descriptor)
+
+    // Character accumulator: [speakerName: CharacterData]
+    var characterData: [String: CharacterData] = [:]
+
+    // Process each document
+    for document in documents {
+      let documentID = String(describing: document.persistentModelID)
+      let documentTitle = document.title ?? document.filename ?? "Untitled"
+
+      // Get all elements with speaker assigned (dialogue and parenthetical)
+      // Sorted by (chapterIndex, orderIndex) for deterministic ordering
+      let speakingElements = document.sortedElements.filter { element in
+        guard let speaker = element.speaker, !speaker.isEmpty else {
+          return false
+        }
+        return element.elementType == .dialogue || element.elementType == .parenthetical
+      }
+
+      // Process each speaking element
+      for element in speakingElements {
+        guard let speaker = element.speaker else { continue }
+
+        // Initialize character data if needed
+        if characterData[speaker] == nil {
+          characterData[speaker] = CharacterData(name: speaker)
+        }
+
+        // Update counts based on element type
+        if element.elementType == .dialogue {
+          characterData[speaker]!.lineCount += 1
+          characterData[speaker]!.wordCount += countWords(in: element.elementText)
+        } else if element.elementType == .parenthetical {
+          // Parentheticals contribute to word count but not line count
+          characterData[speaker]!.wordCount += countWords(in: element.elementText)
+        }
+
+        // Track scene ID if present
+        if let sceneId = element.sceneId, !sceneId.isEmpty {
+          characterData[speaker]!.sceneIds.insert(sceneId)
+        }
+
+        // Track document
+        let docInfo = StoreCharacterInfo.DocumentInfo(id: documentID, title: documentTitle)
+        if !characterData[speaker]!.documents.contains(where: { $0.id == documentID }) {
+          characterData[speaker]!.documents.append(docInfo)
+        }
+
+        // Track first line (only for dialogue, earliest by document order → scene → orderIndex)
+        if element.elementType == .dialogue {
+          if characterData[speaker]!.firstLine == nil {
+            characterData[speaker]!.firstLine = StoreCharacterInfo.FirstLineInfo(
+              text: element.elementText,
+              documentTitle: documentTitle,
+              sceneId: element.sceneId
+            )
+          }
+        }
+      }
+    }
+
+    // Convert accumulated data to result format
+    let characters = characterData.mapValues { data in
+      StoreCharacterInfo(
+        name: data.name,
+        lineCount: data.lineCount,
+        wordCount: data.wordCount,
+        sceneIds: Array(data.sceneIds).sorted(),
+        documents: data.documents,
+        firstLine: data.firstLine
+      )
+    }
+
+    return CharacterCollectionResult(characters: characters)
+  }
+
+  // MARK: - Private Helpers
+
+  /// Count words in a string (same logic as GuionParsedElementCollection)
+  private func countWords(in text: String) -> Int {
+    let words = text.components(separatedBy: .whitespacesAndNewlines)
+      .filter { !$0.isEmpty }
+    return words.count
+  }
+
+  /// Accumulator for character data during aggregation
+  private struct CharacterData {
+    let name: String
+    var lineCount: Int = 0
+    var wordCount: Int = 0
+    var sceneIds: Set<String> = []
+    var documents: [StoreCharacterInfo.DocumentInfo] = []
+    var firstLine: StoreCharacterInfo.FirstLineInfo?
+  }
+
   // MARK: - Helper Types
 
   /// Sendable DTO for document information
