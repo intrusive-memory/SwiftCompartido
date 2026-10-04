@@ -39,16 +39,23 @@ public struct StoreCharacterInfo: Codable, Sendable {
   /// Cleaned character name (cue with V.O., CONT'D, etc. removed)
   public let name: String
 
-  /// Total dialogue line count across all documents
+  /// Total line count across all documents: the number of character cues
+  /// (speech blocks), equal to the sum of per-document `extractCharacters()`
+  /// `counts.lineCount` values
   public let lineCount: Int
 
-  /// Total word count across all documents
+  /// Total word count (dialogue + parenthetical) across all documents, equal to
+  /// the sum of per-document `extractCharacters()` `counts.wordCount` values
   public let wordCount: Int
 
-  /// All scene IDs where this character speaks (may contain duplicates across documents)
+  /// Scene identifiers where this character appears, in script order.
+  ///
+  /// Only populated when the store carries scene IDs on scene headings (FDX
+  /// imports do; Fountain parses currently do not). For per-document scene
+  /// positions that are always available, use ``DocumentInfo/scenes``.
   public let sceneIds: [String]
 
-  /// All documents where this character appears
+  /// All documents (episodes) where this character appears, in store order
   public let documents: [DocumentInfo]
 
   /// The character's first dialogue line (earliest by document → scene → orderIndex)
@@ -78,9 +85,15 @@ public struct StoreCharacterInfo: Codable, Sendable {
     /// Document filename or title
     public let title: String
 
-    public init(id: String, title: String) {
+    /// Zero-based scene indices (by scene heading) in this document where the
+    /// character appears. Same semantics as `CharacterInfo.scenes` from
+    /// per-document `extractCharacters()`.
+    public var scenes: [Int]
+
+    public init(id: String, title: String, scenes: [Int] = []) {
       self.id = id
       self.title = title
+      self.scenes = scenes
     }
   }
 
@@ -92,13 +105,25 @@ public struct StoreCharacterInfo: Codable, Sendable {
     /// The document where this line appears
     public let documentTitle: String
 
-    /// The scene ID where this line appears (if available)
+    /// The scene ID where this line appears (if the store carries one)
     public let sceneId: String?
 
-    public init(text: String, documentTitle: String, sceneId: String?) {
+    /// The document's persistent identifier as a string
+    public let documentId: String?
+
+    /// Zero-based scene index (by scene heading) within the document, or nil
+    /// if the line precedes the first scene heading
+    public let sceneIndex: Int?
+
+    public init(
+      text: String, documentTitle: String, sceneId: String?,
+      documentId: String? = nil, sceneIndex: Int? = nil
+    ) {
       self.text = text
       self.documentTitle = documentTitle
       self.sceneId = sceneId
+      self.documentId = documentId
+      self.sceneIndex = sceneIndex
     }
   }
 }

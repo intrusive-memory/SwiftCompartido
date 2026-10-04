@@ -297,9 +297,22 @@ public actor DocumentModelActor {
   /// Aggregates character information across every screenplay document, providing
   /// complete metadata for multi-episode series or document collections.
   ///
-  /// A character is defined as any distinct speaker value (dialogue or parenthetical
-  /// elements with a non-nil, non-empty speaker field). Unnamed cues like "BARTENDER"
-  /// or "COP #1" are treated as distinct characters.
+  /// A character is any distinct speaker value (dialogue or parenthetical elements
+  /// with a non-nil, non-empty `speaker`). Unnamed cues like "BARTENDER" or
+  /// "COP #1" are characters like any other.
+  ///
+  /// ## Counting semantics
+  ///
+  /// Counts are defined to equal the sum of per-document
+  /// ``GuionDocumentModel/extractCharacters()`` results for each character:
+  ///
+  /// - `lineCount` is the number of `.character` cues (cleaned name) for that
+  ///   character, i.e. one per speech block, not one per dialogue element.
+  /// - `wordCount` is the number of words in the `.dialogue` and `.parenthetical`
+  ///   elements attributed to that character.
+  ///
+  /// Documents are processed in (title, filename) order and elements in
+  /// (chapterIndex, orderIndex) order, so `firstLine` is deterministic.
   ///
   /// ## Usage
   ///
@@ -315,81 +328,79 @@ public actor DocumentModelActor {
   /// - Returns: CharacterCollectionResult with aggregated character metadata
   /// - Throws: SwiftData errors if the query fails
   public func extractAllCharacters() throws -> CharacterCollectionResult {
-    // Fetch all documents, sorted by title for deterministic ordering
+    // Fetch all documents in deterministic order
     let descriptor = FetchDescriptor<GuionDocumentModel>(
-      sortBy: [SortDescriptor(\.title)]
+      sortBy: [SortDescriptor(\.title), SortDescriptor(\.filename)]
     )
     let documents = try modelContext.fetch(descriptor)
 
-    // Character accumulator: [speakerName: CharacterData]
+    // Character accumulator: [cleanedName: CharacterData]
     var characterData: [String: CharacterData] = [:]
 
-    // Process each document
     for document in documents {
       let documentID = String(describing: document.persistentModelID)
       let documentTitle = document.title ?? document.filename ?? "Untitled"
 
-      // Get all elements with speaker assigned (dialogue and parenthetical)
-      // Sorted by (chapterIndex, orderIndex) for deterministic ordering
-      let speakingElements = document.sortedElements.filter { element in
-        guard let speaker = element.speaker, !speaker.isEmpty else {
-          return false
-        }
-        return element.elementType == .dialogue || element.elementType == .parenthetical
-      }
+      // Scene tracking mirrors GuionParsedElementCollection.extractCharacters():
+      // scene index increments on each scene heading, starting at 0.
+      var sceneIndex = -1
+      var currentSceneId: String?
 
-      // Process each speaking element
-      for element in speakingElements {
-        guard let rawSpeaker = element.speaker else { continue }
+      // Same element order as GuionDocumentModel.extractCharacters()
+      for element in document.sortedElements {
+        switch element.elementType {
+        case .sceneHeading:
+          sceneIndex += 1
+          currentSceneId = element.sceneId.flatMap { $0.isEmpty ? nil : $0 }
 
-        // Clean speaker name to match per-document extraction logic
-        let speaker = Self.cleanCharacterName(rawSpeaker)
+        case .character:
+          // Line count: one per cue, matching per-document extraction
+          let name = GuionParsedElementCollection.cleanCharacterName(element.elementText)
+          guard !name.isEmpty else { continue }
+          var data = characterData[name, default: CharacterData(name: name)]
+          data.lineCount += 1
+          data.recordAppearance(
+            documentID: documentID, documentTitle: documentTitle,
+            sceneIndex: sceneIndex, sceneId: element.sceneId ?? currentSceneId)
+          characterData[name] = data
 
-        // Initialize character data if needed
-        if characterData[speaker] == nil {
-          characterData[speaker] = CharacterData(name: speaker)
-        }
+        case .dialogue, .parenthetical:
+          guard let rawSpeaker = element.speaker, !rawSpeaker.isEmpty else { continue }
+          // Speaker is stored cleaned at parse time; cleaning again is idempotent
+          let name = GuionParsedElementCollection.cleanCharacterName(rawSpeaker)
+          guard !name.isEmpty else { continue }
 
-        // Update counts based on element type
-        if element.elementType == .dialogue {
-          characterData[speaker]!.lineCount += 1
-          characterData[speaker]!.wordCount += countWords(in: element.elementText)
-        } else if element.elementType == .parenthetical {
-          // Parentheticals contribute to word count but not line count
-          characterData[speaker]!.wordCount += countWords(in: element.elementText)
-        }
-
-        // Track scene ID if present
-        if let sceneId = element.sceneId, !sceneId.isEmpty {
-          characterData[speaker]!.sceneIds.insert(sceneId)
-        }
-
-        // Track document
-        let docInfo = StoreCharacterInfo.DocumentInfo(id: documentID, title: documentTitle)
-        if !characterData[speaker]!.documents.contains(where: { $0.id == documentID }) {
-          characterData[speaker]!.documents.append(docInfo)
-        }
-
-        // Track first line (only for dialogue, earliest by document order → scene → orderIndex)
-        if element.elementType == .dialogue {
-          if characterData[speaker]!.firstLine == nil {
-            characterData[speaker]!.firstLine = StoreCharacterInfo.FirstLineInfo(
+          var data = characterData[name, default: CharacterData(name: name)]
+          data.hasSpeech = true
+          data.wordCount += countWords(in: element.elementText)
+          data.recordAppearance(
+            documentID: documentID, documentTitle: documentTitle,
+            sceneIndex: sceneIndex, sceneId: element.sceneId ?? currentSceneId)
+          if element.elementType == .dialogue && data.firstLine == nil {
+            data.firstLine = StoreCharacterInfo.FirstLineInfo(
               text: element.elementText,
               documentTitle: documentTitle,
-              sceneId: element.sceneId
+              sceneId: element.sceneId ?? currentSceneId,
+              documentId: documentID,
+              sceneIndex: sceneIndex >= 0 ? sceneIndex : nil
             )
           }
+          characterData[name] = data
+
+        default:
+          continue
         }
       }
     }
 
-    // Convert accumulated data to result format
-    let characters = characterData.mapValues { data in
-      StoreCharacterInfo(
+    // Only cues that have dialogue are characters
+    var characters: [String: StoreCharacterInfo] = [:]
+    for (name, data) in characterData where data.hasSpeech {
+      characters[name] = StoreCharacterInfo(
         name: data.name,
         lineCount: data.lineCount,
         wordCount: data.wordCount,
-        sceneIds: Array(data.sceneIds).sorted(),
+        sceneIds: data.sceneIds,
         documents: data.documents,
         firstLine: data.firstLine
       )
@@ -399,23 +410,6 @@ public actor DocumentModelActor {
   }
 
   // MARK: - Private Helpers
-
-  /// Clean character name by removing extensions and parentheticals
-  ///
-  /// Matches the logic from GuionParsedElementCollection.cleanCharacterName
-  private static func cleanCharacterName(_ name: String) -> String {
-    var cleaned = name.trimmingCharacters(in: .whitespaces)
-
-    // Remove character extensions like (V.O.), (O.S.), (CONT'D)
-    if let openParen = cleaned.firstIndex(of: "(") {
-      cleaned = String(cleaned[..<openParen]).trimmingCharacters(in: .whitespaces)
-    }
-
-    // Remove dual dialogue marker
-    cleaned = cleaned.replacingOccurrences(of: "^", with: "").trimmingCharacters(in: .whitespaces)
-
-    return cleaned.uppercased()
-  }
 
   /// Count words in a string (same logic as GuionParsedElementCollection)
   private func countWords(in text: String) -> Int {
@@ -429,9 +423,30 @@ public actor DocumentModelActor {
     let name: String
     var lineCount: Int = 0
     var wordCount: Int = 0
-    var sceneIds: Set<String> = []
+    var hasSpeech: Bool = false
+    /// Scene identifiers in script order (only where the store carries them)
+    var sceneIds: [String] = []
     var documents: [StoreCharacterInfo.DocumentInfo] = []
     var firstLine: StoreCharacterInfo.FirstLineInfo?
+
+    /// Record that this character appears in a document/scene.
+    mutating func recordAppearance(
+      documentID: String, documentTitle: String, sceneIndex: Int, sceneId: String?
+    ) {
+      if let sceneId, !sceneId.isEmpty, !sceneIds.contains(sceneId) {
+        sceneIds.append(sceneId)
+      }
+      let docIdx: Int
+      if let existing = documents.lastIndex(where: { $0.id == documentID }) {
+        docIdx = existing
+      } else {
+        documents.append(.init(id: documentID, title: documentTitle, scenes: []))
+        docIdx = documents.count - 1
+      }
+      if sceneIndex >= 0 && !documents[docIdx].scenes.contains(sceneIndex) {
+        documents[docIdx].scenes.append(sceneIndex)
+      }
+    }
   }
 
   // MARK: - Helper Types
