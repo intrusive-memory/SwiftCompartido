@@ -486,6 +486,10 @@ public enum DocumentModelActorError: LocalizedError {
   case elementNotFound
   case invalidData
   case parseError(String)
+  /// The listed documents were stored before speaker assignment (Schema V3)
+  /// and have dialogue with no `speaker`. Re-parse them before running
+  /// character queries.
+  case speakerDataMissing(documentTitles: [String])
 
   public var errorDescription: String? {
     switch self {
@@ -497,6 +501,9 @@ public enum DocumentModelActorError: LocalizedError {
       return "Invalid data provided for operation"
     case .parseError(let message):
       return "Parse error: \(message)"
+    case .speakerDataMissing(let titles):
+      return
+        "Speaker data missing (stored before Schema V3); re-parse: \(titles.joined(separator: ", "))"
     }
   }
 }
