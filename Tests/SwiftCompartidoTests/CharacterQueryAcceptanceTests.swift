@@ -254,6 +254,142 @@ struct CharacterQueryAcceptanceTests {
     #expect(decoded.characters["ALICE"]?.lineCount == result.characters["ALICE"]?.lineCount)
   }
 
+  // MARK: - Acceptance 1.5: Character's lines query (CP-P3)
+
+  @Test("CP-P3: fetchLines returns character's dialogue in script order across documents")
+  @MainActor
+  func characterLinesQuery() async throws {
+    let container = try makeContainer()
+    let actor = DocumentModelActor(modelContainer: container)
+
+    // Parse three documents with HUNTER appearing in different orders
+    let doc1 = """
+      INT. OFFICE - DAY
+
+      ALICE
+      Ready?
+
+      HUNTER
+      Let's begin.
+
+      BOB
+      I agree.
+
+      HUNTER
+      Good luck.
+      """
+
+    let doc2 = """
+      EXT. FIELD - DAY
+
+      CHARLIE
+      What now?
+
+      HUNTER
+      Keep moving.
+      """
+
+    let doc3 = """
+      INT. BASE - NIGHT
+
+      HUNTER
+      Mission complete.
+
+      ALICE
+      Well done.
+
+      HUNTER
+      (quietly)
+      Thanks.
+
+      HUNTER
+      Let's head back.
+      """
+
+    // Parse in specific order: Episode 2, Episode 1, Episode 3
+    // Results should be ordered by title: Episode 1, Episode 2, Episode 3
+    _ = try await actor.parseAndSaveDocument(from: doc2, title: "Episode 2")
+    _ = try await actor.parseAndSaveDocument(from: doc1, title: "Episode 1")
+    _ = try await actor.parseAndSaveDocument(from: doc3, title: "Episode 3")
+
+    let lines = try await actor.fetchLines(for: "HUNTER")
+
+    // Verify line count: 2 from Episode 1, 1 from Episode 2, 4 from Episode 3
+    #expect(lines.count == 7)
+
+    // Verify all are HUNTER's lines
+    for line in lines {
+      #expect(line.speaker == "HUNTER")
+    }
+
+    // Verify script order: Episode 1, then Episode 2, then Episode 3
+    #expect(lines[0].documentTitle == "Episode 1")
+    #expect(lines[0].text == "Let's begin.")
+
+    #expect(lines[1].documentTitle == "Episode 1")
+    #expect(lines[1].text == "Good luck.")
+
+    #expect(lines[2].documentTitle == "Episode 2")
+    #expect(lines[2].text == "Keep moving.")
+
+    #expect(lines[3].documentTitle == "Episode 3")
+    #expect(lines[3].text == "Mission complete.")
+
+    #expect(lines[4].documentTitle == "Episode 3")
+    #expect(lines[4].text == "(quietly)")
+
+    #expect(lines[5].documentTitle == "Episode 3")
+    #expect(lines[5].text == "Thanks.")
+
+    #expect(lines[6].documentTitle == "Episode 3")
+    #expect(lines[6].text == "Let's head back.")
+
+    // Verify orderIndex is increasing within each document
+    var lastDocTitle = ""
+    var lastOrderIndex = -1
+    for line in lines {
+      if line.documentTitle != lastDocTitle {
+        lastDocTitle = line.documentTitle
+        lastOrderIndex = -1
+      }
+      #expect(line.orderIndex > lastOrderIndex)
+      lastOrderIndex = line.orderIndex
+    }
+  }
+
+  @Test("CP-P3: Character name cleaning works in fetchLines")
+  @MainActor
+  func fetchLinesWithExtensions() async throws {
+    let container = try makeContainer()
+    let actor = DocumentModelActor(modelContainer: container)
+
+    let script = """
+      INT. ROOM - DAY
+
+      HUNTER
+      Start.
+
+      HUNTER (V.O.)
+      Narrating.
+
+      HUNTER (CONT'D)
+      Continue.
+      """
+
+    _ = try await actor.parseAndSaveDocument(from: script, title: "Test")
+
+    // All variations should return the same lines
+    let lines1 = try await actor.fetchLines(for: "HUNTER")
+    let lines2 = try await actor.fetchLines(for: "HUNTER (V.O.)")
+    let lines3 = try await actor.fetchLines(for: "HUNTER (CONT'D)")
+
+    #expect(lines1.count == 3)
+    #expect(lines2.count == 3)
+    #expect(lines3.count == 3)
+
+    #expect(lines1.map(\.text) == ["Start.", "Narrating.", "Continue."])
+  }
+
   // MARK: - Acceptance 2: Full-scene query (CP-P4)
 
   @Test("CP-P4: Full-scene query returns only scenes where character speaks, complete")
@@ -421,7 +557,11 @@ struct CharacterQueryAcceptanceTests {
     let container = try makeContainer()
     let actor = DocumentModelActor(modelContainer: container)
 
-    // Two HUNTER lines with exactly 7 blocks between (±3 = 6, so gap of 1)
+    // Create script where HUNTER lines are far enough apart that ±3 windows don't overlap
+    // Block structure: HUNTER (0), Action (1), ALICE (2), Action (3), BOB (4), Action (5), HUNTER (6)
+    // HUNTER at block 0: window is [0-3] (max(0, 0-3) to min(6, 0+3))
+    // HUNTER at block 6: window is [3-6] (max(0, 6-3) to min(6, 6+3))
+    // These overlap at blocks 3, so they should merge into one window
     let script = """
       INT. ROOM - DAY
 
@@ -440,11 +580,6 @@ struct CharacterQueryAcceptanceTests {
 
       Action 3.
 
-      CHARLIE
-      C speaks.
-
-      Action 4.
-
       HUNTER
       Line two.
       """
@@ -453,10 +588,10 @@ struct CharacterQueryAcceptanceTests {
 
     let windows = try await actor.fetchLineWindows(for: "HUNTER", neighbours: 3)
 
-    // Should be two separate windows if they only touch but don't overlap
-    // With neighbours=3: first window covers blocks 0-3, second covers blocks 7-10
-    // If there are 7 blocks total between the two HUNTER blocks, they should be separate
-    #expect(windows.count >= 1)  // At minimum we get the windows
+    // With 7 total blocks and HUNTER at blocks 0 and 6:
+    // Window 1: [0-3], Window 2: [3-6] → overlap at block 3 → merge
+    #expect(windows.count == 1)
+    #expect(windows[0].blocks.count == 7)  // All blocks in the scene
   }
 
   @Test("CP-P5: Window clipping at scene boundaries")
