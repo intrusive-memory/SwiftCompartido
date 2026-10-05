@@ -287,7 +287,7 @@ extension DocumentModelActor {
   /// Throw if any document holds dialogue that has a preceding cue but no
   /// stored speaker — i.e. it was stored before Schema V3 speaker assignment
   /// and a query on it would silently miss lines.
-  private func validateSpeakerData(in documents: [GuionDocumentModel]) throws {
+  internal func validateSpeakerData(in documents: [GuionDocumentModel]) throws {
     var stale: [String] = []
     for document in documents {
       var seenCue = false

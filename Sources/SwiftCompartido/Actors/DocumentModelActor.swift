@@ -328,18 +328,21 @@ public actor DocumentModelActor {
   /// - Returns: CharacterCollectionResult with aggregated character metadata
   /// - Throws: SwiftData errors if the query fails
   public func extractAllCharacters() throws -> CharacterCollectionResult {
-    // Validate speaker data before attempting aggregation
-    try validateSpeakerData()
-
-    // Fetch all documents in deterministic order
-    // NOTE: (title, filename) is not a total order when duplicates exist (P2 review comment).
-    // Adding a deterministic tie-breaker requires a unique field like uuid, which is declared
-    // in SwiftCompartidoSchemaV3 but missing from production GuionDocumentModel. This discrepancy
-    // should be resolved in a future schema update (V4).
+    // Fetch all documents in deterministic total order
+    // Sort by (title, filename, persistentModelID) to ensure consistent ordering even when
+    // multiple documents share the same title and filename. All PersistentModel instances
+    // have persistentModelID (PersistentIdentifier conforms to Comparable).
     let descriptor = FetchDescriptor<GuionDocumentModel>(
-      sortBy: [SortDescriptor(\.title), SortDescriptor(\.filename)]
+      sortBy: [
+        SortDescriptor(\.title),
+        SortDescriptor(\.filename),
+        SortDescriptor(\.persistentModelID)
+      ]
     )
     let documents = try modelContext.fetch(descriptor)
+
+    // Validate speaker data before attempting aggregation
+    try validateSpeakerData(in: documents)
 
     // Character accumulator: [cleanedName: CharacterData]
     var characterData: [String: CharacterData] = [:]
