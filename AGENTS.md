@@ -120,11 +120,12 @@ Human-readable summary: [`graphify-out/GRAPH_REPORT.md`](graphify-out/GRAPH_REPO
 
 SwiftCompartido uses SwiftData's `VersionedSchema` pattern for schema evolution. Consumer apps **must** include all schema versions in their `SchemaMigrationPlan` to ensure data migrations work correctly.
 
-**Current Schema Version**: V2 (SwiftCompartido 7.0.5+)
+**Current Schema Version**: V3 (SwiftCompartido 7.3.0+)
 
 **Schema Documentation**:
 - [SwiftCompartidoSchemaV1](Sources/SwiftCompartido/Schemas/SwiftCompartidoSchemaV1.swift) - V1 baseline schema (complete production model snapshot)
 - [SwiftCompartidoSchemaV2](Sources/SwiftCompartido/Schemas/SwiftCompartidoSchemaV2.swift) - V2 schema with glosa fields (complete production model snapshot)
+- [SwiftCompartidoSchemaV3](Sources/SwiftCompartido/Schemas/SwiftCompartidoSchemaV3.swift) - V3 schema with speaker field on GuionElementModel (complete production model snapshot)
 - [MigrationTests](Tests/SwiftCompartidoTests/MigrationTests.swift) - Comprehensive migration test suite
 
 **CRITICAL: Complete Model Mirroring**
@@ -138,11 +139,12 @@ See [SwiftCompartidoSchemaV2](Sources/SwiftCompartido/Schemas/SwiftCompartidoSch
 
 **Migration History**:
 - **V1** (baseline): SwiftCompartido ≤ 7.0.4 — Complete model snapshot without glosa fields (~640 lines)
-- **V2** (current): SwiftCompartido ≥ 7.0.5 — Complete model snapshot with glosa annotation fields
+- **V2**: SwiftCompartido 7.0.5–7.2.x — Complete model snapshot with glosa annotation fields
+- **V3** (current): SwiftCompartido ≥ 7.3.0 — Complete model snapshot with speaker field on GuionElementModel
 
 **Required App Integration**:
 
-Consumer apps that adopt SwiftCompartido v7.0.5+ must include both V1 and V2 in their `SchemaMigrationPlan`:
+Consumer apps that adopt SwiftCompartido v7.3.0+ must include V1, V2, and V3 in their `SchemaMigrationPlan`:
 
 ```swift
 import SwiftData
@@ -152,13 +154,15 @@ enum MyAppMigrationPlan: SchemaMigrationPlan {
   static var schemas: [any VersionedSchema.Type] {
     [
       SwiftCompartidoSchemaV1.self,
-      SwiftCompartidoSchemaV2.self
+      SwiftCompartidoSchemaV2.self,
+      SwiftCompartidoSchemaV3.self
     ]
   }
 
   static var stages: [MigrationStage] {
     [
-      SwiftCompartidoSchemaV2.migrationStage
+      SwiftCompartidoSchemaV2.migrationStage,
+      SwiftCompartidoSchemaV3.migrationStage
     ]
   }
 }
