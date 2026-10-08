@@ -203,6 +203,9 @@ public enum SwiftCompartidoSchemaV3: VersionedSchema {
     public var lastImportDate: Date?
     public var sourceFileModificationDate: Date?
 
+    // Recent Items Tracking
+    public var lastOpenedDate: Date?
+
     // Relationships
     @Relationship(deleteRule: .cascade) public var elements: [GuionElementModel]?
     @Relationship(deleteRule: .cascade) public var titlePage: [TitlePageEntryModel]?

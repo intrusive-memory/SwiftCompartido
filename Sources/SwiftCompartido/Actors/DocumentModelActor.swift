@@ -381,20 +381,28 @@ public actor DocumentModelActor {
           guard !name.isEmpty else { continue }
 
           var data = characterData[name, default: CharacterData(name: name)]
-          data.hasSpeech = true
-          data.wordCount += countWords(in: element.elementText)
+
+          // Only dialogue counts as speaking (CP-P2 contract).
+          // A parenthetical without dialogue (e.g., cue → parenthetical → action)
+          // does not make the character a speaking character.
+          if element.elementType == .dialogue {
+            data.hasSpeech = true
+            data.wordCount += countWords(in: element.elementText)
+            if data.firstLine == nil {
+              data.firstLine = StoreCharacterInfo.FirstLineInfo(
+                text: element.elementText,
+                documentTitle: documentTitle,
+                sceneId: element.sceneId ?? currentSceneId,
+                documentId: documentID,
+                sceneIndex: sceneIndex >= 0 ? sceneIndex : nil
+              )
+            }
+          }
+
+          // Record appearance for both dialogue and parenthetical
           data.recordAppearance(
             documentID: documentID, documentTitle: documentTitle,
             sceneIndex: sceneIndex, sceneId: element.sceneId ?? currentSceneId)
-          if element.elementType == .dialogue && data.firstLine == nil {
-            data.firstLine = StoreCharacterInfo.FirstLineInfo(
-              text: element.elementText,
-              documentTitle: documentTitle,
-              sceneId: element.sceneId ?? currentSceneId,
-              documentId: documentID,
-              sceneIndex: sceneIndex >= 0 ? sceneIndex : nil
-            )
-          }
           characterData[name] = data
 
         default:

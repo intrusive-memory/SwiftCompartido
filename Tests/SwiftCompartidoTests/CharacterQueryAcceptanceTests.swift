@@ -911,6 +911,46 @@ struct CharacterQueryAcceptanceTests {
     #expect(result.characters["BOB"]?.lineCount == 1)
   }
 
+  // MARK: - Regression Tests
+
+  @Test("Regression: Parenthetical-only character is not counted as speaking")
+  @MainActor
+  func parentheticalOnlyCharacterNotCounted() async throws {
+    let container = try makeContainer()
+    let actor = DocumentModelActor(modelContainer: container)
+
+    // Script where DIRECTOR has only a parenthetical, no dialogue
+    let script = """
+      INT. OFFICE - DAY
+
+      ALICE
+      (excited)
+      I got the job!
+
+      DIRECTOR
+      (shaking head)
+
+      The director doesn't speak, only a parenthetical.
+
+      BOB
+      Congratulations!
+      """
+
+    _ = try await actor.parseAndSaveDocument(from: script, title: "Parenthetical Only")
+
+    let result = try await actor.extractAllCharacters()
+
+    // ALICE and BOB have dialogue, so they should be counted
+    #expect(result.characters.keys.contains("ALICE"))
+    #expect(result.characters.keys.contains("BOB"))
+    #expect(result.characters["ALICE"]?.lineCount == 1)
+    #expect(result.characters["BOB"]?.lineCount == 1)
+
+    // DIRECTOR has only parenthetical, no dialogue → should NOT be in speaking characters
+    // (Per CP-P2 contract: a speaking character has dialogue, not just parenthetical)
+    #expect(!result.characters.keys.contains("DIRECTOR"))
+  }
+
   // MARK: - Helper
 
   @MainActor
