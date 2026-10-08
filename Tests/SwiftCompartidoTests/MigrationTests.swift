@@ -911,4 +911,137 @@ struct MigrationTests {
     #expect(migratedElements[2].isCentered == true)
     #expect(migratedElements[2].glosaSpokenText == nil)
   }
+
+  // MARK: - V2 → V3 Migration Tests
+
+  /// Test that V2 → V3 migration preserves lastOpenedDate.
+  ///
+  /// **Regression test for PR #76 review comment**:
+  /// The V3 schema must include `lastOpenedDate` to prevent loss of recent-items metadata
+  /// during migration from V2.
+  ///
+  /// **Migration verification**:
+  /// 1. Create a V2 store with a document that has `lastOpenedDate` set
+  /// 2. Migrate to V3
+  /// 3. Verify `lastOpenedDate` is preserved
+  /// 4. Verify the new `speaker` field defaults to `nil` on existing dialogue elements
+  @Test("V2 to V3 migration preserves lastOpenedDate and adds speaker field")
+  func testV2ToV3MigrationPreservesLastOpenedDate() throws {
+    let tempDir = FileManager.default.temporaryDirectory
+    let storeURL = tempDir.appendingPathComponent("v2-v3-migration-test-\(UUID().uuidString).store")
+
+    defer {
+      try? FileManager.default.removeItem(at: storeURL)
+      try? FileManager.default.removeItem(
+        at: storeURL.deletingPathExtension().appendingPathExtension("store-shm"))
+      try? FileManager.default.removeItem(
+        at: storeURL.deletingPathExtension().appendingPathExtension("store-wal"))
+    }
+
+    // MARK: - Step 1: Create V2 store with document that has lastOpenedDate
+
+    let v2Config = ModelConfiguration(url: storeURL)
+    let v2Schema = Schema(versionedSchema: SwiftCompartidoSchemaV2.self)
+    let v2Container = try ModelContainer(for: v2Schema, configurations: v2Config)
+    let v2Context = ModelContext(v2Container)
+
+    let docUUID = UUID()
+    let elementUUID = UUID()
+    let lastOpened = Date(timeIntervalSince1970: 1_700_000_000)  // Nov 2023
+
+    // Create document with lastOpenedDate set
+    let v2Doc = SwiftCompartidoSchemaV2.GuionDocumentModel(
+      uuid: docUUID,
+      filename: "recent-script.fountain",
+      rawContent: "INT. OFFICE - DAY\n\nALICE\nHello!",
+      suppressSceneNumbers: false,
+      title: "Recent Script"
+    )
+    v2Doc.lastOpenedDate = lastOpened
+    v2Doc.sourceFileBookmark = Data([5, 6, 7, 8])
+    v2Doc.lastImportDate = Date(timeIntervalSince1970: 1_690_000_000)
+    v2Doc.sourceFileModificationDate = Date(timeIntervalSince1970: 1_680_000_000)
+
+    // Add a dialogue element to test speaker field migration
+    let v2Element = SwiftCompartidoSchemaV2.GuionElementModel(
+      elementText: "Hello!",
+      elementTypeString: "Dialogue",
+      chapterIndex: 0,
+      orderIndex: 2,
+      uuid: elementUUID
+    )
+    v2Element.document = v2Doc
+    v2Doc.elements = [v2Element]
+
+    v2Context.insert(v2Doc)
+    v2Context.insert(v2Element)
+    try v2Context.save()
+
+    // MARK: - Step 2: Migrate to V3
+
+    enum TestMigrationPlan: SchemaMigrationPlan {
+      static var schemas: [any VersionedSchema.Type] {
+        [
+          SwiftCompartidoSchemaV1.self, SwiftCompartidoSchemaV2.self, SwiftCompartidoSchemaV3.self,
+        ]
+      }
+      static var stages: [MigrationStage] {
+        [SwiftCompartidoSchemaV2.migrationStage, SwiftCompartidoSchemaV3.migrationStage]
+      }
+    }
+
+    let v3Config = ModelConfiguration(url: storeURL)
+    let v3Schema = Schema(versionedSchema: SwiftCompartidoSchemaV3.self)
+    let v3Container = try ModelContainer(
+      for: v3Schema,
+      migrationPlan: TestMigrationPlan.self,
+      configurations: v3Config
+    )
+
+    // MARK: - Step 3: Verify migration results
+
+    let v3Context = ModelContext(v3Container)
+    let fetchDescriptor = FetchDescriptor<SwiftCompartidoSchemaV3.GuionDocumentModel>(
+      predicate: #Predicate { $0.uuid == docUUID }
+    )
+    let migratedDocs = try v3Context.fetch(fetchDescriptor)
+
+    #expect(migratedDocs.count == 1, "Should find one migrated document")
+    guard let doc = migratedDocs.first else {
+      Issue.record("Failed to fetch migrated document")
+      return
+    }
+
+    // MARK: - Step 4: Verify lastOpenedDate preserved
+
+    #expect(doc.uuid == docUUID)
+    #expect(doc.filename == "recent-script.fountain")
+    #expect(doc.title == "Recent Script")
+    #expect(
+      doc.lastOpenedDate?.timeIntervalSince1970 == 1_700_000_000,
+      "lastOpenedDate should be preserved during V2→V3 migration"
+    )
+    #expect(doc.sourceFileBookmark == Data([5, 6, 7, 8]))
+    #expect(doc.lastImportDate?.timeIntervalSince1970 == 1_690_000_000)
+    #expect(doc.sourceFileModificationDate?.timeIntervalSince1970 == 1_680_000_000)
+
+    // MARK: - Step 5: Verify speaker field defaults to nil
+
+    let elementFetchDescriptor = FetchDescriptor<SwiftCompartidoSchemaV3.GuionElementModel>(
+      predicate: #Predicate { $0.uuid == elementUUID }
+    )
+    let migratedElements = try v3Context.fetch(elementFetchDescriptor)
+
+    #expect(migratedElements.count == 1, "Should find one migrated element")
+    guard let element = migratedElements.first else {
+      Issue.record("Failed to fetch migrated element")
+      return
+    }
+
+    #expect(element.elementText == "Hello!")
+    #expect(
+      element.speaker == nil,
+      "speaker field should default to nil for V2-migrated dialogue (requires re-parse to populate)"
+    )
+  }
 }

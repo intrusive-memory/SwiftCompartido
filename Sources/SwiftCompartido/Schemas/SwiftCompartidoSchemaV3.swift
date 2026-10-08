@@ -1,75 +1,35 @@
 //
-//  SwiftCompartidoSchemaV2.swift
+//  SwiftCompartidoSchemaV3.swift
 //  SwiftCompartido
 //
-//  Schema version 2 — Complete production model snapshot with glosa annotation fields
+//  Schema version 3 — Complete production model snapshot with the speaker field
 //
 //  CRITICAL: This schema must mirror ALL stored properties from production models
-//  to prevent data loss during migration. See "Critical: Complete Model Mirroring" below.
+//  to prevent data loss during migration. See "Critical: Complete Model Mirroring"
+//  in ``SwiftCompartidoSchemaV2``.
 //
 
 import Foundation
 @preconcurrency import SwiftData
 
-/// SwiftData schema version 2 (complete snapshot with glosa integration).
+/// SwiftData schema version 3 (complete snapshot with the `speaker` field).
 ///
 /// ## Purpose
 ///
-/// This schema captures the **complete shape** of SwiftCompartido models as they exist
-/// in v7.0.5+, including glosa annotation fields added to `GuionElementModel`.
+/// This schema captures the **complete shape** of SwiftCompartido models after
+/// adding a stored `speaker` field to `GuionElementModel` (requirement CP-P1).
+/// The speaker field lets a SwiftData predicate select a character's lines
+/// directly, instead of walking back to the nearest character cue.
 ///
 /// ## Critical: Complete Model Mirroring
 ///
-/// **IMPORTANT**: All versioned schema models MUST mirror **every stored property** from
-/// their production counterparts. Missing fields cause **data loss** during migration because:
-///
-/// 1. SwiftData creates the target schema with only declared fields
-/// 2. Migration copies only declared fields from source
-/// 3. **Undeclared fields are dropped as "not in schema"**
-///
-/// ### Example of Data Loss Bug (FIXED)
-///
-/// **Before fix** (placeholder models):
-/// ```swift
-/// // V1 Schema (WRONG - only uuid field)
-/// @Model
-/// public final class GuionDocumentModel {
-///   @Attribute(.unique) public var uuid: UUID
-///   public init(uuid: UUID = UUID()) { self.uuid = uuid }
-/// }
-/// ```
-///
-/// **Migration result**: All document properties (filename, rawContent, title, titlePage,
-/// customPages, generatedContent, casting) **dropped** from database. Total data loss.
-///
-/// **After fix** (complete models):
-/// ```swift
-/// // V1 Schema (CORRECT - all 7 properties + 5 relationships)
-/// @Model
-/// public final class GuionDocumentModel {
-///   @Attribute(.unique) public var uuid: UUID
-///   public var filename: String?
-///   public var rawContent: String?
-///   public var suppressSceneNumbers: Bool
-///   public var title: String?
-///   public var sourceFileBookmark: Data?
-///   public var lastImportDate: Date?
-///   public var sourceFileModificationDate: Date?
-///   @Relationship(deleteRule: .cascade) public var elements: [GuionElementModel]?
-///   @Relationship(deleteRule: .cascade) public var titlePage: [TitlePageEntryModel]?
-///   @Relationship(deleteRule: .cascade) public var customPages: [CustomPageModel]?
-///   @Relationship(deleteRule: .cascade) public var generatedContent: [TypedDataStorage]?
-///   @Relationship(deleteRule: .cascade) public var casting: [CharacterVoiceMapping]?
-///   // ... init ...
-/// }
-/// ```
-///
-/// **Migration result**: All fields preserved. No data loss.
+/// As with V1 and V2, every model here mirrors **every stored property** of its
+/// production counterpart. Undeclared fields are dropped during migration.
+/// See ``SwiftCompartidoSchemaV2`` for the full explanation and history.
 ///
 /// ## Models Included
 ///
-/// This schema includes complete definitions for:
-/// - ``GuionElementModel`` - ~30 stored properties (includes 5 glosa fields)
+/// - ``GuionElementModel`` - ~31 stored properties (includes 5 glosa fields and `speaker`)
 /// - ``GuionDocumentModel`` - ~7 properties + 5 relationships
 /// - ``TypedDataStorage`` - ~35 properties + 1 relationship
 /// - ``CharacterVoiceMapping`` - 4 properties + 1 relationship
@@ -77,61 +37,55 @@ import Foundation
 /// - ``TitlePageEntryModel`` - 2 properties + 1 relationship
 /// - ``CustomPageModel`` - 5 properties + 1 relationship
 ///
-/// ## Changes from V1
+/// ## Changes from V2
 ///
-/// The V1 → V2 migration adds **five optional glosa annotation fields** to `GuionElementModel`:
-/// - `glosaSpokenText: String?` - Notes-stripped spoken prose
-/// - `glosaBreathOffsets: [Int]?` - Unicode-scalar boundary offsets for breath hints
-/// - `glosaBreathStrengths: [String]?` - Raw BreathStrength values
-/// - `glosaInstruct: String?` - Composed LLM performance-direction string
-/// - `glosaPausePoints: Data?` - Encoded [PausePointDTO] timed-silence seam points
+/// The V2 → V3 migration adds **one optional field** to `GuionElementModel`:
+/// - `speaker: String?` - Cleaned speaker name (cue with extensions such as
+///   `(V.O.)` and `(CONT'D)` removed) on dialogue and parenthetical elements.
 ///
-/// All new fields default to `nil`, so migration requires no data transformation.
+/// No other model changes.
 ///
-/// ## Computed Properties
+/// ## Null Speaker Values Are Expected for Migrated Data
 ///
-/// Computed properties (e.g., `sortedElements`, `binaryValue`) are NOT included in
-/// versioned schemas because:
-/// - They are not stored in the database
-/// - They have no migration impact
-/// - Including them causes SwiftData schema conflicts
+/// This is an **intentional design choice**. The V2 → V3 migration is
+/// lightweight and does **not** backfill `speaker`:
 ///
-/// This schema captures the shape of SwiftCompartido models after adding
-/// glosa annotation fields in v7.0.5. It extends V1 with five optional fields
-/// on `GuionElementModel` for storing compiled glosa annotation data.
+/// - Every `GuionElementModel` record that existed before the migration will
+///   have `speaker == nil` afterwards, including dialogue and parentheticals.
+/// - Only content parsed after adopting V3 populates the field.
+/// - Character data derived from `speaker` (counts, scenes, first lines) will be
+///   incomplete for documents that were parsed under V1 or V2.
 ///
-/// ## Migration from V1
+/// Callers that need complete speaker data for older documents should re-parse
+/// them (for example, from `GuionDocumentModel.rawContent` or the source file).
+/// `nil` on a non-dialogue element (action, scene heading, etc.) is also the
+/// normal, permanent state.
 ///
-/// The V1 → V2 migration is **lightweight** — it adds five optional fields to
-/// `GuionElementModel` with no data transformation:
-/// - `glosaSpokenText: String?`
-/// - `glosaBreathOffsets: [Int]?`
-/// - `glosaBreathStrengths: [String]?`
-/// - `glosaInstruct: String?`
-/// - `glosaPausePoints: Data?`
+/// ## Migration from V2
 ///
-/// All new fields default to `nil`, so existing data migrates without modification.
+/// The V2 → V3 migration is **lightweight**: `speaker` is optional and defaults
+/// to `nil`, so existing data migrates without transformation.
 ///
 /// ## Usage
 ///
-/// Consumer apps that adopt SwiftCompartido v7.0.5+ must include both V1 and V2
-/// in their `SchemaMigrationPlan.schemas` array and reference the migration stage:
+/// Consumer apps that adopt this version must include V1, V2 and V3 in their
+/// `SchemaMigrationPlan.schemas` array and reference both migration stages:
 ///
 /// ```swift
 /// enum MyAppMigrationPlan: SchemaMigrationPlan {
 ///   static var schemas: [any VersionedSchema.Type] {
-///     [SwiftCompartidoSchemaV1.self, SwiftCompartidoSchemaV2.self]
+///     [SwiftCompartidoSchemaV1.self, SwiftCompartidoSchemaV2.self, SwiftCompartidoSchemaV3.self]
 ///   }
 ///
 ///   static var stages: [MigrationStage] {
-///     [SwiftCompartidoSchemaV2.migrationStage]
+///     [SwiftCompartidoSchemaV2.migrationStage, SwiftCompartidoSchemaV3.migrationStage]
 ///   }
 /// }
 /// ```
 ///
-/// - SeeAlso: ``SwiftCompartidoSchemaV1``
-public enum SwiftCompartidoSchemaV2: VersionedSchema {
-  public static let versionIdentifier: Schema.Version = .init(2, 0, 0)
+/// - SeeAlso: ``SwiftCompartidoSchemaV2``, ``SwiftCompartidoSchemaV1``
+public enum SwiftCompartidoSchemaV3: VersionedSchema {
+  public static let versionIdentifier: Schema.Version = .init(3, 0, 0)
 
   public static let models: [any PersistentModel.Type] = [
     GuionElementModel.self, GuionDocumentModel.self, TypedDataStorage.self,
@@ -139,26 +93,20 @@ public enum SwiftCompartidoSchemaV2: VersionedSchema {
     TitlePageEntryModel.self, CustomPageModel.self,
   ]
 
-  /// Lightweight migration stage from V1 → V2.
+  /// Lightweight migration stage from V2 → V3.
   ///
-  /// Adds five optional glosa annotation fields to `GuionElementModel`:
-  /// - `glosaSpokenText`
-  /// - `glosaBreathOffsets`
-  /// - `glosaBreathStrengths`
-  /// - `glosaInstruct`
-  /// - `glosaPausePoints`
+  /// Adds one optional field to `GuionElementModel`:
+  /// - `speaker`
   ///
-  /// All new fields default to `nil`, so no data transformation is required.
+  /// The field defaults to `nil` and is **not** backfilled. Records migrated
+  /// from V2 keep `speaker == nil`; only newly parsed content populates it.
   public static let migrationStage: MigrationStage =
     MigrationStage.lightweight(
-      fromVersion: SwiftCompartidoSchemaV1.self,
-      toVersion: SwiftCompartidoSchemaV2.self
+      fromVersion: SwiftCompartidoSchemaV2.self,
+      toVersion: SwiftCompartidoSchemaV3.self
     )
 
-  /// V2 shape of GuionElementModel (with glosa fields).
-  ///
-  /// This mirrors the current model shape from SwiftCompartido v7.0.5+,
-  /// including glosa annotation storage fields added for audio integration.
+  /// V3 shape of GuionElementModel (glosa fields plus `speaker`).
   @Model
   public final class GuionElementModel {
     @Attribute(.unique) public var uuid: UUID
@@ -209,11 +157,19 @@ public enum SwiftCompartidoSchemaV2: VersionedSchema {
     /// Encoded [PausePointDTO] timed-silence seam points for this line.
     public var glosaPausePoints: Data? = nil
 
+    // MARK: - Speaker (NEW in V3)
+
+    /// Cleaned speaker name for dialogue and parenthetical elements.
+    ///
+    /// `nil` for non-dialogue elements, and `nil` for **every** record migrated
+    /// from V2 (no backfill — intentional). Only newly parsed content sets it.
+    public var speaker: String? = nil
+
     public init(
       elementText: String, elementTypeString: String, isCentered: Bool = false,
       isDualDialogue: Bool = false, sceneNumber: String? = nil, sectionDepth: Int = 0,
       summary: String? = nil, sceneId: String? = nil, chapterIndex: Int = 0, orderIndex: Int = 0,
-      uuid: UUID = UUID()
+      speaker: String? = nil, uuid: UUID = UUID()
     ) {
       self.uuid = uuid
       self.chapterIndex = chapterIndex
@@ -226,10 +182,11 @@ public enum SwiftCompartidoSchemaV2: VersionedSchema {
       self._sectionDepth = sectionDepth
       self.summary = summary
       self.sceneId = sceneId
+      self.speaker = speaker
     }
   }
 
-  // Placeholder types for related models (minimal definitions for schema only)
+  // Related models — complete mirrors of production, unchanged from V2
 
   @Model
   public final class GuionDocumentModel {

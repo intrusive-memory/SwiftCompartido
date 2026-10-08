@@ -94,10 +94,37 @@ extension GuionParsedElementCollection {
     try data.write(to: url)
   }
 
-  // MARK: - Private Helpers
+  // MARK: - Speaker Assignment (CP-P1)
+
+  /// Compute the speaker for every element in `elements`, in order.
+  ///
+  /// The returned array is parallel to `elements`. For each `.dialogue` or
+  /// `.parenthetical` element the entry is the cleaned name of the most recent
+  /// preceding `.character` cue (see ``findMostRecentCharacter(in:beforeIndex:)``
+  /// and ``cleanCharacterName(_:)``). Every other element type gets `nil`.
+  ///
+  /// Dual dialogue needs no special handling: the parser emits each speaker's
+  /// cue as its own `.character` element (with the `^` marker stripped) ahead
+  /// of that speaker's dialogue, so walking back to the nearest cue assigns
+  /// each block to its own speaker.
+  ///
+  /// `elements` must be in script order.
+  static func speakers<E: GuionElementProtocol>(for elements: [E]) -> [String?] {
+    var result: [String?] = []
+    result.reserveCapacity(elements.count)
+    for (index, element) in elements.enumerated() {
+      switch element.elementType {
+      case .dialogue, .parenthetical:
+        result.append(findMostRecentCharacter(in: elements, beforeIndex: index))
+      default:
+        result.append(nil)
+      }
+    }
+    return result
+  }
 
   /// Clean character name by removing extensions and parentheticals
-  private func cleanCharacterName(_ name: String) -> String {
+  static func cleanCharacterName(_ name: String) -> String {
     var cleaned = name.trimmingCharacters(in: .whitespaces)
 
     // Remove character extensions like (V.O.), (O.S.), (CONT'D)
@@ -112,7 +139,9 @@ extension GuionParsedElementCollection {
   }
 
   /// Find the most recent character that spoke before the given index
-  private func findMostRecentCharacter(beforeIndex currentIndex: Int) -> String? {
+  static func findMostRecentCharacter<E: GuionElementProtocol>(
+    in elements: [E], beforeIndex currentIndex: Int
+  ) -> String? {
     guard currentIndex > 0 && currentIndex <= elements.count else {
       return nil
     }
@@ -125,6 +154,18 @@ extension GuionParsedElementCollection {
     }
 
     return nil
+  }
+
+  // MARK: - Private Helpers
+
+  /// Clean character name by removing extensions and parentheticals
+  private func cleanCharacterName(_ name: String) -> String {
+    Self.cleanCharacterName(name)
+  }
+
+  /// Find the most recent character that spoke before the given index
+  private func findMostRecentCharacter(beforeIndex currentIndex: Int) -> String? {
+    Self.findMostRecentCharacter(in: elements, beforeIndex: currentIndex)
   }
 
   /// Count words in a string

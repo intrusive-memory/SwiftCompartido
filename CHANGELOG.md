@@ -15,6 +15,161 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [7.3.0] - TBD
+
+### Added - Character Discovery & Per-Character Script Queries 🎭
+
+SwiftCompartido now provides comprehensive character discovery and script querying capabilities for multi-episode series and screenplay collections. These APIs enable SwiftReparto to generate CAST.md from screenplay content and Personaje to extract context-aware script excerpts for character voice generation.
+
+#### New APIs
+
+- **CP-P2: Store-Wide Character Collection** (`extractAllCharacters()`)
+  - Aggregates all speaking characters across all documents in a SwiftData store
+  - Returns `CharacterCollectionResult` with per-character metadata:
+    - Dialogue line count and word count (matching per-document `extractCharacters()` sums)
+    - Scenes and episodes where each character appears
+    - First dialogue line (earliest by document → scene → element order)
+  - Result type conforms to `Codable` and `Sendable` for actor isolation and file-based integration
+  - Enables SwiftReparto to generate CAST.md without linking intrusive-memory packages
+
+- **CP-P3: Character Lines Query** (`fetchLines(for:)`)
+  - Returns all dialogue and parenthetical elements for a character across the entire store
+  - Uses SwiftData predicate on the new `speaker` field for efficient querying
+  - Results in deterministic script order (document → scene → element)
+
+- **CP-P4: Complete Scenes Query** (`fetchScenes(for:)`)
+  - Returns every complete scene where a character speaks
+  - Each scene includes all elements (headings, action, all speakers' dialogue)
+  - Useful for analyzing character interactions and scene context
+
+- **CP-P5: Lines with Neighbors** (`fetchLineWindows(for:neighbours:)`)
+  - Returns each character line with ±N surrounding blocks
+  - `neighbours` parameter is optional (default: 3)
+  - Overlapping windows are merged; windows never cross scene boundaries
+  - Blocks are dialogue blocks (cue + parentheticals + dialogue) or single action/body elements
+  - Enables Personaje to generate voices with rich conversational context
+
+#### Schema Migration (V2 → V3)
+
+- **Breaking Change**: `GuionElementModel` now includes `speaker: String?` field
+  - Schema version bumped from V2 to V3
+  - Lightweight migration: existing records have `nil` speaker (intentional design)
+  - Parser populates speaker at parse time for new content
+  - Old stores will either migrate automatically or require re-parsing
+
+**Migration Impact**:
+- **Produciesta** and **Escribir**: Pick up schema change transparently on next build
+- **Existing data**: Speaker field will be `nil` for migrated records; character descriptions incomplete until re-parse
+- **New parses**: Speaker field populated automatically
+
+#### Result Types
+
+All new query results are `Codable` and `Sendable` for clean integration:
+
+- **`CharacterCollectionResult`** - Store-wide character aggregation
+  ```swift
+  struct CharacterCollectionResult {
+      let characters: [String: StoreCharacterInfo]  // Keyed by cleaned character name
+  }
+  ```
+
+- **`StoreCharacterInfo`** - Per-character metadata
+  ```swift
+  struct StoreCharacterInfo {
+      let name: String                    // Cleaned character name
+      let lineCount: Int                  // Total dialogue lines across all documents
+      let wordCount: Int                  // Total words in dialogue + parentheticals
+      let sceneIds: [String]             // Scene IDs where character appears
+      let documents: [DocumentInfo]       // Documents/episodes where character appears
+      let firstLine: FirstLineInfo?      // Character's first dialogue line
+  }
+  ```
+
+- **`StoreCharacterInfo.DocumentInfo`** - Per-document appearance
+  ```swift
+  struct DocumentInfo {
+      let id: String          // Document's persistent identifier
+      let title: String       // Document filename or title
+      var scenes: [Int]       // Zero-based scene indices where character appears
+  }
+  ```
+
+- **`StoreCharacterInfo.FirstLineInfo`** - First dialogue line info
+  ```swift
+  struct FirstLineInfo {
+      let text: String            // The dialogue text
+      let documentTitle: String   // Document where line appears
+      let sceneId: String?        // Scene ID (if available)
+      let documentId: String?     // Document persistent identifier
+      let sceneIndex: Int?        // Zero-based scene index (nil if before first heading)
+  }
+  ```
+
+- **`ScriptElementInfo`** - Individual screenplay element
+  ```swift
+  struct ScriptElementInfo {
+      let elementId: String       // Element's UUID
+      let documentId: String      // Owning document's ID
+      let documentTitle: String   // Document title
+      let sceneIndex: Int?        // Zero-based scene index
+      let sceneId: String?        // Scene ID (if available)
+      let chapterIndex: Int       // Chapter index
+      let orderIndex: Int         // Order within chapter
+      let elementTypeName: String // Element type (e.g., "Dialogue")
+      let text: String           // Element text
+      let speaker: String?       // Speaker name (for dialogue/character elements)
+  }
+  ```
+
+- **`CharacterSceneInfo`** - Complete scene
+  ```swift
+  struct CharacterSceneInfo {
+      let documentId: String      // Owning document's ID
+      let documentTitle: String   // Document title
+      let sceneIndex: Int?        // Zero-based scene index
+      let sceneId: String?        // Scene ID (if available)
+      let heading: String?        // Scene heading text
+      let elements: [ScriptElementInfo]  // All scene elements in order
+  }
+  ```
+
+- **`CharacterLineWindow`** - Line window with neighbors
+  ```swift
+  struct CharacterLineWindow {
+      let documentId: String      // Owning document's ID
+      let documentTitle: String   // Document title
+      let sceneIndex: Int?        // Zero-based scene index
+      let sceneId: String?        // Scene ID (if available)
+      let heading: String?        // Scene heading text
+      let blocks: [ScriptBlockInfo]  // Window blocks in order
+  }
+  ```
+
+- **`ScriptBlockInfo`** - Dialogue block or body element
+  ```swift
+  struct ScriptBlockInfo {
+      let speaker: String?           // Block speaker (nil for action/body)
+      let isCharacterLine: Bool      // True if this is a queried character's line
+      let elements: [ScriptElementInfo]  // Block elements in order
+  }
+  ```
+
+### Changed
+
+- **CastListPage Deprecation Message**: Updated to reference SwiftReparto's CAST.md instead of SwiftProyecto.CastMember
+  - SwiftProyecto v5 removed its cast surface
+  - CAST.md (managed by SwiftReparto) is now the canonical cast model
+  - CastListPage remains for Highland .textbundle compatibility only
+
+### Documentation
+
+- **Cast Discovery**: README now documents character discovery capabilities and integration with SwiftReparto
+- **API Documentation**: All new query methods include comprehensive inline documentation with usage examples (added in previous sorties)
+- **Result Type Structures**: Documented all result type properties for SwiftReparto integration
+- **Schema Versioning**: Documented V2→V3 migration path and null-speaker policy
+
+---
+
 ## [7.2.5] - 2026-09-26
 
 ### Added

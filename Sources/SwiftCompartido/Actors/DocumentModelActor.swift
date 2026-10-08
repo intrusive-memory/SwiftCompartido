@@ -290,6 +290,183 @@ public actor DocumentModelActor {
     return (modelContext.model(for: documentID) as? GuionDocumentModel) != nil
   }
 
+  // MARK: - Character Operations (CP-P2)
+
+  /// Extract all speaking characters across all documents in the store.
+  ///
+  /// Aggregates character information across every screenplay document, providing
+  /// complete metadata for multi-episode series or document collections.
+  ///
+  /// A character is any distinct speaker value (dialogue or parenthetical elements
+  /// with a non-nil, non-empty `speaker`). Unnamed cues like "BARTENDER" or
+  /// "COP #1" are characters like any other.
+  ///
+  /// ## Counting semantics
+  ///
+  /// Counts are defined to equal the sum of per-document
+  /// ``GuionDocumentModel/extractCharacters()`` results for each character:
+  ///
+  /// - `lineCount` is the number of `.character` cues (cleaned name) for that
+  ///   character, i.e. one per speech block, not one per dialogue element.
+  /// - `wordCount` is the number of words in the `.dialogue` and `.parenthetical`
+  ///   elements attributed to that character.
+  ///
+  /// Documents are processed in (title, filename) order and elements in
+  /// (chapterIndex, orderIndex) order, so `firstLine` is deterministic.
+  ///
+  /// ## Usage
+  ///
+  /// ```swift
+  /// let actor = DocumentModelActor(modelContainer: container)
+  /// let result = try await actor.extractAllCharacters()
+  ///
+  /// for (name, info) in result.characters {
+  ///     print("\(name): \(info.lineCount) lines across \(info.documents.count) episodes")
+  /// }
+  /// ```
+  ///
+  /// - Returns: CharacterCollectionResult with aggregated character metadata
+  /// - Throws: SwiftData errors if the query fails
+  public func extractAllCharacters() throws -> CharacterCollectionResult {
+    // Fetch all documents in deterministic total order
+    // Sort by (title, filename, persistentModelID) to ensure consistent ordering even when
+    // multiple documents share the same title and filename. All PersistentModel instances
+    // have persistentModelID (PersistentIdentifier conforms to Comparable).
+    let descriptor = FetchDescriptor<GuionDocumentModel>(
+      sortBy: [
+        SortDescriptor(\.title),
+        SortDescriptor(\.filename),
+        SortDescriptor(\.persistentModelID)
+      ]
+    )
+    let documents = try modelContext.fetch(descriptor)
+
+    // Validate speaker data before attempting aggregation
+    try validateSpeakerData(in: documents)
+
+    // Character accumulator: [cleanedName: CharacterData]
+    var characterData: [String: CharacterData] = [:]
+
+    for document in documents {
+      let documentID = String(describing: document.persistentModelID)
+      let documentTitle = document.title ?? document.filename ?? "Untitled"
+
+      // Scene tracking mirrors GuionParsedElementCollection.extractCharacters():
+      // scene index increments on each scene heading, starting at 0.
+      var sceneIndex = -1
+      var currentSceneId: String?
+
+      // Same element order as GuionDocumentModel.extractCharacters()
+      for element in document.sortedElements {
+        switch element.elementType {
+        case .sceneHeading:
+          sceneIndex += 1
+          currentSceneId = element.sceneId.flatMap { $0.isEmpty ? nil : $0 }
+
+        case .character:
+          // Line count: one per cue, matching per-document extraction
+          let name = GuionParsedElementCollection.cleanCharacterName(element.elementText)
+          guard !name.isEmpty else { continue }
+          var data = characterData[name, default: CharacterData(name: name)]
+          data.lineCount += 1
+          data.recordAppearance(
+            documentID: documentID, documentTitle: documentTitle,
+            sceneIndex: sceneIndex, sceneId: element.sceneId ?? currentSceneId)
+          characterData[name] = data
+
+        case .dialogue, .parenthetical:
+          guard let rawSpeaker = element.speaker, !rawSpeaker.isEmpty else { continue }
+          // Speaker is stored cleaned at parse time; cleaning again is idempotent
+          let name = GuionParsedElementCollection.cleanCharacterName(rawSpeaker)
+          guard !name.isEmpty else { continue }
+
+          var data = characterData[name, default: CharacterData(name: name)]
+
+          // Only dialogue counts as speaking (CP-P2 contract).
+          // A parenthetical without dialogue (e.g., cue → parenthetical → action)
+          // does not make the character a speaking character.
+          if element.elementType == .dialogue {
+            data.hasSpeech = true
+            data.wordCount += countWords(in: element.elementText)
+            if data.firstLine == nil {
+              data.firstLine = StoreCharacterInfo.FirstLineInfo(
+                text: element.elementText,
+                documentTitle: documentTitle,
+                sceneId: element.sceneId ?? currentSceneId,
+                documentId: documentID,
+                sceneIndex: sceneIndex >= 0 ? sceneIndex : nil
+              )
+            }
+          }
+
+          // Record appearance for both dialogue and parenthetical
+          data.recordAppearance(
+            documentID: documentID, documentTitle: documentTitle,
+            sceneIndex: sceneIndex, sceneId: element.sceneId ?? currentSceneId)
+          characterData[name] = data
+
+        default:
+          continue
+        }
+      }
+    }
+
+    // Only cues that have dialogue are characters
+    var characters: [String: StoreCharacterInfo] = [:]
+    for (name, data) in characterData where data.hasSpeech {
+      characters[name] = StoreCharacterInfo(
+        name: data.name,
+        lineCount: data.lineCount,
+        wordCount: data.wordCount,
+        sceneIds: data.sceneIds,
+        documents: data.documents,
+        firstLine: data.firstLine
+      )
+    }
+
+    return CharacterCollectionResult(characters: characters)
+  }
+
+  // MARK: - Private Helpers
+
+  /// Count words in a string (same logic as GuionParsedElementCollection)
+  private func countWords(in text: String) -> Int {
+    let words = text.components(separatedBy: .whitespacesAndNewlines)
+      .filter { !$0.isEmpty }
+    return words.count
+  }
+
+  /// Accumulator for character data during aggregation
+  private struct CharacterData {
+    let name: String
+    var lineCount: Int = 0
+    var wordCount: Int = 0
+    var hasSpeech: Bool = false
+    /// Scene identifiers in script order (only where the store carries them)
+    var sceneIds: [String] = []
+    var documents: [StoreCharacterInfo.DocumentInfo] = []
+    var firstLine: StoreCharacterInfo.FirstLineInfo?
+
+    /// Record that this character appears in a document/scene.
+    mutating func recordAppearance(
+      documentID: String, documentTitle: String, sceneIndex: Int, sceneId: String?
+    ) {
+      if let sceneId, !sceneId.isEmpty, !sceneIds.contains(sceneId) {
+        sceneIds.append(sceneId)
+      }
+      let docIdx: Int
+      if let existing = documents.lastIndex(where: { $0.id == documentID }) {
+        docIdx = existing
+      } else {
+        documents.append(.init(id: documentID, title: documentTitle, scenes: []))
+        docIdx = documents.count - 1
+      }
+      if sceneIndex >= 0 && !documents[docIdx].scenes.contains(sceneIndex) {
+        documents[docIdx].scenes.append(sceneIndex)
+      }
+    }
+  }
+
   // MARK: - Helper Types
 
   /// Sendable DTO for document information
@@ -327,6 +504,10 @@ public enum DocumentModelActorError: LocalizedError {
   case elementNotFound
   case invalidData
   case parseError(String)
+  /// The listed documents were stored before speaker assignment (Schema V3)
+  /// and have dialogue with no `speaker`. Re-parse them before running
+  /// character queries.
+  case speakerDataMissing(documentTitles: [String])
 
   public var errorDescription: String? {
     switch self {
@@ -338,6 +519,9 @@ public enum DocumentModelActorError: LocalizedError {
       return "Invalid data provided for operation"
     case .parseError(let message):
       return "Parse error: \(message)"
+    case .speakerDataMissing(let titles):
+      return
+        "Speaker data missing (stored before Schema V3); re-parse: \(titles.joined(separator: ", "))"
     }
   }
 }
