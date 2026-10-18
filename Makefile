@@ -13,13 +13,13 @@ CI_TEST_TARGET = SwiftCompartidoTests
 
 # Tests that need Apple Intelligence (Foundation Models). Headless runners
 # have no on-device model, so they are run manually via Scripts/test-ai-features.sh.
-# testParsePDFFile() pushes a 111-page PDF through PDFScreenplayParser, which
-# converts page by page with SystemLanguageModel whenever it is available
-# (~15 min of on-device inference on a dev Mac, heuristic fallback on CI).
+# PDFScreenplayParserAIConversionTests is the only PDF test that touches the model:
+# one page, skipped when the model is unavailable, bounded by Options.aiPageTimeout.
+# ParsedFileServiceTests/testParsePDFFile() pins Options.heuristicOnly and runs in CI.
 CI_SKIP_AI = \
   SwiftCompartidoTests/GuionDocumentSnapshotCastListTests \
   SwiftCompartidoTests/CastListGenerationIntegrationTests \
-  'SwiftCompartidoTests/ParsedFileServiceTests/testParsePDFFile()'
+  SwiftCompartidoTests/PDFScreenplayParserAIConversionTests
 
 # Schema migration suite, excluded from CI by the previous inline list.
 CI_SKIP_OTHER = \
@@ -42,7 +42,7 @@ PERF_TARGET = SwiftCompartidoPerformanceTests
 CI_SKIPS = $(addprefix -skip-testing:,$(CI_SKIP_AI) $(CI_SKIP_OTHER) $(PERF_TESTS) $(PERF_TARGET))
 PERF_ONLY = $(addprefix -only-testing:,$(PERF_TARGET) $(PERF_TESTS))
 
-.PHONY: build test test-ci test-perf test-ios clean resolve lint help
+.PHONY: build test test-ci test-perf test-one test-ios clean resolve lint help
 
 build:
 	xcodebuild build -scheme $(SCHEME) -destination $(DESTINATION)
@@ -58,6 +58,12 @@ test-ci:
 test-perf:
 	xcodebuild test -scheme $(SCHEME) -destination $(DESTINATION) \
 	  $(PERF_ONLY)
+
+# One suite or test, e.g. make test-one TEST='SwiftCompartidoTests/ParsedFileServiceTests/testParsePDFFile()'
+test-one:
+	@test -n "$(TEST)" || { echo "usage: make test-one TEST=Target/Suite[/test()]"; exit 2; }
+	xcodebuild test -scheme $(SCHEME) -destination $(DESTINATION) \
+	  -only-testing:'$(TEST)'
 
 test-ios:
 	xcodebuild test -scheme $(SCHEME) \
@@ -82,6 +88,7 @@ help:
 	@echo "  test       - Run the full macOS suite (all test targets, incl. PDF/AI and performance)"
 	@echo "  test-ci    - Run the CI unit suite: SwiftCompartidoTests minus AI, migration and performance tests"
 	@echo "  test-perf  - Run the performance tests locally (never run in CI)"
+	@echo "  test-one   - Run one suite or test: make test-one TEST=Target/Suite[/test()]"
 	@echo "  test-ios   - Run iOS tests on iPhone 17 simulator"
 	@echo "  clean      - Clean build artifacts"
 	@echo "  resolve    - Resolve Swift package dependencies"

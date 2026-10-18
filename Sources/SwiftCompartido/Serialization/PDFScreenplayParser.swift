@@ -9,6 +9,7 @@
 
 import Foundation
 import PDFKit
+import os
 
 #if os(macOS)
   import AppKit
@@ -154,6 +155,18 @@ public enum PDFScreenplayParserError: Error, LocalizedError {
   }
 }
 
+/// Thrown inside the parser when a page's model request outlives `Options.aiPageTimeout`.
+/// Never escapes `parse`: the page loop catches it and converts the whole document with
+/// heuristics, because a model that has stopped answering will not answer for the next page.
+private struct AIConversionTimeout: Error, CustomStringConvertible {
+  let pageNumber: Int
+  let timeout: Duration
+
+  var description: String {
+    "Apple Intelligence did not answer for page \(pageNumber) within \(timeout)"
+  }
+}
+
 // MARK: - PDFScreenplayParser
 
 /// Parses PDF files into screenplay format using PDFKit and Foundation Models
@@ -187,6 +200,53 @@ public enum PDFScreenplayParserError: Error, LocalizedError {
 @available(iOS 26.0, macCatalyst 26.0, *)
 public final class PDFScreenplayParser {
 
+  // MARK: - Options
+
+  /// Knobs for the Apple Intelligence (Foundation Models) conversion phase.
+  ///
+  /// The defaults are production behaviour: convert page by page with the on-device
+  /// model when `SystemLanguageModel.default.isAvailable`, otherwise use heuristics.
+  /// Tests and callers that must not depend on the machine's Apple Intelligence state
+  /// pass ``heuristicOnly`` (or set the task-local ``PDFScreenplayParser/options``).
+  public struct Options: Sendable, Equatable {
+    /// Use the on-device model when it is available. `false` forces the heuristic
+    /// converter on every page and never touches `SystemLanguageModel`.
+    public var useAIConversion: Bool
+
+    /// Upper bound for one page's model request. On expiry the parser stops asking the
+    /// model and converts the whole document with heuristics (logged), so the document
+    /// is bounded by one timeout plus heuristics. Pages are ~500-1,000 tokens and an
+    /// answer takes a few seconds (~20 s when the model also has to load), so 30 s is
+    /// generous.
+    public var aiPageTimeout: Duration
+
+    public init(useAIConversion: Bool = true, aiPageTimeout: Duration = .seconds(30)) {
+      self.useAIConversion = useAIConversion
+      self.aiPageTimeout = aiPageTimeout
+    }
+
+    /// Production defaults: AI when available, 30 s per page.
+    public static let `default` = Options()
+
+    /// Heuristic conversion only; deterministic on every machine.
+    public static let heuristicOnly = Options(useAIConversion: false)
+  }
+
+  /// Options used by ``parse(from:options:progress:)`` when none are passed explicitly.
+  ///
+  /// Task-local so a caller several layers up (e.g. `ParsedFileService.parseFile`
+  /// -> `GuionParsedElementCollection(file:)`) can pin the behaviour without threading
+  /// a parameter through every layer:
+  ///
+  /// ```swift
+  /// try await PDFScreenplayParser.$options.withValue(.heuristicOnly) {
+  ///   try await service.parseFile(at: url)
+  /// }
+  /// ```
+  @TaskLocal public static var options: Options = .default
+
+  private static let logger = Logger(subsystem: "SwiftCompartido", category: "PDFScreenplayParser")
+
   // MARK: - Public API
 
   /// Parse a PDF file into a screenplay
@@ -203,13 +263,17 @@ public final class PDFScreenplayParser {
   ///
   /// - Parameters:
   ///   - url: URL to the PDF file
+  ///   - options: AI conversion switch and per-page timeout; `nil` reads the
+  ///     task-local ``options`` (production defaults unless a caller pinned them)
   ///   - progress: Optional progress reporting
   /// - Returns: Parsed screenplay collection
   /// - Throws: `PDFScreenplayParserError` for various failure conditions
   public static func parse(
     from url: URL,
+    options: Options? = nil,
     progress: OperationProgress? = nil
   ) async throws -> GuionParsedElementCollection {
+    let options = options ?? Self.options
 
     // Phase 1: Extract text from PDF page-by-page (20%)
     progress?.update(completedUnits: 0, description: "Extracting text from PDF...", force: true)
@@ -224,7 +288,8 @@ public final class PDFScreenplayParser {
     // Phase 2: Convert pages to Fountain using Foundation Models (60%)
     progress?.update(
       completedUnits: 20, description: "Converting to screenplay format...", force: true)
-    let fountainText = try await convertPagesToFountain(pages, progress: progress)
+    let fountainText = try await convertPagesToFountain(
+      pages, options: options, progress: progress)
     progress?.update(completedUnits: 80, description: "Conversion complete", force: true)
 
     // Phase 3: Parse Fountain into screenplay (20%)
@@ -343,14 +408,40 @@ public final class PDFScreenplayParser {
   ///
   /// - Parameters:
   ///   - pages: Array of page content with formatting extracted from PDF
+  ///   - options: AI switch and per-page timeout
   ///   - progress: Optional progress reporting (updated per-page)
   /// - Returns: Complete Fountain-formatted screenplay
   /// - Throws: `PDFScreenplayParserError` if conversion fails completely
   private static func convertPagesToFountain(
     _ pages: [PDFPageContent],
+    options: Options,
     progress: OperationProgress?
   ) async throws -> String {
     #if canImport(FoundationModels)
+      guard options.useAIConversion else {
+        logger.notice(
+          "AI conversion disabled by options; converting \(pages.count) pages with heuristics")
+        progress?.update(
+          completedUnits: 20,
+          description: "Using heuristic screenplay conversion...",
+          force: true
+        )
+        return await convertAllPagesToFountainBasic(pages, progress: progress)
+      }
+
+      guard SystemLanguageModel.default.isAvailable else {
+        logger.notice(
+          "Apple Intelligence unavailable; converting \(pages.count) pages with heuristics")
+        progress?.update(
+          completedUnits: 20,
+          description: "Apple Intelligence unavailable, using fallback conversion...",
+          additionalInfo:
+            "⚠️ AI-powered parsing unavailable on this device. Falling back to heuristic conversion. Results may be less accurate for non-standard screenplay formats.",
+          force: true
+        )
+        return await convertAllPagesToFountainBasic(pages, progress: progress)
+      }
+
       #if DEBUG
         print("🔍 [PDFParser] convertPagesToFountain: Processing \(pages.count) pages")
         print("🔍 [PDFParser] FoundationModels available, attempting page-by-page AI conversion")
@@ -377,15 +468,34 @@ public final class PDFScreenplayParser {
 
         // Try AI conversion for this page with formatting info
         do {
-          let convertedPage = try await convertPageToFountainWithAI(pageContent)
+          let convertedPage = try await convertPageToFountainWithAI(
+            pageContent, timeout: options.aiPageTimeout)
           convertedPages.append(convertedPage)
 
           #if DEBUG
             print("✅ [PDFParser] Page \(pageNumber) converted with AI (using formatting)")
           #endif
+        } catch let timeout as AIConversionTimeout {
+          // The model stopped answering. Waiting another `aiPageTimeout` for each remaining
+          // page would turn a per-page bound into pages x timeout, so give up on AI for this
+          // document: one timeout plus heuristics is the document-level bound.
+          logger.error(
+            "\(timeout.description); abandoning AI conversion and converting all \(totalPages) pages with heuristics"
+          )
+          progress?.update(
+            completedUnits: 20,
+            description: "Apple Intelligence timed out, using fallback conversion...",
+            additionalInfo:
+              "⚠️ Apple Intelligence did not answer within \(timeout.timeout). Falling back to heuristic conversion. Results may be less accurate for non-standard screenplay formats.",
+            force: true
+          )
+          return await convertAllPagesToFountainBasic(pages, progress: progress)
         } catch {
           // This page failed - try basic conversion as fallback
           failedPages += 1
+          logger.warning(
+            "Page \(pageNumber)/\(totalPages): AI conversion failed (\(error.localizedDescription)); using heuristic conversion"
+          )
 
           #if DEBUG
             print("⚠️ [PDFParser] Page \(pageNumber) AI conversion failed: \(error)")
@@ -459,12 +569,21 @@ public final class PDFScreenplayParser {
   /// Designed for single-page conversion to avoid the 4,096 token context window limit.
   /// Average screenplay pages are 500-1,000 tokens, well within the limit.
   ///
-  /// - Parameter pageContent: Page content with formatting information
+  /// **Bounded:**
+  /// The model request races a `Task.sleep(for: timeout)`. Whichever finishes first
+  /// wins; on expiry the request is cancelled and `AIConversionTimeout` is thrown so the
+  /// caller abandons AI for the document and falls back to the heuristic converter.
+  ///
+  /// - Parameters:
+  ///   - pageContent: Page content with formatting information
+  ///   - timeout: Upper bound for the model request (see ``Options/aiPageTimeout``)
   /// - Returns: AI-converted Fountain screenplay text for this page
-  /// - Throws: `PDFScreenplayParserError` if Foundation Models unavailable or conversion fails
+  /// - Throws: `PDFScreenplayParserError` if Foundation Models unavailable or the request
+  ///   fails; `AIConversionTimeout` when the timeout expires
   @available(iOS 26.0, macCatalyst 26.0, *)
   private static func convertPageToFountainWithAI(
-    _ pageContent: PDFPageContent
+    _ pageContent: PDFPageContent,
+    timeout: Duration
   ) async throws -> String {
     #if canImport(FoundationModels)
       #if DEBUG
@@ -518,23 +637,30 @@ public final class PDFScreenplayParser {
         OUTPUT (Fountain format only, no explanations):
         """
 
-      // Create a language model session with the system prompt
-      let session = LanguageModelSession(
-        model: model,
-        instructions: systemPrompt
-      )
-
-      // Generate the Fountain format using the AI model
+      // Generate the Fountain format using the AI model, racing the timeout.
+      let pageNumber = pageContent.pageNumber
       do {
-        let response = try await session.respond(to: Prompt(userPrompt))
+        let content = try await withTimeout(
+          timeout,
+          onTimeout: { AIConversionTimeout(pageNumber: pageNumber, timeout: timeout) }
+        ) {
+          // The session is created inside the task so nothing non-Sendable crosses
+          // the task boundary.
+          let session = LanguageModelSession(
+            model: SystemLanguageModel.default,
+            instructions: systemPrompt
+          )
+          return try await session.respond(to: Prompt(userPrompt)).content
+        }
 
         #if DEBUG
-          print("✅ [PDFParser] Page \(pageContent.pageNumber): AI conversion succeeded")
-          print(
-            "✅ [PDFParser] Page \(pageContent.pageNumber): Output \(response.content.count) chars")
+          print("✅ [PDFParser] Page \(pageNumber): AI conversion succeeded")
+          print("✅ [PDFParser] Page \(pageNumber): Output \(content.count) chars")
         #endif
 
-        return response.content
+        return content
+      } catch let timeout as AIConversionTimeout {
+        throw timeout
       } catch {
         #if DEBUG
           print("❌ [PDFParser] Page \(pageContent.pageNumber): AI request failed: \(error)")
@@ -551,6 +677,48 @@ public final class PDFScreenplayParser {
       #endif
       throw PDFScreenplayParserError.foundationModelsUnavailable
     #endif
+  }
+
+  /// Run `operation` and give up after `timeout`.
+  ///
+  /// Whichever finishes first resumes the caller exactly once. On expiry the operation's
+  /// task is cancelled and `onTimeout()` is thrown immediately; the caller does not wait
+  /// for the operation to notice the cancellation, which is what makes the bound hard even
+  /// when the model request ignores cancellation. The sleeper task wakes after `timeout`
+  /// regardless and finds the race already decided.
+  private static func withTimeout<T: Sendable>(
+    _ timeout: Duration,
+    onTimeout: @escaping @Sendable () -> Error,
+    operation: @escaping @Sendable () async throws -> T
+  ) async throws -> T {
+    let decided = OSAllocatedUnfairLock(initialState: false)
+    /// Returns true for the first caller only.
+    @Sendable func claim() -> Bool {
+      decided.withLock { done in
+        if done { return false }
+        done = true
+        return true
+      }
+    }
+
+    return try await withCheckedThrowingContinuation { continuation in
+      let work = Task {
+        let result: Result<T, Error>
+        do {
+          result = .success(try await operation())
+        } catch {
+          result = .failure(error)
+        }
+        if claim() { continuation.resume(with: result) }
+      }
+      Task {
+        try? await Task.sleep(for: timeout)
+        if claim() {
+          work.cancel()
+          continuation.resume(throwing: onTimeout())
+        }
+      }
+    }
   }
 
   /// Build the system prompt that teaches Foundation Models how to convert to Fountain format

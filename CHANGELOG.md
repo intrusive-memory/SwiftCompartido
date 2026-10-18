@@ -13,6 +13,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- `PDFScreenplayParser.Options` (`useAIConversion`, `aiPageTimeout`, default 30 s per page) with a task-local `PDFScreenplayParser.options` and a `parse(from:options:progress:)` overload. Each Apple Intelligence page request is now bounded; on the first expiry the parser stops asking the model and converts the whole document with heuristics (one timeout + heuristics is the document-level bound), logged via `os.Logger` (subsystem `SwiftCompartido`).
+- `ParsedFileServiceTests/testParsePDFFile()` pins `.heuristicOnly` and runs in CI (seconds, not ~15 min of on-device inference on a Mac with Apple Intelligence). The model path has one small gated test, `PDFScreenplayParserAIConversionTests`, skipped without the model and excluded from CI.
+- `make test-one TEST=Target/Suite[/test()]` runs a single suite or test.
+
 ---
 
 ## [7.3.0] - 2026-10-18
