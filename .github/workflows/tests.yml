@@ -3,6 +3,9 @@ name: Tests
 on:
   pull_request:
     branches: [main, development]
+    # ready_for_review is not in GitHub's default event set. Without it,
+    # promoting a draft PR never starts the suite. Jobs below skip on drafts.
+    types: [opened, synchronize, reopened, ready_for_review]
 
 concurrency:
   group: ${{ github.ref }}
@@ -11,6 +14,7 @@ concurrency:
 jobs:
   test-macos:
     name: Test on macOS
+    if: ${{ !github.event.pull_request.draft }}
     runs-on: macos-26
 
     steps:
