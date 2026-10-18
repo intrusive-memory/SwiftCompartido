@@ -115,8 +115,10 @@ struct CharacterQueryAcceptanceTests {
     #expect(charlieStore.lineCount == charlieDoc2 + charlieDoc3)
 
     // Verify word counts match per-document sums
-    let aliceWords = (chars1["ALICE"]?.counts.wordCount ?? 0) + (chars3["ALICE"]?.counts.wordCount
-      ?? 0)
+    let aliceWords =
+      (chars1["ALICE"]?.counts.wordCount ?? 0)
+      + (chars3["ALICE"]?.counts.wordCount
+        ?? 0)
     #expect(aliceStore.wordCount == aliceWords)
 
     // Verify document references

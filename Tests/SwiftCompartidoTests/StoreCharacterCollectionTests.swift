@@ -135,8 +135,15 @@ struct StoreCharacterCollectionTests {
     // Mirror types a consumer like SwiftReparto would define independently
     struct Collection: Decodable {
       struct Character: Decodable {
-        struct Doc: Decodable { let id: String; let title: String }
-        struct First: Decodable { let text: String; let documentTitle: String; let sceneId: String? }
+        struct Doc: Decodable {
+          let id: String
+          let title: String
+        }
+        struct First: Decodable {
+          let text: String
+          let documentTitle: String
+          let sceneId: String?
+        }
         let name: String
         let lineCount: Int
         let wordCount: Int

@@ -336,7 +336,7 @@ public actor DocumentModelActor {
       sortBy: [
         SortDescriptor(\.title),
         SortDescriptor(\.filename),
-        SortDescriptor(\.persistentModelID)
+        SortDescriptor(\.persistentModelID),
       ]
     )
     let documents = try modelContext.fetch(descriptor)
@@ -385,9 +385,11 @@ public actor DocumentModelActor {
           // Only dialogue counts as speaking (CP-P2 contract).
           // A parenthetical without dialogue (e.g., cue → parenthetical → action)
           // does not make the character a speaking character.
+          // Word count still includes parentheticals, so it equals the sum of
+          // per-document extractCharacters() for every speaking character.
+          data.wordCount += countWords(in: element.elementText)
           if element.elementType == .dialogue {
             data.hasSpeech = true
-            data.wordCount += countWords(in: element.elementText)
             if data.firstLine == nil {
               data.firstLine = StoreCharacterInfo.FirstLineInfo(
                 text: element.elementText,

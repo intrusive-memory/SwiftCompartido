@@ -53,7 +53,9 @@ import Foundation
 /// This model will be removed in a future release if Highland support is dropped.
 /// Consider migrating to CAST.md-based cast management now.
 @available(
-  *, deprecated, message: "Use SwiftReparto's CAST.md for cast management. See SwiftCompartido.extractAllCharacters() for character discovery."
+  *, deprecated,
+  message:
+    "Use SwiftReparto's CAST.md for cast management. See SwiftCompartido.extractAllCharacters() for character discovery."
 )
 public struct CastListPage: CustomPage, Identifiable {
   public let id: String

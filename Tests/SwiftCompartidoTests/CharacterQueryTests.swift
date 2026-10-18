@@ -153,10 +153,12 @@ struct CharacterQueryTests {
     #expect(cabin.blocks.count == 9)
     #expect(cabin.blocks.first?.text == "Wind howls.")
     #expect(cabin.blocks.last?.text == "The fire dies.")
-    #expect(cabin.blocks.filter(\.isCharacterLine).map(\.text) == ["Who's there?", "(quietly)\nCome in."])
-    #expect(cabin.blocks.map(\.speaker) == [
-      nil, "HUNTER", "MAYA", nil, "MAYA", "HUNTER", nil, "MAYA", nil,
-    ])
+    #expect(
+      cabin.blocks.filter(\.isCharacterLine).map(\.text) == ["Who's there?", "(quietly)\nCome in."])
+    #expect(
+      cabin.blocks.map(\.speaker) == [
+        nil, "HUNTER", "MAYA", nil, "MAYA", "HUNTER", nil, "MAYA", nil,
+      ])
     // Every element of a dialogue block carries the block's speaker.
     for block in cabin.blocks where block.speaker != nil {
       #expect(block.elements.allSatisfy { $0.speaker == block.speaker })

@@ -120,7 +120,7 @@ struct CharacterWindowingTests {
   @Test("Orphaned dialogue creates new block")
   func orphanedDialogueBlock() {
     let elements = [
-      makeElement(type: .dialogue, text: "Orphan line.", speaker: "ALICE"),
+      makeElement(type: .dialogue, text: "Orphan line.", speaker: "ALICE")
     ]
 
     let blocks = CharacterWindowing.blocks(from: elements)

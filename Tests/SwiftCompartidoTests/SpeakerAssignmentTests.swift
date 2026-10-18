@@ -69,9 +69,10 @@ struct SpeakerAssignmentTests {
     }
 
     let dialogue = elements.filter { $0.elementType == .dialogue }
-    #expect(dialogue.map(\.elementText) == [
-      "Morning.", "You're up early.", "Screw retirement.", "Screw retirement.", "Still here.",
-    ])
+    #expect(
+      dialogue.map(\.elementText) == [
+        "Morning.", "You're up early.", "Screw retirement.", "Screw retirement.", "Still here.",
+      ])
     #expect(dialogue.map(\.speaker) == ["BERNARD", "SYLVIA", "BRICK", "STEEL", "BERNARD"])
 
     let parenthetical = elements.filter { $0.elementType == .parenthetical }
