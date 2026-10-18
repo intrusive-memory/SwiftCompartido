@@ -18,6 +18,11 @@ import Testing
 /// - Error handling
 /// - Progress reporting
 /// - Full workflow (PDF → Screenplay → SwiftData)
+///
+/// Every parse pins `PDFScreenplayParser.Options.heuristicOnly`: these tests are about
+/// the parser's structure, not the model's output, and a 100-page fixture through
+/// Apple Intelligence takes minutes. The model path is covered by
+/// `PDFScreenplayParserAIConversionTests` (one page, gated, bounded).
 @Suite("PDF Screenplay Parser Tests")
 struct PDFScreenplayParserTests {
 
@@ -51,7 +56,7 @@ struct PDFScreenplayParserTests {
     #expect(FileManager.default.fileExists(atPath: url.path))
 
     // Should be able to parse
-    let screenplay = try await PDFScreenplayParser.parse(from: url)
+    let screenplay = try await PDFScreenplayParser.parse(from: url, options: .heuristicOnly)
 
     // Should have elements
     #expect(screenplay.elements.count > 0)
@@ -69,7 +74,7 @@ struct PDFScreenplayParserTests {
     #expect(FileManager.default.fileExists(atPath: url.path))
 
     // Should be able to parse
-    let screenplay = try await PDFScreenplayParser.parse(from: url)
+    let screenplay = try await PDFScreenplayParser.parse(from: url, options: .heuristicOnly)
 
     // Should have many elements
     #expect(screenplay.elements.count > 50)
@@ -84,7 +89,7 @@ struct PDFScreenplayParserTests {
   func testTextExtraction() async throws {
     let url = getFixture("BULLITT.pdf")
 
-    let screenplay = try await PDFScreenplayParser.parse(from: url)
+    let screenplay = try await PDFScreenplayParser.parse(from: url, options: .heuristicOnly)
 
     // Should have scene headings
     let sceneHeadings = screenplay.elements.filter { $0.elementType == .sceneHeading }
@@ -109,7 +114,7 @@ struct PDFScreenplayParserTests {
     // TV scripts have different formatting
     let url = getFixture("Legion_1x01_-_Chapter_One.pdf")
 
-    let screenplay = try await PDFScreenplayParser.parse(from: url)
+    let screenplay = try await PDFScreenplayParser.parse(from: url, options: .heuristicOnly)
 
     // Should extract content
     #expect(screenplay.elements.count > 20)
@@ -129,7 +134,7 @@ struct PDFScreenplayParserTests {
     let url = URL(fileURLWithPath: "/nonexistent/file.pdf")
 
     await #expect(throws: PDFScreenplayParserError.self) {
-      try await PDFScreenplayParser.parse(from: url)
+      try await PDFScreenplayParser.parse(from: url, options: .heuristicOnly)
     }
   }
 
@@ -141,7 +146,7 @@ struct PDFScreenplayParserTests {
 
     // Should throw an error (either unableToOpenPDF or file not found)
     await #expect(throws: Error.self) {
-      try await PDFScreenplayParser.parse(from: url)
+      try await PDFScreenplayParser.parse(from: url, options: .heuristicOnly)
     }
   }
 
@@ -168,7 +173,7 @@ struct PDFScreenplayParserTests {
     }
 
     let url = getFixture("ATTACK-THE-BLOCK.pdf")
-    _ = try await PDFScreenplayParser.parse(from: url, progress: progress)
+    _ = try await PDFScreenplayParser.parse(from: url, options: .heuristicOnly, progress: progress)
 
     // Wait a bit for async updates
     try await Task.sleep(for: .milliseconds(100))
@@ -204,7 +209,7 @@ struct PDFScreenplayParserTests {
   @Test("Detect scene headings")
   func testSceneHeadingDetection() async throws {
     let url = getFixture("BULLITT.pdf")
-    let screenplay = try await PDFScreenplayParser.parse(from: url)
+    let screenplay = try await PDFScreenplayParser.parse(from: url, options: .heuristicOnly)
 
     let sceneHeadings = screenplay.elements.filter { $0.elementType == .sceneHeading }
 
@@ -225,7 +230,7 @@ struct PDFScreenplayParserTests {
   @Test("Detect character names")
   func testCharacterNameDetection() async throws {
     let url = getFixture("Heathers_1x01_-_Pilot.pdf")
-    let screenplay = try await PDFScreenplayParser.parse(from: url)
+    let screenplay = try await PDFScreenplayParser.parse(from: url, options: .heuristicOnly)
 
     let characters = screenplay.elements.filter { $0.elementType == .character }
 
@@ -257,7 +262,7 @@ struct PDFScreenplayParserTests {
         continue
       }
 
-      let screenplay = try await PDFScreenplayParser.parse(from: url)
+      let screenplay = try await PDFScreenplayParser.parse(from: url, options: .heuristicOnly)
 
       #expect(screenplay.elements.count > 0, "\(filename) should have elements")
 
@@ -271,7 +276,7 @@ struct PDFScreenplayParserTests {
   @Test("Preserve screenplay content")
   func testContentPreservation() async throws {
     let url = getFixture("Legion_1x01_-_Chapter_One.pdf")
-    let screenplay = try await PDFScreenplayParser.parse(from: url)
+    let screenplay = try await PDFScreenplayParser.parse(from: url, options: .heuristicOnly)
 
     // Should have reasonable content
     #expect(screenplay.elements.count > 10, "Should have substantial content")
@@ -298,7 +303,7 @@ struct PDFScreenplayParserTests {
     // Modern screenplay
     let url = getFixture("The Banshees of Inisherin.pdf")
 
-    let screenplay = try await PDFScreenplayParser.parse(from: url)
+    let screenplay = try await PDFScreenplayParser.parse(from: url, options: .heuristicOnly)
 
     // Should extract content from modern format
     #expect(screenplay.elements.count > 0)
@@ -315,7 +320,7 @@ struct PDFScreenplayParserTests {
     let url = getFixture("ATTACK-THE-BLOCK.pdf")
 
     // Should still parse successfully using heuristic approach
-    let screenplay = try await PDFScreenplayParser.parse(from: url)
+    let screenplay = try await PDFScreenplayParser.parse(from: url, options: .heuristicOnly)
 
     #expect(screenplay.elements.count > 0, "Should parse with fallback conversion")
 
@@ -339,7 +344,7 @@ struct PDFScreenplayParserTests {
 
     // The parser should use the system prompt internally
     // This test verifies the workflow completes successfully
-    let screenplay = try await PDFScreenplayParser.parse(from: url)
+    let screenplay = try await PDFScreenplayParser.parse(from: url, options: .heuristicOnly)
 
     #expect(screenplay.elements.count > 0, "Should successfully parse using system prompt")
 
@@ -351,7 +356,7 @@ struct PDFScreenplayParserTests {
   func testContentPreservationThroughConversion() async throws {
     let url = getFixture("Heathers_1x01_-_Pilot.pdf")
 
-    let screenplay = try await PDFScreenplayParser.parse(from: url)
+    let screenplay = try await PDFScreenplayParser.parse(from: url, options: .heuristicOnly)
 
     // Verify that screenplay has meaningful content
     #expect(screenplay.elements.count > 20, "Should have substantial content")
@@ -378,7 +383,7 @@ struct PDFScreenplayParserTests {
   @Test("Fountain format rules applied")
   func testFountainFormatRules() async throws {
     let url = getFixture("BULLITT.pdf")
-    let screenplay = try await PDFScreenplayParser.parse(from: url)
+    let screenplay = try await PDFScreenplayParser.parse(from: url, options: .heuristicOnly)
 
     // Test scene heading detection
     let sceneHeadings = screenplay.elements.filter { $0.elementType == .sceneHeading }
@@ -407,7 +412,7 @@ struct PDFScreenplayParserTests {
   func testPageNumberFiltering() async throws {
     // Test that page numbers and headers are filtered out
     let url = getFixture("Legion_1x01_-_Chapter_One.pdf")
-    let screenplay = try await PDFScreenplayParser.parse(from: url)
+    let screenplay = try await PDFScreenplayParser.parse(from: url, options: .heuristicOnly)
 
     // Look for common page number patterns that should be filtered
     let elementsWithJustNumbers = screenplay.elements.filter { element in
@@ -432,7 +437,7 @@ struct PDFScreenplayParserTests {
   func testMultiplePageConversion() async throws {
     // Test that multi-page PDFs are properly concatenated
     let url = getFixture("Eternal Sunshine of the Spotless Mind.pdf")
-    let screenplay = try await PDFScreenplayParser.parse(from: url)
+    let screenplay = try await PDFScreenplayParser.parse(from: url, options: .heuristicOnly)
 
     // Should have substantial content from all pages
     #expect(screenplay.elements.count > 100, "Multi-page PDF should have many elements")
@@ -450,7 +455,7 @@ struct PDFScreenplayParserTests {
   @Test("Dialogue formatting preservation")
   func testDialogueFormatting() async throws {
     let url = getFixture("Heathers_1x01_-_Pilot.pdf")
-    let screenplay = try await PDFScreenplayParser.parse(from: url)
+    let screenplay = try await PDFScreenplayParser.parse(from: url, options: .heuristicOnly)
 
     // Find dialogue elements
     let dialogue = screenplay.elements.filter { $0.elementType == .dialogue }
@@ -502,7 +507,7 @@ struct PDFScreenplayParserTests {
     }
 
     let url = getFixture("ATTACK-THE-BLOCK.pdf")
-    _ = try await PDFScreenplayParser.parse(from: url, progress: progress)
+    _ = try await PDFScreenplayParser.parse(from: url, options: .heuristicOnly, progress: progress)
 
     // Wait for async updates
     try await Task.sleep(for: .milliseconds(200))
@@ -525,7 +530,7 @@ struct PDFScreenplayParserTests {
     // Test the remaining untested PDF
     let url = getFixture("The_Terror_1x01_-_Go_For_Broke.pdf")
 
-    let screenplay = try await PDFScreenplayParser.parse(from: url)
+    let screenplay = try await PDFScreenplayParser.parse(from: url, options: .heuristicOnly)
 
     // Should extract content
     #expect(screenplay.elements.count > 20, "Should have substantial content")
@@ -566,7 +571,7 @@ struct PDFScreenplayParserTests {
       }
 
       do {
-        let screenplay = try await PDFScreenplayParser.parse(from: url)
+        let screenplay = try await PDFScreenplayParser.parse(from: url, options: .heuristicOnly)
         let hasElements = screenplay.elements.count > 0
         results.append((filename, screenplay.elements.count, hasElements))
 
@@ -591,7 +596,7 @@ struct PDFScreenplayParserTests {
   @Test("Element distribution validation")
   func testElementDistribution() async throws {
     let url = getFixture("BULLITT.pdf")
-    let screenplay = try await PDFScreenplayParser.parse(from: url)
+    let screenplay = try await PDFScreenplayParser.parse(from: url, options: .heuristicOnly)
 
     // Count element types
     var typeCounts: [ElementType: Int] = [:]
@@ -614,7 +619,7 @@ struct PDFScreenplayParserTests {
   @Test("Scene continuity validation")
   func testSceneContinuity() async throws {
     let url = getFixture("Legion_1x01_-_Chapter_One.pdf")
-    let screenplay = try await PDFScreenplayParser.parse(from: url)
+    let screenplay = try await PDFScreenplayParser.parse(from: url, options: .heuristicOnly)
 
     // Find all scene headings
     let sceneHeadings = screenplay.elements.enumerated().filter {
@@ -644,7 +649,7 @@ struct PDFScreenplayParserTests {
   @Test("Character dialogue consistency")
   func testCharacterDialogueConsistency() async throws {
     let url = getFixture("Heathers_1x01_-_Pilot.pdf")
-    let screenplay = try await PDFScreenplayParser.parse(from: url)
+    let screenplay = try await PDFScreenplayParser.parse(from: url, options: .heuristicOnly)
 
     // Find character-dialogue pairs
     var characterDialoguePairs = 0
@@ -671,7 +676,7 @@ struct PDFScreenplayParserTests {
   @Test("Text quality validation")
   func testTextQuality() async throws {
     let url = getFixture("The Banshees of Inisherin.pdf")
-    let screenplay = try await PDFScreenplayParser.parse(from: url)
+    let screenplay = try await PDFScreenplayParser.parse(from: url, options: .heuristicOnly)
 
     // Check for text quality indicators
     var qualityMetrics = (
@@ -719,7 +724,7 @@ struct PDFScreenplayParserTests {
   @Test("Heuristic accuracy on standard format")
   func testHeuristicAccuracy() async throws {
     let url = getFixture("ATTACK-THE-BLOCK.pdf")
-    let screenplay = try await PDFScreenplayParser.parse(from: url)
+    let screenplay = try await PDFScreenplayParser.parse(from: url, options: .heuristicOnly)
 
     // Validate heuristic detection accuracy
     let sceneHeadings = screenplay.elements.filter { $0.elementType == .sceneHeading }
@@ -751,7 +756,7 @@ struct PDFScreenplayParserTests {
   @Test("Scene heading format validation")
   func testSceneHeadingFormat() async throws {
     let url = getFixture("BULLITT.pdf")
-    let screenplay = try await PDFScreenplayParser.parse(from: url)
+    let screenplay = try await PDFScreenplayParser.parse(from: url, options: .heuristicOnly)
 
     let sceneHeadings = screenplay.elements.filter { $0.elementType == .sceneHeading }
 
@@ -795,7 +800,7 @@ struct PDFScreenplayParserTests {
         continue
       }
 
-      let screenplay = try await PDFScreenplayParser.parse(from: url)
+      let screenplay = try await PDFScreenplayParser.parse(from: url, options: .heuristicOnly)
       let sceneCount = screenplay.elements.filter { $0.elementType == .sceneHeading }.count
       let dialogueCount = screenplay.elements.filter { $0.elementType == .dialogue }.count
 
