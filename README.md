@@ -1,6 +1,6 @@
 ---
 type: project
-updated: 2026-07-19
+updated: 2026-10-18
 ---
 
 # SwiftCompartido
@@ -40,7 +40,7 @@ SwiftCompartido has **two core missions**:
 
 ## ⚡ What's New
 
-**Version 7.2.5-dev** (development) is the next cycle in progress. Latest release: **7.2.5** adds the MIT LICENSE file and bumps glosa-av to 0.8.1. Key highlights:
+**Version 7.3.0** adds character discovery and per-character script queries — store-wide character collection, speaker assignment, windowed excerpts — for SwiftReparto's CAST.md generation and Personaje's context excerpts. Key highlights:
 
 - 🔧 **Swift 6 Concurrency**: Fixed actor isolation errors in HierarchyBuilder parameters
 - 🔧 **Swift 6 Compliance**: Marked buildHierarchy parameters as `sending` for strict concurrency

@@ -1,6 +1,7 @@
 ---
 type: test-cleanup-report
-state: current
+state: completed
+mission: speaking-roster-01
 ---
 
 # Test Cleanup Report: OPERATION SPEAKING ROSTER
