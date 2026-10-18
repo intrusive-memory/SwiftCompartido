@@ -20,22 +20,10 @@ jobs:
       - name: Show Swift version
         run: swift --version
 
-      - name: Resolve packages
-        run: xcodebuild -resolvePackageDependencies -scheme SwiftCompartido
-
       - name: Build
-        run: xcodebuild build -scheme SwiftCompartido -destination 'platform=macOS'
+        run: make build
 
+      # Test selection (skipped AI, migration and performance tests) lives in
+      # the Makefile so local and CI runs share one list.
       - name: Test
-        run: |
-          xcodebuild test \
-            -scheme SwiftCompartido \
-            -destination 'platform=macOS' \
-            -only-testing:SwiftCompartidoTests \
-            -skip-testing:SwiftCompartidoTests/GuionDocumentSnapshotCastListTests \
-            -skip-testing:SwiftCompartidoTests/CastListGenerationIntegrationTests \
-            -skip-testing:SwiftCompartidoTests/MigrationTests \
-            -skip-testing:SwiftCompartidoTests/GuionJSONSerializerTests/testPerformance_Encode120PageScreenplay \
-            -skip-testing:SwiftCompartidoTests/GuionJSONSerializerTests/testPerformance_Decode120PageScreenplay \
-            -skip-testing:SwiftCompartidoTests/GuionJSONSerializerTests/testPerformance_RoundTrip \
-            -skip-testing:SwiftCompartidoPerformanceTests
+        run: make test-ci
