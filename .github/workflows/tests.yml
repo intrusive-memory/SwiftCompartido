@@ -3,6 +3,9 @@ name: Tests
 on:
   pull_request:
     branches: [main, development]
+    # ready_for_review is not in GitHub's default event set. Without it,
+    # promoting a draft PR never starts the suite. Jobs below skip on drafts.
+    types: [opened, synchronize, reopened, ready_for_review]
 
 concurrency:
   group: ${{ github.ref }}
@@ -11,6 +14,7 @@ concurrency:
 jobs:
   test-macos:
     name: Test on macOS
+    if: ${{ !github.event.pull_request.draft }}
     runs-on: macos-26
 
     steps:
@@ -20,22 +24,10 @@ jobs:
       - name: Show Swift version
         run: swift --version
 
-      - name: Resolve packages
-        run: xcodebuild -resolvePackageDependencies -scheme SwiftCompartido
-
       - name: Build
-        run: xcodebuild build -scheme SwiftCompartido -destination 'platform=macOS'
+        run: make build
 
+      # Test selection (skipped AI, migration and performance tests) lives in
+      # the Makefile so local and CI runs share one list.
       - name: Test
-        run: |
-          xcodebuild test \
-            -scheme SwiftCompartido \
-            -destination 'platform=macOS' \
-            -only-testing:SwiftCompartidoTests \
-            -skip-testing:SwiftCompartidoTests/GuionDocumentSnapshotCastListTests \
-            -skip-testing:SwiftCompartidoTests/CastListGenerationIntegrationTests \
-            -skip-testing:SwiftCompartidoTests/MigrationTests \
-            -skip-testing:SwiftCompartidoTests/GuionJSONSerializerTests/testPerformance_Encode120PageScreenplay \
-            -skip-testing:SwiftCompartidoTests/GuionJSONSerializerTests/testPerformance_Decode120PageScreenplay \
-            -skip-testing:SwiftCompartidoTests/GuionJSONSerializerTests/testPerformance_RoundTrip \
-            -skip-testing:SwiftCompartidoPerformanceTests
+        run: make test-ci

@@ -21,7 +21,7 @@ For detailed project info, see **[AGENTS.md](AGENTS.md)**.
 **CRITICAL**: NEVER use `swift build` or `swift test` to compile or test Swift projects. ALWAYS use `xcodebuild` (or XcodeBuildMCP tools when available) instead.
 
 - **Local builds**: Use XcodeBuildMCP tools (`swift_package_build`, `swift_package_test`, `build_macos`, `test_macos`, etc.)
-- **CI/CD workflows**: Use `xcodebuild build` and `xcodebuild test` with appropriate `-scheme` and `-destination` flags
+- **CI/CD workflows**: Call `make` targets (`make build`, `make test-ci`); never inline `xcodebuild` in a workflow. The CI skip list (AI, migration, performance tests) lives only in the Makefile
 - This applies to Swift packages, Xcode projects, and all Swift-based projects
 
 ### Why xcodebuild over swift build?
@@ -105,5 +105,11 @@ Key patterns from global config:
 - **Swift Build Preference**: ALWAYS use `xcodebuild` over `swift build`
 - **Git Safety**: Never force push, skip hooks, or use destructive commands without confirmation
 - **GitHub Actions CI/CD**: Always use `macos-26` or later, specify exact iOS versions
+
+## CI Rules
+
+- **CI does not run on draft PRs.** Mark the PR ready for review (`gh pr ready <n>`) to run the suite; `tests.yml` listens for `ready_for_review` and every job carries `if: ${{ !github.event.pull_request.draft }}`. Pattern: the `draft-pr-ci-gate` skill.
+- **Required check**: `Test on macOS` must pass to merge into `development` and into `main`. The check name is the job `name:`; renaming it means updating branch protection in the same PR.
+- **Performance tests never run in CI.** Exclude a perf test via the Makefile's `PERF_TESTS` list; never widen a timing tolerance to make one pass.
 
 See `~/.claude/CLAUDE.md` for complete global instructions.
