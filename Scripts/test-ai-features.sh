@@ -108,7 +108,9 @@ echo ""
 
 xcodebuild test \
     -scheme SwiftCompartido \
-    -only-testing:SwiftCompartidoTests/PDFScreenplayParserAITests \
+    -only-testing:SwiftCompartidoTests/PDFScreenplayParserAIConversionTests \
+    -only-testing:SwiftCompartidoTests/GuionDocumentSnapshotCastListTests \
+    -only-testing:SwiftCompartidoTests/CastListGenerationIntegrationTests \
     -destination "$DESTINATION" \
     CODE_SIGNING_ALLOWED=NO
 

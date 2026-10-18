@@ -44,7 +44,7 @@ SwiftCompartido has **two core missions**:
 
 - 🔧 **Swift 6 Concurrency**: Fixed actor isolation errors in HierarchyBuilder parameters
 - 🔧 **Swift 6 Compliance**: Marked buildHierarchy parameters as `sending` for strict concurrency
-- ⚠️ **AI PDF Tests**: Disabled flaky Foundation Models PDF parsing tests pending reliability improvements
+- 🧪 **AI PDF Tests**: the PDF unit test runs heuristics only (`PDFScreenplayParser.Options.heuristicOnly`) and is deterministic everywhere; one small Apple-Intelligence-gated test exercises the model path, bounded by the new 30 s per-page timeout; the long-form AI suite in `SwiftCompartidoPDFTests` stays disabled
 
 See [CHANGELOG.md](./CHANGELOG.md) for complete version history and detailed release notes.
 
