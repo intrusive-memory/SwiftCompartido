@@ -117,6 +117,17 @@ import Foundation
         GuionElementModel.from(elementSnapshot, in: context, document: document)
       }
 
+      // Speaker assignment (CP-P1, Schema V3). Snapshots do not store `speaker`;
+      // derive it from the cues in script order so loading a .guion file
+      // populates the field the same way a fresh parse does.
+      let orderedElements = document.elements.sorted {
+        ($0.chapterIndex, $0.orderIndex) < ($1.chapterIndex, $1.orderIndex)
+      }
+      let speakers = GuionParsedElementCollection.speakers(for: orderedElements)
+      for (element, speaker) in zip(orderedElements, speakers) {
+        element.speaker = speaker
+      }
+
       // Convert title page
       document.titlePage = snapshot.titlePage.map { entrySnapshot in
         TitlePageEntryModel.from(entrySnapshot, document: document)

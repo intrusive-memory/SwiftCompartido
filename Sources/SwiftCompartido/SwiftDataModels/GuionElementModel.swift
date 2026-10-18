@@ -356,6 +356,22 @@ public final class GuionElementModel: GuionElementProtocol {
   /// glosa has not run or no `<pause/>` markers were present.
   public var glosaPausePoints: Data? = nil
 
+  // MARK: - Speaker (NEW in Schema V3)
+
+  /// Cleaned speaker name for dialogue and parenthetical elements.
+  ///
+  /// Holds the character cue with extensions such as `(V.O.)` and `(CONT'D)`
+  /// removed, so a SwiftData predicate can select a character's lines directly.
+  ///
+  /// `nil` for non-dialogue elements (action, scene headings, transitions, etc.).
+  ///
+  /// **Migrated data**: records that existed before ``SwiftCompartidoSchemaV3``
+  /// keep `speaker == nil` — the V2 → V3 migration is lightweight and does not
+  /// backfill. This is intentional. Re-parse a document to populate the field.
+  ///
+  /// - Since: Schema V3
+  public var speaker: String? = nil
+
   public init(
     elementText: String, elementType: ElementType, isCentered: Bool = false,
     isDualDialogue: Bool = false, sceneNumber: String? = nil, sectionDepth: Int = 0,
