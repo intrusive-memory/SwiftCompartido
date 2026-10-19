@@ -40,11 +40,11 @@ SwiftCompartido has **two core missions**:
 
 ## ⚡ What's New
 
-**Version 7.3.0** adds character discovery and per-character script queries — store-wide character collection, speaker assignment, windowed excerpts — for SwiftReparto's CAST.md generation and Personaje's context excerpts. Key highlights:
+**Version 7.3.1** bounds the PDF parser's Apple Intelligence path (new `PDFScreenplayParser.Options` with a 30 s per-page timeout and heuristic fallback) and moves performance tests out of CI. Version 7.3.0 added character discovery and per-character script queries — store-wide character collection, speaker assignment, windowed excerpts — for SwiftReparto's CAST.md generation and Personaje's context excerpts. Key highlights:
 
 - 🔧 **Swift 6 Concurrency**: Fixed actor isolation errors in HierarchyBuilder parameters
 - 🔧 **Swift 6 Compliance**: Marked buildHierarchy parameters as `sending` for strict concurrency
-- ⚠️ **AI PDF Tests**: Disabled flaky Foundation Models PDF parsing tests pending reliability improvements
+- 🧪 **AI PDF Tests**: the PDF unit test runs heuristics only (`PDFScreenplayParser.Options.heuristicOnly`) and is deterministic everywhere; one small Apple-Intelligence-gated test exercises the model path, bounded by the new 30 s per-page timeout; the long-form AI suite in `SwiftCompartidoPDFTests` stays disabled
 
 See [CHANGELOG.md](./CHANGELOG.md) for complete version history and detailed release notes.
 

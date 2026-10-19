@@ -7,7 +7,7 @@ updated: 2026-10-18
 
 This file provides comprehensive documentation for AI agents working with the SwiftCompartido codebase.
 
-**Current Version**: 7.3.0 (October 2026)
+**Current Version**: 7.3.1 (October 2026)
 
 ---
 
@@ -230,12 +230,20 @@ SwiftCompartido uses **glosa-av's GlosaCore** to annotate screenplay dialogue wi
 
 **CRITICAL**: Use `xcodebuild` for all builds and tests. This library requires SwiftData and SwiftUI which work best with Xcode's build system.
 
+Prefer the Makefile targets (`make help` lists them); CI calls the same targets, never inline `xcodebuild`.
+
 ```bash
 # Build library
-xcodebuild build -scheme SwiftCompartido -destination 'platform=macOS'
+make build                     # xcodebuild build -scheme SwiftCompartido -destination 'platform=macOS,arch=arm64'
 
-# Run tests
-xcodebuild test -scheme SwiftCompartido -destination 'platform=macOS'
+# Run the CI unit suite (what the "Test on macOS" check runs)
+make test-ci                   # SwiftCompartidoTests minus AI, migration and performance tests
+
+# Run the full suite locally (all targets, incl. PDF/AI and performance)
+make test
+
+# Run the performance tests (never run in CI)
+make test-perf
 
 # Build GuionViewer reference app
 cd GuionViewer
@@ -335,8 +343,9 @@ TypedDataStorage (SwiftData model)
 
 ## Development Workflow
 
-- **Branch**: `development` → PR → `main`
-- **CI Required**: Tests must pass before merge
+- **Branch**: feature branch → PR → `development` → PR → `main`
+- **CI Required**: the `Test on macOS` check (`.github/workflows/tests.yml`, `make test-ci`) is required to merge into both `development` and `main`
+- **Draft PRs run no CI**: a draft PR is a workspace, a ready PR is a merge request. Open work as a draft; `gh pr ready <n>` (the `ready_for_review` event) starts the suite. Pattern: the `draft-pr-ci-gate` skill.
 - **Never commit directly to `main`**
 - **Platforms**: iOS 26+, macOS 26+ only (no backward compatibility)
 
@@ -344,7 +353,10 @@ TypedDataStorage (SwiftData model)
 
 - **Unit tests**: Parser accuracy, model integrity, storage operations
 - **Rendering validation**: 45 tests ensuring industry-standard screenplay formatting
-- **Performance tests**: Large document handling (5000+ elements)
+- **Performance tests**: Large document handling (5000+ elements). Never run in CI — the skip list lives in the Makefile (`PERF_TESTS`, `PERF_TARGET`); run them with `make test-perf`, or `performance-tests.yml` by manual dispatch
+- **AI tests**: suites tagged `.ai` (cast-list generation, `PDFScreenplayParserAIConversionTests`) and the disabled `PDFScreenplayParserAITests` in `SwiftCompartidoPDFTests` need Apple Intelligence (the rest of that target pins `.heuristicOnly`); excluded from CI (Makefile `CI_SKIP_AI`), run via `Scripts/test-ai-features.sh`. They skip themselves (`.enabled(if: SystemLanguageModel.default.isAvailable)`) on a machine without the model
+- **PDF parsing without the model**: `PDFScreenplayParser.Options` is the seam. `PDFScreenplayParser.$options.withValue(.heuristicOnly) { ... }` (a task-local, so it reaches the parser through `ParsedFileService` / `GuionParsedElementCollection(file:)`) or `parse(from:options:)` forces the heuristic converter; `testParsePDFFile()` does this so it finishes in seconds everywhere. Production defaults: AI when available, `aiPageTimeout` 30 s per page; the first expiry abandons AI for the document and converts everything with heuristics (logged), so a 100-page PDF is bounded by one timeout plus heuristics
+- **One test**: `make test-one TEST='SwiftCompartidoTests/Suite/test()'`
 - **Integration tests**: GuionViewer reference app
 
 ## Supported Screenplay Elements

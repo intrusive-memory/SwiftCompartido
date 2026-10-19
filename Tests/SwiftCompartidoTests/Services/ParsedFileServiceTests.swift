@@ -94,7 +94,12 @@ struct ParsedFileServiceTests {
 
     let fileURL = try fixtureURL(named: "BULLITT.pdf")
 
-    let documentID = try await service.parseFile(at: fileURL)
+    // Heuristic conversion only: this test must finish in seconds on every machine,
+    // never run 111 pages of on-device inference. The AI path has its own gated test
+    // (PDFScreenplayParserAIConversionTests).
+    let documentID = try await PDFScreenplayParser.$options.withValue(.heuristicOnly) {
+      try await service.parseFile(at: fileURL)
+    }
 
     // Verify document was created
     let document = try await service.document(id: documentID)
