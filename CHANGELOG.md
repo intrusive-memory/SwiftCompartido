@@ -13,11 +13,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+---
+
+## [7.3.1] - 2026-10-18
+
 ### Changed
 - `PDFScreenplayParser.Options` (`useAIConversion`, `aiPageTimeout`, default 30 s per page) with a task-local `PDFScreenplayParser.options` and a `parse(from:options:progress:)` overload. Each Apple Intelligence page request is now bounded; on the first expiry the parser stops asking the model and converts the whole document with heuristics (one timeout + heuristics is the document-level bound), logged via `os.Logger` (subsystem `SwiftCompartido`).
 - `ParsedFileServiceTests/testParsePDFFile()` pins `.heuristicOnly` and runs in CI (seconds, not ~15 min of on-device inference on a Mac with Apple Intelligence). The model path has one small gated test, `PDFScreenplayParserAIConversionTests`, skipped without the model and excluded from CI.
 - `SwiftCompartidoPDFTests/PDFScreenplayParserTests` pins `.heuristicOnly` too (it tests parser structure, not the model; one of its tests took 11 min through Apple Intelligence).
 - `make test-one TEST=Target/Suite[/test()]` runs a single suite or test.
+- Performance tests (XCTest `measure{}` and wall-clock timing tests, plus the `SwiftCompartidoPerformanceTests` target) no longer run in CI; `make test-perf` runs them locally. CI calls `make build` / `make test-ci`, and the test suite skips draft PRs.
 
 ---
 
