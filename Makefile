@@ -34,7 +34,8 @@ PERF_TESTS = \
   SwiftCompartidoTests/GuionJSONSerializerTests/testPerformance_Decode120PageScreenplay \
   SwiftCompartidoTests/GuionJSONSerializerTests/testPerformance_RoundTrip \
   'SwiftCompartidoTests/IntegrationTests/testPerformanceRegression()' \
-  'SwiftCompartidoTests/SceneBrowserUITests/testLargeScriptPerformance()'
+  'SwiftCompartidoTests/SceneBrowserUITests/testLargeScriptPerformance()' \
+  SwiftCompartidoTests/FountainNoteParsePerformanceTests/testPerformance_ParseLargeScreenplayWithNotes
 
 # The dedicated benchmark target (also run by performance-tests.yml on demand).
 PERF_TARGET = SwiftCompartidoPerformanceTests
