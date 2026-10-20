@@ -52,7 +52,6 @@ public class FountainParser: @unchecked Sendable {
         ("commentEnd", "\\*\\/\\s*$", false),
         ("whitespaceOnly", "^\\s*$", false),
         ("pageBreak", "^={3,}\\s*$", false),
-        ("section", "^\\s*\\[{2}\\s*([^\\]\\n])+\\s*\\]{2}\\s*$", false),
         ("synopsis", "^\\s*=\\s+", false),
         ("sceneNumber", "#([^\\n#]*?)#\\s*$", false),
         ("sceneHeading", "^(INT|EXT|EST|(I|INT)\\.?\\/(E|EXT)\\.?)[\\.\\-\\s][^\\n]+$", true),
@@ -220,9 +219,11 @@ public class FountainParser: @unchecked Sendable {
     var isInsideDialogueBlock = false
     var commentText = ""
     var lastCharacterIndex: Int? = nil  // Cache last character index for O(1) dual dialogue detection
+    var skipThroughIndex = -1  // Last line consumed by a multi-line note
 
     for line in lines {
       index += 1
+      if index <= skipThroughIndex { continue }
 
       // Lyrics
       if !line.isEmpty && line.first == "~" {
@@ -334,14 +335,10 @@ public class FountainParser: @unchecked Sendable {
         }
       }
 
-      // Comment
-      if newlinesBefore > 0 && matchesCached(string: line, patternKey: "section") {
-        let text =
-          line
-          .replacingOccurrences(of: "[[", with: "")
-          .replacingOccurrences(of: "]]", with: "")
-          .trimmingCharacters(in: .whitespaces)
-        elements.append(GuionElement(type: .comment, text: text))
+      // Note (comment) — one line or several; see FountainNoteBlock
+      if newlinesBefore > 0, let note = FountainNoteBlock.match(lines: lines, at: index) {
+        elements.append(GuionElement(type: .comment, text: note.text))
+        skipThroughIndex = note.lastLineIndex
         continue
       }
 
@@ -640,6 +637,7 @@ public class FountainParser: @unchecked Sendable {
     var isInsideDialogueBlock = false
     var commentText = ""
     var lastCharacterIndex: Int? = nil  // Cache last character index for O(1) dual dialogue detection
+    var skipThroughIndex = -1  // Last line consumed by a multi-line note
 
     let titlePageLineCount = topLines.count
     // Calculate progress update interval for body (report every 1% or every line if < 100 lines)
@@ -656,6 +654,7 @@ public class FountainParser: @unchecked Sendable {
           description: "Parsing screenplay... (\(elements.count) elements)"
         )
       }
+      if index <= skipThroughIndex { continue }
 
       // Lyrics
       if !line.isEmpty && line.first == "~" {
@@ -767,14 +766,10 @@ public class FountainParser: @unchecked Sendable {
         }
       }
 
-      // Comment
-      if newlinesBefore > 0 && matchesCached(string: line, patternKey: "section") {
-        let text =
-          line
-          .replacingOccurrences(of: "[[", with: "")
-          .replacingOccurrences(of: "]]", with: "")
-          .trimmingCharacters(in: .whitespaces)
-        elements.append(GuionElement(type: .comment, text: text))
+      // Note (comment) — one line or several; see FountainNoteBlock
+      if newlinesBefore > 0, let note = FountainNoteBlock.match(lines: lines, at: index) {
+        elements.append(GuionElement(type: .comment, text: note.text))
+        skipThroughIndex = note.lastLineIndex
         continue
       }
 
