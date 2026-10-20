@@ -16,7 +16,7 @@ import Foundation
 /// delimiters; any `[`, `]`, `[[` or `]]` between them is content. This lets a
 /// note carry JSON, such as a multi-line object with arrays.
 ///
-/// Rules (see `docs/missions/fountain-notes/REQUIREMENTS.md`, R1–R4):
+/// Rules (see `Docs/missions/fountain-notes/REQUIREMENTS.md`, R1–R4):
 ///
 /// - The *content* is everything between the first `[[` and the final `]]`.
 /// - The content's bracket depth is a running count from 0: `+1` per `[`,

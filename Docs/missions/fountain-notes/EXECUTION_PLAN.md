@@ -22,7 +22,7 @@ Source: `REQUIREMENTS.md` (this directory). Ground truth: `RECON_REPORT.md` (CLE
 
 | Work Unit | Directory | Sorties | Layer | Dependencies |
 |-----------|-----------|---------|-------|-------------|
-| fountain-notes | `/Users/stovak/Projects/package-collection/pkg/SwiftCompartido` | 4 | 1 | none |
+| fountain-notes | repo root | 4 | 1 | none |
 
 Build/test rules for every sortie: `make` / `xcodebuild` only, never `swift build` /
 `swift test`. Targeted runs:

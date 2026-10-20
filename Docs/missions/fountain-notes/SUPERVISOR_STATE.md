@@ -36,14 +36,17 @@ type: supervisor-state
 
 ### fountain-notes
 - Work unit state: RUNNING
-- Current sortie: 1 of 4
+- Current sortie: 4 of 4
 - Sortie state: RUNNING
 - Sortie type: code
 - Attempt: 1 of 3
-- Last verified: —
+- Last verified: Sorties 1–3 COMPLETED (FountainNoteBlockTests 21 pass; FountainParserNoteTests + round-trip pass; make test-ci 1213 tests pass)
 - Notes: —
 
 ## Decisions Log
 | # | Decision |
 |---|----------|
 | 1 | Supervisor executes sorties directly (sequential plan, every sortie builds; no parallelism available). |
+| 2 | Baseline captured from the unmodified parser for negative/regression fixtures before wiring (Sortie 2). |
+| 3 | Sortie 3 perf: old parser 0.414 / 0.418 s avg, new 0.419 / 0.422 s avg on bigfish x10 with notes (ratio ≈ 1.01 ≤ 1.10). |
+| 4 | One-line candidate lines are never extended to multi-line notes (keeps today's single-line boundaries). |
