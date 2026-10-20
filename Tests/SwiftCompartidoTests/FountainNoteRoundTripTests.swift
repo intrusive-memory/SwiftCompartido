@@ -51,7 +51,8 @@ struct FountainNoteRoundTripTests {
   }
 
   @Test func allNotesInOneScriptSurviveRoundTrip() throws {
-    let source = "INT. HALL - DAY\n\n" + Self.notes.joined(separator: "\n\nJOHN waits.\n\n")
+    let source =
+      "INT. HALL - DAY\n\n" + Self.notes.joined(separator: "\n\nJOHN waits.\n\n")
       + "\n\nJOHN enters.\n"
     let first = try commentTexts(source)
     #expect(first.count == Self.notes.count)

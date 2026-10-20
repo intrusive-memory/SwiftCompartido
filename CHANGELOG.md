@@ -1,5 +1,6 @@
 ---
 type: doc
+updated: 2026-10-20
 ---
 
 # Changelog
@@ -12,6 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ---
 
 ## [Unreleased]
+
+---
+
+## [7.4.0] - 2026-10-20
 
 ### Fixed
 - `FountainParser` now parses standalone Fountain notes (`[[ … ]]`) that span several lines or contain brackets, such as a JSON object with arrays. Per the Fountain spec a note may contain line breaks but not an empty line (a whitespace-only line connects it). Only the first `[[` and the final `]]` are delimiters; the note text keeps every interior byte. Both the sync and async parse paths share one implementation (`FountainNoteBlock`).

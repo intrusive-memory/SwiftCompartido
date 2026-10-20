@@ -120,7 +120,8 @@ struct FountainParserNoteTests {
   }
 
   @Test func consecutiveNotes() async throws {
-    let parsed = try await parseBoth(script("[[ {\"shot\": {\n  \"size\": \"CU\"\n}} ]]\n\n[[ plain ]]"))
+    let parsed = try await parseBoth(
+      script("[[ {\"shot\": {\n  \"size\": \"CU\"\n}} ]]\n\n[[ plain ]]"))
     #expect(
       parsed == [
         Self.heading,
@@ -161,7 +162,8 @@ struct FountainParserNoteTests {
 
   @Test func unterminatedIsNotANote() async throws {
     let parsed = try await parseBoth(script("[[ never closed\nstill open"))
-    #expect(parsed == [Self.heading, E(type: .action, text: "[[ never closed\nstill open"), Self.after])
+    #expect(
+      parsed == [Self.heading, E(type: .action, text: "[[ never closed\nstill open"), Self.after])
   }
 
   @Test func twoInlineNotesOnOneLineUnchanged() async throws {

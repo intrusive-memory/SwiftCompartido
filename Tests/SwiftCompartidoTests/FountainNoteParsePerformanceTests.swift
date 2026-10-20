@@ -17,7 +17,8 @@ final class FountainNoteParsePerformanceTests: XCTestCase {
   /// inserted between repetitions.
   private func largeScreenplay() throws -> String {
     let url = try XCTUnwrap(
-      Bundle.module.url(forResource: "bigfish", withExtension: "fountain", subdirectory: "Fixtures"))
+      Bundle.module.url(forResource: "bigfish", withExtension: "fountain", subdirectory: "Fixtures")
+    )
     let base = try String(contentsOf: url, encoding: .utf8)
     let notes = """
 

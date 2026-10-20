@@ -1,13 +1,13 @@
 ---
 type: doc
-updated: 2026-10-18
+updated: 2026-10-20
 ---
 
 # AGENTS.md
 
 This file provides comprehensive documentation for AI agents working with the SwiftCompartido codebase.
 
-**Current Version**: 7.3.1-dev (development, October 2026)
+**Current Version**: 7.4.0 (October 2026)
 
 ---
 
