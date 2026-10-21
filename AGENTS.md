@@ -7,7 +7,7 @@ updated: 2026-10-20
 
 This file provides comprehensive documentation for AI agents working with the SwiftCompartido codebase.
 
-**Current Version**: 7.4.0 (October 2026)
+**Current Version**: 7.4.0-dev (development, October 2026)
 
 ---
 
