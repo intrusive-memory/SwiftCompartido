@@ -17,7 +17,7 @@ concurrency:
 jobs:
   test-long:
     name: iOS Tests (Long)
-    runs-on: macos-26
+    runs-on: xcode-27
 
     steps:
       - name: Checkout code
@@ -164,7 +164,7 @@ jobs:
 
   test-long-macos:
     name: macOS Tests (Long)
-    runs-on: macos-26
+    runs-on: xcode-27
 
     steps:
       - name: Checkout code
@@ -294,7 +294,7 @@ jobs:
 
   ai-tests-check:
     name: AI Tests Check
-    runs-on: macos-26
+    runs-on: xcode-27
     needs: [test-long, test-long-macos]
     # AI tests are informational only - don't block weekend runs
     continue-on-error: true
